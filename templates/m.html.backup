@@ -1,0 +1,281 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}测量称重{% endblock %}
+{% block javaScript%}<script type="text/javascript" src="{% static 'js/m.js'%}"></script>{% endblock %}
+
+	<script type="text/javascript">
+		$.ajaxSetup({
+			  data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+			});
+
+		$(document).ready(function(){
+			$('#serialNumber').textbox('setValue', '');
+			$('#serialNumber').focus();
+		});
+		
+		$(document).keydown(function(event) {
+			var keyCode = event.keyCode;
+			if(keyCode == "13"){
+				var value = $('#serialNumber').textbox('getValue');
+				// 解析条码内容
+				var idx = value.lastIndexOf('-');
+				var serialNumber = value.substring(0, idx);
+				var boxNumber = value.substring(idx+1);
+				// 选中对应箱号
+				var node = $('#workSpaceTree').tree('find', boxNumber);
+				$('#workSpaceTree').tree('select', node.target);
+				// 选中对应实物
+				idx = serialNumber.lastIndexOf('-');
+				var seq = serialNumber.substring(idx+1);
+				var options = $('#workGrid'+boxNumber).datagrid('options');
+				var pageNumber = Math.ceil((seq-node.attributes.startSeq+1)/options.pageSize);
+				/*if (pageNumber != options.pageNumber){
+					$('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){
+						var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+						var i = 0;
+						var n = rows.length;
+						for(; i<n; ++i){
+							if (rows[i].serialNumber == serialNumber){
+								break;
+							}
+						}
+						var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+						//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+						$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
+						
+						dbClickRow(rowIdx, rows[i]);
+						
+						$('#serialNumber').textbox('setValue', '');
+						//$('#serialNumber').focus();
+						}});
+				}
+				else{
+					var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+					var i = 0;
+					var n = rows.length;
+					for(; i<n; ++i){
+						if (rows[i].serialNumber == serialNumber){
+							break;
+						}
+					}
+					var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+					//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+					$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
+					
+					dbClickRow(rowIdx, rows[i]);
+					
+					$('#serialNumber').textbox('setValue', '');
+					//$('#serialNumber').focus();
+				}*/
+				$('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){
+					var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+					var i = 0;
+					var n = rows.length;
+					for(; i<n; ++i){
+						if (rows[i].serialNumber == serialNumber){
+							break;
+						}
+					}
+					var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+					//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+					$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
+					
+					dbClickRow(rowIdx, rows[i]);
+					
+					$('#serialNumber').textbox('setValue', '');
+					//$('#serialNumber').focus();
+				}});
+			} 
+		});
+	</script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="width:1022, height:755" style="margin: 0 auto;">
+		<div data-options="region:'north', border:false">
+			<div class="logo">
+				<div class="title">
+					<img src="{% static 'img/logo.jpg' %}" height="113px" width="100%"/>
+					<span>金银挑剔业务系统</span>
+				</div>
+			</div>
+			
+			<div>
+				<div style="padding:5px">
+						<div class="userInfo"><a href="#" style="text-decoration:none;color:black"><span>张三</span></a> ,欢迎!</div>
+						<a href="#" class="easyui-menubutton" data-options="width:100, hasDownArrow:false" style="outline-style:double">主页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="#" class="easyui-menubutton" data-options="menu:'#mm1', width:100, hasDownArrow:false" style="outline-style:double">作业操作</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="#" class="easyui-menubutton" data-options="menu:'#mm2', width:100, hasDownArrow:false" style="outline-style:double">状态操作</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="#" class="easyui-menubutton" data-options="menu:'#mm3', width:100, hasDownArrow:false" style="outline-style:double">查询操作</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						
+						<!--<label for="serialNumber" style="display:inline-block; float:right">实物编号</label>
+						<input id="serialNumber" class="easyui-textbox" style="float:right"></input>-->
+						<div  class="search">
+							<label for="serialNumber">实物编号</label>
+							<input id="serialNumber" class="easyui-textbox" data-options="height:28, prompt:'请使用扫描枪扫描二维码'"></input>
+						</div>
+				</div>
+			</div>
+			
+			<div id="mm1" data-options="onClick:menuHandler" style="width:150px;">
+				<div data-options="name:'add', iconCls:'icon-add'">创建作业</div>
+				<div class="menu-sep"></div>
+				<div data-options="name:'remove', iconCls:'icon-remove'">删除作业</div>
+				<div class="menu-sep"></div>
+				<div data-options="name:'archive', iconCls:'icon-save'">归档作业</div>
+			</div>
+			
+			<div id="mm2" data-options="onClick:menuHandler" style="width:150px;">
+				<div data-options="name:'outputConfig', iconCls:'icon-pencil'">导出配置</div>
+				<div class="menu-sep"></div>
+				<div data-options="name:'printTag', iconCls:'icon-print'">标签打印</div>
+			</div>
+			
+			<div id="mm3" data-options="onClick:menuHandler" style="width:150px;">
+				<div data-options="name:'search', iconCls:'icon-search'">历史查询</div>
+			</div>
+		</div>
+	
+		<div data-options="region:'west', split:true" title="工作区" style="width:180px" >
+			<ul id="workSpaceTree" class="easyui-tree" data-options="url:'getWorkSpaceContent/', onSelect:treeSelectHandler, onLoadSuccess:loadDataProcess, lines:true, fit:true">
+			</ul>
+		</div>
+		
+		<div data-options="region:'center'">
+			<!-- <table id="dg" class="easyui-datagrid" style="width:100%;height:100%"
+				url="get_users.php"
+				toolbar="#toolbar" pagination="true"
+				rownumbers="true" fitColumns="true" singleSelect="true">
+				<thead>
+					<tr>
+					<th field="firstname" width="50">First Name</th>
+					<th field="lastname" width="50">Last Name</th>
+					<th field="phone" width="50">Phone</th>
+					<th field="email" width="50">Email</th>
+					</tr>
+				</thead>
+			</table> -->
+			<!-- <div id="toolbar">
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove User</a>
+			</div> -->
+			<div id="tbs" class="easyui-tabs" data-options="border:false, fit:true">
+			</div>
+		</div>
+		
+		<div data-options="region:'south', border:false" id="footer" class="footer">
+			<p>Copyright &copy; sunshine &nbsp;技术支持</p>
+		</div>
+	</div>
+
+	<!-- 创建作业对话框 -->
+	<div id="createWorkDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
+			data-options="closed:true, buttons:'#CreateWorkDlgButtons', modal:true">
+		<div class="createWorkFormTitle">作业信息</div>
+		<form id="createWorkForm" method="POST" novalidate>
+			<div class="createWorkFormItem">
+				<label for="createWorkproductType">实物类型</label>
+				<input id="createWorkproductType" name="productType" class="easyui-combobox" data-options="
+					valueField: 'id',
+					textField: 'text',
+					url: 'getProductType/',
+					onSelect: function(rec){
+						var url = 'getClassName/'+rec.id;
+						$('#createWorkclassName').combobox('reload', url);
+						$('#createWorkclassName').combobox('clear');
+						$('#createWorksubClassName').combobox('clear');
+					}
+				">
+			</div>
+			<div class="createWorkFormItem">
+				<label for="createWorkclassName">品名</label>
+				<input id="createWorkclassName" name="className" class="easyui-combobox" data-options="
+					valueField: 'id',
+					textField: 'text',
+					onSelect: function(rec){
+						var typeCode = $('#createWorkproductType').combobox('getValue');
+						var url = 'getSubClassName/'+typeCode+'&'+rec.id;
+						$('#createWorksubClassName').combobox('reload', url);
+					}
+				">
+			</div>
+			<div class="createWorkFormItem">
+				<label for="createWorksubClassName">明细品名</label>
+				<input id="createWorksubClassName" name="subClassName" class="easyui-combobox" data-options="
+					valueField: 'id',
+					textField: 'text',
+				">
+			</div>
+			<div class="createWorkFormItem">
+				<label for="createWorkwareHouse">发行库</label>
+				<input id="createWorkwareHouse" name="wareHouse" class="easyui-combobox" data-options="
+					valueField: 'id',
+					textField: 'text',
+					url: 'getWareHouse/',
+				">
+			</div>
+			
+			<div class="createWorkFormItem">
+				<label for="createWorkboxNumber">箱号</label>
+				<input id="createWorkboxNumber" name="boxNumber" class="easyui-numberbox">
+			</div>
+			<div class="createWorkFormItem">
+				<label for="createWorkamount">件数</label>
+				<input id="createWorkamount" name="amount" class="easyui-numberspinner">
+			</div>
+			<div class="createWorkFormItem">
+				<label for="createWorkstartSeq">起始序号</label>
+				<input id="createWorkstartSeq" name="startSeq" class="easyui-numberspinner">
+			</div>
+		</form>
+	</div>
+	<div id="CreateWorkDlgButtons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveWork()" style="width:90px">创建</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#createWorkDlg').dialog('close')" style="width:90px">取消</a>
+	</div>
+
+	<!-- 导出配置对话框 -->
+	<div id="outputConfigDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
+			data-options="closed:true, buttons:'#OutputConfigDlg-buttons', modal:true">
+		<div class="outputConfigFormTitle">导出配置</div>
+		<form id="outputConfigForm" method="POST" novalidate data="onLoad:prepareDataForOutputConfig">
+			<div class="outputConfigFormItem">
+				<label for="outputConfig-boxNumber">箱号</label>
+				<input id="outputConfig-boxNumber" name="boxNumber" class="easyui-textbox" data-options="readonly:true">
+			</div>
+			<div class="outputConfigFormItem">
+				<label for="outputConfig-amount">件数</label>
+				<input id="outputConfig-amount" name="amount" class="easyui-textbox" data-options="readonly:true">
+			</div>
+			<div class="outputConfigFormItem">
+				<label for="outputConfig-className">品名</label>
+				<input id="outputConfig-className" name="className" class="easyui-textbox" data-options="readonly:true">
+			</div>
+			<div class="outputConfigFormItem">
+				<label for="outputConfig-subClassName">明细品名</label>
+				<input id="outputConfig-subClassName" name="subClassName" class="easyui-textbox" data-options="readonly:true">
+			</div>
+			<div class="outputConfigFormItem">
+				<label for="outputConfig-productType">实物类型</label>
+				<input id="outputConfig-productType" name="productType" class="easyui-textbox" data-options="readonly:true">
+			</div>
+			<div class="outputConfigFormItem">
+				<label for="outputConfig-date">日期</label>
+				<input id="outputConfig-date" name="date" class="easyui-datebox" data-options="currentText:'今天', closeText:'关闭'">
+			</div>
+			<div class="outputConfigFormItem">
+				<label for="outputConfig-sequence">序号</label>
+				<input id="outputConfig-sequence" name="Sequence" value="1">
+			</div>
+		</form>
+	</div>
+	<div id="OutputConfigDlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="outputWork()" style="width:90px">导出</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#outputConfigDlg').dialog('close')" style="width:90px">取消</a>
+	</div>
+
+	<input type="hidden" id="okStatus" value="{%static 'img/ok.png'%}">
+	<input type="hidden" id="noStatus" value="{%static 'img/no.png'%}">
+</body>
+</html>

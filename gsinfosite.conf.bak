@@ -1,0 +1,315 @@
+# Copyright (c) 2000-2016 Synology Inc. All rights reserved.
+
+worker_processes        auto;
+#worker_cpu_affinity    auto;
+worker_rlimit_nofile    65535;
+
+include conf.d/main.conf;
+
+events {
+    use             epoll;
+    multi_accept    on;
+
+    include conf.d/events.conf;
+}
+
+http {
+    include         mime.types;
+    default_type    application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+        '$status $body_bytes_sent "$http_referer" '
+        '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  off;
+    #access_log syslog:server=unix:/dev/log,facility=local7,tag=nginx_access,nohostname main;
+    error_log   syslog:server=unix:/dev/log,facility=local7,tag=nginx_error,nohostname error;
+
+    sendfile        on;
+    server_tokens   off;
+
+    proxy_request_buffering     off;
+    fastcgi_request_buffering   off;
+    scgi_request_buffering      off;
+
+    proxy_buffering     off;
+    fastcgi_buffering   off;
+    scgi_buffering      off;
+
+    resolver_timeout              5s;
+    client_header_timeout         10s;
+    client_body_timeout           60s;
+    send_timeout                  600s;
+    keepalive_timeout             600s;
+    client_max_body_size          0;
+    server_names_hash_max_size    8192;
+
+	proxy_read_timeout			  600s;
+
+    ssl_certificate           /usr/syno/etc/certificate/system/default/fullchain.pem;
+    ssl_certificate_key       /usr/syno/etc/certificate/system/default/privkey.pem;
+    ssl_protocols             TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers               ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS;
+    ssl_dhparam               /usr/syno/etc/ssl/dh2048.pem;
+    ssl_prefer_server_ciphers on;
+
+    gzip_disable    "msie6";
+    gzip_min_length 1000;
+    gzip_types      text/plain text/css application/javascript application/json;
+    gzip_vary       on;
+    gzip_static     on;
+
+    upstream synoscgi {
+        server unix:/run/synoscgi.sock;
+    }
+
+    index index.html index.htm index.php;
+
+    set_real_ip_from 127.0.0.1;
+    real_ip_header X-Real-IP;
+
+    server {
+        listen 5000 default_server;
+        listen [::]:5000 default_server;
+
+        server_name _;
+
+        gzip on;
+
+        include app.d/alias.*.conf;
+        root /usr/syno/synoman;
+        index index.cgi;
+
+        ignore_invalid_headers off;
+
+        include app.d/dsm.*.conf;
+        include /usr/syno/share/nginx/conf.d/dsm.*.conf;
+        include conf.d/dsm.*.conf;
+
+        location = / {
+            try_files $uri /index.cgi$is_args$query_string;
+        }
+
+        location ~ ^/volume(?:X|USB|SATA|Gluster)?\d+/ {
+            internal;
+
+            root /;
+
+            include app.d/x-accel.*.conf;
+            include conf.d/x-accel.*.conf;
+        }
+
+        location ~ /webman/modules/(PersonalSettings|ExternalDevices|FileBrowser)/index_ds.php$ {
+            alias /usr/syno/share/OAuth/index_ds.php;
+            default_type text/html;
+        }
+
+        location ~ \.cgi {
+            include             scgi_params;
+            scgi_read_timeout   3600s;
+            scgi_pass           synoscgi;
+        }
+
+        error_page 403 404 500 502 503 504 @error_page;
+
+        location @error_page {
+            root /usr/syno/share/nginx;
+            rewrite (.*) /error.html break;
+        }
+
+        location ~ ^/webman/modules/Indexer/ {
+            deny all;
+        }
+
+        location ~ ^/webapi/lib/ {
+            deny all;
+        }
+
+        location ~ ^/webapi/(:?(:?.*)\.lib|(:?.*)\.api|(:?.*)\.auth|lib.def)$ {
+            deny all;
+        }
+
+        location ~ /\. { access_log off; log_not_found off; deny all; }
+
+        location ~* \.(?:js|css|png|jpg|gif|ico)$ {
+            access_log off;
+            log_not_found off;
+        }
+
+        location = /favicon.ico {
+            access_log off;
+            log_not_found off;
+        }
+
+        location = /robots.txt {
+            allow all;
+            access_log off;
+            log_not_found off;
+        }
+
+    }
+
+    server {
+        listen 5001 default_server ssl;
+        listen [::]:5001 default_server ssl;
+
+        server_name _;
+
+        include app.d/alias.*.conf;
+        root /usr/syno/synoman;
+        index index.cgi;
+
+        ignore_invalid_headers off;
+
+        include app.d/dsm.*.conf;
+        include /usr/syno/share/nginx/conf.d/dsm.*.conf;
+        include conf.d/dsm.*.conf;
+
+        location = / {
+            try_files $uri /index.cgi$is_args$query_string;
+        }
+
+        location ~ ^/volume(?:X|USB|SATA|Gluster)?\d+/ {
+            internal;
+
+            root /;
+
+            include app.d/x-accel.*.conf;
+            include conf.d/x-accel.*.conf;
+        }
+
+        location ~ /webman/modules/(PersonalSettings|ExternalDevices|FileBrowser)/index_ds.php$ {
+            alias /usr/syno/share/OAuth/index_ds.php;
+            default_type text/html;
+        }
+
+        location ~ \.cgi {
+            include             scgi_params;
+            scgi_read_timeout   3600s;
+            scgi_pass           synoscgi;
+        }
+
+        error_page 403 404 500 502 503 504 @error_page;
+
+        location @error_page {
+            root /usr/syno/share/nginx;
+            rewrite (.*) /error.html break;
+        }
+
+        location ~ ^/webman/modules/Indexer/ {
+            deny all;
+        }
+
+        location ~ ^/webapi/lib/ {
+            deny all;
+        }
+
+        location ~ ^/webapi/(:?(:?.*)\.lib|(:?.*)\.api|(:?.*)\.auth|lib.def)$ {
+            deny all;
+        }
+
+        location ~ /\. { access_log off; log_not_found off; deny all; }
+
+        location ~* \.(?:js|css|png|jpg|gif|ico)$ {
+            access_log off;
+            log_not_found off;
+        }
+
+        location = /favicon.ico {
+            access_log off;
+            log_not_found off;
+        }
+
+        location = /robots.txt {
+            allow all;
+            access_log off;
+            log_not_found off;
+        }
+
+    }
+
+    server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        listen 443 default_server ssl;
+        listen [::]:443 default_server ssl;
+
+        server_name _;
+
+        location ~ ^/volume(?:X|USB|SATA|Gluster)?\d+/ {
+            internal;
+
+            root /;
+
+            include app.d/x-accel.*.conf;
+            include conf.d/x-accel.*.conf;
+        }
+
+        include app.d/www.*.conf;
+        include app.d/alias.*.conf;
+        include /usr/syno/share/nginx/conf.d/www.*.conf;
+        include conf.d/www.*.conf;
+
+        location = /webman/pingpong.php {
+            rewrite /webman/pingpong.php /webman/pingpong.cgi break;
+
+            root /usr/syno/synoman;
+            include scgi_params;
+            scgi_pass synoscgi;
+        }
+
+        location = /webdefault/images/logo.jpg {
+            alias /usr/syno/share/nginx/logo.jpg;
+        }
+
+        error_page 403 404 500 502 503 504 @error_page;
+
+        location @error_page {
+            root /usr/syno/share/nginx;
+            rewrite (.*) /error.html break;
+        }
+
+        location ^~ /.well-known/acme-challenge {
+            root /var/lib/letsencrypt;
+            default_type text/plain;
+        }
+
+        include app.d/.location.webstation.conf*;
+
+        location ~ ^/$ {
+
+            if ($scheme = https) {
+                rewrite / https://$host:5001/ redirect;
+            }
+
+            rewrite / http://$host:5000/ redirect;
+
+        }
+    }
+
+	server {
+		listen 8000;
+		server_name 127.0.0.1;
+
+		location /static {
+			alias /volume1/jycy/WebSite/gsinfosite/static;
+		}
+
+		location /software {
+			alias /volume1/jycy/WebSite/gsinfosite/software;
+		}
+
+		location / {
+			uwsgi_pass 127.0.0.1:9090;
+			include /etc/nginx/uwsgi_params;
+			uwsgi_param UWSGI_CHDIR /volume1/jycy/WebSite/gsinfosite;
+			uwsgi_param UWSGI_SCRIPT gsinfosite.wsgi;
+			uwsgi_read_timeout		600s;
+			uwsgi_connect_timeout 	600s;
+		}
+	}
+
+    include conf.d/http.*.conf;
+    include app.d/server.*.conf;
+    include sites-enabled/*;
+}

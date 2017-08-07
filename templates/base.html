@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/default.css'%}">
+	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js'%}"></script>
+	{% block javaScript %}{% endblock %}
+	<script type="text/javascript">
+		$.ajaxSetup({
+			  data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+			});
+
+		$(document).ready(function(){
+			$('#serialNumber').textbox('setValue', '');
+			$('#serialNumber').focus();
+		// });
+		
+		// $(document).keydown(function(event) {
+			var serialNumberInput = $('#serialNumber');
+			serialNumberInput.textbox("textbox").bind("keydown", function(event){
+				var keyCode = event.keyCode;
+				// console.log("keyCode: "+keyCode);
+				if(keyCode == "13"){
+					// console.log("enter");
+					// 解析条码内容
+					var serialNumber = $('#serialNumber').textbox('getValue');
+					var processId = $('#processId').val()
+					
+					var id, workName, seq, thingStatus;
+					$.ajax({
+						url: 'searchThingInfo/',
+						data: {serialNumber: serialNumber, processId: processId},
+						type: 'POST',
+						async: true,
+						dataType: 'json',
+						beforeSend: function(xhr){
+							$.messager.progress({text:'正在查找编号为'+serialNumber+'的实物，请稍后....'});
+						},
+						success: function(data){
+							$.messager.progress('close');
+							if (data.success){
+								id = data.id;
+								workName = data.workName;
+								seq = data.seq;
+								thingStatus = data.thingStatus;
+								
+								// 选中对应箱号
+								var node = $('#workSpaceTree').tree('find', id);
+								$('#workSpaceTree').tree('select', node.target);
+								
+								// 选中对应实物
+								var options = $('#workGrid'+id).datagrid('options');
+								var pageNumber = Math.ceil(seq/options.pageSize);
+								var curThingStatus = $('#workGrid'+id+'StatusCombobox').combobox('getValue');
+								
+								if (thingStatus == curThingStatus && options.pageNumber == pageNumber){
+									// 所查找实物在当前页
+									var rows = $('#workGrid'+id).datagrid('getRows');
+									var i = 0;
+									var n = rows.length;
+									for(; i<n; ++i){
+										if (rows[i].serialNumber == serialNumber){
+											break;
+										}
+									}
+									var rowIdx = $('#workGrid'+id).datagrid('getRowIndex', rows[i]);
+									$('#workGrid'+id).datagrid('selectRow', rowIdx);
+									
+									dbClickRow(rowIdx, rows[i]);
+										
+									$('#serialNumber').textbox('setValue', '');
+									
+									return ;
+								}
+								else{
+									// 所查找实物不在当前页
+									$('#workGrid'+id+'StatusCombobox').combobox('setValue', thingStatus);
+									$('#workGrid'+id).datagrid('options').queryParams['thingStatus'] = thingStatus;
+									$('#workGrid'+id).datagrid('gotoPage', {page:pageNumber, callback:function(page){
+										var rows = $('#workGrid'+id).datagrid('getRows');
+										var i = 0;
+										var n = rows.length;
+										for(; i<n; ++i){
+											if (rows[i].serialNumber == serialNumber){
+												break;
+											}
+										}
+										var rowIdx = $('#workGrid'+id).datagrid('getRowIndex', rows[i]);
+										$('#workGrid'+id).datagrid('selectRow', rowIdx);
+										
+										dbClickRow(rowIdx, rows[i]);
+										
+										$('#serialNumber').textbox('setValue', '');
+									}});
+								}
+							}
+							else{
+								$.messager.alert({
+									title: '提示',
+									msg: data.message
+								});
+							}
+						},
+					});
+				} 
+			});
+		});
+	</script>
+	
+	<script type="text/javascript">
+		function logout(){
+			user = '{{ operator }}';
+			$.messager.confirm('提示','是否确定注销？', function(r){
+				if (r){
+					$.post(
+						"{% url 'logout' %}",
+						{nickName:user}, 
+						function(result){
+							if (result.success){
+								// window.opener = null;
+								// window.open('','_self');
+								// window.close();
+								
+								window.location.href = "{% url 'login' %}";
+								
+								return ;
+							}
+							else{
+								$.messager.alert({    // 显示失败信息
+									title: '提示',
+									msg: result.message
+								});
+							}
+						}, 'json');
+				}
+			});
+		}
+		
+		// 获取页面的高度、宽度
+		// 返回值：Array(pageWidth, pageHeight, windowWidth, windowHeight)
+		function getPageSize() {
+			var xScroll, yScroll;
+			if (window.innerHeight && window.scrollMaxY) {
+				xScroll = window.innerWidth + window.scrollMaxX;
+				yScroll = window.innerHeight + window.scrollMaxY;
+			} else {
+				if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac    
+					xScroll = document.body.scrollWidth;
+					yScroll = document.body.scrollHeight;
+				} else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari    
+					xScroll = document.body.offsetWidth;
+					yScroll = document.body.offsetHeight;
+				}
+			}
+
+			var windowWidth, windowHeight;
+			if (self.innerHeight) { // all except Explorer    
+				if (document.documentElement.clientWidth) {
+					windowWidth = document.documentElement.clientWidth;
+				} else {
+					windowWidth = self.innerWidth;
+				}
+				windowHeight = self.innerHeight;
+			} else {
+				if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode    
+					windowWidth = document.documentElement.clientWidth;
+					windowHeight = document.documentElement.clientHeight;
+				} else {
+					if (document.body) { // other Explorers    
+						windowWidth = document.body.clientWidth;
+						windowHeight = document.body.clientHeight;
+					}
+				}
+			}       
+
+			// for small pages with total height less then height of the viewport    
+			if (yScroll < windowHeight) {
+				pageHeight = windowHeight;
+			} else {
+				pageHeight = yScroll;
+			}    
+
+			// for small pages with total width less then width of the viewport    
+			if (xScroll < windowWidth) {
+				pageWidth = xScroll;
+			} else {
+				pageWidth = windowWidth;
+			}
+
+			arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
+
+			return arrayPageSize;
+		}
+		
+		// 显示遮罩
+		function showMask(width, msg="正在处理, 请稍后...") { 		
+			var size = getPageSize();
+			$("#popup").css("width", width);
+			$("#popup").css("left", size[0]/2-width/2);
+			$("#popup span").text(msg);
+			
+			$("#masklayer").css("height", size[1]);
+		
+			$("#masklayer").css("display", "block");
+			$("#popup").css("display", "block");
+		}
+		
+		// 隐藏遮罩
+		function hideMask() {
+			$("#masklayer").css("display", "none");
+			$("#popup").css("display", "none");
+		}
+	</script>
+	
+	<style type="text/css">
+		#masklayer {
+			display: none;  
+			position: absolute;  
+			top: 0%;  
+			left: 0%;  
+			width: 100%;   
+			background-color: black;  
+			z-index:1001;  
+			-moz-opacity: 0.7;  
+			opacity:.70;  
+			filter: alpha(opacity=70);
+		}
+		
+		#popup {
+			display: none;  
+			position: absolute;
+			top: 50%;
+			padding: 8px;  
+			border: 8px solid #E8E9F7;  
+			background-color: white;  
+			z-index:1002;  
+			overflow: auto;
+		}
+		
+		#popup span {
+			font-family: Arial,Verdana,Sans-serif;
+			font-size: 14px;
+			font-weight: normal;
+			text-align: center;
+		}
+	</style>
+	
+	<title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+	<div class="easyui-layout" data-options="width:1022, height:780" style="margin: 0 auto;">
+		<div data-options="region:'north', border:false">
+			<div class="logo">
+				<div class="title">
+					<img src="{% static 'img/logo.jpg' %}" height="113px" width="100%"/>
+					<span>金银清点查验业务系统</span>
+					<a href="#" onclick="logout()"><img src="{% static 'img/logout.png' %}" title="注销" alt="注销"></img></a>
+				</div>
+			</div>
+			
+			<div>
+				<div style="padding:5px;">
+					<div class="userInfo">
+						<a href="#" style="text-decoration:none;color:black">
+							<span>{{ operator }}</span>
+						</a> ,欢迎您!
+					</div>
+					<a href="#" class="easyui-menubutton" data-options="width:100, hasDownArrow:false" style="outline-style:double">主页</a>
+					{% block menu%}{% endblock %}
+					
+					<!--<label for="serialNumber" style="display:inline-block; float:right">实物编号</label>
+					<input id="serialNumber" class="easyui-textbox" style="float:right"></input>-->
+					<div  class="search">
+						<label for="serialNumber">实物编号</label>
+						<input id="serialNumber" class="easyui-textbox" data-options="height:28, prompt:'请使用扫描枪扫描二维码'"></input>
+					</div>
+				</div>
+			</div>
+			{% block subMenu%}{% endblock %}
+		</div>
+	
+		<div data-options="region:'west', split:false, collapsible:false" title="工作区" style="width:180px" >
+			<ul id="workSpaceTree" class="easyui-tree" data-options="url:'getWorkSpaceContent/', onSelect:treeSelectHandler, onLoadSuccess:loadDataProcess, lines:true, fit:true">
+			</ul>
+		</div>
+		
+		<div data-options="region:'center'">
+			<!-- <table id="dg" class="easyui-datagrid" style="width:100%;height:100%"
+				url="get_users.php"
+				toolbar="#toolbar" pagination="true"
+				rownumbers="true" fitColumns="true" singleSelect="true">
+				<thead>
+					<tr>
+					<th field="firstname" width="50">First Name</th>
+					<th field="lastname" width="50">Last Name</th>
+					<th field="phone" width="50">Phone</th>
+					<th field="email" width="50">Email</th>
+					</tr>
+				</thead>
+			</table> -->
+			<!-- <div id="toolbar">
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove User</a>
+			</div> -->
+			<div id="tbs" class="easyui-tabs" data-options="border:false, fit:true">
+			</div>
+		</div>
+		
+		<div data-options="region:'south', border:false" id="footer" class="footer">
+			<p>Copyright &copy; 中国人民银行武汉分行货币金银处 &nbsp;技术支持 &nbsp;(sunshine)</p>
+		</div>
+	</div>
+
+	{% block dialog %}{% endblock %}
+
+	<!--- 遮罩层 --->
+	<div id="masklayer"></div>
+	<div id="popup">
+		<span></span>
+	</div>
+
+	<input type="hidden" id="okStatus" value="{%static 'img/ok.png'%}">
+	<input type="hidden" id="noStatus" value="{%static 'img/no.png'%}">
+	<input type="hidden" id="operator" value="{{ operator }}">
+	{% block additionalAttribute %}{% endblock %}
+</body>
+</html>

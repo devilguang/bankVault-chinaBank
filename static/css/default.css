@@ -1,0 +1,85 @@
+body {
+margin: 0 auto;
+}
+
+.title{
+position: relative;
+}
+.title span{
+position: absolute;
+font-style: normal;
+font-size: 33px;
+font-family: SimSun;
+font-weight: bold;
+left: 550px;
+bottom: 10px;
+word-spacing: 10px;
+color: #FFFF99;
+}
+.title a{
+position: absolute;
+right: 40px;
+top: 10px;
+}
+.title a img{
+position: absolute;
+z-index: 10
+}
+
+.userInfo{
+width: 165px;
+height: 23px;
+float: left;
+padding-top: 3px;
+margin-right: 20px;
+outline-style: double;
+text-align: center;
+}
+.userInfo span{
+font-weight: bold;
+font-size: 17px;
+font-style: italic;
+font-family: SimHei;
+color: #FF0000;
+}
+
+.search {
+height: 30px;
+width:245px;
+float:right;
+}
+.search label{
+padding-right:5px;
+width: 40px;
+}
+.search input{
+width: 180px;
+}
+
+.FormTitle{
+font-size:14px;
+font-weight:bold;
+padding:5px 0;
+margin-bottom:10px;
+border-bottom:1px solid #ccc;
+}
+.FormItem{
+margin-bottom:5px;
+}
+.FormItem label{
+display:inline-block;
+width:100px;
+}
+.FormItem input{
+width:300px;
+}
+
+.footer{
+overflow: hidden;
+}
+
+.footer p{
+text-align:center;
+height:30px;
+
+}

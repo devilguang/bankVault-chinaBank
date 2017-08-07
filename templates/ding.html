@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css'%}">
+		<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css'%}">
+		<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css'%}">
+		<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css'%}">
+		<link rel="stylesheet" type="text/css" href="{% static 'css/default.css'%}">
+		<link rel="stylesheet" type="text/css" href="{% static 'css/viewer/viewer.css'%}">
+		<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js'%}"></script>
+		<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js'%}"></script>
+		<script type="text/javascript" src="{% static 'js/viewer/viewer.js'%}"></script>
+		
+		<style type="text/css">
+			.pagination {margin-top:15px; margin-bottom:15px; display:block; margin-left:auto; margin-right:auto;}
+			.pagination a {text-decoration: none; color: blue; margin-right:25px;}
+			.content table {width:45%;margin: 0 auto;}
+			caption.head {font-size:30px; font-weight:bold; margin-bottom:15px;margin-top:15px;}
+			thead {height:45px}
+			tbody {height:45px}
+			.col1 {width:5%}
+			.col2 {width:15%}
+			.col3 {width:20%}
+			.col4 {width:20%}
+		</style>
+		
+		<style>
+			table{
+				border-collapse: collapse;
+				cellpadding: 0;
+				cellspacing: 1;
+				fit: true;
+			}
+
+			table th, table td {
+				padding: 5px;
+				border: 1px solid grey;
+			}
+
+			table th {
+				font-family: Arial,Verdana,Sans-serif;
+				font-size: 14px;
+				font-weight: normal;
+				text-align: center;
+				background-color: #E0ECFF;
+				width: 50px;
+			}
+			
+			table td{
+				font-family: Arial,Verdana,Sans-serif;
+				font-size: 14px;
+				font-weight: normal;
+				text-align: center;
+			}
+			
+			table .alter td{
+				font-family: Arial,Verdana,Sans-serif;
+				font-size: 14px;
+				font-weight: normal;
+				text-align: center;
+				background-color: #E0ECFF;
+			}
+			
+			form  table{
+				border-collapse: collapse;
+				cellpadding: 0;
+				cellspacing: 1;
+				fit: true;
+			}
+
+			form table th, table td {
+				padding: 5px;
+				border: 1px solid grey;
+			}
+
+			form table th {
+				font-family: Arial,Verdana,Sans-serif;
+				font-size: 12px;
+				font-weight: normal;
+				text-align: center;
+				background-color: #E0ECFF;
+				width: 100px;
+			}
+		</style>
+	
+		<title>电子档案</title>
+		
+		<script type="text/javascript">
+			//写cookies
+			function setCookie(name,value)
+			{
+				var Days = 30;
+				var exp = new Date();
+				exp.setTime(exp.getTime() + Days*24*60*60*1000);
+				document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+			}
+
+			//读取cookies
+			function getCookie(name)
+			{
+				var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+			 
+				if(arr=document.cookie.match(reg))
+			 
+					return unescape(arr[2]);
+				else
+					return null;
+			}
+
+			//删除cookies
+			function delCookie(name)
+			{
+				var exp = new Date();
+				exp.setTime(exp.getTime() - 1);
+				var cval=getCookie(name);
+				if(cval!=null)
+					document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+			} 
+		
+			function verify(){
+				var serialNumber = $('#serialNumber').text();
+				var operator = $('#operator').val();
+			
+				$.ajax({
+					url: '{% url "updateCheckingInfo" %}',
+					data: {serialNumber: serialNumber, operator: operator, csrfmiddlewaretoken: getCookie('csrftoken')},
+					type: 'POST',
+					async: true,
+					dataType: 'json',
+					success: function(data){
+						if (data.success){
+							// 复核通过
+							$.messager.alert({
+								title: '提示',
+								msg: data.message,
+							});
+						}
+					},
+				});
+			}
+			
+			function edit(){
+				$('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '信息修改');
+				$('#UpdateInfoForm').form('clear');
+				
+				var serialNumber = $('#serialNumber').text();
+				var boxNumber = $('#boxNumber').text();;
+				
+				$.ajax({
+					url: '{% url "getThingData" %}',
+					data: {serialNumber: serialNumber, boxNumber: boxNumber},
+					type: 'Get',
+					async: true,
+					dataType: 'json',
+					success: function(result){
+						data = result;
+						
+						$('#UpdateInfoWareHouse').text(data.wareHouse);
+						$('#UpdateInfoBoxNumber').text(data.boxNumber);
+						$('#UpdateInfoSerialNumber').text(data.serialNumber);
+						$('#UpdateInfoClassName').text(data.className);
+						$('#UpdateInfoSubClassName').text(data.subClassName);
+						
+						$('#UpdateInfoDetailedName').textbox('setValue', data.detailedName);
+						$('#UpdateInfoTypeName').textbox('setValue', data.typeName);
+						$('#UpdateInfoPeroid').textbox('setValue', data.peroid);
+						$('#UpdateInfoProducerPlace').textbox('setValue', data.producerPlace);
+						$('#UpdateInfoCarveName').textbox('setValue', data.carveName);
+						$('#UpdateInfoGrossWeight').textbox('setValue', data.grossWeight);
+						$('#UpdateInfoOriginalQuantity').textbox('setValue', data.originalQuantity);
+						$('#UpdateInfoDetectedQuantity').textbox('setValue', data.detectedQuantity);
+						$('#UpdateInfoLength').textbox('setValue', data.length);
+						$('#UpdateInfoWidth').textbox('setValue', data.width);
+						$('#UpdateInfoHeight').textbox('setValue', data.height);
+						$('#UpdateInfoQuality').textbox('setValue', data.quality);
+						$('#UpdateInfoLevel').textbox('setValue', data.level);
+						$('#UpdateInfoRemark').textbox('setValue', data.remark);
+					},
+				});
+			}
+			
+			function saveUpdateInfo(){
+				var wareHouse = $('#UpdateInfoWareHouse').text();
+				var boxNumber = $('#UpdateInfoBoxNumber').text();
+				var serialNumber = $('#UpdateInfoSerialNumber').text();
+				var className = $('#UpdateInfoClassName').text();
+				var subClassName = $('#UpdateInfoSubClassName').text();
+				
+				var detailedName = $('#UpdateInfoDetailedName').textbox('getValue');
+				var typeName = $('#UpdateInfoTypeName').textbox('getValue');
+				var peroid = $('#UpdateInfoPeroid').textbox('getValue');
+				var producerPlace = $('#UpdateInfoProducerPlace').textbox('getValue');
+				var carveName = $('#UpdateInfoCarveName').textbox('getValue');
+				var grossWeight = $('#UpdateInfoGrossWeight').numberbox('getValue');
+				var originalQuantity = $('#UpdateInfoOriginalQuantity').numberbox('getValue');
+				var detectedQuantity = $('#UpdateInfoDetectedQuantity').textbox('getValue');
+				var length = $('#UpdateInfoLength').textbox('getValue');
+				var width = $('#UpdateInfoWidth').textbox('getValue');
+				var height = $('#UpdateInfoHeight').textbox('getValue');
+				var quality = $('#UpdateInfoQuality').textbox('getValue');
+				var level = $('#UpdateInfoLevel').textbox('getValue');
+				var remark = $('#UpdateInfoRemark').textbox('getValue');
+				
+				$.ajax({
+					url: '{% url "updateThingData" %}',
+					data: {serialNumber: serialNumber, boxNumber: boxNumber, wareHouse: wareHouse, className: className, subClassName: subClassName, detailedName: detailedName, typeName: typeName, peroid: peroid, producerPlace: producerPlace, carveName: carveName, grossWeight: grossWeight, originalQuantity: originalQuantity, detectedQuantity: detectedQuantity, length: length, width: width, height: height, quality: quality, level: level, remark: remark, csrfmiddlewaretoken: getCookie('csrftoken')},
+					type: 'POST',
+					async: true,
+					dataType: 'json',
+					success: function(result){
+						if (!result.success){
+							$.messager.alert({		// 显示失败信息
+								title: '提示',
+								msg: result.message
+							});
+						} else {
+							$('#UpdateInfoDlg').dialog('close');        	 // 关闭对话框
+							$.messager.alert({		// 显示成功信息
+								title: '提示',
+								msg: result.message,
+							});
+							window.location.reload();	// 刷新当前页面
+						}
+					},
+				});
+			}
+
+			$(function(){
+				$('#pic_a').viewer();
+				$('#pic_b').viewer();
+				$('#pic_c').viewer();
+			});
+		</script>
+	</head>
+
+	<body style="text-align:center;">
+		<div class="pagination">
+			<a href="{{ first }}" target="blank">第一页</a>
+			<a href="{{ prev }}" target="blank">上一页</a>
+			<a href="{{ next }}" target="blank">下一页</a>
+			<a href="{{ last }}" target="blank">最后一页</a>
+		</div>
+		
+		<div class="content">
+			<table border="1">
+				<caption class="head">金（银）锭类电子信息档案</caption>
+				<thead>
+					<tr>
+						<th class="col1">序号</th>
+						<th class="col2" colspan="2">项目</th>
+						<th class="col3">内容</th>
+						<th class="col4">图像</th>
+					</tr>
+				</thead>
+				
+				<tbody>
+					<tr>
+						<td>1</td>
+						<td colspan="2">保管单位</td>
+						<td>{{ wareHouse }}</td>
+						<td rowspan="5">
+							<div><img id="pic_a" src="{{ A }}" alt="A面" title="A面" height="220px" width="265px"></img></div>
+						</td>
+					</tr>
+					<tr class="alter">
+						<td>2</td>
+						<td colspan="2">箱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</td>
+						<td><span id="boxNumber">{{ boxNumber }}</span></td>
+					</tr>
+					<tr>
+						<td>3</td>
+						<td colspan="2">品&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</td>
+						<td>{{ className }}</td>
+					</tr>
+					<tr class="alter">
+						<td>4</td>
+						<td colspan="2">明细品名</td>
+						<td>{{ subClassName }}</td>
+					</tr>
+					<tr>
+						<td>5</td>
+						<td colspan="2">编&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</td>
+						<td><span id="serialNumber">{{ serialNumber }}</span></td>
+					</tr>
+					<tr class="alter">
+						<td>6</td>
+						<td colspan="2">名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称</td>
+						<td>{{ detailedName }}</td>
+						<td rowspan="5">
+							<div><img id="pic_b" src="{{ B }}" alt="B面" title="B面" height="220px" width="265px"></img></div>
+						</td>
+					</tr>
+					<tr>
+						<td>7</td>
+						<td colspan="2">型制类型</td>
+						<td>{{ typeName }}</td>
+					</tr>
+					<tr class="alter">
+						<td>8</td>
+						<td colspan="2">时&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;代</td>
+						<td>{{ peroid }}</td>
+					</tr>
+					<tr>
+						<td>9</td>
+						<td colspan="2">制造地/制作人</td>
+						<td>{{ producerPlace }}</td>
+					</tr>
+					<tr class="alter">
+						<td>10</td>
+						<td colspan="2">铭&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文</td>
+						<td>{{ carveName }}</td>
+					</tr>
+					<tr>
+						<td>11</td>
+						<td colspan="2">毛&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;重(g)</td>
+						<td>{{ grossWeight }}</td>
+						<td rowspan="5">
+							<div><img id="pic_c" src="{{ C }}" alt="C面" title="C面" height="220px" width="265px"></img></div>
+						</td>
+					</tr>
+					<tr class="alter">
+						<td>12</td>
+						<td rowspan="2">成色(%)</td>
+						<td>原标注<td>
+						{{ originalQuantity }}
+					</tr>
+					<tr>
+						<td>13</td>
+						<td>仪器检测<td>
+						{{ detectedQuantity }}
+					</tr>
+					<tr class="alter">
+						<td>14</td>
+						<td colspan="2">纯&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;重(g)</td>
+						<td>{{ pureWeight }}</td>
+					</tr>
+					<tr>
+						<td>15</td>
+						<td rowspan="3">尺寸</td>
+						<td>长度(mm)</td>
+						<td>{{ length }}</td>
+					</tr>
+					<tr class="alter">
+						<td>16</td>
+						<td>宽度(mm)</td>
+						<td colspan="2">{{ width }}</td>
+					</tr>
+					<tr>
+						<td>17</td>
+						<td>高度(mm)</td>
+						<td colspan="2">{{ height }}</td>
+					</tr>
+					<tr class="alter">
+						<td>18</td>
+						<td colspan="2">品&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;相</td>
+						<td colspan="2">{{ quality }}</td>
+					</tr>
+					<tr>
+						<td>19</td>
+						<td colspan="2">评价等级</td>
+						<td colspan="2">{{ level }}</td>
+					</tr>
+					<tr style="height:70px" class="alter">
+						<td>20</td>
+						<td colspan="2">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</td>
+						<td colspan="2" style="word-break:break-all;">{{ remark }}</td>
+					</tr>
+					<tr>
+						<td>21</td>
+						<td colspan="2">档案建立时间</td>
+						<td colspan="2">{{ createDate }}</td>
+					</tr>
+					<tr class="alter">
+						<td>22</td>
+						<td colspan="2">档案修改时间</td>
+						<td colspan="2">{{ lastUpdateDate }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		{% if isVerify %}
+		<input type="hidden" id="operator" value="{{ operator }}">
+		<div style="margin-top:20px;display:inline-block;">
+			<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="verify()" style="width:80px;margin-right:20px;">通过</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-edit" onclick="edit()" style="width:80px;margin-right:20px;">修改</a>
+		</div>
+		{% endif %}
+		
+		<!-- 信息修改对话框 -->
+		<div id="UpdateInfoDlg" class="easyui-dialog" style="width:850px;height:510px;padding:10px 20px"
+			data-options="closed:true, buttons:'#UpdateInfoDlgButtons', modal:true">
+			<div class="FormTitle">实物信息</div>
+			<form id="UpdateInfoForm" method="POST" novalidate>
+				<table width="797px;">
+					<tr>
+						<th>保管单位</th>
+						<td width="130px"><span id="UpdateInfoWareHouse"></span></td>
+					
+						<th>箱号</th>
+						<td width="80px"><span id="UpdateInfoBoxNumber"></span></td>
+						
+						<th>编号</th>
+						<td width="150px"><span id="UpdateInfoSerialNumber"></span></td>
+					</tr>
+					
+					<tr>
+						<th>品名</th>
+						<td colspan="2"><span id="UpdateInfoClassName"></span></td>
+						
+						<th>明细品名</th>
+						<td colspan="2"><span id="UpdateInfoSubClassName"></span></td>
+					</tr>
+					
+					<tr>
+						<th>名称</th>
+						<td colspan="2"><input id="UpdateInfoDetailedName" class="easyui-textbox" data-options="fit:true" /></td>
+						
+						<th>型制类型</th>
+						<td colspan="2"><input id="UpdateInfoTypeName" class="easyui-textbox" data-options="fit:true" /></td>
+					</tr>
+					
+					<tr>
+						<th>时代</th>
+						<td colspan="2"><input id="UpdateInfoPeroid" class="easyui-textbox" data-options="fit:true" /></td>
+					
+						<th>造币厂名/制造地</th>
+						<td colspan="2"><input id="UpdateInfoProducerPlace" class="easyui-textbox" data-options="fit:true" /></td>
+					</tr>
+					
+					<tr>
+						<th>铭文</th>
+						<td colspan="2"><input id="UpdateInfoCarveName" class="easyui-textbox" data-options="fit:true" /></td>
+						
+						<th>毛重(g)</th>
+						<td colspan="2"><input id="UpdateInfoGrossWeight" class="easyui-numberbox" data-options="fit:true, precision:2, min:0" /></td>
+					</tr>
+					
+					<tr>
+						<th>原标注成色(%)</th>
+						<td colspan="2"><input id="UpdateInfoOriginalQuantity" class="easyui-numberbox" data-options="fit:true, precision:2, min:0" /></td>
+					
+						<th>仪器检测成色(%)</th>
+						<td colspan="2"><input id="UpdateInfoDetectedQuantity" class="easyui-numberbox" data-options="fit:true, precision:2, min:0" /></td>
+					</tr>
+					
+					<tr>
+						<th>长度(mm)</th>
+						<td colspan="1"><input id="UpdateInfoLength" class="easyui-numberbox" data-options="fit:true, precision:2, min:0" /></td>
+						
+						<th>宽度(mm)</th>
+						<td colspan="1"><input id="UpdateInfoWidth" class="easyui-numberbox" data-options="fit:true, precision:2, min:0" /></td>
+						
+						<th>高度(mm)</th>
+						<td colspan="1"><input id="UpdateInfoHeight" class="easyui-numberbox" data-options="fit:true, precision:2, min:0" /></td>
+					</tr>
+
+					<tr>
+						<th>品相</th>
+						<td colspan="2"><input id="UpdateInfoQuality" class="easyui-combobox" data-options="fit:true,valueField: 'label', textField: 'value', data:[{label:'好', value:'好'}, {label:'中', value:'中'}, {label:'差', value:'差'}], editable: false, panelHeight:'auto'" /></td>
+						
+						<th>评价等级</th>
+						<td colspan="2"><input id="UpdateInfoLevel" class="easyui-combobox" data-options="fit:true,valueField: 'label', textField: 'value', data:[{label:'A', value:'A'}, {label:'B', value:'B'}, {label:'C', value:'C'}], editable: false, panelHeight:'auto'" /></td>
+					</tr>
+					
+					<tr>
+						<th>备注</th>
+						<td colspan="5"><input id="UpdateInfoRemark" class="easyui-textbox" data-options="fit:true, multiline:true" /></td>
+					</tr>
+
+				</table>
+			</form>
+		</div>
+		<div id="UpdateInfoDlgButtons">
+			<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUpdateInfo()" style="width:90px">保存</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#UpdateInfoDlg').dialog('close')" style="width:90px">取消</a>
+		</div>
+		
+	</body>
+</html>

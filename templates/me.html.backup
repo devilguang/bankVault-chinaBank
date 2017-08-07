@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>测量称重</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-ribbon/ribbon.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-ribbon/ribbon-icon.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/default.css'%}">
+	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/jquery-easyui-ribbon/jquery.ribbon.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/me.js'%}"></script>
+
+	<script type="text/javascript">
+		$.ajaxSetup({
+			  data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+			});
+
+		$(document).ready(function(){
+			$('#serialNumber').val('')
+			$('#serialNumber').focus();
+		});
+		
+		$(document).keydown(function(event) {
+			var keyCode = event.keyCode;
+			if(keyCode == "13"){
+				var value = $('#serialNumber').val();
+				// 解析条码内容
+				var idx = value.lastIndexOf('-');
+				var serialNumber = value.substring(0, idx);
+				var boxNumber = value.substring(idx+1);
+				// 选中对应箱号
+				var node = $('#workSpaceTree').tree('find', boxNumber);
+				$('#workSpaceTree').tree('select', node.target);
+				// 选中对应实物
+				var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+				var i = 0;
+				var n = rows.length;
+				for(; i<n; ++i){
+					if (rows[i].serialNumber == serialNumber){
+						break;
+					}
+				}
+				var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+				$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+				$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
+				
+				dblClickRow(rowIdx, rows[i]);
+				
+				$('#serialNumber').val('')
+			} 
+		});
+		
+		function trim(text){
+			//text = text.replace(/^[ |\n|\r|\t|\x0B|\0|?]+/,""); 
+			//text = text.replace(/[ |\n|\r|\t|\x0B|\0|?]+$/,"");
+			text = text.match(/[-+]?[0-9]*\.?[0-9]+/g);
+			return text;
+		}
+
+		function isEmpty(str){
+			return ((trim(str) == null)||(trim(str).length == 0));
+		}
+
+		function isNumber(str){
+			//if(isEmpty(str))
+			//	return false;
+			return !isNaN(str) ;
+		}
+	</script>
+	
+	<script ID=clientEventHandlersJS type="text/javascript">
+
+		function MSComm1_OnComm()    
+		{    
+			var len=0;    
+			if(MSComm1.CommEvent==1)  
+			{    
+				window.alert("barcode");    
+			}    
+			else if(MSComm1.CommEvent==2)  
+			{
+				var value = MSComm1.Input;
+				value = trim(value);
+				if(isNumber(value)){
+					$('#UpdateInfogrossWeight').textbox('setText', value);
+				}  
+			}    
+		}
+		
+		function OpenPort()    
+		{    
+			if(MSComm1.PortOpen==false)    
+			{    
+				MSComm1.PortOpen=true;    
+				MSComm1.Output="#";
+			}    
+			else    
+			{    
+				window.alert("已经开始接收数据!");    
+			}    
+		} 
+		
+		function autoPort()    
+		{    
+			if(!MSComm1.PortOpen)    
+			{    
+				MSComm1.PortOpen=true;    
+				//MSComm1.Output="AA 00 03 88 18 0A 99 BB";
+			}    
+		}  
+	</script>    
+
+	<script LANGUAGE=javascript FOR=MSComm1 EVENT=OnComm >
+		MSComm1_OnComm();
+	</script>   
+</head>
+<body onload="autoPort();">
+	<OBJECT CLASSID=clsid:648A5600-2C6E-101B-82B6-000000000014 id=MSComm1 name=MSComm1 codebase=mscomm32.ocx  type="application/x-oleobject"    
+	 style="border-style:outset; border-width:0px; WIDTH: 10px; HEIGHT: 10px"  >    
+		<PARAM NAME="CommPort" VALUE="3">    
+		<PARAM NAME="DTREnable" VALUE="1">    
+		<PARAM NAME="Handshaking" VALUE="0">    
+		<PARAM NAME="InBufferSize" VALUE="1024">    
+		<PARAM NAME="InputLen" VALUE="0">
+		<PARAM NAME="NullDiscard" VALUE="0">    
+		<PARAM NAME="OutBufferSize" VALUE="512">    
+		<PARAM NAME="ParityReplace" VALUE="?">    
+		<PARAM NAME="RThreshold" VALUE="1">    
+		<PARAM NAME="RTSEnable" VALUE="1">    
+		<PARAM NAME="SThreshold" VALUE="2">    
+		<PARAM NAME="EOFEnable" VALUE="0">    
+		<PARAM NAME="InputMode" VALUE="0">    
+		
+		<PARAM NAME="DataBits" VALUE="8">    
+		<PARAM NAME="StopBits" VALUE="1">    
+		<PARAM NAME="BaudRate" VALUE="9600">    
+		<PARAM NAME="Settings" VALUE="9600,N,8,1">    
+	</OBJECT>  
+
+	<div style="text-align:center">
+		<img src="https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo/bd_logo1_31bdc765.png" height="80px" align="center">
+	</div>
+
+	<div class="easyui-panel" style="padding:5px">
+		<a href="#" class="easyui-linkbutton" data-options="plain:true">主页</a>
+		
+		<span style="padding:5px;float:right">欢迎, <a href="#" style="text-decoration:none;color:black">张三</a></span>
+	</div>
+	<p/>
+	<div class="easyui-panel" style="padding:5px">
+		<label for="serialNumber" align="right">实物编号</label>
+		<input type="text" id="serialNumber" align="right" class="easyui-textbox">
+	</div>
+
+	<p/>
+
+	<div class="easyui-layout" style="height:450px">
+		<div data-options="region:'west', split:true" title="工作区" style="width:180px;height:100%" >
+			<ul id="workSpaceTree" class="easyui-tree" data-options="url:'getWorkSpaceContent/', onSelect:treeSelectHandler, onLoadSuccess:loadDataProcess">
+			</ul>
+		</div>
+		
+		<div data-options="region:'center'">
+			<!-- <table id="dg" class="easyui-datagrid" style="width:100%;height:100%"
+				url="get_users.php"
+				toolbar="#toolbar" pagination="true"
+				rownumbers="true" fitColumns="true" singleSelect="true">
+				<thead>
+					<tr>
+					<th field="firstname" width="50">First Name</th>
+					<th field="lastname" width="50">Last Name</th>
+					<th field="phone" width="50">Phone</th>
+					<th field="email" width="50">Email</th>
+					</tr>
+				</thead>
+			</table> -->
+			<!-- <div id="toolbar">
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove User</a>
+			</div> -->
+			<div id="tbs" class="easyui-tabs" style="height:100%">
+			</div>
+		</div>
+	</div>
+	
+	<div id="footer" class="footer">
+		<p>Copyright &copy; sunshine &nbsp;技术支持</p>
+	</div>
+
+	<!-- 信息修改对话框 -->
+	<div id="UpdateInfoDlg" class="easyui-dialog" style="width:500px;height:450px;padding:10px 20px"
+			data-options="closed:true, buttons:'#UpdateInfoDlgButtons', modal:true, onClose:unInitUpdateInfoDlg">
+		<div class="UpdateInfoFormTitle">实物信息</div>
+		<form id="UpdateInfoForm" method="POST" novalidate>
+			<div class="UpdateInfoFormItem">
+				<label for="UpdateInfoboxNumber">箱号</label>
+				<input id="UpdateInfoboxNumber" name="boxNumber" class="easyui-textbox" data-options="readonly:true, editable:false">
+			</div>
+			<div class="UpdateInfoFormItem">
+				<label for="UpdateInfoserialNumber">实物编号</label>
+				<input id="UpdateInfoserialNumber" name="serialNumber" class="easyui-textbox" data-options="readonly:true, editable:false">
+			</div>
+			<div class="UpdateInfoFormItem">
+				<label for="UpdateInfoproductType">实物类型</label>
+				<input id="UpdateInfoproductType" name="productType" class="easyui-textbox" data-options="readonly:true, editable:false">
+			</div>
+			<div class="UpdateInfoFormItem">
+				<label for="UpdateInfoclassName">品名</label>
+				<input id="UpdateInfoclassName" name="className" class="easyui-textbox" data-options="readonly:true, editable:false">
+			</div>
+			<div class="UpdateInfoFormItem">
+				<label for="UpdateInfosubClassName">明细品名</label>
+				<input id="UpdateInfosubClassName" name="subClassName" class="easyui-textbox" data-options="readonly:true, editable:false">
+			</div>
+			<div class="UpdateInfoFormItem">
+				<label for="UpdateInfowareHouse">发行库</label>
+				<input id="UpdateInfowareHouse" name="wareHouse" class="easyui-textbox" data-options="readonly:true, editable:false">
+			</div>
+
+			<div class="UpdateInfoFormItem">
+				<label for="UpdateInfogrossWeight">毛重</label>
+				<input id="UpdateInfogrossWeight" name="grossWeight" class="easyui-textbox">
+			</div>
+			<div id="thing1">
+				<div class="UpdateInfoFormItem">
+					<label for="UpdateInfodiameter">直径</label>
+					<input id="UpdateInfodiameter" name="diameter" class="easyui-textbox">
+				</div>
+				<div class="UpdateInfoFormItem">
+					<label for="UpdateInfothick">厚度</label>
+					<input id="UpdateInfothick" name="thick" class="easyui-textbox">
+				</div>
+			</div>
+			<div id="thing2">
+				<div class="UpdateInfoFormItem">
+					<label for="UpdateInfolength">长度</label>
+					<input id="UpdateInfolength" name="length" class="easyui-textbox">
+				</div>
+				<div class="UpdateInfoFormItem">
+					<label for="UpdateInfowidth">宽度</label>
+					<input id="UpdateInfowidth" name="width" class="easyui-textbox">
+				</div>
+				<div class="UpdateInfoFormItem">
+					<label for="UpdateInfohight">高度</label>
+					<input id="UpdateInfohight" name="hight" class="easyui-textbox">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div id="UpdateInfoDlgButtons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveInfo()" style="width:90px">创建</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#UpdateInfoDlg').dialog('close')" style="width:90px">取消</a>
+	</div>
+	
+	<input type="hidden" id="okStatus" value="{%static 'img/ok.png'%}">
+	<input type="hidden" id="noStatus" value="{%static 'img/no.png'%}">
+</body>
+</html>

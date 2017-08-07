@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/default.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/admin.css'%}">
+	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/datagrid-detailview.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/admin.js'%}"></script>
+	<script type="text/javascript">
+		$.ajaxSetup({
+			  data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+			});
+
+		$(document).ready(function(){
+			$('#serialNumber').textbox('setValue', '');
+			$('#serialNumber').focus();
+		});
+		
+		$(document).keydown(function(event) {
+			var keyCode = event.keyCode;
+			if(keyCode == "13"){
+				var value = $('#serialNumber').textbox('getValue');
+				// 解析条码内容
+				var idx = value.lastIndexOf('-');
+				var serialNumber = value.substring(0, idx);
+				var boxNumber = value.substring(idx+1);
+				// 选中对应箱号
+				var node = $('#workSpaceTree').tree('find', boxNumber);
+				$('#workSpaceTree').tree('select', node.target);
+				// 选中对应实物
+				idx = serialNumber.lastIndexOf('-');
+				var seq = serialNumber.substring(idx+1);
+				var options = $('#workGrid'+boxNumber).datagrid('options');
+				var pageNumber = Math.ceil((seq-node.attributes.startSeq+1)/options.pageSize);
+				/*if (pageNumber != options.pageNumber){
+					$('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){
+						var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+						var i = 0;
+						var n = rows.length;
+						for(; i<n; ++i){
+							if (rows[i].serialNumber == serialNumber){
+								break;
+							}
+						}
+						var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+						//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+						$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
+						
+						dbClickRow(rowIdx, rows[i]);
+						
+						$('#serialNumber').textbox('setValue', '');
+						//$('#serialNumber').focus();
+						}});
+				}
+				else{
+					var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+					var i = 0;
+					var n = rows.length;
+					for(; i<n; ++i){
+						if (rows[i].serialNumber == serialNumber){
+							break;
+						}
+					}
+					var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+					//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+					$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
+					
+					dbClickRow(rowIdx, rows[i]);
+					
+					$('#serialNumber').textbox('setValue', '');
+					//$('#serialNumber').focus();
+				}*/
+				$('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){
+					var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+					var i = 0;
+					var n = rows.length;
+					for(; i<n; ++i){
+						if (rows[i].serialNumber == serialNumber){
+							break;
+						}
+					}
+					var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+					//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+					$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
+					
+					dbClickRow(rowIdx, rows[i]);
+					
+					$('#serialNumber').textbox('setValue', '');
+					//$('#serialNumber').focus();
+				}});
+			} 
+		});
+	</script>
+	
+	<script type="text/javascript">
+		function logout(){
+			user = '{{ operator }}';
+			$.messager.confirm('提示','是否确定注销？', function(r){
+				if (r){
+					$.post(
+						"{% url 'logout' %}",
+						{nickName:user}, 
+						function(result){
+							if (result.success){
+								// window.opener=null;
+								// window.open('','_self');
+								// window.close();
+								
+								window.location.href = "{% url 'login' %}";
+								
+								return ;
+							}
+							else{
+								$.messager.alert({    // 显示失败信息
+									title: '提示',
+									msg: result.message
+								});
+							}
+						}, 'json');
+				}
+			});
+		}
+	</script>
+	
+	<title>系统管理</title>
+</head>
+<body>
+	<div class="easyui-layout" data-options="width:1022, height:755" style="margin: 0 auto;">
+		<div data-options="region:'north', border:false">
+			<div class="logo">
+				<div class="title">
+					<img src="{% static 'img/logo.jpg' %}" height="113px" width="100%"/>
+					<span>金银清点查验业务系统</span>
+					<a href="#" onclick="logout()"><img src="{% static 'img/logout.png' %}" title="注销" alt="注销"></img></a>
+				</div>
+			</div>
+			
+			<div>
+				<div style="padding:5px;">
+					<div class="userInfo">
+						<a href="#" style="text-decoration:none;color:black">
+							<span>{{ operator }}</span>
+						</a> ,欢迎您!
+					</div>
+					<a href="#" class="easyui-menubutton" data-options="width:100, hasDownArrow:false" style="outline-style:double">主页</a>
+					
+					<!--<label for="serialNumber" style="display:inline-block; float:right">实物编号</label>
+					<input id="serialNumber" class="easyui-textbox" style="float:right"></input>-->
+					<!--<div  class="search">
+						<label for="serialNumber">实物编号</label>
+						<input id="serialNumber" class="easyui-textbox" data-options="height:28, prompt:'请使用扫描枪扫描二维码'"></input>
+					</div>-->
+				</div>
+			</div>
+		</div>
+	
+		<div data-options="region:'west', split:true" title="系统管理" style="width:180px; background:#eee" >
+			<div id="aa" class="easyui-accordion" data-options="border:false, multiple:true, collapsible:false">
+				<div title="基础资料">
+					<ul class="submenu">
+						{% if type == 0 %}
+						<li>
+							<img src="{%static 'img/man.png'%}"></img>
+							<a href="javascript:void(0);" onclick="userManage()"><span>用户管理</span></a>
+						</li>
+						<li>
+							<img src="{%static 'img/authority.png'%}"></img>
+							<a href="javascript:void(0);" onclick="authorityManage()"><span>权限管理</span></a>
+						</li>
+						{% endif %}
+						<li>
+							<img src="{%static 'img/property.png'%}"></img>
+							<a href="javascript:void(0);" onclick="propertyManage()"><span>属性数据</span></a>
+						</li>
+					</ul>
+				</div>
+				<!--<div title="档案管理">
+					<ul class="submenu">
+						<li>
+							<img src="{%static 'img/search.png'%}"></img>
+							<a href="javascript:void(0);" onclick="searchWork()"><span>作业查询</span></a>
+						</li>
+						<li>
+							<img src="{%static 'img/search.png'%}"></img>
+							<a href="javascript:void(0);" onclick="searchArchive()"><span>档案查询</span></a>
+						</li>
+					</ul>
+				</div>-->
+				<div title="日志管理">
+					<ul class="submenu">
+						<li>
+							<img src="{%static 'img/search.png'%}"></img>
+							<a href="javascript:void(0);" onclick="searchLog()"><span>日志查询</span></a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div data-options="region:'center'">
+			<!-- <table id="dg" class="easyui-datagrid" style="width:100%;height:100%"
+				url="get_users.php"
+				toolbar="#toolbar" pagination="true"
+				rownumbers="true" fitColumns="true" singleSelect="true">
+				<thead>
+					<tr>
+					<th field="firstname" width="50">First Name</th>
+					<th field="lastname" width="50">Last Name</th>
+					<th field="phone" width="50">Phone</th>
+					<th field="email" width="50">Email</th>
+					</tr>
+				</thead>
+			</table> -->
+			<!-- <div id="toolbar">
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
+				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove User</a>
+			</div> -->
+			<div id="tbs" class="easyui-tabs" data-options="border:false, fit:true">
+				<div title="欢迎首页" data-options="iconCls:'icon-home'">
+				</div>
+			</div>
+		</div>
+		
+		<div data-options="region:'south', border:false" id="footer" class="footer">
+			<p>Copyright &copy; 中国人民银行武汉分行货币金银处 &nbsp;技术支持 &nbsp;(sunshine)</p>
+		</div>
+	</div>
+	
+	<!-- 用户添加对话框 -->
+	<div id="userDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
+			data-options="closed:true, buttons:'#userDlgButtons', modal:true">
+		<div class="FormTitle">用户信息</div>
+		<form id="userForm" method="POST" novalidate>
+			<div class="FormItem">
+				<label for="user-nickName">用户名称</label>
+				<input id="user-nickName" name="nickName" class="easyui-textbox">
+			</div>
+			<div class="FormItem">
+				<label for="user-type">用户类型</label>
+				<input id="user-type" name="type" class="easyui-combobox" data-options="
+						valueField: 'label',
+						textField: 'value',
+						data: [{label: '1', value: '管理员'},{label: '2', value: '一般用户'}],
+						editable: false,
+						panelHeight: 'auto',
+				">
+			</div>
+			<div class="FormItem">
+				<label for="user-password">密码</label>
+				<input id="user-password" name="password" class="easyui-textbox" type="password">
+			</div>
+		</form>
+	</div>
+	<div id="userDlgButtons">
+		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">保存</a>
+		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#userDlg').dialog('close')" style="width:90px">取消</a>
+	</div>
+	
+	<!-- 更改密码 -->
+	<div id="updatePasswordDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
+			data-options="closed:true, buttons:'#updatePasswordDlgButtons', modal:true">
+		<div class="FormTitle">更改密码</div>
+		<form id="updatePasswordForm" method="POST" novalidate>
+			<div class="FormItem">
+				<label for="updatePassword-nickName">用户名称</label>
+				<input id="updatePassword-nickName" name="nickName" class="easyui-textbox" data-options="readonly: true">
+			</div>
+			<div class="FormItem">
+				<label for="updatePassword-password">新密码</label>
+				<input id="updatePassword-password" name="passWord" class="easyui-textbox" type="password">
+			</div>
+			<div class="FormItem">
+				<label for="updatePassword-confirm">确认密码</label>
+				<input id="updatePassword-confirm" name="confirm" class="easyui-textbox" type="password">
+			</div>
+		</form>
+	</div>
+	<div id="updatePasswordDlgButtons">
+		<a href="javascript:void(0)" id="update" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="savePassword()" style="width:90px">更改</a>
+		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#updatePasswordDlg').dialog('close')" style="width:90px">取消</a>
+	</div>
+	
+	<!-- 属性信息添加对话框 -->
+	<div id="propertyDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
+			data-options="closed:true, buttons:'#propertyDlgButtons', modal:true, onClose:unInitPropertyDlg">
+		<div class="FormTitle">属性信息</div>
+		<form id="propertyForm" method="POST" novalidate>
+			<div id="step1">
+				<div class="FormItem">
+					<label for="property-project">待添加项目</label>
+					<input id="property-project" name="project" class="easyui-combobox" data-options="
+						valueField: 'label',
+						textField: 'value',
+						data: [{label: '实物类型', value: '实物类型'},{label: '品名', value: '品名'},{label: '明细品名', value: '明细品名'},{label: '发行库', value: '发行库'}],
+						editable: false,
+						panelHeight: 'auto',
+					">
+				</div>
+			</div>
+			<div id="step2">
+				<div id="productType">
+					<div class="FormItem">
+						<label for="property-productType-productType">实物类型名称</label>
+						<input id="property-productType-productType" name="productType-productType" class="easyui-textbox">
+					</div>
+					<div class="FormItem">
+						<label for="property-productTypeCode">实物类型编码</label>
+						<input id="property-productTypeCode" name="productTypeCode" class="easyui-textbox">
+					</div>
+				</div>
+				
+				<div id="className">
+					<div class="FormItem">
+						<label for="property-className-productType">实物类型</label>
+						<input id="property-className-productType" name="className-productType" class="easyui-combobox" data-options="
+							valueField: 'id',
+							textField: 'text',
+							url: 'getProductType/',
+							editable: false,
+							panelHeight: 'auto',
+						">
+					</div>
+					<div class="FormItem">
+						<label for="property-className-className">品名名称</label>
+						<input id="property-className-className" name="className-className" class="easyui-textbox">
+					</div>
+					<div class="FormItem">
+						<label for="property-classNameCode">品名编码</label>
+						<input id="property-classNameCode" name="classNameCode" class="easyui-textbox">
+					</div>
+				</div>
+				
+				<div id="subClassName">
+					<div class="FormItem">
+						<label for="property-subClassName-productType">实物类型</label>
+						<input id="property-subClassName-productType" name="subClassName-productType" class="easyui-combobox" data-options="
+							valueField: 'id',
+							textField: 'text',
+							url: 'getProductType/',
+							onSelect: function(rec){
+								var url = 'getClassName/'+rec.id;
+								$('#property-subClassName-className').combobox('reload', url);
+								$('#property-subClassName-className').combobox('clear');
+							},
+							editable: false,
+							panelHeight: 'auto',
+						">
+					</div>
+					<div class="FormItem">
+						<label for="property-subClassName-className">品名</label>
+						<input id="property-subClassName-className" name="subClassName-className" class="easyui-combobox" data-options="
+							valueField: 'id',
+							textField: 'text',
+							editable: false
+						">
+					</div>
+					<div class="FormItem">
+						<label for="property-subClassName-subClassName">明细品名名称</label>
+						<input id="property-subClassName-subClassName" name="subClassName-subClassName" class="easyui-textbox">
+					</div>
+					<div class="FormItem">
+						<label for="property-subClassNameCode">明细品名编码</label>
+						<input id="property-subClassNameCode" name="subClassNameCode" class="easyui-textbox">
+					</div>
+				</div>
+				
+				<div id="wareHouse">
+					<div class="FormItem">
+						<label for="property-wareHouseType">发行库名称</label>
+						<input id="property-wareHouseType" name="wareHouseType" class="easyui-textbox">
+					</div>
+					<div class="FormItem">
+						<label for="property-wareHouseCode">发行库编码</label>
+						<input id="property-wareHouseCode" name="wareHouseCode" class="easyui-textbox">
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div id="propertyDlgButtons">
+		<a href="javascript:void(0)" id="next" class="easyui-linkbutton c6" onclick="next()" style="width:90px">下一步</a>
+		<a href="javascript:void(0)" id="prev" class="easyui-linkbutton c6" onclick="prev()" style="width:90px">上一步</a>
+		<a href="javascript:void(0)" id="propertySave" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveProperty()" style="width:90px">保存</a>
+		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#propertyDlg').dialog('close')" style="width:90px">取消</a>
+	</div>
+
+	<input type="hidden" id="okStatus" value="{%static 'img/ok.png'%}">
+	<input type="hidden" id="noStatus" value="{%static 'img/no.png'%}">
+	<input type="hidden" id="operator" value="{{ operator }}">
+</body>
+</html>

@@ -1,0 +1,29 @@
+.submenu{
+position: relative;
+padding-left: 0px;
+border-top: 1px solid #ccc;
+}
+.submenu li{
+border-bottom: 1px solid #ccc;
+}
+.submenu li img{
+padding-top: 3px;
+padding-bottom: 10px;
+position: absolute;
+display: block;
+margin-left: 25px;
+}
+.submenu li a{
+font-size: 12px;
+font-weight: bold;
+display: block;
+padding-top: 10px;
+padding-bottom: 10px;
+text-decoration: none;
+color: black;
+text-align:center;
+}
+.submenu a:hover{
+background: #4A5B79;
+color: #FFF;
+}
