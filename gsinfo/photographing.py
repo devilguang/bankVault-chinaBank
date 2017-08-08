@@ -18,7 +18,7 @@ def photographing(request):
 
 
 def getPictures(request):
-    boxOrSubBox = '1-5' # request.POST.get('boxNumber', '')
+    boxOrSubBox = '1-1' # request.POST.get('boxNumber', '')
 
     ret = {}
 
@@ -33,7 +33,7 @@ def getPictures(request):
     if not os.path.exists(photoDir):
         os.mkdir(photoDir)
 
-    boxDir = os.path.join(photoDir, boxNumber)
+    boxDir = os.path.join(photoDir, str(boxNumber))
     if not os.path.exists(boxDir):
         os.mkdir(boxDir)
     picPath = boxDir

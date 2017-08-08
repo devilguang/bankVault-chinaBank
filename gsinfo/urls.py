@@ -145,6 +145,7 @@ urlpatterns = [
     url(r'^photographing/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),
     url(r'^photographing/getWorkData/(?P<workSeq>\d+)$', views.getWorkData, name='getWorkData'),
     url(r'^photographing/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
+    url(r'^photographing/getPictures/$', photographing.getPictures, name='getPictures'),
     url(r'^photographing/getWareHouse/$', views.getWareHouse, name='getWareHouse'),
     url(r'^photographing/getProductType/$', views.getProductType, name='getProductType'),
 

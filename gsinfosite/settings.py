@@ -52,7 +52,7 @@ SECRET_KEY = 'e4j1-4kr%g8m_2+!b(djj%2+86n0d_9nyev$fc7oc=%_n2%qj-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -113,7 +113,7 @@ DATABASES = {
         'NAME': 'gsinfo',
         'HOST': '127.0.0.1',
         'USER': 'root',
-        'PASSWORD': 'wzy1213',
+        'PASSWORD': 'root',
         'PORT': '3306',
     },
 }

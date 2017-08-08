@@ -86,8 +86,6 @@ def userProcess(request):
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 
-    print('ret_json', ret_json)
-
     return HttpResponse(ret_json)
 
 
@@ -511,7 +509,6 @@ def propertyProcess(request):
     wareHouseCode = request.POST.get('wareHouseCode', '')
     opType = request.POST.get('opType', '')
     recordID = request.POST.get('id', '')
-    print recordID
     if (0 != cmp(recordID, '')):
         recordID = int(recordID)
 
@@ -621,7 +618,6 @@ def getUserName(request):
 def setSysAdmin(request):
     nickName = request.POST.get('nickName', '')
     oldNickName = gsUser.objects.get(user=request.user).nickName
-    print oldNickName
     try:
         log.log(user=request.user, operationType=u'系统管理', content=u'将{0}的系统管理权限转移给{1}'.format(oldNickName,nickName))
         gsUser.objects.filter(nickName=nickName).update(type=0)
