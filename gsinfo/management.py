@@ -2,7 +2,8 @@
 from django.db.models.signals import post_migrate
 
 def batchInsert(sender, **kwargs):
-    if sender.name == 'gsinfosite.apps.gsinfo':
+    #print sender.name
+    if sender.name == 'gsinfo':
         init_property()
         init_authority()
 
@@ -91,7 +92,7 @@ def init_property():
 
 
 def add_property(project, type, code=None, parentProject='', parentType='', grandpaProject='', grandpaType=''):
-    from gsinfosite.apps.gsinfo.models import gsProperty
+    from gsinfo.models import gsProperty
     c, created = gsProperty.objects.get_or_create(project=project, type=type, code=code, parentProject=parentProject,
                                                   parentType=parentType, grandpaProject=grandpaProject,
                                                   grandpaType=grandpaType)
@@ -99,7 +100,7 @@ def add_property(project, type, code=None, parentProject='', parentType='', gran
 
 
 def init_authority():
-    from gsinfosite.apps.gsinfo.models import gsUser
+    from gsinfo.models import gsUser
     # 添加系统默认管理员
     admin, flag = gsUser.objects.createUser(nickName='sysadmin', password='123456', type=0)  # 'hbjy@396'
 

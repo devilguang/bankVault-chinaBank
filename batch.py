@@ -114,7 +114,7 @@ if __name__ == '__main__':
     print "Starting Batch Insert Data script..."
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gsinfosite.settings')
     django.setup()
-    from gsinfosite.apps.gsinfo.models import gsProperty, gsBox, gsWork, gsThing, gsWorkThing, gsDing, gsBiZhang, \
+    from gsinfo.models import gsProperty, gsBox, gsWork, gsThing, gsWorkThing, gsDing, gsBiZhang, \
         gsYinYuan, gsGongYiPin, gsStatus, gsUser
     from django.contrib.auth.models import Group
 

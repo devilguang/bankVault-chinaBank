@@ -1,2 +1,10 @@
-# Install all of our production dependencies only
--r requirements/prod.txt
+# requirements/common.txt
+Django==1.8.13
+openpyxl==2.3.5
+pymysql==0.7.11
+qrcode==5.3
+django-haystack==2.6.1
+whoosh==2.7.4
+jieba==0.38
+pillow==4.2.1
+uwsgi==2.0.15
