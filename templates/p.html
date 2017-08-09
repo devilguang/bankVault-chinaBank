@@ -160,67 +160,70 @@
 	<div id="UpdateInfoDlg" class="easyui-dialog" style="width:900px;height:450px;padding:10px 20px"
 			data-options="closed:true, buttons:'#UpdateInfoDlgButtons', modal:true, onClose:unInitUpdateInfoDlg">
 		<div class="FormTitle">实物编号：<span class="serialNumber"></span></div>
-		<form id="UpdateInfoForm" method="POST" novalidate>
-			<div class="FormItem">
-				<label for="UpdateInfoboxNumber">箱号</label>
-				<input id="UpdateInfoboxNumber" name="boxNumber" class="easyui-textbox" data-options="readonly:true, editable:false">
-			</div>
-			<div class="FormItem">
-				<label for="UpdateInfoserialNumber">实物编号</label>
-				<input id="UpdateInfoserialNumber" name="serialNumber" class="easyui-textbox" data-options="readonly:true, editable:false">
-			</div>
-			<div class="FormItem">
-				<label for="UpdateInfoproductType">实物类型</label>
-				<input id="UpdateInfoproductType" name="productType" class="easyui-textbox" data-options="readonly:true, editable:false">
-			</div>
-			<div class="FormItem">
-				<label for="UpdateInfoclassName">品名</label>
-				<input id="UpdateInfoclassName" name="className" class="easyui-textbox" data-options="readonly:true, editable:false">
-			</div>
-			<div class="FormItem">
-				<label for="UpdateInfosubClassName">明细品名</label>
-				<input id="UpdateInfosubClassName" name="subClassName" class="easyui-textbox" data-options="readonly:true, editable:false">
-			</div>
-			<div class="FormItem">
-				<label for="UpdateInfowareHouse">发行库</label>
-				<input id="UpdateInfowareHouse" name="wareHouse" class="easyui-textbox" data-options="readonly:true, editable:false">
-			</div>
+        <ul id="filePathList">
 
-			<div class="FormItem">
-				<label for="UpdateInfogrossWeight">毛重(g)</label>
-				<input id="UpdateInfogrossWeight" name="grossWeight" class="easyui-numberbox" data-options="precision:2, min:0">
-				<span style="color:red">*</span>
-			</div>
-			<div id="thing1">
-				<div class="FormItem">
-					<label for="UpdateInfodiameter">直径(mm)</label>
-					<input id="UpdateInfodiameter" name="diameter" class="easyui-numberbox" data-options="precision:2, min:0">
-					<span style="color:red">*</span>
-				</div>
-				<div class="FormItem">
-					<label for="UpdateInfothick">厚度(mm)</label>
-					<input id="UpdateInfothick" name="thick" class="easyui-numberbox" data-options="precision:2, min:0">
-					<span style="color:red">*</span>
-				</div>
-			</div>
-			<div id="thing2">
-				<div class="FormItem">
-					<label for="UpdateInfolength">长度(mm)</label>
-					<input id="UpdateInfolength" name="length" class="easyui-numberbox" data-options="precision:2, min:0">
-					<span style="color:red">*</span>
-				</div>
-				<div class="FormItem">
-					<label for="UpdateInfowidth">宽度(mm)</label>
-					<input id="UpdateInfowidth" name="width" class="easyui-numberbox" data-options="precision:2, min:0">
-					<span style="color:red">*</span>
-				</div>
-				<div class="FormItem">
-					<label for="UpdateInfoheight">高度(mm)</label>
-					<input id="UpdateInfoheight" name="height" class="easyui-numberbox" data-options="precision:2, min:0">
-					<span style="color:red">*</span>
-				</div>
-			</div>
-		</form>
+        </ul>
+{#		<form id="UpdateInfoForm" method="POST" novalidate>#}
+{#			<div class="FormItem">#}
+{#				<label for="UpdateInfoboxNumber">箱号</label>#}
+{#				<input id="UpdateInfoboxNumber" name="boxNumber" class="easyui-textbox" data-options="readonly:true, editable:false">#}
+{#			</div>#}
+{#			<div class="FormItem">#}
+{#				<label for="UpdateInfoserialNumber">实物编号</label>#}
+{#				<input id="UpdateInfoserialNumber" name="serialNumber" class="easyui-textbox" data-options="readonly:true, editable:false">#}
+{#			</div>#}
+{#			<div class="FormItem">#}
+{#				<label for="UpdateInfoproductType">实物类型</label>#}
+{#				<input id="UpdateInfoproductType" name="productType" class="easyui-textbox" data-options="readonly:true, editable:false">#}
+{#			</div>#}
+{#			<div class="FormItem">#}
+{#				<label for="UpdateInfoclassName">品名</label>#}
+{#				<input id="UpdateInfoclassName" name="className" class="easyui-textbox" data-options="readonly:true, editable:false">#}
+{#			</div>#}
+{#			<div class="FormItem">#}
+{#				<label for="UpdateInfosubClassName">明细品名</label>#}
+{#				<input id="UpdateInfosubClassName" name="subClassName" class="easyui-textbox" data-options="readonly:true, editable:false">#}
+{#			</div>#}
+{#			<div class="FormItem">#}
+{#				<label for="UpdateInfowareHouse">发行库</label>#}
+{#				<input id="UpdateInfowareHouse" name="wareHouse" class="easyui-textbox" data-options="readonly:true, editable:false">#}
+{#			</div>#}
+{##}
+{#			<div class="FormItem">#}
+{#				<label for="UpdateInfogrossWeight">毛重(g)</label>#}
+{#				<input id="UpdateInfogrossWeight" name="grossWeight" class="easyui-numberbox" data-options="precision:2, min:0">#}
+{#				<span style="color:red">*</span>#}
+{#			</div>#}
+{#			<div id="thing1">#}
+{#				<div class="FormItem">#}
+{#					<label for="UpdateInfodiameter">直径(mm)</label>#}
+{#					<input id="UpdateInfodiameter" name="diameter" class="easyui-numberbox" data-options="precision:2, min:0">#}
+{#					<span style="color:red">*</span>#}
+{#				</div>#}
+{#				<div class="FormItem">#}
+{#					<label for="UpdateInfothick">厚度(mm)</label>#}
+{#					<input id="UpdateInfothick" name="thick" class="easyui-numberbox" data-options="precision:2, min:0">#}
+{#					<span style="color:red">*</span>#}
+{#				</div>#}
+{#			</div>#}
+{#			<div id="thing2">#}
+{#				<div class="FormItem">#}
+{#					<label for="UpdateInfolength">长度(mm)</label>#}
+{#					<input id="UpdateInfolength" name="length" class="easyui-numberbox" data-options="precision:2, min:0">#}
+{#					<span style="color:red">*</span>#}
+{#				</div>#}
+{#				<div class="FormItem">#}
+{#					<label for="UpdateInfowidth">宽度(mm)</label>#}
+{#					<input id="UpdateInfowidth" name="width" class="easyui-numberbox" data-options="precision:2, min:0">#}
+{#					<span style="color:red">*</span>#}
+{#				</div>#}
+{#				<div class="FormItem">#}
+{#					<label for="UpdateInfoheight">高度(mm)</label>#}
+{#					<input id="UpdateInfoheight" name="height" class="easyui-numberbox" data-options="precision:2, min:0">#}
+{#					<span style="color:red">*</span>#}
+{#				</div>#}
+{#			</div>#}
+{#		</form>#}
 	</div>
 	<div id="UpdateInfoDlgButtons">
 		<a id="editBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" onclick="editInfo()" style="width:90px">编辑</a>

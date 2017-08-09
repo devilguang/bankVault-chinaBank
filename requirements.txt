@@ -7,4 +7,3 @@ django-haystack==2.6.1
 whoosh==2.7.4
 jieba==0.38
 pillow==4.2.1
-uwsgi==2.0.15
