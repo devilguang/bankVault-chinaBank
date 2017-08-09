@@ -142,15 +142,26 @@ function closeUpdateInfo(){
 	$('#UpdateInfoDlg').dialog('close');
 	//unInitUpdateInfoDlg();
 }
+
 function updateInfo(index, row){
 	//initUpdateInfoDlg(row);
 	$('#editBtn').attr({'style':'width:90px;display:none'});
     $('#saveBtn').attr({'style':'width:90px'});
-	
 	$('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
 	$('#UpdateInfoForm').form('clear');
-
 	$('.serialNumber').text(row.serialNumber);
+	// $.ajax({
+	// 	url:'http://192.168.16.4:8000/gsinfo/photographing/getPictures/',
+	// 	datatype:'jsonp'
+	// })
+
+	$.post("http://192.168.16.4:8000/gsinfo/photographing/getPictures/",{boxNumber: row.boxNumber},function(data){
+		console.log(data)
+		var havePic = data.havePic
+		if(havePic == false){
+			return
+		}
+    }, 'json');
 	url = 'updateMeasuringInfo/';
 }
 function editInfo(){
@@ -166,7 +177,6 @@ function editInfo(){
 		$('#UpdateInfowidth').textbox('readonly', false);
 		$('#UpdateInfoheight').textbox('readonly', false);
 	}
-	
 	$('#editBtn').attr({'style':'width:90px;display:none'});
 	$('#saveBtn').attr({'style':'width:90px'});
 }
