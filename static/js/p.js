@@ -140,22 +140,12 @@ function closeUpdateInfo() {
 }
 
 function updateInfo(index, row) {
-    //initUpdateInfoDlg(row);
+    console.log(row)
     $('#editBtn').attr({'style': 'width:90px;display:none'});
     $('#saveBtn').attr({'style': 'width:90px'});
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
     $('#UpdateInfoForm').form('clear');
     $('.serialNumber').text(row.serialNumber);
-    // $.post("http://192.168.16.4:8000/gsinfo/photographing/getPictures/", {
-    //     boxNumber: "1-1",
-    //     serialNumber: "1-02-217-1"
-    // }, function (data) {
-    //     console.log(data)
-    //     var havePic = data.havePic
-    //     if (havePic == false) {
-    //         return
-    //     }
-    // }, 'json');
     $.ajax({
         type: "GET",
         url: "http://192.168.16.4:8000/gsinfo/photographing/getPictures/",
@@ -163,21 +153,25 @@ function updateInfo(index, row) {
         jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
         jsonpCallback: "success_jsonpCallback",
         data: {
-            "boxNumber": "1-1",
-            "serialNumber": "1-02-217-1"
+            "boxNumber": row.boxNumber,
+            "serialNumber": row.serialNumber
         }, success: function (data) {
+
             var havePic = data.havePic
-            // console.log( '<img src ="http://192.168.16.4:8000/'+ havePic+'"/>')
             if (havePic == false) {
-            //    这
+                console.log('我进来了吗1')
+                $.post("getSeq/", {serialNumber: row.serialNumber}, function (data) {
+                    console.log(data)
+                }, 'json')
             } else {
+                console.log("我进来了吗")
                 var filePathList = data.filePathList
                 console.log(filePathList)
                 var imgList = document.getElementById('filePathList')
                 for (var i = 0; i < filePathList.length; i++) {
                     var li = document.createElement('li')
                     console.log(filePathList[i])
-                    li.innerHTML += '<img src ="http://192.168.16.4:8000/'+ filePathList[i]+'"/>'
+                    li.innerHTML += '<img src ="http://192.168.16.4:8000/' + filePathList[i] + '"/>'
                 }
             }
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
