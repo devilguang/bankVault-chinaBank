@@ -169,7 +169,7 @@ function updateInfo(index, row) {
             var havePic = data.havePic
             // console.log( '<img src ="http://192.168.16.4:8000/'+ havePic+'"/>')
             if (havePic == false) {
-
+            //    这
             } else {
                 var filePathList = data.filePathList
                 console.log(filePathList)
