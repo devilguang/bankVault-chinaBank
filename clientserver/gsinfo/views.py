@@ -25,7 +25,7 @@ rephotoFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'rephotoFi
 pastSerialFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'pastSerialNumber.txt')
 uploadFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'uploadResult.txt')
 
-def getSeq(request): #request
+def getSeq(request):
     serialNumber = '1-02-217-3' # request.POST.get
     ret = {}
     # 指定要使用的字体和大小；/Library/Fonts/是macOS字体目录；Linux的字体目录是/usr/share/fonts/
