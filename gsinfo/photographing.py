@@ -8,7 +8,7 @@ from gsinfosite import settings
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 import datetime
-
+#from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required  # 图像采集岗位
@@ -16,40 +16,29 @@ def photographing(request):
     nickName = gsUser.objects.get(user=request.user)
     return render(request, 'p.html', context={'operator': nickName, })
 
-
 def getPictures(request):
-    boxOrSubBox = '1-1' # request.POST.get('boxNumber', '')
+    boxOrSubBox = request.GET.get('boxNumber', '')
+    serialNumber = request.GET.get('serialNumber', '')
 
     ret = {}
 
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-
-    photoDir = settings.DATA_DIRS['photo_dir']
-    if not os.path.exists(photoDir):
-        os.mkdir(photoDir)
-
-    boxDir = os.path.join(photoDir, str(boxNumber))
+    boxDir = os.path.join(settings.STATIC_PATH,'img', boxOrSubBox)
     if not os.path.exists(boxDir):
         os.mkdir(boxDir)
-    picPath = boxDir
 
-    if subBoxNumber != '':
-        subBoxDir = os.path.join(boxDir, boxOrSubBox)
-        if not os.path.exists(subBoxDir):
-            os.mkdir(subBoxDir)
-        picPath = subBoxDir
+    thingsDir = os.path.join(boxDir, serialNumber)
+    if not os.path.exists(thingsDir):
+        os.mkdir(thingsDir)
+
+    picPath = thingsDir
+    sendDir = os.path.join('static', 'img',boxOrSubBox, serialNumber)
 
     fileList = os.listdir(picPath)
     if fileList:
         ret['havePic'] = True
         filePathList = []
         for fileName in fileList:
-            filePath = os.path.join(picPath,fileName)
+            filePath = os.path.join(sendDir,fileName)
             filePathList.append(filePath)
         ret['filePathList'] = filePathList
     else:
@@ -57,7 +46,7 @@ def getPictures(request):
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 
-    return HttpResponse(ret_json)
+    return HttpResponse('success_jsonpCallback(' + ret_json +')')
 
 # 将删除该箱子所属的所有图片
 def deletePic(request):
