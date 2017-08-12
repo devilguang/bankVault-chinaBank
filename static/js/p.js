@@ -140,7 +140,8 @@ function closeUpdateInfo() {
 }
 
 function updateInfo(index, row) {
-    console.log(row)
+    $("#filePathList").html('')
+    var fileArr = []
     $('#editBtn').attr({'style': 'width:90px;display:none'});
     $('#saveBtn').attr({'style': 'width:90px'});
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
@@ -156,32 +157,96 @@ function updateInfo(index, row) {
             "boxNumber": row.boxNumber,
             "serialNumber": row.serialNumber
         }, success: function (data) {
-
             var havePic = data.havePic
             if (havePic == false) {
-                console.log('我进来了吗1')
-                $.post("getSeq/", {serialNumber: row.serialNumber}, function (data) {
-                    console.log(data)
-                }, 'json')
+                var timer = setInterval(function () {
+                    $.ajax({
+                        type: 'get',
+                        url: 'http://127.0.0.1:8000/gsinfo/getSeq/',
+                        dataType: "jsonp",
+                        jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+                        jsonpCallback: "success_jsonpCallback",
+                        data: {
+                            serialNumber: row.serialNumber
+                        }, success: function (data) {
+                            var file = data.filePath
+                            var rephotoPathSrc = data.rephotoPath
+                            var stop = data.stop
+                            if (stop == true) {
+                                clearInterval(timer)
+                                return
+                            }
+                            if (data.havePic == true && file) {
+                                var imgList = document.getElementById('filePathList')
+                                var file = data.filePath
+                                fileArr.push(file)
+                                var li = document.createElement('li')
+                                li.innerHTML = '<img src ="http://127.0.0.1:8000/' + file + '"/>' +
+                                    '<div class="btnWrap"><a id="rephotograph" href="#" class="rephotograph">重拍</a>' +
+                                    '<a id="removePic" href="#" class="easyui-linkbutton">删除</a></div>';
+                                imgList.appendChild(li)
+                                rephotograph() //重拍图片的方法
+                                removePic()  //删除图片的方法
+                                upLoadImg()  //上传图片的方法
+                            }
+                            if (rephotoPathSrc) {
+                                $("#filePathList>li").eq(picIndex).children().eq(0).attr('src', "http://127.0.0.1:8000/" + rephotoPathSrc)
+                            }
+                        }
+                    })
+                }, 3000)
             } else {
-                console.log("我进来了吗")
                 var filePathList = data.filePathList
-                console.log(filePathList)
                 var imgList = document.getElementById('filePathList')
                 for (var i = 0; i < filePathList.length; i++) {
                     var li = document.createElement('li')
-                    console.log(filePathList[i])
-                    li.innerHTML += '<img src ="http://192.168.16.4:8000/' + filePathList[i] + '"/>'
+                    li.innerHTML += '<img src ="http://192.168.16.4:8000/' + filePathList[i] + '"/>' +
+                        '<div class="btnWrap"><a id="rephotograph" href="#" class="rephotograph">重拍</a><a id="removePic" href="#" class="easyui-linkbutton">删除</a></div>';
+                    imgList.appendChild(li);
+                    removePic() //删除按钮
+                    upLoadImg()
                 }
             }
-        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-            console.log(XMLHttpRequest.status);
-            console.log(XMLHttpRequest.readyState);
-            console.log(textStatus);
         }
     });
     url = 'updateMeasuringInfo/';
 }
+//点击重拍
+var picIndex; //点击重拍的索引值
+function rephotograph() {
+    $("#filePathList>li").on('click', '.rephotograph', function () {
+        picIndex = $(this).parents("li").index()
+        var fileName = $(this).parent().siblings().attr('src').substr(36)
+        $.ajax({
+            type: "get",
+            url: "http://127.0.0.1:8000/gsinfo/rephotograph/",
+            dataType: "jsonp",
+            jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+            jsonpCallback: "success_jsonpCallback",
+            data: {
+                fileName: fileName
+            }, success: function (data) {
+            }
+        })
+    })
+}
+//删除方法
+function removePic() {
+    $("#filePathList>li").on('click', '.easyui-linkbutton', function () {
+        $(this).parent().parent().remove()
+    })
+}
+//上传图片的方法
+function upLoadImg() {
+    var imgSrc = []
+    $("#saveBtn").click(function () {
+        for(var i = 0;i<$("#filePathList>li").length;i++){
+            imgSrc.push($("#filePathList>li").eq(i).children('img').attr('src').substr(36))
+        }
+    })
+}
+
+
 function editInfo() {
     var productType = $('#UpdateInfoproductType').textbox('getValue');
     // 根据实物类型, 处理确认输入框的显示情况

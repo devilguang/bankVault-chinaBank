@@ -1,85 +1,149 @@
 body {
-margin: 0 auto;
+    margin: 0 auto;
 }
 
-.title{
-position: relative;
-}
-.title span{
-position: absolute;
-font-style: normal;
-font-size: 33px;
-font-family: SimSun;
-font-weight: bold;
-left: 550px;
-bottom: 10px;
-word-spacing: 10px;
-color: #FFFF99;
-}
-.title a{
-position: absolute;
-right: 40px;
-top: 10px;
-}
-.title a img{
-position: absolute;
-z-index: 10
+.title {
+    position: relative;
 }
 
-.userInfo{
-width: 165px;
-height: 23px;
-float: left;
-padding-top: 3px;
-margin-right: 20px;
-outline-style: double;
-text-align: center;
+.title span {
+    position: absolute;
+    font-style: normal;
+    font-size: 33px;
+    font-family: SimSun;
+    font-weight: bold;
+    left: 550px;
+    bottom: 10px;
+    word-spacing: 10px;
+    color: #FFFF99;
 }
-.userInfo span{
-font-weight: bold;
-font-size: 17px;
-font-style: italic;
-font-family: SimHei;
-color: #FF0000;
+
+.title a {
+    position: absolute;
+    right: 40px;
+    top: 10px;
+}
+
+.title a img {
+    position: absolute;
+    z-index: 10
+}
+
+.userInfo {
+    width: 165px;
+    height: 23px;
+    float: left;
+    padding-top: 3px;
+    margin-right: 20px;
+    outline-style: double;
+    text-align: center;
+}
+
+.userInfo span {
+    font-weight: bold;
+    font-size: 17px;
+    font-style: italic;
+    font-family: SimHei;
+    color: #FF0000;
 }
 
 .search {
-height: 30px;
-width:245px;
-float:right;
-}
-.search label{
-padding-right:5px;
-width: 40px;
-}
-.search input{
-width: 180px;
+    height: 30px;
+    width: 245px;
+    float: right;
 }
 
-.FormTitle{
-font-size:14px;
-font-weight:bold;
-padding:5px 0;
-margin-bottom:10px;
-border-bottom:1px solid #ccc;
-}
-.FormItem{
-margin-bottom:5px;
-}
-.FormItem label{
-display:inline-block;
-width:100px;
-}
-.FormItem input{
-width:300px;
+.search label {
+    padding-right: 5px;
+    width: 40px;
 }
 
-.footer{
-overflow: hidden;
+.search input {
+    width: 180px;
 }
 
-.footer p{
-text-align:center;
-height:30px;
+.FormTitle {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.FormItem {
+    margin-bottom: 5px;
+}
+
+.FormItem label {
+    display: inline-block;
+    width: 100px;
+}
+
+.FormItem input {
+    width: 300px;
+}
+
+/*图像采集的样式*/
+#filePathList {
+    width: 100%;
+    list-style: none;
+    margin-left: -50px;
+    margin-top: -20px;
+}
+#filePathList li{
+    float: left;
+    margin-top: 30px;
+    margin-left: 20px;
+    width:256px;
+}
+#filePathList li img{
+    width: 256px;
+    height: 256px;
+    background-size:256px 256px;
+    background-repeat: no-repeat;
+}
+.btnWrap{
+    width: 150px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+#rephotograph{
+    background: #24748f;
+    color: #ffffff;
+    float: left;
+    border:1px solid #1f637b;
+}
+#removePic{
+    background:#fafafa;
+    float: right;
+    color: #444;
+    border:1px solid #bbb;
+}
+#rephotograph,#removePic{
+    display: block;
+    width:50px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    font-family:verdana,helvetica,arial,sans-serif;
+}
+#removePic:active{
+    border-color: #b7d3ff;
+    background: #ebf3ff;
+}
+#rephotograph:active{
+    background: #2984a4;
+}
+/* end*/
+.footer {
+    overflow: hidden;
+}
+
+.footer p {
+    text-align: center;
+    height: 30px;
 
 }
+

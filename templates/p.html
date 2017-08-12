@@ -156,6 +156,7 @@
 {% endblock %}
 
 {% block dialog %}
+
 	<!-- 信息修改对话框 -->
 	<div id="UpdateInfoDlg" class="easyui-dialog" style="width:900px;height:450px;padding:10px 20px"
 			data-options="closed:true, buttons:'#UpdateInfoDlgButtons', modal:true, onClose:unInitUpdateInfoDlg">
@@ -227,7 +228,10 @@
 	</div>
 	<div id="UpdateInfoDlgButtons">
 		<a id="editBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" onclick="editInfo()" style="width:90px">编辑</a>
-		<a id="saveBtn" href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveInfo()" style="width:90px">保存</a>
+         <a id="saveBtn" href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveInfo()" style="width:90px">上传</a>
+        <form action="servlet/UploadServlet" method="post" enctype="multipart/form-data" style="display:none">
+            <input type="file" name="" value="" class="uploadImgList">
+        </form>
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="closeUpdateInfo()" style="width:90px">取消</a>
 	</div>
 {% endblock %}

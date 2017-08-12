@@ -19,28 +19,38 @@ import shutil
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 photoDir = os.path.join(BASE_DIR,'photo')
-uploadDir = os.path.join(BASE_DIR,'upload')
+uploadDir = os.path.join(BASE_DIR,'static','upload')
+rephotoDir = os.path.join(BASE_DIR,'static','rephoto')
 
 rephotoFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'rephotoFileName.txt')
 pastSerialFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'pastSerialNumber.txt')
 uploadFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'uploadResult.txt')
 
 def getSeq(request):
+<<<<<<< HEAD
     serialNumber = '1-02-217-3' # request.POST.get
+=======
+    serialNumber = request.GET.get('serialNumber','')
+>>>>>>> a8992cd4b7843b6cde5ce037335244df521f6162
     ret = {}
     # 指定要使用的字体和大小；/Library/Fonts/是macOS字体目录；Linux的字体目录是/usr/share/fonts/
-    font = ImageFont.truetype('msyh.ttc', 16)  # 第二个参数表示字符大小
+    font = ImageFont.truetype('arial.ttf', 16)  # 第二个参数表示字符大小
 
     if not os.path.exists(uploadDir):
         os.mkdir(uploadDir)
+    if not os.path.exists(rephotoDir):
+        os.mkdir(rephotoDir)
     # -----------------------------------------------------
-    with open(rephotoFile, 'r') as f:
-        rephtoFile = f.read().strip()
-
+    try:
+        with open(rephotoFile, 'r') as f:
+            rephtoFile = f.read().strip()
+    except:
+        with open(rephotoFile, 'w') as f:
+            rephtoFile = f.read().strip()
     if rephtoFile:
         deleteFilePath = os.path.join(uploadDir, rephtoFile)  # 删除旧图
-
-        os.remove(deleteFilePath)
+        if os.path.exists(deleteFilePath):
+            os.remove(deleteFilePath)
         newSerial = rephtoFile.split('.')[0]
         # ++++++++++++
         if os.path.exists(photoDir):
@@ -54,22 +64,21 @@ def getSeq(request):
                 imgNew = image.resize((256, 256))
                 draw = ImageDraw.Draw(imgNew)
                 width, height = font.getsize(newSerial)
-
                 x = int((256 - width) / 2)
                 y = 256 - height - 12
                 draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
                 # imgNew.show()
-
-                savePath = os.path.join(uploadDir, '{0}.jpg'.format(newSerial))
+                savePath = os.path.join('static', 'rephoto', '{0}.jpg'.format(newSerial))
                 imgNew.save(savePath)
                 os.remove(picPath)
-                ret['filePath'] = savePath
-                with open(uploadFile, 'w') as f:
+                ret['rephotoPath'] = savePath
+                ret['havePic'] = True
+                with open(rephotoFile, 'w') as f:
                     f.truncate()
             elif len(fileList) == 0:
-                pass
+                ret['havePic'] = False
             else:
-                # shutil.rmtree(photoDir) 会把 photoDir也删除，而photoDir可能不具有被删除的权限
+                ret['havePic'] = False
                 for file in fileList:
                     p = os.path.join(photoDir, file)
                     os.remove(p)
@@ -108,17 +117,18 @@ def getSeq(request):
                 draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
                 # imgNew.show()
 
-                savePath = os.path.join(uploadDir, '{0}.jpg'.format(newSerial))
+                savePath = os.path.join('static','upload', '{0}.jpg'.format(newSerial))
                 imgNew.save(savePath)
                 with open(pastSerialFile, 'w') as f:
                     cont = serialNumber + '/' + char
                     f.write(cont)
                 os.remove(picPath)
-
+                ret['havePic'] = True
                 ret['filePath'] = savePath
             elif len(fileList) == 0:
-                pass
+                ret['havePic'] = False
             else:
+                ret['havePic'] = False
                 # shutil.rmtree(photoDir) 会把 photoDir也删除，而photoDir可能不具有被删除的权限
                 for file in fileList:
                     p = os.path.join(photoDir, file)
@@ -137,29 +147,32 @@ def getSeq(request):
         ret['stop'] = 'True'
     # -----------------------------------------------------
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
-    return HttpResponse(ret_json)
+    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
 
 def rephotograph(request):
-    ret = {}
-    fileName = '1-02-217-3-A.jpg'
+    ret={'rephoto':True}
+    fileName = request.GET.get('fileName','')
     with open(rephotoFile,'w') as f:
         f.write(fileName)
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
-    return HttpResponse(ret_json)
+    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
 
-def deletePic(request):
-    fileName = '1-02-217-2002-B.jpg'
+def removePic(request):
+    ret = {'remove': True}
+    fileName = request.GET.get('fileName','')
     deleteFilePath = os.path.join(uploadDir,fileName)
     os.remove(deleteFilePath)
-
+    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
+    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
 def upload(request):
     with open('uploadResult.txt','w') as f:
         result = 'done'
         f.write(result)
+
 
 # -----------------------------------------------------
 # 频谱检测仪功能

@@ -61,11 +61,46 @@ def deletePic(request):
         boxNumber = int(boxOrSubBox)
         subBoxNumber = ''
 
+# def savePics(request):
+#     file_obj = request.FILES.get('your_file', None)
+#     # 写入文件
+#     if file_obj == None:
+#         return HttpResponse('file not existing in the request')
+#     file_name = 'temp_file-%d' % random.randint(0, 100000)  # 不能使用文件名称，因为存在中文，会引起内部错误
+#     file_full_path = os.path.join(UPLOAD_ROOT, file_name)
+#     dest = open(file_full_path, 'wb+')
+#     dest.write(file_obj.read())
+#     dest.close()
+#     return HttpResponse(ret_json)
 
 def updatePhotographingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
-    boxNumber = int(request.POST.get('boxNumber', ''))
-    operator = request.POST.get('operator', '')
+    boxOrSubBox = request.POST.get('boxNumber', '')
+
+    file_obj = request.FILES.get('your_file', None)
+
+    ret = {}
+    # 写入文件
+    if file_obj == None:
+        ret['success'] = True
+        ret['message'] = '图片上传失败！'
+        ret_json = json.dumps(ret, separators=(',', ':'))
+        return HttpResponse(ret_json)
+    save_path = os.path.join(settings.STATIC_PATH,boxOrSubBox,'123.jpg')  # 不能使用文件名称，因为存在中文，会引起内部错误
+    dest = open(save_path, 'wb+')
+    dest.write(file_obj.read())
+    dest.close()
+
+    if '-' in boxOrSubBox:
+        boxNumber = int(boxOrSubBox.split('-')[0])
+        subBoxNumber = int(boxOrSubBox.split('-')[1])
+    else:
+        boxNumber = int(boxOrSubBox)
+        subBoxNumber = ''
+
+
+    user = request.user
+    operator = gsUser.objects.get(user=user).nickName
 
     box = gsBox.objects.get(boxNumber=boxNumber)
 
@@ -73,7 +108,7 @@ def updatePhotographingInfo(request):
         # 检测作业是否可用
         t = gsThing.objects.get(serialNumber=serialNumber)
         wt = gsWorkThing.objects.get(thing=t)
-        if (wt.work.status != 1):
+        if wt.work.status != 1:
             # 作业不可用
             raise ValueError, u'作业不可用！请联系现场负责人进行分发，并刷新页面！'
 
@@ -87,16 +122,11 @@ def updatePhotographingInfo(request):
         status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus
         gsStatus.objects.filter(box=box, serialNumber=serialNumber).update(status=status)
     except Exception as e:
-        ret = {}
         ret['success'] = False
-        ret['message'] = str(boxNumber) + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else str(
-            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
-        ret['message'] = ret['message'] + u'\r\n原因:' + e.message
+        ret['message'] = '图片上传失败！'
     else:
-        ret = {}
         ret['success'] = True
-        ret['message'] = str(boxNumber) + u'号箱作业更新成功！' if (0 == cmp(serialNumber, '')) else str(
-            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
+        ret['message'] = '图片上传失败！'
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 
