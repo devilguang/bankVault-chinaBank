@@ -198,6 +198,7 @@ function updateInfo(index, row) {
                 }, 3000)
                 upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             } else {
+                $("#saveBtn").attr('disable',true)
                 var filePathList = data.filePathList
                 var imgList = document.getElementById('filePathList')
                 for (var i = 0; i < filePathList.length; i++) {
