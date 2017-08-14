@@ -16,6 +16,7 @@ import time,datetime
 from PIL import Image, ImageDraw, ImageFont
 import math
 import shutil
+import base64
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 photoDir = os.path.join(BASE_DIR,'photo')
@@ -65,10 +66,12 @@ def getSeq(request):
                 draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
                 # imgNew.show()
                 savePath = os.path.join('static', 'rephoto', '{0}.jpg'.format(newSerial))
+                ab_rephotoPath  = os.path.join(rephotoDir, '{0}.jpg'.format(newSerial))
                 imgNew.save(savePath)
                 os.remove(picPath)
                 ret['rephotoPath'] = savePath
                 ret['havePic'] = True
+                ret['ab_rephotoPath'] = ab_rephotoPath
                 with open(rephotoFile, 'w') as f:
                     f.truncate()
             elif len(fileList) == 0:
@@ -112,7 +115,7 @@ def getSeq(request):
                 y = 256 - height - 12
                 draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
                 # imgNew.show()
-
+                ab_filePath = os.path.join(uploadDir, '{0}.jpg'.format(newSerial))
                 savePath = os.path.join('static','upload', '{0}.jpg'.format(newSerial))
                 imgNew.save(savePath)
                 with open(pastSerialFile, 'w') as f:
@@ -121,6 +124,7 @@ def getSeq(request):
                 os.remove(picPath)
                 ret['havePic'] = True
                 ret['filePath'] = savePath
+                ret['ab_filePath'] = ab_filePath
             elif len(fileList) == 0:
                 ret['havePic'] = False
             else:
@@ -165,9 +169,35 @@ def removePic(request):
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
 def upload(request):
+    img_path = request.GET.get('img_path', '')
+    # headers = request.GET.get('headers', '')
+    # cookie = request.GET.get('imgcookie', '')
+    path_dic = json.loads(img_path)
+    ret = {}
+    # url = 'http://192.168.16.4:8000/gsinfo/photographing/updatePhotographingInfo/'
+    # for k,v in path_dic.item():
+    #     base_dir = os.path.join(BASE_DIR,v)
+    #     with open(base_dir, "rb") as f:
+    #         f1 = base64.b64encode(f.read())
+    #         headers = ''
+    #         cookie = ''
+    #         r = requests.post(url, headers=headers, cookies=cookie, params=encoded_image)
+    for k, v in path_dic.items():
+        base_dir = os.path.join(BASE_DIR, v)
+        if os.path.exists(base_dir):
+            with open(base_dir,'rb') as f:
+                f1 = base64.b64encode(f.read())
+            ret[k] =f1
+        else:
+            break
     with open('uploadResult.txt','w') as f:
         result = 'done'
         f.write(result)
+    #删除本地图片
+    # shutil.rmtree(uploadDir)
+    # shutil.rmtree(rephotoDir)
+    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
+    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
 
 # -----------------------------------------------------

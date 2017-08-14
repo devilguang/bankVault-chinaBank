@@ -18,4 +18,5 @@ import views
 urlpatterns = [
     url(r'^getSeq/$', views.getSeq, name='getSeq'),
     url(r'^rephotograph/$', views.rephotograph, name='rephotograph'),
+    url(r'^upload/$', views.upload, name='upload'),
 ]

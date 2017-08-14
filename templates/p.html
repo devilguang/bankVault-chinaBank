@@ -2,240 +2,184 @@
 {% load static %}
 
 {% block title %}图像采集{% endblock %}
-{% block javaScript%}
-	<script type="text/javascript" src="{% static 'js/p.js'%}"></script>
+{% block javaScript %}
+    <script type="text/javascript" src="{% static 'js/p.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/cookie.js' %}"></script>
 
-	<script type="text/javascript">
-		function trim(text){
-			text = text.match(/[-+]?[0-9]*\.?[0-9]+/g);
-			return text;
-		}
+    <script type="text/javascript">
+        function trim(text) {
+            text = text.match(/[-+]?[0-9]*\.?[0-9]+/g);
+            return text;
+        }
 
-		function isEmpty(str){
-			return ((trim(str) == null)||(trim(str).length == 0));
-		}
+        function isEmpty(str) {
+            return ((trim(str) == null) || (trim(str).length == 0));
+        }
 
-		function isNumber(str){
-			//if(isEmpty(str))
-			//	return false;
-			return !isNaN(str);
-		}
-	</script>
+        function isNumber(str) {
+            //if(isEmpty(str))
+            //	return false;
+            return !isNaN(str);
+        }
+    </script>
 
-	<script ID=clientEventHandlersJS type="text/javascript">
+    <script ID=clientEventHandlersJS type="text/javascript">
 
-		function MSComm1_OnComm()
-		{
-			var len=0;
-			if(MSComm1.CommEvent==1)
-			{
-				//window.alert("barcode");
-			}
-			else if(MSComm1.CommEvent==2)
-			{
-				var input = MSComm1.Input;
-				var value = input;
-				l = value.length;
-				while (value[l-1] != '\r' && value[l-1] != '\n'){
-				    value += MSComm1.Input;
-				    l = value.length;
-				}
-				value = trim(value);
-				if(isNumber(value) && value != ''){
-					$('#UpdateInfogrossWeight').textbox('setText', value);
-				}
-			}
-		}
+        function MSComm1_OnComm() {
+            var len = 0;
+            if (MSComm1.CommEvent == 1) {
+                //window.alert("barcode");
+            }
+            else if (MSComm1.CommEvent == 2) {
+                var input = MSComm1.Input;
+                var value = input;
+                l = value.length;
+                while (value[l - 1] != '\r' && value[l - 1] != '\n') {
+                    value += MSComm1.Input;
+                    l = value.length;
+                }
+                value = trim(value);
+                if (isNumber(value) && value != '') {
+                    $('#UpdateInfogrossWeight').textbox('setText', value);
+                }
+            }
+        }
 
-		function OpenPort()
-		{
-			if(MSComm1.PortOpen==false)
-			{
-				MSComm1.PortOpen=true;
-				MSComm1.Output="#";
-			}
-			else
-			{
-				window.alert("已经开始接收数据!");
-			}
-		}
+        function OpenPort() {
+            if (MSComm1.PortOpen == false) {
+                MSComm1.PortOpen = true;
+                MSComm1.Output = "#";
+            }
+            else {
+                window.alert("已经开始接收数据!");
+            }
+        }
 
-		function autoPort()
-		{
-		    //alert(MSComm1.PortOpen);
-			if(!MSComm1.PortOpen)
-			{
-				MSComm1.PortOpen=true;
-				//MSComm1.Output="AA 00 03 88 18 0A 99 BB";
-				MSComm1.OnComm = MSComm1_OnComm;
-			}
-		}
-	</script>
+        function autoPort() {
+            //alert(MSComm1.PortOpen);
+            if (!MSComm1.PortOpen) {
+                MSComm1.PortOpen = true;
+                //MSComm1.Output="AA 00 03 88 18 0A 99 BB";
+                MSComm1.OnComm = MSComm1_OnComm;
+            }
+        }
+    </script>
 
-	<script LANGUAGE=javascript FOR=MSComm1 EVENT=OnComm >
-		MSComm1_OnComm();
-	</script>
+    <script LANGUAGE=javascript FOR=MSComm1 EVENT=OnComm>
+        MSComm1_OnComm();
+    </script>
 
-	<!--<script type="text/javascript">
-		$(function(){
-			$("body").attr("onload", "autoPort()");
+    <!--<script type="text/javascript">
+        $(function(){
+            $("body").attr("onload", "autoPort()");
 
-			$("#UpdateInfogrossWeight").textbox("textbox").bind("keydown", function(event){
-				var keyCode = event.keyCode;
-				if (keyCode == "13"){
-					var productType = $("#UpdateInfoproductType").textbox("getValue");
-					if (productType == "银元类" || productType == "金银币章类"){
-						$("#UpdateInfodiameter").textbox("textbox").focus();
-					}
-					else {
-						$("#UpdateInfolength").textbox("textbox").focus();
-					}
-				}
-			});
+            $("#UpdateInfogrossWeight").textbox("textbox").bind("keydown", function(event){
+                var keyCode = event.keyCode;
+                if (keyCode == "13"){
+                    var productType = $("#UpdateInfoproductType").textbox("getValue");
+                    if (productType == "银元类" || productType == "金银币章类"){
+                        $("#UpdateInfodiameter").textbox("textbox").focus();
+                    }
+                    else {
+                        $("#UpdateInfolength").textbox("textbox").focus();
+                    }
+                }
+            });
 
-			// 银元类/金银币章类
-			$("#UpdateInfodiameter").textbox("textbox").bind("keydown", function(event){
-				var keyCode = event.keyCode;
-				if (keyCode == "13"){
-					$("#UpdateInfothick").textbox("textbox").focus();
-				}
-			});
+            // 银元类/金银币章类
+            $("#UpdateInfodiameter").textbox("textbox").bind("keydown", function(event){
+                var keyCode = event.keyCode;
+                if (keyCode == "13"){
+                    $("#UpdateInfothick").textbox("textbox").focus();
+                }
+            });
 
-			$("#UpdateInfothick").textbox("textbox").bind("keydown", function(event){
-				var keyCode = event.keyCode;
-				if (keyCode == "13"){
-					$("#UpdateInfothick").textbox("textbox").blur();
-				}
-			});
+            $("#UpdateInfothick").textbox("textbox").bind("keydown", function(event){
+                var keyCode = event.keyCode;
+                if (keyCode == "13"){
+                    $("#UpdateInfothick").textbox("textbox").blur();
+                }
+            });
 
-			// 金银锭类/金银工艺品类
-			$("#UpdateInfolength").textbox("textbox").bind("keydown", function(event){
-				var keyCode = event.keyCode;
-				if (keyCode == "13"){
-					$("#UpdateInfowidth").textbox("textbox").focus();
-				}
-			});
+            // 金银锭类/金银工艺品类
+            $("#UpdateInfolength").textbox("textbox").bind("keydown", function(event){
+                var keyCode = event.keyCode;
+                if (keyCode == "13"){
+                    $("#UpdateInfowidth").textbox("textbox").focus();
+                }
+            });
 
-			$("#UpdateInfowidth").textbox("textbox").bind("keydown", function(event){
-				var keyCode = event.keyCode;
-				if (keyCode == "13"){
-					$("#UpdateInfoheight").textbox("textbox").focus();
-				}
-			});
+            $("#UpdateInfowidth").textbox("textbox").bind("keydown", function(event){
+                var keyCode = event.keyCode;
+                if (keyCode == "13"){
+                    $("#UpdateInfoheight").textbox("textbox").focus();
+                }
+            });
 
-			$("#UpdateInfoheight").textbox("textbox").bind("keydown", function(event){
-				var keyCode = event.keyCode;
-				if (keyCode == "13"){
-					$("#UpdateInfoheight").textbox("textbox").blur();
-				}
-			});
-		});
-	</script>-->
+            $("#UpdateInfoheight").textbox("textbox").bind("keydown", function(event){
+                var keyCode = event.keyCode;
+                if (keyCode == "13"){
+                    $("#UpdateInfoheight").textbox("textbox").blur();
+                }
+            });
+        });
+    </script>-->
 
-	<OBJECT CLASSID="clsid:648A5600-2C6E-101B-82B6-000000000014" id="MSComm1" name="MSComm1" codebase="mscomm32.ocx"  type="application/x-oleobject"
-	 style="border-style:outset; border-width:0px; WIDTH: 10px; HEIGHT: 10px"  >
-		<PARAM NAME="CommPort" VALUE="4">
-		<PARAM NAME="DTREnable" VALUE="1">
-		<PARAM NAME="Handshaking" VALUE="0">
-		<PARAM NAME="InBufferSize" VALUE="1024">
-		<PARAM NAME="InputLen" VALUE="0">
-		<PARAM NAME="NullDiscard" VALUE="0">
-		<PARAM NAME="OutBufferSize" VALUE="512">
-		<PARAM NAME="ParityReplace" VALUE="?">
-		<PARAM NAME="RThreshold" VALUE="4">
-		<PARAM NAME="RTSEnable" VALUE="1">
-		<PARAM NAME="SThreshold" VALUE="2">
-		<PARAM NAME="EOFEnable" VALUE="0">
-		<PARAM NAME="InputMode" VALUE="0">
+    <OBJECT CLASSID="clsid:648A5600-2C6E-101B-82B6-000000000014" id="MSComm1" name="MSComm1" codebase="mscomm32.ocx"
+            type="application/x-oleobject"
+            style="border-style:outset; border-width:0px; WIDTH: 10px; HEIGHT: 10px">
+        <PARAM NAME="CommPort" VALUE="4">
+        <PARAM NAME="DTREnable" VALUE="1">
+        <PARAM NAME="Handshaking" VALUE="0">
+        <PARAM NAME="InBufferSize" VALUE="1024">
+        <PARAM NAME="InputLen" VALUE="0">
+        <PARAM NAME="NullDiscard" VALUE="0">
+        <PARAM NAME="OutBufferSize" VALUE="512">
+        <PARAM NAME="ParityReplace" VALUE="?">
+        <PARAM NAME="RThreshold" VALUE="4">
+        <PARAM NAME="RTSEnable" VALUE="1">
+        <PARAM NAME="SThreshold" VALUE="2">
+        <PARAM NAME="EOFEnable" VALUE="0">
+        <PARAM NAME="InputMode" VALUE="0">
 
-		<PARAM NAME="DataBits" VALUE="8">
-		<PARAM NAME="StopBits" VALUE="1">
-		<PARAM NAME="BaudRate" VALUE="9600">
-		<PARAM NAME="Settings" VALUE="9600,N,8,1">
-	</OBJECT>
+        <PARAM NAME="DataBits" VALUE="8">
+        <PARAM NAME="StopBits" VALUE="1">
+        <PARAM NAME="BaudRate" VALUE="9600">
+        <PARAM NAME="Settings" VALUE="9600,N,8,1">
+    </OBJECT>
+
 {% endblock %}
 
 {% block dialog %}
-
-	<!-- 信息修改对话框 -->
-	<div id="UpdateInfoDlg" class="easyui-dialog" style="width:900px;height:450px;padding:10px 20px"
-			data-options="closed:true, buttons:'#UpdateInfoDlgButtons', modal:true, onClose:unInitUpdateInfoDlg">
-		<div class="FormTitle">实物编号：<span class="serialNumber"></span></div>
-        <ul id="filePathList">
+    <!-- 信息修改对话框 -->
+    <div id="UpdateInfoDlg" class="easyui-dialog" style="width:900px;height:450px;padding:10px 20px;"
+         data-options="closed:true, buttons:'#UpdateInfoDlgButtons', modal:true, onClose:unInitUpdateInfoDlg">
+        <div class="FormTitle">实物编号：<span class="serialNumber"></span></div>
+        <ul id="filePathList" style="position: relative">
 
         </ul>
-{#		<form id="UpdateInfoForm" method="POST" novalidate>#}
-{#			<div class="FormItem">#}
-{#				<label for="UpdateInfoboxNumber">箱号</label>#}
-{#				<input id="UpdateInfoboxNumber" name="boxNumber" class="easyui-textbox" data-options="readonly:true, editable:false">#}
-{#			</div>#}
-{#			<div class="FormItem">#}
-{#				<label for="UpdateInfoserialNumber">实物编号</label>#}
-{#				<input id="UpdateInfoserialNumber" name="serialNumber" class="easyui-textbox" data-options="readonly:true, editable:false">#}
-{#			</div>#}
-{#			<div class="FormItem">#}
-{#				<label for="UpdateInfoproductType">实物类型</label>#}
-{#				<input id="UpdateInfoproductType" name="productType" class="easyui-textbox" data-options="readonly:true, editable:false">#}
-{#			</div>#}
-{#			<div class="FormItem">#}
-{#				<label for="UpdateInfoclassName">品名</label>#}
-{#				<input id="UpdateInfoclassName" name="className" class="easyui-textbox" data-options="readonly:true, editable:false">#}
-{#			</div>#}
-{#			<div class="FormItem">#}
-{#				<label for="UpdateInfosubClassName">明细品名</label>#}
-{#				<input id="UpdateInfosubClassName" name="subClassName" class="easyui-textbox" data-options="readonly:true, editable:false">#}
-{#			</div>#}
-{#			<div class="FormItem">#}
-{#				<label for="UpdateInfowareHouse">发行库</label>#}
-{#				<input id="UpdateInfowareHouse" name="wareHouse" class="easyui-textbox" data-options="readonly:true, editable:false">#}
-{#			</div>#}
-{##}
-{#			<div class="FormItem">#}
-{#				<label for="UpdateInfogrossWeight">毛重(g)</label>#}
-{#				<input id="UpdateInfogrossWeight" name="grossWeight" class="easyui-numberbox" data-options="precision:2, min:0">#}
-{#				<span style="color:red">*</span>#}
-{#			</div>#}
-{#			<div id="thing1">#}
-{#				<div class="FormItem">#}
-{#					<label for="UpdateInfodiameter">直径(mm)</label>#}
-{#					<input id="UpdateInfodiameter" name="diameter" class="easyui-numberbox" data-options="precision:2, min:0">#}
-{#					<span style="color:red">*</span>#}
-{#				</div>#}
-{#				<div class="FormItem">#}
-{#					<label for="UpdateInfothick">厚度(mm)</label>#}
-{#					<input id="UpdateInfothick" name="thick" class="easyui-numberbox" data-options="precision:2, min:0">#}
-{#					<span style="color:red">*</span>#}
-{#				</div>#}
-{#			</div>#}
-{#			<div id="thing2">#}
-{#				<div class="FormItem">#}
-{#					<label for="UpdateInfolength">长度(mm)</label>#}
-{#					<input id="UpdateInfolength" name="length" class="easyui-numberbox" data-options="precision:2, min:0">#}
-{#					<span style="color:red">*</span>#}
-{#				</div>#}
-{#				<div class="FormItem">#}
-{#					<label for="UpdateInfowidth">宽度(mm)</label>#}
-{#					<input id="UpdateInfowidth" name="width" class="easyui-numberbox" data-options="precision:2, min:0">#}
-{#					<span style="color:red">*</span>#}
-{#				</div>#}
-{#				<div class="FormItem">#}
-{#					<label for="UpdateInfoheight">高度(mm)</label>#}
-{#					<input id="UpdateInfoheight" name="height" class="easyui-numberbox" data-options="precision:2, min:0">#}
-{#					<span style="color:red">*</span>#}
-{#				</div>#}
-{#			</div>#}
-{#		</form>#}
-	</div>
-	<div id="UpdateInfoDlgButtons">
-		<a id="editBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" onclick="editInfo()" style="width:90px">编辑</a>
-         <a id="saveBtn" href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveInfo()" style="width:90px">上传</a>
-        <form action="servlet/UploadServlet" method="post" enctype="multipart/form-data" style="display:none">
-            <input type="file" name="" value="" class="uploadImgList">
+        <div id="abc"
+             style="width:900px;height:420px;position: absolute;left: 0px;bottom: 0px;background: rgba(0,0,0,0.3);
+             z-index: 1000;text-align: center;display: none;line-height: 420px;font-size: 20px;color: #ffffff;">
+            正在上传中，请稍候...
+        </div>
+        <form id="UpdateInfoForm" method="POST" novalidate>
+
         </form>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="closeUpdateInfo()" style="width:90px">取消</a>
-	</div>
+        <div id="UpdateInfoDlgButtons">
+            <a id="editBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" onclick="editInfo()"
+               style="width:90px">编辑</a>
+            <a id="saveBtn" href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok"
+               onclick="saveInfo()" style="width:90px;">上传</a>
+
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="closeUpdateInfo()"
+               style="width:90px">取消</a>
+        </div>
+
+    </div>
+
 {% endblock %}
 
 {% block additionalAttribute %}
-	<input type="hidden" id="processId" value="6">
+    <input type="hidden" id="processId" value="6">
 {% endblock %}
