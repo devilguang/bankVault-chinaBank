@@ -151,9 +151,9 @@ function updateInfo(index, row) {
     $.ajax({
         type: "GET",
         url: "http://192.168.16.4:8000/gsinfo/photographing/getPictures/",
-        dataType: "jsonp",
-        jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
-        jsonpCallback: "success_jsonpCallback",
+        // dataType: "jsonp",
+        // jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+        // jsonpCallback: "success_jsonpCallback",
         data: {
             "boxNumber": row.boxNumber,
             "serialNumber": row.serialNumber
@@ -162,14 +162,15 @@ function updateInfo(index, row) {
             if (havePic == false) {
                 var timer = setInterval(function () {
                     $.ajax({
-                        type: 'get',
+                        type: 'post',
                         url: 'http://127.0.0.1:8000/gsinfo/getSeq/',
-                        dataType: "jsonp",
-                        jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
-                        jsonpCallback: "success_jsonpCallback",
+                        // dataType: "jsonp",
+                        // jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+                        // jsonpCallback: "success_jsonpCallback",
                         data: {
                             serialNumber: row.serialNumber
                         }, success: function (data) {
+                            console.log(data)
                             var file = data.filePath
                             var rephotoPathSrc = data.rephotoPath
                             var stop = data.stop
@@ -191,11 +192,15 @@ function updateInfo(index, row) {
                             }
                             if (rephotoPathSrc) {
                                 $("#filePathList>li").eq(picIndex).children().eq(0).attr('src', "http://127.0.0.1:8000/" + rephotoPathSrc)
-                                $("#filePathList>li").eq(picIndex).children().eq(1).children().eq(0).attr('disabled',false).css('opacity',1)
+                                $("#filePathList>li").eq(picIndex).children().eq(1).children().eq(0).attr('disabled', false).css('opacity', 1)
                             }
+                        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            console.log(XMLHttpRequest.status);
+                            console.log(XMLHttpRequest.readyState);
+                            console.log(textStatus);
                         }
                     })
-                }, 3000)
+                }, 30000)
                 upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             } else {
                 $("#saveBtn").attr('disable', true)
