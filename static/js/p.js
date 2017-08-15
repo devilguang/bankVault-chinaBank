@@ -140,7 +140,6 @@ function closeUpdateInfo() {
 }
 
 function updateInfo(index, row) {
-
     $("#filePathList").html('')
     var fileArr = []
     $('#editBtn').attr({'style': 'width:90px;display:none'});
@@ -212,7 +211,7 @@ function updateInfo(index, row) {
             }
         }
     });
-    url = 'updateMeasuringInfo/';
+     //url = 'updatePhotographingInfo/';
 }
 //点击重拍
 var picIndex; //点击重拍的索引值
@@ -244,7 +243,10 @@ function removePic() {
 function upLoadImg(boxNumber, serialNumber) {
     $("#saveBtn").click(function () {
         if ($("#filePathList").children().length == 0) {
-            $.messager.alert('Warning', '图片不能为空')
+            $.messager.alert({
+                title:'提示',
+                msg:'图片不能为空'
+            })
             return;
         }
         $('#abc').show()
@@ -321,67 +323,68 @@ function editInfo() {
     $('#editBtn').attr({'style': 'width:90px;display:none'});
     $('#saveBtn').attr({'style': 'width:90px'});
 }
-function saveInfo() {
-    $('#UpdateInfoForm').form({
-        url: url,
-        queryParams: {
-            csrfmiddlewaretoken: getCookie('csrftoken'),
-            operator: $('#operator').val(),
-        },
-        onSubmit: function (param) {
-            /*var productType = $('#UpdateInfoproductType').textbox('getValue');
-             var grossWeight = $('#UpdateInfogrossWeight').textbox('getValue');
-             if (productType == '银元类' || productType == '金银币章类') {
-             var diameter = $('#UpdateInfodiameter').textbox('getValue');
-             var thick = $('#UpdateInfothick').textbox('getValue');
-             if (grossWeight != '' && diameter != '' && thick != '') {
-             return true;
-             }
-             else {
-             $.messager.alert({
-             title: '提示',
-             msg: '毛重、直径、厚度均不能为空！'
-             });
-             return false;
-             }
-             }
-             else {
-             var length = $('#UpdateInfolength').textbox('getValue');
-             var width = $('#UpdateInfowidth').textbox('getValue');
-             var height = $('#UpdateInfoheight').textbox('getValue');
-             if (grossWeight != '' && length != '' && width != '' && height != '') {
-             return true;
-             }
-             else {
-             $.messager.alert({
-             title: '提示',
-             msg: '毛重、长度、宽度、高度不能为空！'
-             });
-             return false;
-             }
-             }
-             // return $(this).form('validate');*/
-        },
-        success: function (result) {
-            var result = eval('(' + result + ')');
-            if (!result.success) {
-                $.messager.alert({		// 显示失败信息
-                    title: '提示',
-                    msg: result.message
-                });
-            } else {
-                $('#UpdateInfoDlg').dialog('close');        // 关闭对话框
-                $.messager.show({		// 显示成功信息
-                    title: '提示',
-                    msg: result.message,
-                    timeout: 5000,
-                    showType: 'slide'
-                });
-                var node = $('#workSpaceTree').tree('getSelected');
-                $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
-            }
-        }
-    });
 
-    $('#UpdateInfoForm').submit();
-}
+// function saveInfo() {
+//     $('#UpdateInfoForm').form({
+//         url: url,
+//         queryParams: {
+//             csrfmiddlewaretoken: getCookie('csrftoken'),
+//             operator: $('#operator').val(),
+//         },
+//         onSubmit: function (param) {
+//             /*var productType = $('#UpdateInfoproductType').textbox('getValue');
+//              var grossWeight = $('#UpdateInfogrossWeight').textbox('getValue');
+//              if (productType == '银元类' || productType == '金银币章类') {
+//              var diameter = $('#UpdateInfodiameter').textbox('getValue');
+//              var thick = $('#UpdateInfothick').textbox('getValue');
+//              if (grossWeight != '' && diameter != '' && thick != '') {
+//              return true;
+//              }
+//              else {
+//              $.messager.alert({
+//              title: '提示',
+//              msg: '毛重、直径、厚度均不能为空！'
+//              });
+//              return false;
+//              }
+//              }
+//              else {
+//              var length = $('#UpdateInfolength').textbox('getValue');
+//              var width = $('#UpdateInfowidth').textbox('getValue');
+//              var height = $('#UpdateInfoheight').textbox('getValue');
+//              if (grossWeight != '' && length != '' && width != '' && height != '') {
+//              return true;
+//              }
+//              else {
+//              $.messager.alert({
+//              title: '提示',
+//              msg: '毛重、长度、宽度、高度不能为空！'
+//              });
+//              return false;
+//              }
+//              }
+//              // return $(this).form('validate');*/
+//         },
+//         success: function (result) {
+//             var result = eval('(' + result + ')');
+//             if (!result.success) {
+//                 $.messager.alert({		// 显示失败信息
+//                     title: '提示',
+//                     msg: result.message
+//                 });
+//             } else {
+//                 $('#UpdateInfoDlg').dialog('close');        // 关闭对话框
+//                 $.messager.show({		// 显示成功信息
+//                     title: '提示',
+//                     msg: result.message,
+//                     timeout: 5000,
+//                     showType: 'slide'
+//                 });
+//                 var node = $('#workSpaceTree').tree('getSelected');
+//                 $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
+//             }
+//         }
+//     });
+//
+//     $('#UpdateInfoForm').submit();
+// }

@@ -28,11 +28,7 @@ pastSerialFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'pastSe
 uploadFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'uploadResult.txt')
 
 def getSeq(request):
-<<<<<<< HEAD
-    serialNumber = '1-02-217-3' # request.POST.get
-=======
     serialNumber = request.GET.get('serialNumber','')
->>>>>>> a8992cd4b7843b6cde5ce037335244df521f6162
     ret = {}
     # 指定要使用的字体和大小；/Library/Fonts/是macOS字体目录；Linux的字体目录是/usr/share/fonts/
     font = ImageFont.truetype('arial.ttf', 16)  # 第二个参数表示字符大小
@@ -202,20 +198,6 @@ def upload(request):
     # shutil.rmtree(rephotoDir)
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
-
-
 # -----------------------------------------------------
 # 频谱检测仪功能
 # 一、通过复制数据库文件解除独占
-
-
-
-
-
-
-
-
-
-
-# if __name__ == '__main__':
-#     getSeq('1-02-217-2002')
