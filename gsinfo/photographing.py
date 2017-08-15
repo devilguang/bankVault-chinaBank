@@ -46,7 +46,6 @@ def getPictures(request):
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 
-    # return HttpResponse('success_jsonpCallback(' + ret_json +')')
     return HttpResponse(ret_json)
 
 def updatePhotographingInfo(request):
