@@ -140,6 +140,7 @@ function closeUpdateInfo() {
 }
 
 function updateInfo(index, row) {
+    $('#masking').hide()
     $("#filePathList").html('')
     var fileArr = []
     $('#editBtn').attr({'style': 'width:90px;display:none'});
@@ -182,44 +183,48 @@ function updateInfo(index, row) {
                                 fileArr.push(file)
                                 var li = document.createElement('li')
                                 li.innerHTML = '<img src ="http://127.0.0.1:8000/' + file + '"/>' +
-                                    '<div class="btnWrap"><a id="rephotograph" href="#" class="rephotograph">重拍</a>' +
-                                    '<a id="removePic" href="#" class="easyui-linkbutton">删除</a></div>';
+                                    '<div class="btnWrap"><button id="rephotograph" href="#"  class="rephotograph">重拍</button>' +
+                                    '<button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
                                 imgList.appendChild(li)
                                 rephotograph() //重拍图片的方法
                                 removePic()  //删除图片的方法
-
                             }
                             if (rephotoPathSrc) {
                                 $("#filePathList>li").eq(picIndex).children().eq(0).attr('src', "http://127.0.0.1:8000/" + rephotoPathSrc)
+                                $("#filePathList>li").eq(picIndex).children().eq(1).children().eq(0).attr('disabled',false).css('opacity',1)
                             }
                         }
                     })
                 }, 3000)
                 upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             } else {
-                $("#saveBtn").attr('disable',true)
+                $("#saveBtn").attr('disable', true)
                 var filePathList = data.filePathList
                 var imgList = document.getElementById('filePathList')
                 for (var i = 0; i < filePathList.length; i++) {
                     var li = document.createElement('li')
                     li.innerHTML += '<img src ="http://192.168.16.4:8000/' + filePathList[i] + '"/>' +
-                        '<div class="btnWrap"><a id="rephotograph" href="#" class="rephotograph">重拍</a><a id="removePic" href="#" class="easyui-linkbutton">删除</a></div>';
+                        '<div class="btnWrap"><button id="rephotograph" href="#" class="rephotograph">重拍</button><button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
                     imgList.appendChild(li);
+                    rephotograph()
                     removePic() //删除按钮
                 }
                 upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             }
         }
     });
-     //url = 'updatePhotographingInfo/';
+    //url = 'updatePhotographingInfo/';
 }
 //点击重拍
 var picIndex; //点击重拍的索引值
 function rephotograph() {
     $("#filePathList>li").on('click', '.rephotograph', function () {
-
+        $(this).attr('disabled', true).css('opacity', '0.5')
         picIndex = $(this).parents("li").index()
-        var fileName = $(this).parent().siblings().attr('src').substr(36)
+        var fullFile = $(this).parent().siblings().attr('src')
+        var index = fullFile.indexOf('static')
+        var index1 = fullFile.substr(index).lastIndexOf('\\') ? fullFile.substr(index).lastIndexOf('\\') : fullFile.substr(index).lastIndexOf('/')
+        var fileName = fullFile.substr(index).substr(index1 + 1)
         $.ajax({
             type: "get",
             url: "http://127.0.0.1:8000/gsinfo/rephotograph/",
@@ -229,8 +234,10 @@ function rephotograph() {
             data: {
                 fileName: fileName
             }, success: function (data) {
+                $(".rephotograph").eq(picIndex).parent().siblings().attr('src', '/static/img/delete.png')
             }
         })
+
     })
 }
 //删除方法
@@ -239,17 +246,18 @@ function removePic() {
         $(this).parent().parent().remove()
     })
 }
+
 //上传图片的方法
 function upLoadImg(boxNumber, serialNumber) {
     $("#saveBtn").click(function () {
         if ($("#filePathList").children().length == 0) {
             $.messager.alert({
-                title:'提示',
-                msg:'图片不能为空'
+                title: '提示',
+                msg: '图片不能为空'
             })
-            return;
+            return false;
         }
-        $('#abc').show()
+        $('#masking').show()
         var imgSrc = []
         var serial_number = []
         var img_path = {}
@@ -283,10 +291,10 @@ function upLoadImg(boxNumber, serialNumber) {
                         serialNumber: serialNumber,
                         pic_path: JSON.stringify(data)
                     }, success: function (data) {
+                        console.log(data)
                         if (data.success == true) {
-                            $('#abc').hide()
-                            $("#UpdateInfoDlg").hide()
-                            $.messager.alert('Warning', '图片上传成功')
+                            $("#masking").hide()
+                            $('#UpdateInfoDlg').dialog('close');
                         }
                     }
                 })
@@ -294,7 +302,6 @@ function upLoadImg(boxNumber, serialNumber) {
         })
     })
 }
-
 function getCookei() {
     var aCookie = document.cookie.split(";");
     var re = '';

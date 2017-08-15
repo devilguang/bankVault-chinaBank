@@ -151,15 +151,12 @@ def getSeq(request):
 
 
 def rephotograph(request):
-    ret={'rephoto':True}
     fileName = request.GET.get('fileName','')
     with open(rephotoFile,'w') as f:
         f.write(fileName)
-
+    ret = {'rephoto': True}
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
-
-
 def removePic(request):
     ret = {'remove': True}
     fileName = request.GET.get('fileName','')
