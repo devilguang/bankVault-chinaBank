@@ -158,6 +158,7 @@ function updateInfo(index, row) {
             "boxNumber": row.boxNumber,
             "serialNumber": row.serialNumber
         }, success: function (data) {
+            var data = JSON.parse(data)
             var havePic = data.havePic
             if (havePic == false) {
                 var timer = setInterval(function () {
@@ -200,7 +201,7 @@ function updateInfo(index, row) {
                             console.log(textStatus);
                         }
                     })
-                }, 30000)
+                }, 1000)
                 upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             } else {
                 $("#saveBtn").attr('disable', true)
@@ -286,11 +287,11 @@ function upLoadImg(boxNumber, serialNumber) {
             }, success: function (data) {
                 console.log(data)
                 $.ajax({
-                    type: 'get',
+                    type: 'post',
                     url: 'http://192.168.16.4:8000/gsinfo/photographing/updatePhotographingInfo/',
-                    dataType: "jsonp",
-                    jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
-                    jsonpCallback: "success_jsonpCallback",
+                    // dataType: "jsonp",
+                    // jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+                    // jsonpCallback: "success_jsonpCallback",
                     data: {
                         boxNumber: boxNumber,
                         serialNumber: serialNumber,
