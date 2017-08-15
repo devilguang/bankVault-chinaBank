@@ -163,11 +163,11 @@ function updateInfo(index, row) {
             if (havePic == false) {
                 var timer = setInterval(function () {
                     $.ajax({
-                        type: 'post',
+                        type: 'get',
                         url: 'http://127.0.0.1:8000/gsinfo/getSeq/',
-                        // dataType: "jsonp",
-                        // jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
-                        // jsonpCallback: "success_jsonpCallback",
+                        dataType: "jsonp",
+                        jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+                        jsonpCallback: "success_jsonpCallback",
                         data: {
                             serialNumber: row.serialNumber
                         }, success: function (data) {
