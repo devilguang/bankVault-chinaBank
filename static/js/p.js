@@ -140,6 +140,7 @@ function closeUpdateInfo() {
 }
 
 function updateInfo(index, row) {
+    console.log(row.serialNumber)
     $('#masking').hide()
     $("#filePathList").html('')
     var fileArr = []
@@ -151,9 +152,6 @@ function updateInfo(index, row) {
     $.ajax({
         type: "GET",
         url: "http://192.168.16.4:8000/gsinfo/photographing/getPictures/",
-        // dataType: "jsonp",
-        // jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
-        // jsonpCallback: "success_jsonpCallback",
         data: {
             "boxNumber": row.boxNumber,
             "serialNumber": row.serialNumber
@@ -171,7 +169,6 @@ function updateInfo(index, row) {
                         data: {
                             serialNumber: row.serialNumber
                         }, success: function (data) {
-                            console.log(data)
                             var file = data.filePath
                             var rephotoPathSrc = data.rephotoPath
                             var stop = data.stop
@@ -201,7 +198,7 @@ function updateInfo(index, row) {
                             console.log(textStatus);
                         }
                     })
-                }, 1000)
+                }, 10000)
                 upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             } else {
                 $("#saveBtn").attr('disable', true)
