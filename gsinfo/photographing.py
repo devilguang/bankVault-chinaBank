@@ -46,7 +46,8 @@ def getPictures(request):
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 
-    return HttpResponse('success_jsonpCallback(' + ret_json +')')
+    # return HttpResponse('success_jsonpCallback(' + ret_json +')')
+    return HttpResponse(ret_json)
 
 def updatePhotographingInfo(request):
     serialNumber = request.GET.get('serialNumber', '')
@@ -102,7 +103,8 @@ def updatePhotographingInfo(request):
     else:
         ret['success'] = False
         ret['message'] = '图片上传失败！'
-
+        
     ret_json = json.dumps(ret, separators=(',', ':'))
-    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+    # return HttpResponse('success_jsonpCallback(' + ret_json +')')
+    return HttpResponse(ret_json)
 
