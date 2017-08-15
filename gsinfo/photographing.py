@@ -8,7 +8,7 @@ from gsinfosite import settings
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 import datetime
-#from django.views.decorators.csrf import csrf_exempt
+import base64
 
 
 @login_required  # 图像采集岗位
@@ -48,49 +48,20 @@ def getPictures(request):
 
     return HttpResponse('success_jsonpCallback(' + ret_json +')')
 
-# 将删除该箱子所属的所有图片
-def deletePic(request):
-    boxOrSubBox = '1-5' # request.POST.get('boxNumber', '')
-
-    ret = {}
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-
-# def savePics(request):
-#     file_obj = request.FILES.get('your_file', None)
-#     # 写入文件
-#     if file_obj == None:
-#         return HttpResponse('file not existing in the request')
-#     file_name = 'temp_file-%d' % random.randint(0, 100000)  # 不能使用文件名称，因为存在中文，会引起内部错误
-#     file_full_path = os.path.join(UPLOAD_ROOT, file_name)
-#     dest = open(file_full_path, 'wb+')
-#     dest.write(file_obj.read())
-#     dest.close()
-#     return HttpResponse(ret_json)
-
 def updatePhotographingInfo(request):
-    serialNumber = request.POST.get('serialNumber', '')
-    boxOrSubBox = request.POST.get('boxNumber', '')
+    serialNumber = request.GET.get('serialNumber', '')
+    boxOrSubBox = request.GET.get('boxNumber', '')
+    pic_path = request.GET.get('pic_path', '')
 
-    file_obj = request.FILES.get('your_file', None)
+    img_path = json.loads(pic_path)
+    for k,v in img_path.items():
+        file_name = serialNumber + '-' + k + '.jpg'
+        save_path = os.path.join(settings.STATIC_PATH,'img',boxOrSubBox,serialNumber,file_name)
+        img = base64.b64decode(v)
+        with open(save_path,'wb') as f:
+            f.write(img)
 
     ret = {}
-    # 写入文件
-    if file_obj == None:
-        ret['success'] = True
-        ret['message'] = '图片上传失败！'
-        ret_json = json.dumps(ret, separators=(',', ':'))
-        return HttpResponse(ret_json)
-    save_path = os.path.join(settings.STATIC_PATH,boxOrSubBox,'123.jpg')  # 不能使用文件名称，因为存在中文，会引起内部错误
-    dest = open(save_path, 'wb+')
-    dest.write(file_obj.read())
-    dest.close()
-
     if '-' in boxOrSubBox:
         boxNumber = int(boxOrSubBox.split('-')[0])
         subBoxNumber = int(boxOrSubBox.split('-')[1])
@@ -126,48 +97,9 @@ def updatePhotographingInfo(request):
         ret['message'] = '图片上传失败！'
     else:
         ret['success'] = True
-        ret['message'] = '图片上传失败！'
+        ret['message'] = '图片上传成功！'
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 
-    return HttpResponse(ret_json)
+    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
-
-
-
-# 图片需要三个路径：相机拍摄后保存路径，备份到硬盘路径，长传到系统路径
-
-# def getMeasuringInfo(request):
-#     serialNumber = request.GET.get('serialNumber', '')
-#     boxNumber = int(request.GET.get('boxNumber', ''))
-#     productType = request.GET.get('productType', '')
-#
-#     box = gsBox.objects.get(boxNumber=boxNumber)
-#
-#     ret = {}
-#     if (0 == cmp(productType, u'金银锭类')):
-#         thing = gsDing.objects.get(box=box, serialNumber=serialNumber)
-#         ret['grossWeight'] = thing.grossWeight
-#         ret['length'] = thing.length
-#         ret['width'] = thing.width
-#         ret['height'] = thing.height
-#     elif (0 == cmp(productType, u'金银币章类')):
-#         thing = gsBiZhang.objects.get(box=box, serialNumber=serialNumber)
-#         ret['grossWeight'] = thing.grossWeight
-#         ret['diameter'] = thing.diameter
-#         ret['thick'] = thing.thick
-#     elif (0 == cmp(productType, u'银元类')):
-#         thing = gsYinYuan.objects.get(box=box, serialNumber=serialNumber)
-#         ret['grossWeight'] = thing.grossWeight
-#         ret['diameter'] = thing.diameter
-#         ret['thick'] = thing.thick
-#     elif (0 == cmp(productType, u'金银工艺品类')):
-#         thing = gsGongYiPin.objects.get(box=box, serialNumber=serialNumber)
-#         ret['grossWeight'] = thing.grossWeight
-#         ret['length'] = thing.length
-#         ret['width'] = thing.width
-#         ret['height'] = thing.height
-#
-#     ret_json = json.dumps(ret, separators=(',', ':'))
-#
-#     return HttpResponse(ret_json)
