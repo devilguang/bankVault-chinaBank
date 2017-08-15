@@ -148,6 +148,7 @@ urlpatterns = [
     url(r'^photographing/getPictures/$', photographing.getPictures, name='getPictures'),
     url(r'^photographing/getWareHouse/$', views.getWareHouse, name='getWareHouse'),
     url(r'^photographing/getProductType/$', views.getProductType, name='getProductType'),
+    url(r'^photographing/updatePhotographingInfo/$', photographing.updatePhotographingInfo, name='updatePhotographingInfo'),
 
 
     url(r'^analyzing/$', analyzing.analyzing, name='analyzing'),
