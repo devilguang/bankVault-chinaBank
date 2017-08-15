@@ -14,9 +14,3 @@
 {{ object.height }}
 {{ object.grossWeight }}
 {{ object.pureWeight }}
-{{ object.reportQuality }}
-{{ object.sampleName }}
-{{ object.testPerson }}
-{{ object.testRequire }}
-{{ object.testResult }}
-{{ object.testUnit }}

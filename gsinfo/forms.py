@@ -4,7 +4,7 @@ from haystack.forms import SearchForm,ModelSearchForm
 
 
 class advanceSearch(ModelSearchForm):
-    detailedName = forms.CharField(required=False,label=(u'名称'))
+    #detailedName = forms.CharField(required=False,label=(u'名称'))
 
 
     def search(self):

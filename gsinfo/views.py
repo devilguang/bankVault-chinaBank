@@ -9,6 +9,9 @@ from .utils import dateTimeHandler
 from .report_process import *
 from django.contrib import auth
 from . import log
+from haystack.views import SearchView
+from haystack.query import SearchQuerySet
+from forms import advanceSearch
 
 
 def login(request):
@@ -622,7 +625,7 @@ def getSubClassName(request, code):
     return HttpResponse(ret_json)
 
 
-
+#
 # class adv_search(SearchView):
 #     template_name = 'search/search.html'
 #     form_class = advanceSearch
@@ -637,18 +640,17 @@ def getSubClassName(request, code):
 #         # do something
 #         return context
 
-# def search(request):
-#     form = advanceSearch()
-#     if 'detailedName' in request.GET:
-#         form = advanceSearch(request.GET)
-#         if form.is_valid():
-#             cd = form.cleaned_data
-#             results = SearchQuerySet().models(gsDing).filter(detailedName=cd['detailedName']).load_all()
-#             # count total results
-#             total_results = results.count()
-#
-#     return render(request, 'search/search.html',
-#             {'form': form,
-#             'cd': '',
-#             'results': '',
-#             'total_results': ''})
+def search(request):
+    form = advanceSearch()
+    form = advanceSearch(request.GET)
+    if form.is_valid():
+        cd = form.cleaned_data
+        results = SearchQuerySet().models(gsDing).filter().load_all()
+        # count total results
+        total_results = results.count()
+
+    return render(request, 'search/search.html',
+            {'form': form,
+            'cd': '',
+            'results': '',
+            'total_results': ''})

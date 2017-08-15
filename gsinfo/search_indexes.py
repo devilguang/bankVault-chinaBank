@@ -5,7 +5,7 @@ from models import *
 
 class gsDingIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
-    detailedName = indexes.CharField(model_attr='detailedName')
+    #detailedName = indexes.CharField(model_attr='detailedName')
     def get_model(self):
         return gsDing
 
