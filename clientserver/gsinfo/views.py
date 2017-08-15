@@ -147,8 +147,8 @@ def getSeq(request):
         ret['stop'] = 'True'
     # -----------------------------------------------------
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
-    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
-
+    # return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+    return HttpResponse(ret_json)
 
 def rephotograph(request):
     fileName = request.GET.get('fileName','')
@@ -156,15 +156,16 @@ def rephotograph(request):
         f.write(fileName)
     ret = {'rephoto': True}
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
-    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+    #return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+    return HttpResponse(ret_json)
 def removePic(request):
     ret = {'remove': True}
     fileName = request.GET.get('fileName','')
     deleteFilePath = os.path.join(uploadDir,fileName)
     os.remove(deleteFilePath)
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
-    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
-
+    #return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+    return HttpResponse(ret_json)
 def upload(request):
     img_path = request.GET.get('img_path', '')
     # headers = request.GET.get('headers', '')
@@ -194,7 +195,8 @@ def upload(request):
     # shutil.rmtree(uploadDir)
     # shutil.rmtree(rephotoDir)
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
-    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+    #return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+    return HttpResponse(ret_json)
 # -----------------------------------------------------
 # 频谱检测仪功能
 # 一、通过复制数据库文件解除独占
