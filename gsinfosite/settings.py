@@ -65,12 +65,13 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # haystack first then your own app
     'haystack',
-    'gsinfo',
     'corsheaders',
+    'gsinfo',
+
 
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -84,35 +85,33 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'gsinfosite.urls'
 
-# CORS_ALLOW_CREDENTIALS = True
-# CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ORIGIN_WHITELIST = (
-#     '*'
-# )
-#
-# CORS_ALLOW_METHODS = (
-#     'DELETE',
-#     'GET',
-#     'OPTIONS',
-#     'PATCH',
-#     'POST',
-#     'PUT',
-#     'VIEW',
-# )
-#
-# CORS_ALLOW_HEADERS = (
-#     'XMLHttpRequest',
-#     'X_FILENAME',
-#     'accept-encoding',
-#     'authorization',
-#     'content-type',
-#     'dnt',
-#     'origin',
-#     'user-agent',
-#     'x-csrftoken',
-#     'x-requested-with',
-#     'Pragma',
-# )
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = ('*')
+
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+
+CORS_ALLOW_HEADERS = (
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Pragma',
+)
 
 TEMPLATES = [
     {
@@ -133,7 +132,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'gsinfosite.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 DATABASES = {
     # 'default': {
