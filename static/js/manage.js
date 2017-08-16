@@ -73,15 +73,16 @@ function boxOperationFormatter(value, row, index) {
 function openCreateBoxDlg() {
     $('#createBoxDlg').dialog('open').dialog('center').dialog('setTitle', '新建实物');
     $('#createBoxForm').form('clear');
-    $.ajax({
-        type:'get',
-        url:'getStartSequence',
-        data:{
-            
-        },success:function (data){
-            
-        }
-    })
+
+    // $.ajax({
+    //     type:'get',
+    //     url:'getStartSequence',
+    //     data:{
+    //
+    //     },success:function (data){
+    //
+    //     }
+    // })
 
 }
 function createBox() {
