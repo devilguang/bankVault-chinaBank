@@ -618,22 +618,29 @@ def getUserName(request):
 def setSysAdmin(request):
     nickName = request.POST.get('nickName', '')
     oldNickName = gsUser.objects.get(user=request.user).nickName
-    try:
-        log.log(user=request.user, operationType=u'系统管理', content=u'将{0}的系统管理权限转移给{1}'.format(oldNickName,nickName))
-        gsUser.objects.filter(nickName=nickName).update(type=0)
-        gsUser.objects.filter(nickName=oldNickName).update(type=1)
-        #gsUser.objects.deleteUser(nickName=oldNickName)
-        auth.logout(request)
-    except Exception as e:
+    manage = gsUser.objects.get(nickName=nickName).manage
+    if manage == 1:
         ret = {
             "success": False,
-            "message": u'权限转移失败！'
+            "message": u'系统管理权限不能转移给现场负责人 ！'
         }
     else:
-        ret = {
-            'success': True,
-            'message': u'权限转移成功！'
-        }
+        try:
+            log.log(user=request.user, operationType=u'系统管理', content=u'将{0}的系统管理权限转移给{1}'.format(oldNickName,nickName))
+            gsUser.objects.filter(nickName=nickName).update(type=0)
+            gsUser.objects.filter(nickName=oldNickName).update(type=1)
+            #gsUser.objects.deleteUser(nickName=oldNickName)
+            auth.logout(request)
+        except Exception as e:
+            ret = {
+                "success": False,
+                "message": u'权限转移失败！'
+            }
+        else:
+            ret = {
+                'success': True,
+                'message': u'权限转移成功！'
+            }
 
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
