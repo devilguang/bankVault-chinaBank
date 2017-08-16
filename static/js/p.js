@@ -135,9 +135,34 @@ function unInitUpdateInfoDlg() {
      $('#UpdateInfoheight').textbox('readonly', false);*/
 }
 function closeUpdateInfo() {
-    $('#UpdateInfoDlg').dialog('close');
+    $.ajax({
+        type: "get",
+        url: "http://127.0.0.1:8000/gsinfo/cancel/",
+        dataType: "jsonp",
+        jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+        jsonpCallback: "success_jsonpCallback",
+        data:{}
+    });
+     $('#UpdateInfoDlg').dialog('close');
     //unInitUpdateInfoDlg();
 }
+$('.panel-tool').click(function(){
+    console.log('我点击了吗');
+    $.ajax({
+        type: "get",
+        url: "http://127.0.0.1:8000/gsinfo/cancel/",
+        dataType: "jsonp",
+        jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+        jsonpCallback: "success_jsonpCallback",
+        data:{
+
+        },success:function (data) {
+            console.log(data)
+
+        }
+    })
+
+})
 
 function updateInfo(index, row) {
     $('#masking').hide()
@@ -168,10 +193,12 @@ function updateInfo(index, row) {
                         data: {
                             serialNumber: row.serialNumber
                         }, success: function (data) {
+                            console.log(data)
                             var file = data.filePath
                             var rephotoPathSrc = data.rephotoPath
                             var stop = data.stop
-                            if (stop == true) {
+                            if (stop == 'True') {
+                                console.log('12312312312321')
                                 clearInterval(timer)
                                 return
                             }
