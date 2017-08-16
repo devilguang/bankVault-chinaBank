@@ -70,20 +70,27 @@ function boxOperationFormatter(value, row, index) {
         return '<div style="float:left" min-width: 498px;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;"></a></div>';
     }
 }
+
+//点击新建的方法
 function openCreateBoxDlg() {
     $('#createBoxDlg').dialog('open').dialog('center').dialog('setTitle', '新建实物');
     $('#createBoxForm').form('clear');
-
-    // $.ajax({
-    //     type:'get',
-    //     url:'getStartSequence',
-    //     data:{
-    //
-    //     },success:function (data){
-    //
-    //     }
-    // })
-
+    $('#createBox-boxNumber').siblings().find('.textbox-text').focus(function () {
+        var productType = $("#createBox-productType").siblings().find('.textbox-value').val()
+        var wareHouse = $("#createBox-wareHosue").siblings().find('.textbox-value').val()
+        var className = $("#createBox-className").siblings().find('.textbox-value').val()
+        var subClassName = $("#createBox-subClassName").siblings().find('.textbox-value').val()
+        $.ajax({
+            type:'get',
+            url:'getStartSequence/',
+            data:{
+                codes:productType+'&'+wareHouse+'&'+className+'&'+subClassName
+            },success:function(data){
+                var data = JSON.parse(data)
+                $('#createBox-startSeq').siblings().find('.textbox-text').val(data.maxSeq)
+            }
+        })
+    })
 }
 function createBox() {
     $('#createBoxDlg').dialog('close');        		// 关闭对话框

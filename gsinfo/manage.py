@@ -1623,17 +1623,20 @@ def getStatusData(request):
 
 # ------------------------------------------------------------------------------------
 def getStartSequence(request):
-    codes = '4&1&02'.split('&')
+    codes = request.GET.get('codes','')
+    codes = codes.split('&')
     ret = {}
-    if len(codes) == 3:
+    if len(codes) == 4:
         typeCode = codes[0]
-        classNameCode = codes[1]
-        subClassNameCode = codes[2]
-        lastedBox = gsBox.objects.filter(productType=typeCode, className=classNameCode,
+        wareHouse = codes[1]
+        classNameCode = codes[2]
+        subClassNameCode = codes[3]
+        lastedBox = gsBox.objects.filter(wareHouse=wareHouse, className=classNameCode,
                                          subClassName=subClassNameCode).order_by('-id').first()
         if lastedBox:
             ret['maxSeq'] = gsThing.objects.filter(box=lastedBox).order_by('-seq').first().seq+1
-
+        else:
+            ret['maxSeq'] = '1'
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
