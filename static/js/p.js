@@ -154,14 +154,10 @@ $('.panel-tool').click(function(){
         dataType: "jsonp",
         jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
         jsonpCallback: "success_jsonpCallback",
-        data:{
-
-        },success:function (data) {
+        data:{},success:function (data) {
             console.log(data)
-
         }
     })
-
 })
 
 function updateInfo(index, row) {

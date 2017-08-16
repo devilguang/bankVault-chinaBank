@@ -25,7 +25,7 @@ rephotoDir = os.path.join(BASE_DIR,'static','rephoto')
 
 rephotoFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'rephotoFileName.txt')
 pastSerialFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'pastSerialNumber.txt')
-uploadFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'stopSignal.txt')
+stopSignalPath = os.path.join(os.path.dirname(os.path.abspath(__file__)),'stopSignal.txt')
 
 def getSeq(request):
     serialNumber = request.GET.get('serialNumber','')
@@ -137,13 +137,14 @@ def getSeq(request):
             ret['havePhotoDir'] = 'False'
             ret['stop'] = 'True'
     # -----------------------------------------------------
-    stopSignal = None
-    if os.path.exists('stopSignal.txt'):
-        with open('stopSignal.txt', 'r+') as f:
+    stopSignal = True
+    if os.path.exists(stopSignalPath):
+        with open(stopSignalPath, 'r') as f:
             stopSignal = f.read().strip()
+        with open(stopSignalPath, 'w') as f:
             f.truncate()
 
-    if stopSignal:
+    if stopSignal == 'done':
         ret['stop'] = 'True'
     # -----------------------------------------------------
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
@@ -185,7 +186,7 @@ def upload(request):
             ret[k] =f1
         else:
             break
-    with open('stopSignal.txt','w') as f:
+    with open(stopSignalPath,'w') as f:
         result = 'done'
         f.write(result)
     #删除本地图片
@@ -195,7 +196,7 @@ def upload(request):
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
 def cancel(request):
-    with open('stopSignal.txt','w') as f:
+    with open(stopSignalPath,'w') as f:
         result = 'done'
         f.write(result)
     ret ={'success':'ok' }
