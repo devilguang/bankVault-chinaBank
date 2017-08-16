@@ -7,15 +7,15 @@ function setCookie(name, value) {
 }
 
 //读取cookies
-function getCookie(name) {
-    var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-
-    if (arr = document.cookie.match(reg))
-
-        return unescape(arr[2]);
-    else
-        return null;
-}
+// function getCookie(name) {
+//     var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+//
+//     if (arr = document.cookie.match(reg))
+//
+//         return unescape(arr[2]);
+//     else
+//         return null;
+// }
 
 //删除cookies
 function delCookie(name) {
@@ -197,7 +197,7 @@ function updateInfo(index, row) {
                             console.log(textStatus);
                         }
                     })
-                }, 10000)
+                }, 2000)
                 upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             } else {
                 $("#saveBtn").attr('disable', true)
@@ -209,7 +209,7 @@ function updateInfo(index, row) {
                         '<div class="btnWrap"><button id="rephotograph" href="#" class="rephotograph">重拍</button><button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
                     imgList.appendChild(li);
                     rephotograph()
-                    removePic() //删除按钮
+                    removePic(row.boxNumber,row.serialNumber) //删除按钮
                 }
                 upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             }
@@ -243,19 +243,24 @@ function rephotograph() {
     })
 }
 //删除方法
+//http://127.0.0.1:8000/static\upload\1-08-217-113-A.jpg】
 function removePic(boxNumber,serialNumber) {
     $("#filePathList>li").on('click', '.easyui-linkbutton', function () {
         $(this).parent().parent().remove()
-        console.log($(this).parent().siblings())
+        console.log($(this).parent().siblings().attr('src'))
+        var fullFile = $(this).parent().siblings().attr('src')
+        var index = fullFile.indexOf('static')
+        var index1 = fullFile.substr(index).lastIndexOf('\\') ? fullFile.substr(index).lastIndexOf('\\') : fullFile.substr(index).lastIndexOf('/')
+        var fileName = fullFile.substr(index).substr(index1 + 1)
         $.ajax({
             type: 'post',
             url: 'delectPic/',
             data: {
                 "boxNumber": boxNumber,
                 "serialNumber":serialNumber,
-                'fileName':''
+                'fileName':fileName
             }, success: function (data) {
-
+                console.log(data)
             }
         })
 

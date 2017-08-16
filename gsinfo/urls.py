@@ -152,7 +152,7 @@ urlpatterns = [
     url(r'^photographing/getWareHouse/$', views.getWareHouse, name='getWareHouse'),
     url(r'^photographing/getProductType/$', views.getProductType, name='getProductType'),
     url(r'^photographing/updatePhotographingInfo/$', photographing.updatePhotographingInfo, name='updatePhotographingInfo'),
-    url(r'^photographing/delectPic/$', views.getProductType, name='delectPic'),
+    url(r'^photographing/delectPic/$', photographing.delectPic, name='delectPic'),
 
     url(r'^analyzing/$', analyzing.analyzing, name='analyzing'),
     url(r'^analyzing/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),
