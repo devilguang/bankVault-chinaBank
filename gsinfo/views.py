@@ -626,20 +626,20 @@ def getSubClassName(request, code):
 
 
 
-class adv_search(SearchView):
+class GeneralSearch(SearchView):
     template_name = 'search/search.html'
     form_class = advanceSearch
-    queryset = SearchQuerySet().filter(requires_calibration=False)
+    queryset = SearchQuerySet().filter()
 
-    def get_queryset(self):
-        queryset = super(adv_search, self).get_queryset()
-        # further filter queryset based on some set of criteria
-        return queryset.filter()
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(adv_search, self).get_context_data(*args, **kwargs)
-        # do something
-        return context
+    # def get_queryset(self):
+    #     queryset = super(GeneralSearch, self).get_queryset()
+    #     # further filter queryset based on some set of criteria
+    #     return queryset.filter()
+    #
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super(GeneralSearch, self).get_context_data(*args, **kwargs)
+    #     # do something
+    #     return context
 
 # def search(request):
 #     form = advanceSearch(request.GET)
@@ -653,4 +653,4 @@ class adv_search(SearchView):
 #             {'form': form,
 #             'cd': '',
 #             'results': '',
-#             'total_results': ''})
+#             'total_results': total_results})

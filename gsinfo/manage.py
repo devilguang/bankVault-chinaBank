@@ -1637,6 +1637,7 @@ def getStartSequence(request):
             ret['maxSeq'] = gsThing.objects.filter(box=lastedBox).order_by('-seq').first().seq+1
         else:
             ret['maxSeq'] = '1'
+
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 

@@ -21,7 +21,6 @@ from . import measuring
 from . import numbering
 from . import photographing
 from . import analyzing
-from haystack.views import SearchView
 
 urlpatterns = [
     url(r'^login/$', views.login, name='login'),
@@ -95,7 +94,7 @@ urlpatterns = [
     #url(r'^manage/search/$', views.adv_search.as_view(), name='calibration_search'),
     url(r'^manage/advanceSearch/$', manage.advanceSearch, name='advanceSearch'),
     #url(r'^manage/search/$', views.search, name='search'),
-    #url(r'^manage/search/$', views.adv_search(), name='adv_search'),
+    url(r'^manage/search/$', views.GeneralSearch(), name='GeneralSearch'),
     #url(r'^manage/search/$', SearchView(), name='haystack_search'),
     url(r'^manage/restore/$', manage.restore, name='restore'),
     url(r'^manage/summarizeDailyWork/$', manage.summarizeDailyWork, name='summarizeDailyWork'),
