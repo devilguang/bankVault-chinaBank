@@ -140,7 +140,6 @@ function closeUpdateInfo() {
 }
 
 function updateInfo(index, row) {
-    console.log(row.serialNumber)
     $('#masking').hide()
     $("#filePathList").html('')
     var fileArr = []
@@ -151,7 +150,7 @@ function updateInfo(index, row) {
     $('.serialNumber').text(row.serialNumber);
     $.ajax({
         type: "GET",
-        url: "http://192.168.16.4:8000/gsinfo/photographing/getPictures/",
+        url: "getPictures/",
         data: {
             "boxNumber": row.boxNumber,
             "serialNumber": row.serialNumber
@@ -186,7 +185,7 @@ function updateInfo(index, row) {
                                     '<button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
                                 imgList.appendChild(li)
                                 rephotograph() //重拍图片的方法
-                                removePic()  //删除图片的方法
+                                removePic(row.boxNumber,row.serialNumber)  //删除图片的方法
                             }
                             if (rephotoPathSrc) {
                                 $("#filePathList>li").eq(picIndex).children().eq(0).attr('src', "http://127.0.0.1:8000/" + rephotoPathSrc)
@@ -244,9 +243,22 @@ function rephotograph() {
     })
 }
 //删除方法
-function removePic() {
+function removePic(boxNumber,serialNumber) {
     $("#filePathList>li").on('click', '.easyui-linkbutton', function () {
         $(this).parent().parent().remove()
+        console.log($(this).parent().siblings())
+        $.ajax({
+            type: 'post',
+            url: 'delectPic/',
+            data: {
+                "boxNumber": boxNumber,
+                "serialNumber":serialNumber,
+                'fileName':''
+            }, success: function (data) {
+
+            }
+        })
+
     })
 }
 
@@ -294,7 +306,6 @@ function upLoadImg(boxNumber, serialNumber) {
                         pic_path: JSON.stringify(data)
                     }, success: function (data) {
                         var data = JSON.parse(data)
-                        console.log(data)
                         if (data.success == true) {
                             $("#masking").hide()
                             $('#UpdateInfoDlg').dialog('close');
@@ -304,18 +315,6 @@ function upLoadImg(boxNumber, serialNumber) {
             }
         })
     })
-}
-function getCookei() {
-    var aCookie = document.cookie.split(";");
-    var re = '';
-    for (var i = 0; i < aCookie.length; i++) {
-        var aCrumb = aCookie[i].split("=");
-        if (aCrumb[0].toString().Trim() == 'order_list') {
-            continue;
-        }
-        re += (aCrumb[0] + " = " + aCrumb[1] + '\n\n');
-    }
-    console.log(re)
 }
 function editInfo() {
     var productType = $('#UpdateInfoproductType').textbox('getValue');
