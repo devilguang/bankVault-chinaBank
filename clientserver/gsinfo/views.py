@@ -25,7 +25,7 @@ rephotoDir = os.path.join(BASE_DIR,'static','rephoto')
 
 rephotoFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'rephotoFileName.txt')
 pastSerialFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'pastSerialNumber.txt')
-uploadFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'uploadResult.txt')
+uploadFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'stopSignal.txt')
 
 def getSeq(request):
     serialNumber = request.GET.get('serialNumber','')
@@ -137,13 +137,13 @@ def getSeq(request):
             ret['havePhotoDir'] = 'False'
             ret['stop'] = 'True'
     # -----------------------------------------------------
-    uploadResult = None
-    if os.path.exists('uploadResult.txt'):
-        with open('uploadResult.txt', 'r+') as f:
-            uploadResult = f.read().strip()
+    stopSignal = None
+    if os.path.exists('stopSignal.txt'):
+        with open('stopSignal.txt', 'r+') as f:
+            stopSignal = f.read().strip()
             f.truncate()
 
-    if uploadResult == 'True':
+    if stopSignal:
         ret['stop'] = 'True'
     # -----------------------------------------------------
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
@@ -185,7 +185,7 @@ def upload(request):
             ret[k] =f1
         else:
             break
-    with open('uploadResult.txt','w') as f:
+    with open('stopSignal.txt','w') as f:
         result = 'done'
         f.write(result)
     #删除本地图片
@@ -193,6 +193,15 @@ def upload(request):
     # shutil.rmtree(rephotoDir)
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+
+def cancel(request):
+    with open('stopSignal.txt','w') as f:
+        result = 'done'
+        f.write(result)
+    ret ={'success':'ok' }
+    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
+    return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+
 # -----------------------------------------------------
 # 频谱检测仪功能
 # 一、通过复制数据库文件解除独占
