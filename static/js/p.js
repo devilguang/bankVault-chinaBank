@@ -282,7 +282,6 @@ function upLoadImg(boxNumber, serialNumber) {
             data: {
                 img_path: JSON.stringify(img_path)
             }, success: function (data) {
-                console.log(data)
                 $.ajax({
                     type: 'post',
                     url: 'http://192.168.16.4:8000/gsinfo/photographing/updatePhotographingInfo/',
@@ -294,6 +293,7 @@ function upLoadImg(boxNumber, serialNumber) {
                         serialNumber: serialNumber,
                         pic_path: JSON.stringify(data)
                     }, success: function (data) {
+                        var data = JSON.parse(data)
                         console.log(data)
                         if (data.success == true) {
                             $("#masking").hide()

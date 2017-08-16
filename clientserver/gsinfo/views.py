@@ -28,7 +28,7 @@ pastSerialFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'pastSe
 uploadFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'uploadResult.txt')
 
 def getSeq(request):
-    serialNumber = request.POST.get('serialNumber','')
+    serialNumber = request.GET.get('serialNumber','')
     ret = {}
     # 指定要使用的字体和大小；/Library/Fonts/是macOS字体目录；Linux的字体目录是/usr/share/fonts/
     font = ImageFont.truetype('arial.ttf', 16)  # 第二个参数表示字符大小
