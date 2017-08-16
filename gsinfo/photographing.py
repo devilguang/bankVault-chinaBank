@@ -49,9 +49,9 @@ def getPictures(request):
     return HttpResponse(ret_json)
 
 def updatePhotographingInfo(request):
-    serialNumber = request.GET.get('serialNumber', '')
-    boxOrSubBox = request.GET.get('boxNumber', '')
-    pic_path = request.GET.get('pic_path', '')
+    serialNumber = request.POST.get('serialNumber', '')
+    boxOrSubBox = request.POST.get('boxNumber', '')
+    pic_path = request.POST.get('pic_path', '')
     ret = {}
     if pic_path:
         img_path = json.loads(pic_path)
