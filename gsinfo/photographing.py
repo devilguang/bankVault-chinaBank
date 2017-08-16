@@ -107,3 +107,18 @@ def updatePhotographingInfo(request):
     # return HttpResponse('success_jsonpCallback(' + ret_json +')')
     return HttpResponse(ret_json)
 
+def delectPic(request):
+    boxOrSubBox = request.POST.get('boxNumber', '')
+    serialNumber = request.POST.get('serialNumber', '')
+    fileName = request.POST.get('fileName', '')
+    ret={}
+    delect_path = os.path.join(settings.STATIC_PATH,'img',boxOrSubBox,serialNumber,fileName)
+    if os.path.exists(delect_path):
+        os.remove(delect_path)
+        ret['success'] = True
+        ret['message'] = '图片删除成功！'
+    else:
+        ret['success'] = False
+        ret['message'] = '服务器上无该图片！'
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)

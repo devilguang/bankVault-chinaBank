@@ -625,32 +625,32 @@ def getSubClassName(request, code):
     return HttpResponse(ret_json)
 
 
-#
-# class adv_search(SearchView):
-#     template_name = 'search/search.html'
-#     form_class = advanceSearch
-#     queryset = SearchQuerySet().filter(requires_calibration=False)
-#
-#     def get_queryset(self):
-#         queryset = super(adv_search, self).get_queryset()
-#         return queryset
-#
-#     def get_context_data(self, *args, **kwargs):
-#         context = super(adv_search, self).get_context_data(*args, **kwargs)
-#         # do something
-#         return context
 
-def search(request):
-    form = advanceSearch()
-    form = advanceSearch(request.GET)
-    if form.is_valid():
-        cd = form.cleaned_data
-        results = SearchQuerySet().models(gsDing).filter().load_all()
-        # count total results
-        total_results = results.count()
+class adv_search(SearchView):
+    template_name = 'search/search.html'
+    form_class = advanceSearch
+    queryset = SearchQuerySet().filter(requires_calibration=False)
 
-    return render(request, 'search/search.html',
-            {'form': form,
-            'cd': '',
-            'results': '',
-            'total_results': ''})
+    def get_queryset(self):
+        queryset = super(adv_search, self).get_queryset()
+        # further filter queryset based on some set of criteria
+        return queryset.filter()
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(adv_search, self).get_context_data(*args, **kwargs)
+        # do something
+        return context
+
+# def search(request):
+#     form = advanceSearch(request.GET)
+#     if form.is_valid():
+#         cd = form.cleaned_data
+#         results = SearchQuerySet().models(gsDing).filter().load_all()
+#         # count total results
+#         total_results = results.count()
+#
+#     return render(request, 'search/search.html',
+#             {'form': form,
+#             'cd': '',
+#             'results': '',
+#             'total_results': ''})

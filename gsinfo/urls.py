@@ -94,7 +94,7 @@ urlpatterns = [
     url(r'^manage/boxInOutStore/$', manage.boxInOutStore, name='boxInOutStore'),
     #url(r'^manage/search/$', views.adv_search.as_view(), name='calibration_search'),
     url(r'^manage/advanceSearch/$', manage.advanceSearch, name='advanceSearch'),
-    url(r'^manage/search/$', views.search, name='search'),
+    #url(r'^manage/search/$', views.search, name='search'),
     #url(r'^manage/search/$', views.adv_search(), name='adv_search'),
     #url(r'^manage/search/$', SearchView(), name='haystack_search'),
     url(r'^manage/restore/$', manage.restore, name='restore'),
@@ -152,7 +152,7 @@ urlpatterns = [
     url(r'^photographing/getWareHouse/$', views.getWareHouse, name='getWareHouse'),
     url(r'^photographing/getProductType/$', views.getProductType, name='getProductType'),
     url(r'^photographing/updatePhotographingInfo/$', photographing.updatePhotographingInfo, name='updatePhotographingInfo'),
-
+    url(r'^photographing/delectPic/$', views.getProductType, name='delectPic'),
 
     url(r'^analyzing/$', analyzing.analyzing, name='analyzing'),
     url(r'^analyzing/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),
@@ -160,5 +160,6 @@ urlpatterns = [
     url(r'^analyzing/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
     url(r'^analyzing/getAnalyzingWorkData/$', analyzing.getAnalyzingWorkData, name='getAnalyzingWorkData'),
     url(r'^analyzing/updateAnalyzingInfo/$', analyzing.updateAnalyzingInfo, name='updateAnalyzingInfo'),
+
 
 ]
