@@ -2189,20 +2189,41 @@ function backToWork(boxNumber) {
         'json');
 }
 
+function getAdvancedSearch() {
+    $(".advancedSearch_btn").click(function () {
+        $.ajax({
+            type: 'get',
+            url: 'advanceSearchHTML/',
+            data: {},
+            success: function (data) {
+                console.log(data)
+            }
+        })
+    })
+}
 function searchWork() {
     var title = '全文检索';
     var c = '<div class="easyui-layout" data-options="fit:true">' +
-                '<div id="tt" class="easyui-tabs" style="width:100%;height:100%;">'+
-                    '<div title="常规检索" style="padding:20px;display:none">'+
-        '<iframe src="search/" frameborder="0" style="width:100%;height: 100%;"></iframe>'+'</div>'+
-                    '<div class="advancedSearch_btn" title="高级检索" style="overflow:auto;padding:20px;display:none;">高级检索</div>'+
-        '<iframe class="advancedSearch" src="/gsinfo/advancedSearch" frameborder="0" style="width:100%;height: 100%;"></iframe>'+
-                '</div>'+
-             '</div>'+
-        '<script type="text/javascript">' +
-            '$(".advancedSearch_btn").click(function（){' +
-        '})'
-        '</script>';
+        '<div id="tt" class="easyui-tabs" style="width:100%;height:100%;">' +
+        '<div title="常规检索" style="padding:20px;display:none">' +
+        '<iframe src="search/" frameborder="0" style="width:100%;height: 100%;"></iframe>' + '</div>' +
+        '<div title="高级检索" style="overflow:auto;padding:20px;display:none;">' +
+            '<h2>请选择数据表:</h2>'+
+            '<select id="advancedSearch" class="easyui-combobox" name="dept" style="width:100px;">' +
+                 '<option value="1">金银锭类</option>'+
+                 '<option value="2">金银币章类</option>'+
+                 '<option value="3">银元类</option>'+
+                 '<option value="4">金银工艺品类</option>'+ '</select>'+
+            '<div style="font-size:12px;margin-top: 30px">'
+        +'<select name="" id="judgment" class="easyui-combobox" name="dept"  style="width:80px;">'+'<option value="">请选择</option>'+'<option value="">OR</option>'+'<option value="">AND</option>' +'<option value="">NO</option>'+ '</select>'+
+            '<select name="" id="theColour" class="easyui-combobox" name="dept" style="width:80px;margin-left: 90px">'+ '<option value="">成色</option>'+'<option value=""></option>'+'</select>'
+            +'<select name="" id="symbol" class="easyui-combobox" name="dept" style="width:80px;margin-left: 30px">'+'<option value="">	&le;</option>'+'<option value="">&ge;</option>'+'<option value="">=</option>'+ '<option value="">></option>'+ '<option value=""><</option>'+'</select>'+
+            '<input type="text" placeholder="" style="width: 50px;margin-left: 30px">'+
+            '<a style="margin-left:30px;background:#E0ECFF ;display: inline-block;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7">+</a>'+
+            '<a style="background:#E0ECFF;display: inline-block;margin-left: 30px;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7"">-</a>'+
+        '</div>'+'</div>' +'</div>' + '</div>';
+
+        $("#judgment").children().find()
     addTab(title, c, 'icon-archive');
     /**
      *   '$(function(){ $(\'#workGrid\').datagrid({ view: detailview, detailFormatter:function(index,row){ ' +
@@ -2211,18 +2232,18 @@ function searchWork() {
         ' ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品名\',width:50,align:\'center\'},{field:\'subClassName\',title:\'明细品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:workThingFormatter}]],onResize:function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#workGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}' +
 
 
-    '<div data-options="region:\'center\'">' +
-        '<table id="workGrid" class="easyui-datagrid" data-options="url:\'getWorkContent/\', border:false, rownumbers:true, fitcolumns:true, fit:true, pagination:true, pagsize:10">' +
-        '<thead>' +
-        '<tr>' +
-        '<th field="boxNumber" align="center" width="50">箱号</th>' +
-        '<th field="productType" align="center" width="150">实物类型</th>' +
-        '<th field="amount" align="center" width="150">数量</th>' +
-        '<th field="archiveUrl" align="center" formatter="workBoxFormatter" width="430">资料</th>' +
-        '</tr>' +
-        '</thead>' +
-        '</table>' +
-        '</div>' +
+     '<div data-options="region:\'center\'">' +
+     '<table id="workGrid" class="easyui-datagrid" data-options="url:\'getWorkContent/\', border:false, rownumbers:true, fitcolumns:true, fit:true, pagination:true, pagsize:10">' +
+     '<thead>' +
+     '<tr>' +
+     '<th field="boxNumber" align="center" width="50">箱号</th>' +
+     '<th field="productType" align="center" width="150">实物类型</th>' +
+     '<th field="amount" align="center" width="150">数量</th>' +
+     '<th field="archiveUrl" align="center" formatter="workBoxFormatter" width="430">资料</th>' +
+     '</tr>' +
+     '</thead>' +
+     '</table>' +
+     '</div>' +
 
 
 
