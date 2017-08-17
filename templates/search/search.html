@@ -1,12 +1,11 @@
 {% load highlight %}
-<h2>Search</h2>
     <form method="get" action=".">
         <table>
             {{ form.as_table }}
             <tr>
                 <td> </td>
                 <td>
-                    <input type="submit" value="Search">
+                    <input type="submit" value="搜索">
                 </td>
             </tr>
         </table>
@@ -29,7 +28,6 @@
             {% empty %}
                 <p>No results found.</p>
             {% endfor %}
-
             {% if page.has_previous or page.has_next %}
                 <div>
                     {% if page.has_previous %}<a href="?q={{ query }}&page={{ page.previous_page_number }}">{% endif %}« Previous{% if page.has_previous %}</a>{% endif %}
