@@ -11,7 +11,7 @@
         </table>
 
         {% if query %}
-            <h3>结果：</h3>
+            <h3>检索结果：</h3>
 
             {% for result in page.object_list %}
                 <p>
@@ -26,7 +26,7 @@
                     {% highlight result.object.level with query %} &nbsp
                 </p>
             {% empty %}
-                <p>No results found.</p>
+                <p>未检索到匹配项！</p>
             {% endfor %}
             {% if page.has_previous or page.has_next %}
                 <div>

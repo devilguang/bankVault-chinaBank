@@ -1426,6 +1426,10 @@ def exploreBox(request):
         r = {}
         r['serialNumber'] = t.serialNumber
         r['boxNumber'] = boxNumber
+        if subBoxNumber != '':
+            r['subBoxNumber'] = subBoxNumber
+        else:
+            r['subBoxNumber'] = '0'
         r['productType'] = productType.type
         r['className'] = className.type
         r['subClassName'] = subClassName.type
