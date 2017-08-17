@@ -92,6 +92,7 @@ urlpatterns = [
     url(r'^manage/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
     url(r'^manage/boxInOutStore/$', manage.boxInOutStore, name='boxInOutStore'),
     #url(r'^manage/search/$', views.adv_search.as_view(), name='calibration_search'),
+    url(r'^manage/advanceSearchHTML/$', manage.advanceSearchHTML, name='advanceSearchHTML'),
     url(r'^manage/advanceSearch/$', manage.advanceSearch, name='advanceSearch'),
     #url(r'^manage/search/$', views.search, name='search'),
     url(r'^manage/search/$', views.GeneralSearch(), name='GeneralSearch'),

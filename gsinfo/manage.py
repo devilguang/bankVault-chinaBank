@@ -31,40 +31,46 @@ def createBox(request):
     packageCapacity = int(request.POST.get('packageCapacity', ''))  # 包最大容量
     grossWeight = float(request.POST.get('grossWeight', ''))  # 毛重
 
-    try:
-        log.log(user=request.user, operationType=u'业务操作', content=u'新建{0}号箱实物'.format(boxNumber))
+    if not gsBox.objects.filter(boxNumber=boxNumber).exists():
+        try:
+            log.log(user=request.user, operationType=u'业务操作', content=u'新建{0}号箱实物'.format(boxNumber))
 
-        box, createdBox = gsBox.objects.createBox(boxNumber=boxNumber, productType=productType, className=className,
-                                                  subClassName=subClassName, wareHouse=wareHouse, amount=amount,
-                                                  startSeq=startSeq, packageCapacity=packageCapacity,grossWeight=grossWeight)
+            box, createdBox = gsBox.objects.createBox(boxNumber=boxNumber, productType=productType, className=className,
+                                                      subClassName=subClassName, wareHouse=wareHouse, amount=amount,
+                                                      startSeq=startSeq, packageCapacity=packageCapacity,grossWeight=grossWeight)
 
-        # 构造对应的存储目录结构
-        boxRootDir = settings.DATA_DIRS['box_dir']
-        boxDir = os.path.join(boxRootDir, str(boxNumber))
-        if (not os.path.exists(boxDir)):
-            os.mkdir(boxDir)
+            # 构造对应的存储目录结构
+            boxRootDir = settings.DATA_DIRS['box_dir']
+            boxDir = os.path.join(boxRootDir, str(boxNumber))
+            if (not os.path.exists(boxDir)):
+                os.mkdir(boxDir)
 
-        subBoxSeq = gsThing.objects.filter(box=box).first().subBoxSeq
-        now = datetime.datetime.now()
-        wareHouseCode = box.wareHouse
-        wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
-        wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(now.year, subBoxSeq, wareHouse.type))
-        if (not os.path.exists(wordDir)):
-            os.mkdir(wordDir)
+            subBoxSeq = gsThing.objects.filter(box=box).first().subBoxSeq
+            now = datetime.datetime.now()
+            wareHouseCode = box.wareHouse
+            wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
+            wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(now.year, subBoxSeq, wareHouse.type))
+            if (not os.path.exists(wordDir)):
+                os.mkdir(wordDir)
 
-        photoDir = os.path.join(boxDir, u'{0}_{1}_{2}_photo'.format(now.year, subBoxSeq, wareHouse.type))
-        if (not os.path.exists(photoDir)):
-            os.mkdir(photoDir)
+            photoDir = os.path.join(boxDir, u'{0}_{1}_{2}_photo'.format(now.year, subBoxSeq, wareHouse.type))
+            if (not os.path.exists(photoDir)):
+                os.mkdir(photoDir)
 
-    except Exception as e:
-        ret = {
-            "success": False,
-            "message": '{0}号箱实物新建失败！\r\n原因：{1}'.format(boxNumber, e.message)
-        }
+        except Exception as e:
+            ret = {
+                "success": False,
+                "message": '{0}号箱实物新建失败！'.format(boxNumber)
+            }
+        else:
+            ret = {
+                'success': True,
+                'message': '{0}号箱实物新建成功!'.format(boxNumber)
+            }
     else:
         ret = {
-            'success': True,
-            'message': '{0}号箱实物新建成功!'.format(boxNumber)
+            'success': False,
+            'message': '{0}号箱实物已存在!'.format(boxNumber)
         }
 
     ret_json = json.dumps(ret, separators=(',', ':'))
@@ -1437,6 +1443,8 @@ def exploreBox(request):
 
     return HttpResponse(ret_json)
 
+def advanceSearchHTML(request):
+    return render(request, 'manage.html')
 
 def advanceSearch(request):
     # type = request.POST.get('type', 'count')
