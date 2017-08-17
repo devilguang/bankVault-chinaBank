@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/viewer/viewer.js' %}"></script>
+    <title></title>
+</head>
+<body>
+<form id="advancedSearch" method="post">
+    <div>
+		<label for="name">数据表一</label>
+		<input class="easyui-validatebox" type="checkbox" name="name" data-options="required:true" />
+    </div>
+    <div>
+		<label for="name">数据表二</label>
+		<input class="easyui-validatebox" type="checkbox" name="name" data-options="required:true" />
+    </div>
+    <div>
+		<label for="name">数据表三</label>
+		<input class="easyui-validatebox" type="checkbox" name="name" data-options="required:true" />
+    </div>
+    <div>
+		<label for="name">数据表四</label>
+		<input class="easyui-validatebox" type="checkbox" name="name" data-options="required:true" />
+    </div>
+</form>
+</body>
+</html>

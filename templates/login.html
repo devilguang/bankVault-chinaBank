@@ -38,6 +38,7 @@
 				'',
 				{nickName:user, passWord:pwd, workRole:role}, 
 				function(result){
+				    console.log(result)
 					if (result.success){
 						url = window.location.protocol+'//';
 						url = url+window.location.host+result.url;

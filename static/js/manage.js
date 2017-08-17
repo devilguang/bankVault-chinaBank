@@ -2194,12 +2194,14 @@ function searchWork() {
     var c = '<div class="easyui-layout" data-options="fit:true">' +
                 '<div id="tt" class="easyui-tabs" style="width:100%;height:100%;">'+
                     '<div title="常规检索" style="padding:20px;display:none">'+
-        '<iframe src="http://127.0.0.1:9090/gsinfo/manage/search/" frameborder="0" style="width:100%;height: 100%;"></iframe>'+'</div>'+
-                    '<div title="高级检索" style="overflow:auto;padding:20px;display:none;">高级检索</div>'+
+        '<iframe src="search/" frameborder="0" style="width:100%;height: 100%;"></iframe>'+'</div>'+
+                    '<div class="advancedSearch_btn" title="高级检索" style="overflow:auto;padding:20px;display:none;">高级检索</div>'+
+        '<iframe class="advancedSearch" src="/gsinfo/advancedSearch" frameborder="0" style="width:100%;height: 100%;"></iframe>'+
                 '</div>'+
              '</div>'+
         '<script type="text/javascript">' +
-
+            '$(".advancedSearch_btn").click(function（){' +
+        '})'
         '</script>';
     addTab(title, c, 'icon-archive');
     /**
