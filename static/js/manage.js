@@ -1213,6 +1213,7 @@ function thingStatusFormatter(value, row, index) {
     }
 }
 function thingOperationFormatter(value, row, index) {
+    debugger;
     if (row.workName != '') {
         return '<div style="float:center"><a href="exploreThing/' + row.boxNumber + '/' + row.serialNumber + '" target="blank" style="text-decoration:none;color:blue;">查阅电子档案</a></div>';
     }
@@ -2189,47 +2190,46 @@ function backToWork(boxNumber) {
         'json');
 }
 
-function getAdvancedSearch() {
-    $(".advancedSearch_btn").click(function () {
-        $.ajax({
-            type: 'get',
-            url: 'advanceSearchHTML/',
-            data: {},
-            success: function (data) {
-                console.log(data)
-            }
-        })
-    })
-}
+// function getAdvancedSearch() {
+//     $(".advancedSearch_btn").click(function () {
+//         $.ajax({
+//             type: 'get',
+//             url: 'advanceSearchHTML/',
+//             data: {},
+//             success: function (data) {
+//                 console.log(data)
+//             }
+//         })
+//     })
+// }
 function searchWork() {
     var title = '全文检索';
     var c = '<div class="easyui-layout" data-options="fit:true">' +
-        '<div id="tt" class="easyui-tabs" style="width:100%;height:100%;">' +
-        '<div title="常规检索" style="padding:20px;display:none">' +
+        '<div id="searchTab" class="easyui-tabs" style="width:100%;height:100%;">' +
+        '<div class="cgjs" title="常规检索" style="padding:20px;">' +
         '<iframe src="search/" frameborder="0" style="width:100%;height: 100%;"></iframe>' + '</div>' +
         '<div title="高级检索" style="overflow:auto;padding:20px;display:none;">' +
             '<h2>请选择数据表:</h2>'+
-            '<select id="advancedSearch" class="easyui-combobox" name="dept" style="width:100px;">' +
-                 '<option value="1">金银锭类</option>'+
-                 '<option value="2">金银币章类</option>'+
-                 '<option value="3">银元类</option>'+
-                 '<option value="4">金银工艺品类</option>'+ '</select>'+
-            '<div style="font-size:12px;margin-top: 30px">'
-        +'<select name="" id="judgment" class="easyui-combobox" name="dept"  style="width:80px;">'+'<option value="">请选择</option>'+'<option value="">OR</option>'+'<option value="">AND</option>' +'<option value="">NO</option>'+ '</select>'+
-            '<select name="" id="theColour" class="easyui-combobox" name="dept" style="width:80px;margin-left: 90px">'+ '<option value="">成色</option>'+'<option value=""></option>'+'</select>'
-            +'<select name="" id="symbol" class="easyui-combobox" name="dept" style="width:80px;margin-left: 30px">'+'<option value="">	&le;</option>'+'<option value="">&ge;</option>'+'<option value="">=</option>'+ '<option value="">></option>'+ '<option value=""><</option>'+'</select>'+
-            '<input type="text" placeholder="" style="width: 50px;margin-left: 30px">'+
-            '<a style="margin-left:30px;background:#E0ECFF ;display: inline-block;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7">+</a>'+
-            '<a style="background:#E0ECFF;display: inline-block;margin-left: 30px;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7"">-</a>'+
-        '</div>'+'</div>' +'</div>' + '</div>';
+            '<select id="advancedSearch" class="easyui-combobox" name="dept" style="width:100px;">' +'<option value="1">金银锭类</option>'+ '<option value="2">金银币章类</option>'+ '<option value="3">银元类</option>'+ '<option value="4">金银工艺品类</option>'+ '</select>'+
+            '<div style="font-size:12px;margin-top: 30px">'+
+            '<ul id="selectedListArgu" style="list-style:none;">'+'<li style="margin-bottom: 20px">' +'<span>'+'<select name="" class="easyui-combobox" name="dept"  style="width:80px;">'+'<option value="">请选择</option>'+'<option value="">OR</option>'+'<option value="">AND</option>' +'<option value="">NO</option>'+ '</select>'+'</span>'+
+            '<span style="margin-left: 20px">'+'<select name=""  class="easyui-combobox" name="dept" style="width:80px;margin-left: 90px">'+ '<option value="">成色</option>'+'<option value=""></option>'+'</select>'+'</span>'+
+            '<span style="margin-left: 20px">'+'<select name=""  class="easyui-combobox" name="dept" style="width:80px;margin-left: 30px">'+'<option value="">&le;</option>'+'<option value="">&ge;</option>'+'<option value="">=</option>'+ '<option value="">></option>'+ '<option value=""><</option>'+'</select>'+'</span>'+
+            '<input type="text" placeholder="" style="width: 50px;margin-left: 20px">'+ '<a class="btnAdd" style="margin-left:20px;cursor:pointer;background:#E0ECFF ;display: inline-block;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7">+</a>'+'<a style="background:#E0ECFF;cursor:pointer;display: inline-block;margin-left: 30px;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7"">-</a>'+ '</li>'+'</ul>'+
+        '</div>'+'</div>' +'</div>' + '</div>' +
+        '<script>\n'+'  $(\".btnAdd\").click(function() {\n' +' var selectedListArgu = document.getElementById(\"selectedListArgu\");\n' + 'var li = document.createElement(\"li\");\n' +'li.innerHTML = \"<span style=\"margin - left: 20px \"><select name=\"\" class=\"easyui - combobox\" name=\"dept \" style=\"width: 80px;\n' +'\"><option value=\"\">请选择</option><option value=\"\">OR</option><option value=\"\">AND</option><option value=\"\">NO</option></select>\" < /span>\"+\"<span></span ><span ></span>\";selectedListArgu.appendChild(li)})/\n' +'</script>';
 
-        $("#judgment").children().find()
+
+
     addTab(title, c, 'icon-archive');
     /**
      *   '$(function(){ $(\'#workGrid\').datagrid({ view: detailview, detailFormatter:function(index,row){ ' +
         'return \'<div style="padding:2px"><table class="ddv"></table></div>\';}, ' +
         'onExpandRow: function(index,row){ var ddv = $(this).datagrid(\'getRowDetail\',index).find(\'table.ddv\');' +
         ' ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品名\',width:50,align:\'center\'},{field:\'subClassName\',title:\'明细品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:workThingFormatter}]],onResize:function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#workGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}' +
+
+     // '<script>$(".btnAdd").click(function(){var selectedListArgu = document.getElementById("selectedListArgu");var li = document.createElement("li");li.innerHTML = "<span style='+'"margin-left: 20px"'+'><select name="" class="easyui-combobox" name="dept" style="width:80px;"><option value="">请选择</option><option value="">OR</option><option value="">AND</option><option value="">NO</option></select>"</span>"+"<span></span><span></span>";selectedListArgu.appendChild(li)})</script>';
+
 
 
      '<div data-options="region:\'center\'">' +

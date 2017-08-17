@@ -156,8 +156,8 @@
 					async: true,
 					dataType: 'json',
 					success: function(result){
+					    console.log(result)
 						data = result;
-						
 						$('#UpdateInfoWareHouse').text(data.wareHouse);
 						$('#UpdateInfoBoxNumber').text(data.boxNumber);
 						$('#UpdateInfoSerialNumber').text(data.serialNumber);
@@ -183,6 +183,7 @@
 			}
 			
 			function saveUpdateInfo(){
+
 				var wareHouse = $('#UpdateInfoWareHouse').text();
 				var boxNumber = $('#UpdateInfoBoxNumber').text();
 				var serialNumber = $('#UpdateInfoSerialNumber').text();

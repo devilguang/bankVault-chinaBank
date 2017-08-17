@@ -428,7 +428,7 @@ def getWareHouse(request):
 
     return HttpResponse(ret_json)
 # --------------------------------------------------------------------------
-def exploreThing(request, boxNumber, serialNumber):
+def exploreThing(request, boxNumber,subBoxNumber, serialNumber):
     isVerify = request.GET.get('isVerify', '')
     operator = request.GET.get('operator', '')
     # 检测是否是数据审核用, 以便显示相应的审核接口和修改接口

@@ -1444,7 +1444,7 @@ def exploreBox(request):
     return HttpResponse(ret_json)
 
 def advanceSearchHTML(request):
-    return render(request, 'manage.html')
+    return render(request, 'advancedSearch.html')
 
 def advanceSearch(request):
     # type = request.POST.get('type', 'count')
