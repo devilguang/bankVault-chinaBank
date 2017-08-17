@@ -1213,9 +1213,10 @@ function thingStatusFormatter(value, row, index) {
     }
 }
 function thingOperationFormatter(value, row, index) {
+
     debugger;
     if (row.workName != '') {
-        return '<div style="float:center"><a href="exploreThing/' + row.boxNumber + '/' + row.serialNumber + '" target="blank" style="text-decoration:none;color:blue;">查阅电子档案</a></div>';
+        return '<div style="float:center"><a href="exploreThing/' + row.boxNumber + '/' + row.serialNumber+'?subBoxNumber='+row.subBoxNumber +'+"  target="blank" style="text-decoration:none;color:blue;">查阅电子档案</a></div>';
     }
     else {
         return '-';
@@ -1234,15 +1235,14 @@ function completePercentFormatter(value, row, index) {
 function openDetailedCompleteInfo(index) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
-
+    console.log(row)
     $('#detailedCompleteInfoDlg').dialog('open').dialog('center').dialog('setTitle', row.workName + '完成进度详细信息');
     $('#detailedCompleteInfoForm').form('clear');
-
     $('#detailedCompleteInfoCheckingCompleteAmount').text(row.checkingCompleteAmount);
     $('#detailedCompleteInfoNumberingCompleteAmount').text(row.numberingCompleteAmount);
     $('#detailedCompleteInfoAnalyzingCompleteAmount').text(row.analyzingCompleteAmount);
     $('#detailedCompleteInfoMeasuringCompleteAmount').text(row.measuringCompleteAmount);
-    $('#detailedCompleteInfoPhotographingCompleteAmount').text(row.photographingCompleteAmount);
+    $('#detailedCompleteInfoPhotograpgingCompleteAmount').html(row.photographingCompleteAmount);
 }
 function dateTimeFormatter(value, row, index) {
     if (value == '') {
@@ -1311,7 +1311,6 @@ function deleteWork(index) {
 function exploreWork(index) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
-
     var title = row.workName;
     var workSeq = row.workSeq;
     var boxNumber = row.boxNumber;

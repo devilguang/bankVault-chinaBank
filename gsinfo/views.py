@@ -428,7 +428,13 @@ def getWareHouse(request):
 
     return HttpResponse(ret_json)
 # --------------------------------------------------------------------------
-def exploreThing(request, boxNumber,subBoxNumber, serialNumber):
+def exploreThing(request, boxNumber, serialNumber):
+    subBoxNumber = request.GET.get('subBoxNumber','')
+    if subBoxNumber == '0':
+        subBoxNumber = ''
+        boxOrSubBox = boxNumber
+    else:
+        boxOrSubBox = boxNumber + '-' + subBoxNumber
     isVerify = request.GET.get('isVerify', '')
     operator = request.GET.get('operator', '')
     # 检测是否是数据审核用, 以便显示相应的审核接口和修改接口
@@ -445,7 +451,7 @@ def exploreThing(request, boxNumber,subBoxNumber, serialNumber):
                                                                                             flat=True)
 
     context = {}
-    context['boxNumber'] = boxNumber
+    context['boxNumber'] = boxOrSubBox
     context['serialNumber'] = serialNumber
 
     productTypeCode = box.productType
@@ -480,10 +486,10 @@ def exploreThing(request, boxNumber,subBoxNumber, serialNumber):
     # 图像路径
     year = s.numberingCreateDateTime.year
     seq = t.subBoxSeq
-    picturePathPrefix = u'/img/{0}/{1}_{2}_{3}_photo/{4}'.format(boxNumber, year, seq, wareHouse.type, serialNumber)
-    context['A'] = u'{0}A.jpg'.format(picturePathPrefix)
-    context['B'] = u'{0}B.jpg'.format(picturePathPrefix)
-    context['C'] = u'{0}C.jpg'.format(picturePathPrefix)
+    picturePathPrefix = u'/static/img/{0}/{1}/{2}'.format(boxOrSubBox, serialNumber,serialNumber)
+    context['A'] = u'{0}-A.jpg'.format(picturePathPrefix)
+    context['B'] = u'{0}-B.jpg'.format(picturePathPrefix)
+    context['C'] = u'{0}-C.jpg'.format(picturePathPrefix)
 
     if (0 == cmp(productType.type, u'金银锭类')):
         thing = gsDing.objects.get(box=box, serialNumber=serialNumber)
