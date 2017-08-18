@@ -969,7 +969,6 @@ function doGenerateBoxInfo() {
     });
 }
 function generateBoxInfoDetailedVersion(index, number) {
-    debugger;
     $('#workGridBoxManage').datagrid('selectRow', index);
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (number == 0) {
@@ -1213,10 +1212,8 @@ function thingStatusFormatter(value, row, index) {
     }
 }
 function thingOperationFormatter(value, row, index) {
-
-    debugger;
     if (row.workName != '') {
-        return '<div style="float:center"><a href="exploreThing/' + row.boxNumber + '/' + row.serialNumber+'?subBoxNumber='+row.subBoxNumber +'+"  target="blank" style="text-decoration:none;color:blue;">查阅电子档案</a></div>';
+        return '<div style="float:center"><a href="exploreThing/' + row.boxNumber + '/' + row.serialNumber + '?subBoxNumber=' + row.subBoxNumber + '"  target="blank" style="text-decoration:none;color:blue;">查阅电子档案</a></div>';
     }
     else {
         return '-';
@@ -1616,44 +1613,47 @@ function ClickRowList(index, row) {
 }
 
 function extractBoxFromStore(type, index, status) {
-    var boxNumber;
-    if (type == 0) {
-        $('#workGridArchivedBoxManage').datagrid('selectRow', index);
-        var row = $('#workGridArchivedBoxManage').datagrid('getSelected');
-        boxNumber = row.boxNumber;
-    } else {
-        boxNumber = index;
-    }
+    $("#quickMarkDlg").dialog('open').dialog('center').dialog('setTitle', '提示');
+    $("#quickMarkButtons>#save").click(function () {
+        $("#quickMarkDlg").dialog('close');
+        var boxNumber;
+        if (type == 0) {
+            $('#workGridArchivedBoxManage').datagrid('selectRow', index);
+            var row = $('#workGridArchivedBoxManage').datagrid('getSelected');
+            boxNumber = row.boxNumber;
+        } else {
+            boxNumber = index;
+        }
+        $.ajax({
+            url: 'boxInOutStore/',
+            data: {boxNumber: boxNumber, status: status},		// status: 1:封箱入库 0:提取出库
+            type: 'POST',
+            async: true,
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                $.messager.progress({text: '正在处理' + boxNumber + '号箱出入库操作，请稍后....'});
+            },
+            success: function (result) {
+                $.messager.progress('close');
+                if (result.success) {
+                    $.messager.show({    // 显示成功信息
+                        title: '提示',
+                        msg: result.message,
+                        showType: 'slide',
+                        timeout: 5000
+                    });
+                    $('#workGridArchivedBoxManage').datagrid('reload');
+                }
+                else {
+                    // $.messager.alert({    // 显示失败信息
+                    //     title: '提示',
+                    //     msg: result.message,
+                    // });
+                }
+            },
+        });
+    })
 
-    $.ajax({
-        url: 'boxInOutStore/',
-        data: {boxNumber: boxNumber, status: status},		// status: 1:封箱入库 0:提取出库
-        type: 'POST',
-        async: true,
-        dataType: 'json',
-        beforeSend: function (xhr) {
-            $.messager.progress({text: '正在处理' + boxNumber + '号箱出入库操作，请稍后....'});
-        },
-        success: function (result) {
-            $.messager.progress('close');
-            if (result.success) {
-                $.messager.show({    // 显示成功信息
-                    title: '提示',
-                    msg: result.message,
-                    showType: 'slide',
-                    timeout: 5000
-                });
-
-                $('#workGridArchivedBoxManage').datagrid('reload');
-            }
-            else {
-                $.messager.alert({    // 显示失败信息
-                    title: '提示',
-                    msg: result.message,
-                });
-            }
-        },
-    });
 }
 function archivedBoxSearch() {
     var productType = $('#archivedBoxSearchParameterproductType').combobox('getValue');
@@ -2208,16 +2208,14 @@ function searchWork() {
         '<div class="cgjs" title="常规检索" style="padding:20px;">' +
         '<iframe src="search/" frameborder="0" style="width:100%;height: 100%;"></iframe>' + '</div>' +
         '<div title="高级检索" style="overflow:auto;padding:20px;display:none;">' +
-            '<h2>请选择数据表:</h2>'+
-            '<select id="advancedSearch" class="easyui-combobox" name="dept" style="width:100px;">' +'<option value="1">金银锭类</option>'+ '<option value="2">金银币章类</option>'+ '<option value="3">银元类</option>'+ '<option value="4">金银工艺品类</option>'+ '</select>'+
-            '<div style="font-size:12px;margin-top: 30px">'+
-            '<ul id="selectedListArgu" style="list-style:none;">'+'<li style="margin-bottom: 20px">' +'<span>'+'<select name="" class="easyui-combobox" name="dept"  style="width:80px;">'+'<option value="">请选择</option>'+'<option value="">OR</option>'+'<option value="">AND</option>' +'<option value="">NO</option>'+ '</select>'+'</span>'+
-            '<span style="margin-left: 20px">'+'<select name=""  class="easyui-combobox" name="dept" style="width:80px;margin-left: 90px">'+ '<option value="">成色</option>'+'<option value=""></option>'+'</select>'+'</span>'+
-            '<span style="margin-left: 20px">'+'<select name=""  class="easyui-combobox" name="dept" style="width:80px;margin-left: 30px">'+'<option value="">&le;</option>'+'<option value="">&ge;</option>'+'<option value="">=</option>'+ '<option value="">></option>'+ '<option value=""><</option>'+'</select>'+'</span>'+
-            '<input type="text" placeholder="" style="width: 50px;margin-left: 20px">'+ '<a class="btnAdd" style="margin-left:20px;cursor:pointer;background:#E0ECFF ;display: inline-block;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7">+</a>'+'<a style="background:#E0ECFF;cursor:pointer;display: inline-block;margin-left: 30px;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7"">-</a>'+ '</li>'+'</ul>'+
-        '</div>'+'</div>' +'</div>' + '</div>' +
-        '<script>\n'+'  $(\".btnAdd\").click(function() {\n' +' var selectedListArgu = document.getElementById(\"selectedListArgu\");\n' + 'var li = document.createElement(\"li\");\n' +'li.innerHTML = \"<span style=\"margin - left: 20px \"><select name=\"\" class=\"easyui - combobox\" name=\"dept \" style=\"width: 80px;\n' +'\"><option value=\"\">请选择</option><option value=\"\">OR</option><option value=\"\">AND</option><option value=\"\">NO</option></select>\" < /span>\"+\"<span></span ><span ></span>\";selectedListArgu.appendChild(li)})/\n' +'</script>';
-
+        '<h2>请选择数据表:</h2>' +
+        '<select id="advancedSearch" class="easyui-combobox" name="dept" style="width:100px;">' + '<option value="1">金银锭类</option>' + '<option value="2">金银币章类</option>' + '<option value="3">银元类</option>' + '<option value="4">金银工艺品类</option>' + '</select>' +
+        '<div style="font-size:12px;margin-top: 30px">' +
+        '<ul id="selectedListArgu" style="list-style:none;">' + '<li style="margin-bottom: 20px">' + '<span>' + '<select name="" class="easyui-combobox" name="dept"  style="width:80px;">' + '<option value="">请选择</option>' + '<option value="">OR</option>' + '<option value="">AND</option>' + '<option value="">NO</option>' + '</select>' + '</span>' +
+        '<span style="margin-left: 20px">' + '<select name=""  class="easyui-combobox" name="dept" style="width:80px;margin-left: 90px">' + '<option value="">成色</option>' + '<option value=""></option>' + '</select>' + '</span>' +
+        '<span style="margin-left: 20px">' + '<select name=""  class="easyui-combobox" name="dept" style="width:80px;margin-left: 30px">' + '<option value="">&le;</option>' + '<option value="">&ge;</option>' + '<option value="">=</option>' + '<option value="">></option>' + '<option value=""><</option>' + '</select>' + '</span>' +
+        '<input type="text" placeholder="" style="width: 50px;margin-left: 20px">' + '<a class="btnAdd" style="margin-left:20px;cursor:pointer;background:#E0ECFF ;display: inline-block;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7">+</a>' + '<a style="background:#E0ECFF;cursor:pointer;display: inline-block;margin-left: 30px;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7"">-</a>' + '</li>' + '</ul>' +
+        '</div>' + '</div>' + '</div>' + '</div>';
 
 
     addTab(title, c, 'icon-archive');
@@ -2228,6 +2226,8 @@ function searchWork() {
         ' ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品名\',width:50,align:\'center\'},{field:\'subClassName\',title:\'明细品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:workThingFormatter}]],onResize:function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#workGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}' +
 
      // '<script>$(".btnAdd").click(function(){var selectedListArgu = document.getElementById("selectedListArgu");var li = document.createElement("li");li.innerHTML = "<span style='+'"margin-left: 20px"'+'><select name="" class="easyui-combobox" name="dept" style="width:80px;"><option value="">请选择</option><option value="">OR</option><option value="">AND</option><option value="">NO</option></select>"</span>"+"<span></span><span></span>";selectedListArgu.appendChild(li)})</script>';
+
+     //"<script>$(\".btnAdd\").click(function(){var selectedListArgu = document.getElementById(\"selectedListArgu\");var li = document.createElement(\"li\");li.innerHTML = \"<span style='"+"margin-left: 20px'><select name=\"\" class=\"easyui-combobox\" name=\"dept\" style=\"width:80px;\"><option value=\"\">请选择</option><option value=\"\">OR</option><option value=\"\">AND</option><option value=\"\">NO</option></select>\"</span>\"+\"<span></span><span></span>\";selectedListArgu.appendChild(li)})</script>"
 
 
 
@@ -2244,6 +2244,7 @@ function searchWork() {
      '</table>' +
      '</div>' +
 
+     "<script>$(\".btnAdd\").click(function(){var selectedListArgu = document.getElementById(\"selectedListArgu\");var li = document.createElement(\"li\");li.innerHTML = \"<span style='+'\"margin-left: 20px\"'+'><select name=\"\" class=\"easyui-combobox\" name=\"dept\" style=\"width:80px;\"><option value=\"\">请选择</option><option value=\"\">OR</option><option value=\"\">AND</option><option value=\"\">NO</option></select>\"</span>\"+\"<span></span><span></span>\";selectedListArgu.appendChild(li)})</script>";
 
 
 

@@ -3,351 +3,354 @@
 
 <html>
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width,initial-scale=1.0" />
-	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/default.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/manage.css'%}">
-	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js'%}"></script>
-	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js'%}"></script>
-	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/datagrid-detailview.js'%}"></script>
-	<script type="text/javascript" src="{% static 'js/manage.js'%}"></script>
-	<script type="text/javascript">
-		$.ajaxSetup({
-			  data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
-			});
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/manage.css' %}">
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/datagrid-detailview.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/manage.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+        });
 
-		$(document).ready(function(){
-			$('#serialNumber').textbox('setValue', '');
-			$('#serialNumber').focus();
-		});
-		
-		$(document).keydown(function(event) {
-			var keyCode = event.keyCode;
-			if(keyCode == "13"){
-				var value = $('#serialNumber').textbox('getValue');
-				// 解析条码内容
-				var idx = value.lastIndexOf('-');
-				var serialNumber = value.substring(0, idx);
-				var boxNumber = value.substring(idx+1);
-				// 选中对应箱号
-				var node = $('#workSpaceTree').tree('find', boxNumber);
-				$('#workSpaceTree').tree('select', node.target);
-				// 选中对应实物
-				idx = serialNumber.lastIndexOf('-');
-				var seq = serialNumber.substring(idx+1);
-				var options = $('#workGrid'+boxNumber).datagrid('options');
-				var pageNumber = Math.ceil((seq-node.attributes.startSeq+1)/options.pageSize);
-				/*if (pageNumber != options.pageNumber){
-					$('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){
-						var rows = $('#workGrid'+boxNumber).datagrid('getRows');
-						var i = 0;
-						var n = rows.length;
-						for(; i<n; ++i){
-							if (rows[i].serialNumber == serialNumber){
-								break;
-							}
-						}
-						var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
-						//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
-						$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
-						
-						dbClickRow(rowIdx, rows[i]);
-						
-						$('#serialNumber').textbox('setValue', '');
-						//$('#serialNumber').focus();
-						}});
-				}
-				else{
-					var rows = $('#workGrid'+boxNumber).datagrid('getRows');
-					var i = 0;
-					var n = rows.length;
-					for(; i<n; ++i){
-						if (rows[i].serialNumber == serialNumber){
-							break;
-						}
-					}
-					var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
-					//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
-					$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
-					
-					dbClickRow(rowIdx, rows[i]);
-					
-					$('#serialNumber').textbox('setValue', '');
-					//$('#serialNumber').focus();
-				}*/
-				$('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){
-					var rows = $('#workGrid'+boxNumber).datagrid('getRows');
-					var i = 0;
-					var n = rows.length;
-					for(; i<n; ++i){
-						if (rows[i].serialNumber == serialNumber){
-							break;
-						}
-					}
-					var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
-					//$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
-					$('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
-					
-					dbClickRow(rowIdx, rows[i]);
-					
-					$('#serialNumber').textbox('setValue', '');
-					//$('#serialNumber').focus();
-				}});
-			} 
-		});
-	</script>
-	
-	<script type="text/javascript">
-		function logout(){
-			user = '{{ operator }}';
-			$.messager.confirm('提示','是否确定注销？', function(r){
-				if (r){
-					$.post(
-						"{% url 'logout' %}",
-						{nickName:user}, 
-						function(result){
-							if (result.success){
-								// window.opener=null;
-								// window.open('','_self');
-								// window.close();
-								
-								window.location.href = "{% url 'login' %}";
-								
-								return ;
-							}
-							else{
-								$.messager.alert({    // 显示失败信息
-									title: '提示',
-									msg: result.message
-								});
-							}
-						}, 'json');
-				}
-			});
-		}
-		
-		// 获取页面的高度、宽度
-		// 返回值：Array(pageWidth, pageHeight, windowWidth, windowHeight)
-		function getPageSize() {
-			var xScroll, yScroll;
-			if (window.innerHeight && window.scrollMaxY) {
-				xScroll = window.innerWidth + window.scrollMaxX;
-				yScroll = window.innerHeight + window.scrollMaxY;
-			} else {
-				if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac    
-					xScroll = document.body.scrollWidth;
-					yScroll = document.body.scrollHeight;
-				} else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari    
-					xScroll = document.body.offsetWidth;
-					yScroll = document.body.offsetHeight;
-				}
-			}
+        $(document).ready(function () {
+            $('#serialNumber').textbox('setValue', '');
+            $('#serialNumber').focus();
+        });
 
-			var windowWidth, windowHeight;
-			if (self.innerHeight) { // all except Explorer    
-				if (document.documentElement.clientWidth) {
-					windowWidth = document.documentElement.clientWidth;
-				} else {
-					windowWidth = self.innerWidth;
-				}
-				windowHeight = self.innerHeight;
-			} else {
-				if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode    
-					windowWidth = document.documentElement.clientWidth;
-					windowHeight = document.documentElement.clientHeight;
-				} else {
-					if (document.body) { // other Explorers    
-						windowWidth = document.body.clientWidth;
-						windowHeight = document.body.clientHeight;
-					}
-				}
-			}       
+        $(document).keydown(function (event) {
+            var keyCode = event.keyCode;
+            if (keyCode == "13") {
+                var value = $('#serialNumber').textbox('getValue');
+                // 解析条码内容
+                var idx = value.lastIndexOf('-');
+                var serialNumber = value.substring(0, idx);
+                var boxNumber = value.substring(idx + 1);
+                // 选中对应箱号
+                var node = $('#workSpaceTree').tree('find', boxNumber);
+                $('#workSpaceTree').tree('select', node.target);
+                // 选中对应实物
+                idx = serialNumber.lastIndexOf('-');
+                var seq = serialNumber.substring(idx + 1);
+                var options = $('#workGrid' + boxNumber).datagrid('options');
+                var pageNumber = Math.ceil((seq - node.attributes.startSeq + 1) / options.pageSize);
+                /*if (pageNumber != options.pageNumber){
+                 $('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){
+                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+                 var i = 0;
+                 var n = rows.length;
+                 for(; i<n; ++i){
+                 if (rows[i].serialNumber == serialNumber){
+                 break;
+                 }
+                 }
+                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
 
-			// for small pages with total height less then height of the viewport    
-			if (yScroll < windowHeight) {
-				pageHeight = windowHeight;
-			} else {
-				pageHeight = yScroll;
-			}    
+                 dbClickRow(rowIdx, rows[i]);
 
-			// for small pages with total width less then width of the viewport    
-			if (xScroll < windowWidth) {
-				pageWidth = xScroll;
-			} else {
-				pageWidth = windowWidth;
-			}
+                 $('#serialNumber').textbox('setValue', '');
+                 //$('#serialNumber').focus();
+                 }});
+                 }
+                 else{
+                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');
+                 var i = 0;
+                 var n = rows.length;
+                 for(; i<n; ++i){
+                 if (rows[i].serialNumber == serialNumber){
+                 break;
+                 }
+                 }
+                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
+                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
 
-			arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
+                 dbClickRow(rowIdx, rows[i]);
 
-			return arrayPageSize;
-		}
-		
-		// 显示遮罩
-		function showMask(width, msg="正在处理, 请稍后...") { 		
-			var size = getPageSize();
-			$("#popup").css("width", width);
-			$("#popup").css("left", size[0]/2-width/2);
-			$("#popup span").text(msg);
-			
-			$("#masklayer").css("height", size[1]);
-		
-			$("#masklayer").css("display", "block");
-			$("#popup").css("display", "block");
-		}
-		
-		// 隐藏遮罩
-		function hideMask() {
-			$("#masklayer").css("display", "none");
-			$("#popup").css("display", "none");
-		}
-	</script>
-	
-	<style type="text/css">
-		#masklayer {
-			display: none;  
-			position: absolute;  
-			top: 0%;  
-			left: 0%;  
-			width: 100%;   
-			background-color: black;  
-			z-index:1001;  
-			-moz-opacity: 0.7;  
-			opacity:.70;  
-			filter: alpha(opacity=70);
-		}
-		
-		#popup {
-			display: none;  
-			position: absolute;
-			top: 50%;
-			padding: 8px;  
-			border: 8px solid #E8E9F7;  
-			background-color: white;  
-			z-index:1002;  
-			overflow: auto;
-		}
-		
-		#popup span {
-			font-family: Arial,Verdana,Sans-serif;
-			font-size: 14px;
-			font-weight: normal;
-			text-align: center;
-		}
-	</style>
-	
-	<title>现场负责人</title>
+                 $('#serialNumber').textbox('setValue', '');
+                 //$('#serialNumber').focus();
+                 }*/
+                $('#workGrid' + boxNumber).datagrid('gotoPage', {
+                    page: pageNumber, callback: function (page) {
+                        var rows = $('#workGrid' + boxNumber).datagrid('getRows');
+                        var i = 0;
+                        var n = rows.length;
+                        for (; i < n; ++i) {
+                            if (rows[i].serialNumber == serialNumber) {
+                                break;
+                            }
+                        }
+                        var rowIdx = $('#workGrid' + boxNumber).datagrid('getRowIndex', rows[i]);
+                        //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
+                        $('#workGrid' + boxNumber).datagrid('selectRow', rowIdx);
+
+                        dbClickRow(rowIdx, rows[i]);
+
+                        $('#serialNumber').textbox('setValue', '');
+                        //$('#serialNumber').focus();
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        function logout() {
+            user = '{{ operator }}';
+            $.messager.confirm('提示', '是否确定注销？', function (r) {
+                if (r) {
+                    $.post(
+                        "{% url 'logout' %}",
+                        {nickName: user},
+                        function (result) {
+                            if (result.success) {
+                                // window.opener=null;
+                                // window.open('','_self');
+                                // window.close();
+
+                                window.location.href = "{% url 'login' %}";
+
+                                return;
+                            }
+                            else {
+                                $.messager.alert({    // 显示失败信息
+                                    title: '提示',
+                                    msg: result.message
+                                });
+                            }
+                        }, 'json');
+                }
+            });
+        }
+
+        // 获取页面的高度、宽度
+        // 返回值：Array(pageWidth, pageHeight, windowWidth, windowHeight)
+        function getPageSize() {
+            var xScroll, yScroll;
+            if (window.innerHeight && window.scrollMaxY) {
+                xScroll = window.innerWidth + window.scrollMaxX;
+                yScroll = window.innerHeight + window.scrollMaxY;
+            } else {
+                if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac
+                    xScroll = document.body.scrollWidth;
+                    yScroll = document.body.scrollHeight;
+                } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
+                    xScroll = document.body.offsetWidth;
+                    yScroll = document.body.offsetHeight;
+                }
+            }
+
+            var windowWidth, windowHeight;
+            if (self.innerHeight) { // all except Explorer
+                if (document.documentElement.clientWidth) {
+                    windowWidth = document.documentElement.clientWidth;
+                } else {
+                    windowWidth = self.innerWidth;
+                }
+                windowHeight = self.innerHeight;
+            } else {
+                if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+                    windowWidth = document.documentElement.clientWidth;
+                    windowHeight = document.documentElement.clientHeight;
+                } else {
+                    if (document.body) { // other Explorers
+                        windowWidth = document.body.clientWidth;
+                        windowHeight = document.body.clientHeight;
+                    }
+                }
+            }
+
+            // for small pages with total height less then height of the viewport
+            if (yScroll < windowHeight) {
+                pageHeight = windowHeight;
+            } else {
+                pageHeight = yScroll;
+            }
+
+            // for small pages with total width less then width of the viewport
+            if (xScroll < windowWidth) {
+                pageWidth = xScroll;
+            } else {
+                pageWidth = windowWidth;
+            }
+
+            arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
+
+            return arrayPageSize;
+        }
+
+        // 显示遮罩
+        function showMask(width, msg="正在处理, 请稍后...") {
+            var size = getPageSize();
+            $("#popup").css("width", width);
+            $("#popup").css("left", size[0] / 2 - width / 2);
+            $("#popup span").text(msg);
+
+            $("#masklayer").css("height", size[1]);
+
+            $("#masklayer").css("display", "block");
+            $("#popup").css("display", "block");
+        }
+
+        // 隐藏遮罩
+        function hideMask() {
+            $("#masklayer").css("display", "none");
+            $("#popup").css("display", "none");
+        }
+    </script>
+
+    <style type="text/css">
+        #masklayer {
+            display: none;
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            background-color: black;
+            z-index: 1001;
+            -moz-opacity: 0.7;
+            opacity: .70;
+            filter: alpha(opacity=70);
+        }
+
+        #popup {
+            display: none;
+            position: absolute;
+            top: 50%;
+            padding: 8px;
+            border: 8px solid #E8E9F7;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+
+        #popup span {
+            font-family: Arial, Verdana, Sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            text-align: center;
+        }
+    </style>
+
+    <title>现场负责人</title>
 </head>
 <body>
-	<div class="easyui-layout" data-options="width:1022, height:755" style="margin: 0 auto;">
-		<div data-options="region:'north', border:false">
-			<div class="logo">
-				<div class="title">
-					<img src="{% static 'img/logo.jpg' %}" height="113px" width="100%"/>
-					<span>金银清点查验业务系统</span>
-					<a href="#" onclick="logout()"><img src="{% static 'img/logout.png' %}" title="注销" alt="注销"></img></a>
-				</div>
-			</div>
-			
-			<div>
-				<div style="padding:5px;">
-					<div class="userInfo">
-						<a href="#" style="text-decoration:none;color:black">
-							<span>{{ operator }}</span>
-						</a> ,欢迎您!
-					</div>
-					<a href="#" class="easyui-menubutton" data-options="width:100, hasDownArrow:false" style="outline-style:double">主页</a>
-					
-					<!--<label for="serialNumber" style="display:inline-block; float:right">实物编号</label>
-					<input id="serialNumber" class="easyui-textbox" style="float:right"></input>-->
-					<!--<div  class="search">
-						<label for="serialNumber">实物编号</label>
-						<input id="serialNumber" class="easyui-textbox" data-options="height:28, prompt:'请使用扫描枪扫描二维码'"></input>
-					</div>-->
-				</div>
-			</div>
-		</div>
-	
-		<div data-options="region:'west', split:false, collapsible: false" title="菜单" style="width:180px; background:#eee" >
-			<div id="aa" class="easyui-accordion" data-options="border: false, multiple: true">
-				<div title="业务管理">
-					<ul class="submenu">
-						<li>
-							<img src="{%static 'img/box.png'%}"></img>
-							<a href="javascript:void(0);" onclick="boxManage()"><span>实物管理</span></a>
-						</li>
-						<li>
-							<img src="{%static 'img/work.png'%}"></img>
-							<a href="javascript:void(0);" onclick="workManage()"><span>作业管理</span></a>
-						</li>
-					</ul>
-				</div>
-				<div title="统计分析">
-					<ul class="submenu">
-						<li>
-							<img src="{%static 'img/report.png'%}"></img>
-							<a href="javascript:void(0);" onclick="searchWork()"><span>全文检索</span></a>
-						</li>
-					</ul>
-				</div>
-				<div title="信息查询">
-					<ul class="submenu">
-						<!--<li>
+<div class="easyui-layout" data-options="width:1022, height:755" style="margin: 0 auto;">
+    <div data-options="region:'north', border:false">
+        <div class="logo">
+            <div class="title">
+                <img src="{% static 'img/logo.jpg' %}" height="113px" width="100%"/>
+                <span>金银清点查验业务系统</span>
+                <a href="#" onclick="logout()"><img src="{% static 'img/logout.png' %}" title="注销" alt="注销"></img></a>
+            </div>
+        </div>
+
+        <div>
+            <div style="padding:5px;">
+                <div class="userInfo">
+                    <a href="#" style="text-decoration:none;color:black">
+                        <span>{{ operator }}</span>
+                    </a> ,欢迎您!
+                </div>
+                <a href="#" class="easyui-menubutton" data-options="width:100, hasDownArrow:false"
+                   style="outline-style:double">主页</a>
+
+                <!--<label for="serialNumber" style="display:inline-block; float:right">实物编号</label>
+                <input id="serialNumber" class="easyui-textbox" style="float:right"></input>-->
+                <!--<div  class="search">
+                    <label for="serialNumber">实物编号</label>
+                    <input id="serialNumber" class="easyui-textbox" data-options="height:28, prompt:'请使用扫描枪扫描二维码'"></input>
+                </div>-->
+            </div>
+        </div>
+    </div>
+
+    <div data-options="region:'west', split:false, collapsible: false" title="菜单" style="width:180px; background:#eee">
+        <div id="aa" class="easyui-accordion" data-options="border: false, multiple: true">
+            <div title="业务管理">
+                <ul class="submenu">
+                    <li>
+                        <img src="{% static 'img/box.png' %}"></img>
+                        <a href="javascript:void(0);" onclick="boxManage()"><span>实物管理</span></a>
+                    </li>
+                    <li>
+                        <img src="{% static 'img/work.png' %}"></img>
+                        <a href="javascript:void(0);" onclick="workManage()"><span>作业管理</span></a>
+                    </li>
+                </ul>
+            </div>
+            <div title="统计分析">
+                <ul class="submenu">
+                    <li>
+                        <img src="{% static 'img/report.png' %}"></img>
+                        <a href="javascript:void(0);" onclick="searchWork()"><span>全文检索</span></a>
+                    </li>
+                </ul>
+            </div>
+            <div title="信息查询">
+                <ul class="submenu">
+                    <!--<li>
 							<img src="{%static 'img/search.png'%}"></img>
 							<a href="javascript:void(0);" onclick="searchWork()"><span>全文检索</span></a>
 						</li>-->
-						<li>
-							<img src="{%static 'img/search.png'%}"></img>
-							<a href="javascript:void(0);" onclick="archivedBoxManage()"><span>封箱实物查询</span></a>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
-		
-		<div data-options="region:'center'">
-			<!-- <table id="dg" class="easyui-datagrid" style="width:100%;height:100%"
-				url="get_users.php"
-				toolbar="#toolbar" pagination="true"
-				rownumbers="true" fitColumns="true" singleSelect="true">
-				<thead>
-					<tr>
-					<th field="firstname" width="50">First Name</th>
-					<th field="lastname" width="50">Last Name</th>
-					<th field="phone" width="50">Phone</th>
-					<th field="email" width="50">Email</th>
-					</tr>
-				</thead>
-			</table> -->
-			<!-- <div id="toolbar">
-				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
-				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
-				<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove User</a>
-			</div> -->
-			<div id="tbs" class="easyui-tabs" data-options="border:false, fit:true">
-				<div title="欢迎首页" data-options="iconCls:'icon-home'">
-				</div>
-			</div>
-		</div>
-		
-		<div data-options="region:'south', border:false" id="footer" class="footer">
-			<p>Copyright &copy; 中国人民银行武汉分行货币金银处 &nbsp;技术支持 &nbsp;(sunshine)</p>
-		</div>
-	</div>
-	
-	<!-- 新建实物对话框 -->
-	<div id="createBoxDlg" class="easyui-dialog" style="width: 500px; height: 300px; padding: 10px 20px"
-			data-options="closed:true, buttons:'#createBoxDlgButtons', modal:true">
-		<div class="FormTitle">实物信息</div>
-		<form id="createBoxForm" method="POST" novalidate>
-			<table>
-				<tr>
-					<th>实物类型</th>
-					<td>
-						<input id="createBox-productType" name="productType" class="easyui-combobox" data-options="
+                    <li>
+                        <img src="{% static 'img/search.png' %}"></img>
+                        <a href="javascript:void(0);" onclick="archivedBoxManage()"><span>封箱实物查询</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div data-options="region:'center'">
+        <!-- <table id="dg" class="easyui-datagrid" style="width:100%;height:100%"
+            url="get_users.php"
+            toolbar="#toolbar" pagination="true"
+            rownumbers="true" fitColumns="true" singleSelect="true">
+            <thead>
+                <tr>
+                <th field="firstname" width="50">First Name</th>
+                <th field="lastname" width="50">Last Name</th>
+                <th field="phone" width="50">Phone</th>
+                <th field="email" width="50">Email</th>
+                </tr>
+            </thead>
+        </table> -->
+        <!-- <div id="toolbar">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove User</a>
+        </div> -->
+        <div id="tbs" class="easyui-tabs" data-options="border:false, fit:true">
+            <div title="欢迎首页" data-options="iconCls:'icon-home'">
+            </div>
+        </div>
+    </div>
+
+    <div data-options="region:'south', border:false" id="footer" class="footer">
+        <p>Copyright &copy; 中国人民银行武汉分行货币金银处 &nbsp;技术支持 &nbsp;(sunshine)</p>
+    </div>
+</div>
+
+<!-- 新建实物对话框 -->
+<div id="createBoxDlg" class="easyui-dialog" style="width: 500px; height: 300px; padding: 10px 20px"
+     data-options="closed:true, buttons:'#createBoxDlgButtons', modal:true">
+    <div class="FormTitle">实物信息</div>
+    <form id="createBoxForm" method="POST" novalidate>
+        <table>
+            <tr>
+                <th>实物类型</th>
+                <td>
+                    <input id="createBox-productType" name="productType" class="easyui-combobox" data-options="
 							valueField: 'id',
 							textField: 'text',
 							url: 'getProductType/',
@@ -360,24 +363,24 @@
 								$('#createBox-className').combobox('clear');
 								$('#createBox-subClassName').combobox('clear');
 							},"/>
-					</td>
-					
-					<th>发行库</th>
-					<td>
-						<input id="createBox-wareHosue" name="wareHouse" class="easyui-combobox" data-options="
+                </td>
+
+                <th>发行库</th>
+                <td>
+                    <input id="createBox-wareHosue" name="wareHouse" class="easyui-combobox" data-options="
 							valueField: 'id',
 							textField: 'text',
 							url: 'getWareHouse/',
 							editable: false,
 							panelHeight: 'auto',
 							fit: true,"/>
-					</td>
-				</tr>
-				
-				<tr>
-					<th>品名</th>
-					<td>
-						<input id="createBox-className" name="className" class="easyui-combobox" data-options="
+                </td>
+            </tr>
+
+            <tr>
+                <th>品名</th>
+                <td>
+                    <input id="createBox-className" name="className" class="easyui-combobox" data-options="
 							valueField: 'id',
 							textField: 'text',
 							editable: false,
@@ -388,493 +391,562 @@
 								var url = 'getSubClassName/'+typeCode+'&'+rec.id;
 								$('#createBox-subClassName').combobox('reload', url);
 							},"/>
-					</td>
-					
-					<th>明细品名</th>
-					<td>
-						<input id="createBox-subClassName" name="subClassName" class="easyui-combobox" data-options="
+                </td>
+
+                <th>明细品名</th>
+                <td>
+                    <input id="createBox-subClassName" name="subClassName" class="easyui-combobox" data-options="
 							valueField: 'id',
 							textField: 'text',
 							editable: false,
 							panelHeight: 'auto',
 							fit: true,"/>
-					</td>
-				</tr>
+                </td>
+            </tr>
 
-				<tr>
-					<th>箱号</th>
-					<td colspan="3"><input id="createBox-boxNumber" name="boxNumber" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
-				</tr>
-				
-				<tr>
-					<th>包容量</th>
-					<td><input id="createBox-packageCapacity" name="packageCapacity" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
-					<th>毛重</th>
-					<td><input id="createBox-grossWeight" name="grossWeight" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
-				</tr>
-				
-				<tr>
-					<th>件数</th>
-					<td><input id="createBox-amount" name="amount" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
-					<th>起始序号</th>
-					<td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="createBoxDlgButtons">
-		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="createBox()" style="width:90px">新建</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#createBoxDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
+            <tr>
+                <th>箱号</th>
+                <td colspan="3"><input id="createBox-boxNumber" name="boxNumber" class="easyui-numberbox"
+                                       data-options="min:0, fit: true"/></td>
+            </tr>
 
-	<!-- 新建实物拆箱对话框 -->
-	<div id="allotBoxDlg" class="easyui-dialog" style="width:600px;height:670px;padding:10px 20px" data-options="closed:true, buttons:'#allotBoxDlgButtons', modal:true">
-		<div class="FormTitle">拆箱信息：<span id="info-allotBoxNumber" style="color: red;"></span>号箱</div>
-		<form id="allotBoxForm" method="POST" novalidate>
-			<input type="hidden" id="allotBox-boxNumber" />
-			<table width="545px">
-				<tr>
-					<th colspan="2">选择实物</th>
-				</tr>
-				<tr height="300px">
-					<td colspan="2"><table id="allotBox-thingsGrid"></table></td>
-				</tr>
-				<tr>
-					<th>选中实物</th>
-					<th>共计<span id="allotBox-selectedThingCount">0</span>项</th>
-				</tr>
-				<tr height="180px">
-					<td colspan="2"><input id="allotBox-selectedThing" name="selectedThing" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="allotBoxDlgButtons">
-		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="allotBox()" style="width:90px">创建</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#allotBoxDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	<div id="allotBox-thingsGrid-ToolBar" style="padding:5px 0;display:none;">
-		<label for="allotBox-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">当前箱号</label>
-		<input id="allotBox-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;" />
-		<label for="allotBox-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:55px;margin-right:5px;">目标箱号</label>
-		<input id="allotBox1-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;" />
-		<!--<div style="margin-top: 10px; width:173px;">
-			<label for="allotBox-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:317px;margin-right:5px;">毛重</label>
-			<input id="grossWeight" style="margin-right:5px;" data-options="min:0, fit: true" />
-		</div>-->
-	</div>
+            <tr>
+                <th>包容量</th>
+                <td><input id="createBox-packageCapacity" name="packageCapacity" class="easyui-numberbox"
+                           data-options="min:0, fit: true"/></td>
+                <th>毛重</th>
+                <td><input id="createBox-grossWeight" name="grossWeight" class="easyui-numberbox"
+                           data-options="min:0, fit: true"/></td>
+            </tr>
 
-	<!-- 新建实物子箱并箱对话框 -->
-	<div id="mergeBoxDlg" class="easyui-dialog" style="width:600px;height:465px;padding:10px 20px" data-options="closed:true, buttons:'#mergeBoxDlgButtons', modal:true">
-		<div class="FormTitle">并箱信息：<span id="info-mergeBoxNumber" style="color: red;"></span>号箱</div>
-		<form id="mergeBoxForm" method="POST" novalidate>
-			<input type="hidden" id="mergeBox-boxNumber" />
-			<table width="545px">
-				<tr>
-					<th colspan="2">选择箱号</th>
-				</tr>
-				<tr>
-					<td colspan="2"><table id="mergeBox-thingsGrid"></table></td>
-				</tr>
-				<tr>
-					<td colspan="2"><input id="mergeBox-selectedThing" name="selectedThing" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="mergeBoxDlgButtons">
-		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="mergeBox()" style="width:90px">创建</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#mergeBoxDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
+            <tr>
+                <th>件数</th>
+                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"
+                           data-options="min:0, fit: true"/></td>
+                <th>起始序号</th>
+                <td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox"
+                           data-options="min:0, fit: true"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="createBoxDlgButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="createBox()"
+       style="width:90px">新建</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#createBoxDlg').dialog('close')" style="width:90px">取消</a>
+</div>
 
-	<!-- 新建实物箱体报表对话框 -->
-	<div id="reportBoxDlg" class="easyui-dialog" style="width:600px;height:465px;padding:10px 20px" data-options="closed:true, buttons:'#reportBoxDlgButtons', modal:true">
-		<div class="FormTitle">箱体列表信息</div>
-		<form id="reportBoxForm" method="POST" novalidate>
-			<table width="545px">
-				<tr>
-					<th colspan="2">选择箱号</th>
-				</tr>
-				<tr>
-					<td colspan="2"><table id="reportBox-thingsGrid"></table></td>
-				</tr>
-				<tr>
-					<td colspan="2"><input id="reportBox-selectedThing" name="selectedThing" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="reportBoxDlgButtons">
-		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="reportBox()" style="width:90px">创建</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#reportBoxDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
+<!-- 新建实物拆箱对话框 -->
+<div id="allotBoxDlg" class="easyui-dialog" style="width:600px;height:670px;padding:10px 20px"
+     data-options="closed:true, buttons:'#allotBoxDlgButtons', modal:true">
+    <div class="FormTitle">拆箱信息：<span id="info-allotBoxNumber" style="color: red;"></span>号箱</div>
+    <form id="allotBoxForm" method="POST" novalidate>
+        <input type="hidden" id="allotBox-boxNumber"/>
+        <table width="545px">
+            <tr>
+                <th colspan="2">选择实物</th>
+            </tr>
+            <tr height="300px">
+                <td colspan="2">
+                    <table id="allotBox-thingsGrid"></table>
+                </td>
+            </tr>
+            <tr>
+                <th>选中实物</th>
+                <th>共计<span id="allotBox-selectedThingCount">0</span>项</th>
+            </tr>
+            <tr height="180px">
+                <td colspan="2"><input id="allotBox-selectedThing" name="selectedThing"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="allotBoxDlgButtons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="allotBox()" style="width:90px">创建</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#allotBoxDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+<div id="allotBox-thingsGrid-ToolBar" style="padding:5px 0;display:none;">
+    <label for="allotBox-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">当前箱号</label>
+    <input id="allotBox-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>
+    <label for="allotBox-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:55px;margin-right:5px;">目标箱号</label>
+    <input id="allotBox1-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>
+    <!--<div style="margin-top: 10px; width:173px;">
+        <label for="allotBox-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:317px;margin-right:5px;">毛重</label>
+        <input id="grossWeight" style="margin-right:5px;" data-options="min:0, fit: true" />
+    </div>-->
+</div>
 
-	<!-- 箱子毛重设置对话框 -->
-	<div id="weightBoxDlg" class="easyui-dialog" style="width:350px;height:130px;padding:10px 20px"
-			data-options="closed:true, buttons:'#weightBoxDlgButtons', modal:true">
-		<form id="weightBoxForm" method="POST" novalidate>
-			<input type="hidden" id="weightBox-boxNumber" />
-			<table width="295px">
-				<tr>
-					<th>毛重：</th>
-					<td><input id="weigthBox" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="weightBoxDlgButtons">
-		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="doWeightBox()" style="width:90px">生成</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#weightBoxDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
+<!-- 新建实物子箱并箱对话框 -->
+<div id="mergeBoxDlg" class="easyui-dialog" style="width:600px;height:465px;padding:10px 20px"
+     data-options="closed:true, buttons:'#mergeBoxDlgButtons', modal:true">
+    <div class="FormTitle">并箱信息：<span id="info-mergeBoxNumber" style="color: red;"></span>号箱</div>
+    <form id="mergeBoxForm" method="POST" novalidate>
+        <input type="hidden" id="mergeBox-boxNumber"/>
+        <table width="545px">
+            <tr>
+                <th colspan="2">选择箱号</th>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table id="mergeBox-thingsGrid"></table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><input id="mergeBox-selectedThing" name="selectedThing"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="mergeBoxDlgButtons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="mergeBox()" style="width:90px">创建</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#mergeBoxDlg').dialog('close')" style="width:90px">取消</a>
+</div>
 
-	<!-- 封箱入库-管理员验证 -->
-	<div id="putBoxValidateDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px"
-			data-options="closed:true, buttons:'#putBoxValidateDlgButtons', modal:true">
-		<form id="putBoxValidateForm" method="POST" novalidate>
-			<input type="hidden" id="putBoxValidate-boxNumber" />
-			<table width="295px">
-				<tr>
-					<th>用户名：</th>
-					<td><input id="userValidate" /></td>
-				</tr>
-				<tr>
-					<th>密码：</th>
-					<td><input type="password" id="userpassword" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="putBoxValidateDlgButtons">
-		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok" onclick="doputBoxValidate()" style="width:90px">确定</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#putBoxValidateDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
+<!-- 新建实物箱体报表对话框 -->
+<div id="reportBoxDlg" class="easyui-dialog" style="width:600px;height:465px;padding:10px 20px"
+     data-options="closed:true, buttons:'#reportBoxDlgButtons', modal:true">
+    <div class="FormTitle">箱体列表信息</div>
+    <form id="reportBoxForm" method="POST" novalidate>
+        <table width="545px">
+            <tr>
+                <th colspan="2">选择箱号</th>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table id="reportBox-thingsGrid"></table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><input id="reportBox-selectedThing" name="selectedThing"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="reportBoxDlgButtons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="reportBox()"
+       style="width:90px">创建</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#reportBoxDlg').dialog('close')" style="width:90px">取消</a>
+</div>
 
-	<!-- 并箱操作对话框 -->
-	<div id="addToExistingBoxDlg" class="easyui-dialog" style="width: 500px; height: 280px; padding:10px 20px"
-			data-options="closed:true, buttons:'#addToExistingBoxDlgButtons', modal:true">
-		<div class="FormTitle">实物信息</div>
-		<form id="addToExistingBoxForm" method="POST" novalidate>
-			<table width="445px">
-				<tr>
-					<th>箱号</th>
-					<td><span id="addToExistingBoxBoxNumber"></span></td>
-					
-					<th>实物类型</th>
-					<td><span id="addToExistingBoxProductType"></span></td>
-				</tr>
-				
-				<tr>
-					<th>发行库</th>
-					<td colspan="3">
-						<!--<input id="createBox-wareHosue" name="wareHouse" class="easyui-combobox" data-options="
-							valueField: 'id',
-							textField: 'text',
-							url: 'getWareHouse/',
-							editable: false,
-							panelHeight: 'auto',
-							fit: true,"/>-->
-						<span id="addToExistingBoxWareHouse"></span>
-					</td>
-				</tr>
-				
-				<tr>
-					<th>品名</th>
-					<td><span id="addToExistingBoxClassName"></span></td>
-					
-					<th>明细品名</th>
-					<td><span id="addToExistingBoxSubClassName"></span></td>
-				</tr>
-				
-				<tr>
-					<th>件数</th>
-					<td><input id="addToExistingBoxAmount" name="amount" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
-					<th>起始序号</th>
-					<td><input id="addToExistingBoxStartSeq" name="startSeq" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="addToExistingBoxDlgButtons">
-		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="addToExistingBox()" style="width:90px">并箱</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#addToExistingBoxDlg').dialog('close')" style="width:90px">取消</a>
-	</div>	
-	
-	<!-- 创建作业对话框 -->
-	<div id="createWorkDlg" class="easyui-dialog" style="width:600px;height:670px;padding:10px 20px"
-			data-options="closed:true, buttons:'#createWorkDlgButtons', modal:true">
-		<div class="FormTitle">作业信息</div>
-		<form id="createWorkForm" method="POST" novalidate>
-			<input type="hidden" id="createWork-boxNumber" />
-			<table width="545px">
-				<tr>
-					<th>作业名称</th>
-					<td>
-						<input id="createWork-workName" name="workName" />
-						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="generateWorkName()" style="margin-left:10px;width:60px">自动生成</a>
-					</td>
-				</tr>
-				<tr>
-					<th colspan="2">按数量选择实物</th>
-				</tr>
-				<tr>
-					<th>数量</th>
-					<td>
-						<input id="createWork-amount" name="amount"/>
-						<span>(自最小编号起始)</span>
-						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="generateContentForWork()" style="margin-left:10px;width:60px">生成列表</a>
-					</td>
-				</tr>
-				<tr>
-					<th colspan="2">按单个选择实物</th>
-				</tr>
-				<tr height="300px">
-					<td colspan="2"><table id="createWork-thingsGrid"></table></td>
-				</tr>
-				<tr>
-					<th>选中实物</th>
-					<th>共计<span id="createWork-selectedThingCount">0</span>项</th>
-				</tr>
-				<tr>
-					<td colspan="2"><input id="createWork-selectedThing" name="selectedThing" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="createWorkDlgButtons">
-		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="createWork()" style="width:90px">创建</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#createWorkDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	<div id="createWork-thingsGrid-ToolBar" style="padding:5px 0;display:none;">
-		<label for="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>
-		<input id="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;" />
-	</div>
-	
-	<!-- 编辑作业对话框 -->
-	<div id="editWorkDlg" class="easyui-dialog" style="width:600px;height:580px;padding:10px 20px"
-			data-options="closed:true, buttons:'#editWorkDlgButtons', modal:true">
-		<div class="FormTitle">作业信息</div>
-		<form id="editWorkForm" method="POST" novalidate>
-			<input type="hidden" id="editWorkboxNumber" />
-			<table width="545px">
-				<tr>
-					<th>作业名称</th>
-					<td><span id="editWorkworkName"></span></td>
-					<th>件数</th>
-					<td><span id="editWorkworkAmount"></span></td>
-				</tr>
-				
-				<tr height="300px">
-					<td colspan="4"><table id="editWorkthingsGrid"></table></td>
-				</tr>
-				
-				<tr>
-					<th colspan="2">选中实物</th>
-					<th colspan="2">共计<span id="editWorkselectedThingCount">0</span>项</th>
-				</tr>
-				
-				<tr>
-					<td colspan="4"><input id="editWorkselectedThing" name="selectedThing" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="editWorkDlgButtons">
-		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="javascript:void(0)" style="width:90px">编辑</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#editWorkDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	<div id="editWorkthingsGridToolBar" style="padding:5px 0;display:none;">
-		<label for="editWorkthingsGridToolBarthingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>
-		<input id="editWorkthingsGridToolBarthingIsAllocated" style="margin-right:5px;" />
-	</div>
-	
-	<!-- 装箱清单生成对话框 -->
-	<div id="generateBoxInfoDlg" class="easyui-dialog" style="width:350px;height:130px;padding:10px 20px"
-			data-options="closed:true, buttons:'#generateBoxInfoDlgButtons', modal:true">
-		<form id="generateBoxInfoForm" method="POST" novalidate>
-			<input type="hidden" id="generateBoxInfo-boxNumber" />
-			<table width="295px">
-				<tr>
-					<th>生成日期</th>
-					<td><input id="generateBoxInfoDateTime" class="easyui-datebox" style="" data-options="currentText:'今天', closeText:'关闭', fit:true" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="generateBoxInfoDlgButtons">
-		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="doGenerateBoxInfo()" style="width:90px">生成</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#generateBoxInfoDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	
-	<!-- 装箱清单(详细版)生成对话框 -->
-	<div id="generateBoxInfoDetailedVersionDlg" class="easyui-dialog" style="width:350px;height:130px;padding:10px 20px"
-			data-options="closed:true, buttons:'#generateBoxInfoDetailedVersionDlgButtons', modal:true">
-		<form id="generateBoxInfoDetailedVersionForm" method="POST" novalidate>
-			<input type="hidden" id="generateBoxInfoDetailedVersion-boxNumber" />
-			<table width="295px">
-				<tr>
-					<th>生成日期</th>
-					<td><input id="generateBoxInfoDetailedVersionDateTime" class="easyui-datebox" style="" data-options="currentText:'今天', closeText:'关闭', fit:true" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="generateBoxInfoDetailedVersionDlgButtons">
-		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="doGenerateBoxInfoDetailedVersion()" style="width:90px">生成</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#generateBoxInfoDetailedVersionDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	
-	<!-- 信息档案生成对话框 -->
-	<div id="generateArchivesDlg" class="easyui-dialog" style="width:350px;height:130px;padding:10px 20px"
-			data-options="closed:true, buttons:'#generateArchivesDlgButtons', modal:true">
-		<form id="generateArchivesForm" method="POST" novalidate>
-			<table width="295px">
-				<tr>
-					<th>生成日期</th>
-					<td><input id="generateArchivesDateTime" class="easyui-datebox" style="" data-options="currentText:'今天', closeText:'关闭', fit:true" /></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="generateArchivesDlgButtons">
-		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="doGenerateArchives()" style="width:90px">生成</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#generateArchivesDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	
-	<!-- 信息档案生成对话框 -->
-	<div id="detailedCompleteInfoDlg" class="easyui-dialog" style="width:350px;height:150px;padding:10px 20px"
-			data-options="closed:true, buttons:'#detailedCompleteInfoDlgButtons', modal:true">
-		<form id="detailedCompleteInfoForm" method="POST" novalidate>
-			<table width="295px">
-				<tr>
-					<th>复核(件)</th>
-					<th>鉴定(件)</th>
-					<th>频谱(件)</th>
-					<th>称测(件)</th>
-                    <th>拍照(件)</th>
-				</tr>
-				
-				<tr>
-					<td style="text-align:center"><span id="detailedCompleteInfoCheckingCompleteAmount"></span></td>
-					<td style="text-align:center"><span id="detailedCompleteInfoNumberingCompleteAmount"></span></td>
-					<td style="text-align:center"><span id="detailedCompleteInfoAnalyzingCompleteAmount"></span></td>
-					<td style="text-align:center"><span id="detailedCompleteInfoMeasuringCompleteAmount"></span></td>
-                    <td style="text-align:center"><span id="detailedCompleteInfoPhotograpgingCompleteAmount"></span></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div id="detailedCompleteInfoDlgButtons">
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#detailedCompleteInfoDlg').dialog('close')" style="width:90px">关闭</a>
-	</div>
-	
-	<!-- 用户添加对话框 -->
-	<div id="userDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
-			data-options="closed:true, buttons:'#userDlgButtons', modal:true">
-		<div class="FormTitle">用户信息</div>
-		<form id="userForm" method="POST" novalidate>
-			<div class="FormItem">
-				<label for="user-nickName">用户名称</label>
-				<input id="user-nickName" name="nickName" class="easyui-textbox">
-			</div>
-			<div class="FormItem">
-				<label for="user-type">用户类型</label>
-				<input id="user-type" name="type" class="easyui-combobox" data-options="
+<!-- 箱子毛重设置对话框 -->
+<div id="weightBoxDlg" class="easyui-dialog" style="width:350px;height:130px;padding:10px 20px"
+     data-options="closed:true, buttons:'#weightBoxDlgButtons', modal:true">
+    <form id="weightBoxForm" method="POST" novalidate>
+        <input type="hidden" id="weightBox-boxNumber"/>
+        <table width="295px">
+            <tr>
+                <th>毛重：</th>
+                <td><input id="weigthBox" class="easyui-numberbox" data-options="min:0, fit: true"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="weightBoxDlgButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="doWeightBox()"
+       style="width:90px">生成</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#weightBoxDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!-- 封箱入库-管理员验证 -->
+<div id="putBoxValidateDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px"
+     data-options="closed:true, buttons:'#putBoxValidateDlgButtons', modal:true">
+    <form id="putBoxValidateForm" method="POST" novalidate>
+        <input type="hidden" id="putBoxValidate-boxNumber"/>
+        <table width="295px">
+            <tr>
+                <th>用户名：</th>
+                <td><input id="userValidate"/></td>
+            </tr>
+            <tr>
+                <th>密码：</th>
+                <td><input type="password" id="userpassword"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="putBoxValidateDlgButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
+       onclick="doputBoxValidate()" style="width:90px">确定</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#putBoxValidateDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!-- 并箱操作对话框 -->
+<div id="addToExistingBoxDlg" class="easyui-dialog" style="width: 500px; height: 280px; padding:10px 20px"
+     data-options="closed:true, buttons:'#addToExistingBoxDlgButtons', modal:true">
+    <div class="FormTitle">实物信息</div>
+    <form id="addToExistingBoxForm" method="POST" novalidate>
+        <table width="445px">
+            <tr>
+                <th>箱号</th>
+                <td><span id="addToExistingBoxBoxNumber"></span></td>
+
+                <th>实物类型</th>
+                <td><span id="addToExistingBoxProductType"></span></td>
+            </tr>
+
+            <tr>
+                <th>发行库</th>
+                <td colspan="3">
+                    <!--<input id="createBox-wareHosue" name="wareHouse" class="easyui-combobox" data-options="
+                        valueField: 'id',
+                        textField: 'text',
+                        url: 'getWareHouse/',
+                        editable: false,
+                        panelHeight: 'auto',
+                        fit: true,"/>-->
+                    <span id="addToExistingBoxWareHouse"></span>
+                </td>
+            </tr>
+
+            <tr>
+                <th>品名</th>
+                <td><span id="addToExistingBoxClassName"></span></td>
+
+                <th>明细品名</th>
+                <td><span id="addToExistingBoxSubClassName"></span></td>
+            </tr>
+
+            <tr>
+                <th>件数</th>
+                <td><input id="addToExistingBoxAmount" name="amount" class="easyui-numberbox"
+                           data-options="min:0, fit: true"/></td>
+                <th>起始序号</th>
+                <td><input id="addToExistingBoxStartSeq" name="startSeq" class="easyui-numberbox"
+                           data-options="min:0, fit: true"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="addToExistingBoxDlgButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="addToExistingBox()"
+       style="width:90px">并箱</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#addToExistingBoxDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!-- 创建作业对话框 -->
+<div id="createWorkDlg" class="easyui-dialog" style="width:600px;height:670px;padding:10px 20px"
+     data-options="closed:true, buttons:'#createWorkDlgButtons', modal:true">
+    <div class="FormTitle">作业信息</div>
+    <form id="createWorkForm" method="POST" novalidate>
+        <input type="hidden" id="createWork-boxNumber"/>
+        <table width="545px">
+            <tr>
+                <th>作业名称</th>
+                <td>
+                    <input id="createWork-workName" name="workName"/>
+                    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="generateWorkName()"
+                       style="margin-left:10px;width:60px">自动生成</a>
+                </td>
+            </tr>
+            <tr>
+                <th colspan="2">按数量选择实物</th>
+            </tr>
+            <tr>
+                <th>数量</th>
+                <td>
+                    <input id="createWork-amount" name="amount"/>
+                    <span>(自最小编号起始)</span>
+                    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="generateContentForWork()"
+                       style="margin-left:10px;width:60px">生成列表</a>
+                </td>
+            </tr>
+            <tr>
+                <th colspan="2">按单个选择实物</th>
+            </tr>
+            <tr height="300px">
+                <td colspan="2">
+                    <table id="createWork-thingsGrid"></table>
+                </td>
+            </tr>
+            <tr>
+                <th>选中实物</th>
+                <th>共计<span id="createWork-selectedThingCount">0</span>项</th>
+            </tr>
+            <tr>
+                <td colspan="2"><input id="createWork-selectedThing" name="selectedThing"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="createWorkDlgButtons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="createWork()"
+       style="width:90px">创建</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#createWorkDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+<div id="createWork-thingsGrid-ToolBar" style="padding:5px 0;display:none;">
+    <label for="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>
+    <input id="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>
+</div>
+
+<!-- 编辑作业对话框 -->
+<div id="editWorkDlg" class="easyui-dialog" style="width:600px;height:580px;padding:10px 20px"
+     data-options="closed:true, buttons:'#editWorkDlgButtons', modal:true">
+    <div class="FormTitle">作业信息</div>
+    <form id="editWorkForm" method="POST" novalidate>
+        <input type="hidden" id="editWorkboxNumber"/>
+        <table width="545px">
+            <tr>
+                <th>作业名称</th>
+                <td><span id="editWorkworkName"></span></td>
+                <th>件数</th>
+                <td><span id="editWorkworkAmount"></span></td>
+            </tr>
+
+            <tr height="300px">
+                <td colspan="4">
+                    <table id="editWorkthingsGrid"></table>
+                </td>
+            </tr>
+
+            <tr>
+                <th colspan="2">选中实物</th>
+                <th colspan="2">共计<span id="editWorkselectedThingCount">0</span>项</th>
+            </tr>
+
+            <tr>
+                <td colspan="4"><input id="editWorkselectedThing" name="selectedThing"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="editWorkDlgButtons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="javascript:void(0)"
+       style="width:90px">编辑</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#editWorkDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+<div id="editWorkthingsGridToolBar" style="padding:5px 0;display:none;">
+    <label for="editWorkthingsGridToolBarthingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>
+    <input id="editWorkthingsGridToolBarthingIsAllocated" style="margin-right:5px;"/>
+</div>
+
+<!-- 装箱清单生成对话框 -->
+<div id="generateBoxInfoDlg" class="easyui-dialog" style="width:350px;height:130px;padding:10px 20px"
+     data-options="closed:true, buttons:'#generateBoxInfoDlgButtons', modal:true">
+    <form id="generateBoxInfoForm" method="POST" novalidate>
+        <input type="hidden" id="generateBoxInfo-boxNumber"/>
+        <table width="295px">
+            <tr>
+                <th>生成日期</th>
+                <td><input id="generateBoxInfoDateTime" class="easyui-datebox" style=""
+                           data-options="currentText:'今天', closeText:'关闭', fit:true"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="generateBoxInfoDlgButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="doGenerateBoxInfo()"
+       style="width:90px">生成</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#generateBoxInfoDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+{#    二维码的弹框#}
+<div id="quickMarkDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;text-align: center"
+     data-options="closed:true, buttons:'#quickMarkButtons', modal:true">
+    <form id="putBoxValidateForm" method="POST" novalidate>
+        <input type="text" id="quickMark-boxNumber" placeholder="请扫描二维码" style=" width:190px;height:25px;margin-top:20px
+        ;border-radius: 8px;outline: none"/>
+    </form>
+</div>
+<div id="quickMarkButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
+        style="width:90px" >确定</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#quickMarkDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!-- 装箱清单(详细版)生成对话框 -->
+<div id="generateBoxInfoDetailedVersionDlg" class="easyui-dialog" style="width:350px;height:130px;padding:10px 20px"
+     data-options="closed:true, buttons:'#generateBoxInfoDetailedVersionDlgButtons', modal:true">
+    <form id="generateBoxInfoDetailedVersionForm" method="POST" novalidate>
+        <input type="hidden" id="generateBoxInfoDetailedVersion-boxNumber"/>
+        <table width="295px">
+            <tr>
+                <th>生成日期</th>
+                <td><input id="generateBoxInfoDetailedVersionDateTime" class="easyui-datebox" style=""
+                           data-options="currentText:'今天', closeText:'关闭', fit:true"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="generateBoxInfoDetailedVersionDlgButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok"
+       onclick="doGenerateBoxInfoDetailedVersion()" style="width:90px">生成</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#generateBoxInfoDetailedVersionDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!-- 信息档案生成对话框 -->
+<div id="generateArchivesDlg" class="easyui-dialog" style="width:350px;height:130px;padding:10px 20px"
+     data-options="closed:true, buttons:'#generateArchivesDlgButtons', modal:true">
+    <form id="generateArchivesForm" method="POST" novalidate>
+        <table width="295px">
+            <tr>
+                <th>生成日期</th>
+                <td><input id="generateArchivesDateTime" class="easyui-datebox" style=""
+                           data-options="currentText:'今天', closeText:'关闭', fit:true"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="generateArchivesDlgButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="doGenerateArchives()"
+       style="width:90px">生成</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#generateArchivesDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!-- 信息档案生成对话框 -->
+<div id="detailedCompleteInfoDlg" class="easyui-dialog" style="width:350px;height:150px;padding:10px 20px"
+     data-options="closed:true, buttons:'#detailedCompleteInfoDlgButtons', modal:true">
+    <form id="detailedCompleteInfoForm" method="POST" novalidate>
+        <table width="295px">
+            <tr>
+                <th>复核(件)</th>
+                <th>鉴定(件)</th>
+                <th>频谱(件)</th>
+                <th>称测(件)</th>
+                <th>拍照(件)</th>
+            </tr>
+
+            <tr>
+                <td style="text-align:center"><span id="detailedCompleteInfoCheckingCompleteAmount"></span></td>
+                <td style="text-align:center"><span id="detailedCompleteInfoNumberingCompleteAmount"></span></td>
+                <td style="text-align:center"><span id="detailedCompleteInfoAnalyzingCompleteAmount"></span></td>
+                <td style="text-align:center"><span id="detailedCompleteInfoMeasuringCompleteAmount"></span></td>
+                <td style="text-align:center"><span id="detailedCompleteInfoPhotograpgingCompleteAmount"></span></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="detailedCompleteInfoDlgButtons">
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#detailedCompleteInfoDlg').dialog('close')" style="width:90px">关闭</a>
+</div>
+
+<!-- 用户添加对话框 -->
+<div id="userDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
+     data-options="closed:true, buttons:'#userDlgButtons', modal:true">
+    <div class="FormTitle">用户信息</div>
+    <form id="userForm" method="POST" novalidate>
+        <div class="FormItem">
+            <label for="user-nickName">用户名称</label>
+            <input id="user-nickName" name="nickName" class="easyui-textbox">
+        </div>
+        <div class="FormItem">
+            <label for="user-type">用户类型</label>
+            <input id="user-type" name="type" class="easyui-combobox" data-options="
 						valueField: 'label',
 						textField: 'value',
 						data: [{label: '1', value: '管理员'},{label: '2', value: '一般用户'}],
 						editable: false,
 						panelHeight: 'auto',
 				">
-			</div>
-			<div class="FormItem">
-				<label for="user-password">密码</label>
-				<input id="user-password" name="password" class="easyui-textbox" type="password">
-			</div>
-		</form>
-	</div>
-	<div id="userDlgButtons">
-		<a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">保存</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#userDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	
-	<!-- 更改密码 -->
-	<div id="updatePasswordDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
-			data-options="closed:true, buttons:'#updatePasswordDlgButtons', modal:true">
-		<div class="FormTitle">更改密码</div>
-		<form id="updatePasswordForm" method="POST" novalidate>
-			<div class="FormItem">
-				<label for="updatePassword-nickName">用户名称</label>
-				<input id="updatePassword-nickName" name="nickName" class="easyui-textbox" data-options="readonly: true">
-			</div>
-			<div class="FormItem">
-				<label for="updatePassword-password">新密码</label>
-				<input id="updatePassword-password" name="passWord" class="easyui-textbox" type="password">
-			</div>
-			<div class="FormItem">
-				<label for="updatePassword-confirm">确认密码</label>
-				<input id="updatePassword-confirm" name="confirm" class="easyui-textbox" type="password">
-			</div>
-		</form>
-	</div>
-	<div id="updatePasswordDlgButtons">
-		<a href="javascript:void(0)" id="update" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="savePassword()" style="width:90px">更改</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#updatePasswordDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	
-	<!-- 属性信息添加对话框 -->
-	<div id="propertyDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
-			data-options="closed:true, buttons:'#propertyDlgButtons', modal:true, onClose:unInitPropertyDlg">
-		<div class="FormTitle">属性信息</div>
-		<form id="propertyForm" method="POST" novalidate>
-			<div id="step1">
-				<div class="FormItem">
-					<label for="property-project">待添加项目</label>
-					<input id="property-project" name="project" class="easyui-combobox" data-options="
+        </div>
+        <div class="FormItem">
+            <label for="user-password">密码</label>
+            <input id="user-password" name="password" class="easyui-textbox" type="password">
+        </div>
+    </form>
+</div>
+<div id="userDlgButtons">
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()"
+       style="width:90px">保存</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#userDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!-- 更改密码 -->
+<div id="updatePasswordDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
+     data-options="closed:true, buttons:'#updatePasswordDlgButtons', modal:true">
+    <div class="FormTitle">更改密码</div>
+    <form id="updatePasswordForm" method="POST" novalidate>
+        <div class="FormItem">
+            <label for="updatePassword-nickName">用户名称</label>
+            <input id="updatePassword-nickName" name="nickName" class="easyui-textbox" data-options="readonly: true">
+        </div>
+        <div class="FormItem">
+            <label for="updatePassword-password">新密码</label>
+            <input id="updatePassword-password" name="passWord" class="easyui-textbox" type="password">
+        </div>
+        <div class="FormItem">
+            <label for="updatePassword-confirm">确认密码</label>
+            <input id="updatePassword-confirm" name="confirm" class="easyui-textbox" type="password">
+        </div>
+    </form>
+</div>
+<div id="updatePasswordDlgButtons">
+    <a href="javascript:void(0)" id="update" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="savePassword()"
+       style="width:90px">更改</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#updatePasswordDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!-- 属性信息添加对话框 -->
+<div id="propertyDlg" class="easyui-dialog" style="width:500px;height:380px;padding:10px 20px"
+     data-options="closed:true, buttons:'#propertyDlgButtons', modal:true, onClose:unInitPropertyDlg">
+    <div class="FormTitle">属性信息</div>
+    <form id="propertyForm" method="POST" novalidate>
+        <div id="step1">
+            <div class="FormItem">
+                <label for="property-project">待添加项目</label>
+                <input id="property-project" name="project" class="easyui-combobox" data-options="
 						valueField: 'label',
 						textField: 'value',
 						data: [{label: '实物类型', value: '实物类型'},{label: '品名', value: '品名'},{label: '明细品名', value: '明细品名'},{label: '发行库', value: '发行库'}],
 						editable: false,
 						panelHeight: 'auto',
 					">
-				</div>
-			</div>
-			<div id="step2">
-				<div id="productType">
-					<div class="FormItem">
-						<label for="property-productType-productType">实物类型名称</label>
-						<input id="property-productType-productType" name="productType-productType" class="easyui-textbox">
-					</div>
-					<div class="FormItem">
-						<label for="property-productTypeCode">实物类型编码</label>
-						<input id="property-productTypeCode" name="productTypeCode" class="easyui-textbox">
-					</div>
-				</div>
-				
-				<div id="className">
-					<div class="FormItem">
-						<label for="property-className-productType">实物类型</label>
-						<input id="property-className-productType" name="className-productType" class="easyui-combobox" data-options="
+            </div>
+        </div>
+        <div id="step2">
+            <div id="productType">
+                <div class="FormItem">
+                    <label for="property-productType-productType">实物类型名称</label>
+                    <input id="property-productType-productType" name="productType-productType" class="easyui-textbox">
+                </div>
+                <div class="FormItem">
+                    <label for="property-productTypeCode">实物类型编码</label>
+                    <input id="property-productTypeCode" name="productTypeCode" class="easyui-textbox">
+                </div>
+            </div>
+
+            <div id="className">
+                <div class="FormItem">
+                    <label for="property-className-productType">实物类型</label>
+                    <input id="property-className-productType" name="className-productType" class="easyui-combobox"
+                           data-options="
 							valueField: 'id',
 							textField: 'text',
 							url: 'getProductType/',
 							editable: false,
 							panelHeight: 'auto',
 						">
-					</div>
-					<div class="FormItem">
-						<label for="property-className-className">品名名称</label>
-						<input id="property-className-className" name="className-className" class="easyui-textbox">
-					</div>
-					<div class="FormItem">
-						<label for="property-classNameCode">品名编码</label>
-						<input id="property-classNameCode" name="classNameCode" class="easyui-textbox">
-					</div>
-				</div>
-				
-				<div id="subClassName">
-					<div class="FormItem">
-						<label for="property-subClassName-productType">实物类型</label>
-						<input id="property-subClassName-productType" name="subClassName-productType" class="easyui-combobox" data-options="
+                </div>
+                <div class="FormItem">
+                    <label for="property-className-className">品名名称</label>
+                    <input id="property-className-className" name="className-className" class="easyui-textbox">
+                </div>
+                <div class="FormItem">
+                    <label for="property-classNameCode">品名编码</label>
+                    <input id="property-classNameCode" name="classNameCode" class="easyui-textbox">
+                </div>
+            </div>
+
+            <div id="subClassName">
+                <div class="FormItem">
+                    <label for="property-subClassName-productType">实物类型</label>
+                    <input id="property-subClassName-productType" name="subClassName-productType"
+                           class="easyui-combobox" data-options="
 							valueField: 'id',
 							textField: 'text',
 							url: 'getProductType/',
@@ -886,54 +958,58 @@
 							editable: false,
 							panelHeight: 'auto',
 						">
-					</div>
-					<div class="FormItem">
-						<label for="property-subClassName-className">品名</label>
-						<input id="property-subClassName-className" name="subClassName-className" class="easyui-combobox" data-options="
+                </div>
+                <div class="FormItem">
+                    <label for="property-subClassName-className">品名</label>
+                    <input id="property-subClassName-className" name="subClassName-className" class="easyui-combobox"
+                           data-options="
 							valueField: 'id',
 							textField: 'text',
 							editable: false
 						">
-					</div>
-					<div class="FormItem">
-						<label for="property-subClassName-subClassName">明细品名名称</label>
-						<input id="property-subClassName-subClassName" name="subClassName-subClassName" class="easyui-textbox">
-					</div>
-					<div class="FormItem">
-						<label for="property-subClassNameCode">明细品名编码</label>
-						<input id="property-subClassNameCode" name="subClassNameCode" class="easyui-textbox">
-					</div>
-				</div>
-				
-				<div id="wareHouse">
-					<div class="FormItem">
-						<label for="property-wareHouseType">发行库名称</label>
-						<input id="property-wareHouseType" name="wareHouseType" class="easyui-textbox">
-					</div>
-					<div class="FormItem">
-						<label for="property-wareHouseCode">发行库编码</label>
-						<input id="property-wareHouseCode" name="wareHouseCode" class="easyui-textbox">
-					</div>
-				</div>
-			</div>
-		</form>
-	</div>
-	<div id="propertyDlgButtons">
-		<a href="javascript:void(0)" id="next" class="easyui-linkbutton c6" onclick="next()" style="width:90px">下一步</a>
-		<a href="javascript:void(0)" id="prev" class="easyui-linkbutton c6" onclick="prev()" style="width:90px">上一步</a>
-		<a href="javascript:void(0)" id="propertySave" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveProperty()" style="width:90px">保存</a>
-		<a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#propertyDlg').dialog('close')" style="width:90px">取消</a>
-	</div>
-	
-	<!--- 遮罩层 --->
-	<div id="masklayer"></div>
-	<div id="popup">
-		<span></span>
-	</div>
+                </div>
+                <div class="FormItem">
+                    <label for="property-subClassName-subClassName">明细品名名称</label>
+                    <input id="property-subClassName-subClassName" name="subClassName-subClassName"
+                           class="easyui-textbox">
+                </div>
+                <div class="FormItem">
+                    <label for="property-subClassNameCode">明细品名编码</label>
+                    <input id="property-subClassNameCode" name="subClassNameCode" class="easyui-textbox">
+                </div>
+            </div>
 
-	<input type="hidden" id="okStatus" value="{%static 'img/ok.png'%}">
-	<input type="hidden" id="noStatus" value="{%static 'img/no.png'%}">
-	<input type="hidden" id="operator" value="{{ operator }}">
+            <div id="wareHouse">
+                <div class="FormItem">
+                    <label for="property-wareHouseType">发行库名称</label>
+                    <input id="property-wareHouseType" name="wareHouseType" class="easyui-textbox">
+                </div>
+                <div class="FormItem">
+                    <label for="property-wareHouseCode">发行库编码</label>
+                    <input id="property-wareHouseCode" name="wareHouseCode" class="easyui-textbox">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div id="propertyDlgButtons">
+    <a href="javascript:void(0)" id="next" class="easyui-linkbutton c6" onclick="next()" style="width:90px">下一步</a>
+    <a href="javascript:void(0)" id="prev" class="easyui-linkbutton c6" onclick="prev()" style="width:90px">上一步</a>
+    <a href="javascript:void(0)" id="propertySave" class="easyui-linkbutton c6" iconCls="icon-ok"
+       onclick="saveProperty()" style="width:90px">保存</a>
+    <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#propertyDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<!--- 遮罩层 --->
+<div id="masklayer"></div>
+<div id="popup">
+    <span></span>
+</div>
+
+<input type="hidden" id="okStatus" value="{% static 'img/ok.png' %}">
+<input type="hidden" id="noStatus" value="{% static 'img/no.png' %}">
+<input type="hidden" id="operator" value="{{ operator }}">
 
 </body>
 </html>
