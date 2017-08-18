@@ -1348,12 +1348,12 @@ def generateBoxInfoDetailedVersion(request):
         else:
             boxNumber = int(boxOrSubBox)
             subBoxNumber = ''
-        boxInfoFileNameList = createBoxInfoDetailedVersion(boxNumber,subBoxNumber, dateTime)
+
+        boxInfoFileName = createBoxInfoDetailedVersion(boxNumber,subBoxNumber, dateTime)
 
         downloadURL = ''
-        for boxInfoFileName in boxInfoFileNameList:
-            downloadURL = downloadURL + u'<a href="generateBoxInfoDetailedVersion/?boxNumber={0}&boxInfoFileName={1}" style="margin-right:20px">{2}</a>'.format(
-                boxNumber, boxInfoFileName, boxInfoFileName)
+        downloadURL = downloadURL + u'<a href="generateBoxInfoDetailedVersion/?boxNumber={0}&boxInfoFileName={1}" style="margin-right:20px">{2}</a>'.format(
+            boxNumber, boxInfoFileName, boxInfoFileName)
 
         ret = {
             'success': True,
