@@ -1,34 +1,23 @@
 # encoding=UTF-8
-import sys
-from django.shortcuts import render
 from django.http.response import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.exceptions import ObjectDoesNotExist
-from models import *
 import json, os
-from django.contrib import auth
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
-from datetime import datetime
-from django.utils import timezone
-import time,datetime
-
 from PIL import Image, ImageDraw, ImageFont
-import math
-import shutil
 import base64
+from clientserver import settings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-photoDir = os.path.join(BASE_DIR,'photo')
-uploadDir = os.path.join(BASE_DIR,'static','upload')
-rephotoDir = os.path.join(BASE_DIR,'static','rephoto')
+photoDir = settings.PHOTODIR  # os.path.join(BASE_DIR,'photo')
+uploadDir = os.path.join(BASE_DIR, 'static', 'upload')
+rephotoDir = os.path.join(BASE_DIR, 'static', 'rephoto')
 
-rephotoFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'rephotoFileName.txt')
-pastSerialFile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'pastSerialNumber.txt')
-stopSignalPath = os.path.join(os.path.dirname(os.path.abspath(__file__)),'stopSignal.txt')
+rephotoFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'rephotoFileName.txt')
+pastSerialFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pastSerialNumber.txt')
+stopSignalPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stopSignal.txt')
+
 
 def getSeq(request):
-    serialNumber = request.GET.get('serialNumber','')
+    serialNumber = request.GET.get('serialNumber', '')
     ret = {}
     # 指定要使用的字体和大小；/Library/Fonts/是macOS字体目录；Linux的字体目录是/usr/share/fonts/
     font = ImageFont.truetype('arial.ttf', 16)  # 第二个参数表示字符大小
@@ -64,9 +53,8 @@ def getSeq(request):
                 x = int((256 - width) / 2)
                 y = 256 - height - 12
                 draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
-                # imgNew.show()
                 savePath = os.path.join('static', 'rephoto', '{0}.jpg'.format(newSerial))
-                ab_rephotoPath  = os.path.join(rephotoDir, '{0}.jpg'.format(newSerial))
+                ab_rephotoPath = os.path.join(rephotoDir, '{0}.jpg'.format(newSerial))
                 imgNew.save(savePath)
                 os.remove(picPath)
                 ret['rephotoPath'] = savePath
@@ -114,9 +102,8 @@ def getSeq(request):
                 x = int((256 - width) / 2)
                 y = 256 - height - 12
                 draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
-                # imgNew.show()
                 ab_filePath = os.path.join(uploadDir, '{0}.jpg'.format(newSerial))
-                savePath = os.path.join('static','upload', '{0}.jpg'.format(newSerial))
+                savePath = os.path.join('static', 'upload', '{0}.jpg'.format(newSerial))
                 imgNew.save(savePath)
                 with open(pastSerialFile, 'w') as f:
                     cont = serialNumber + '/' + char
@@ -129,7 +116,6 @@ def getSeq(request):
                 ret['havePic'] = False
             else:
                 ret['havePic'] = False
-                # shutil.rmtree(photoDir) 会把 photoDir也删除，而photoDir可能不具有被删除的权限
                 for file in fileList:
                     p = os.path.join(photoDir, file)
                     os.remove(p)
@@ -150,56 +136,52 @@ def getSeq(request):
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
+
 def rephotograph(request):
-    fileName = request.GET.get('fileName','')
-    with open(rephotoFile,'w') as f:
+    fileName = request.GET.get('fileName', '')
+    with open(rephotoFile, 'w') as f:
         f.write(fileName)
     ret = {'rephoto': True}
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+
+
 def removePic(request):
     ret = {'remove': True}
-    fileName = request.GET.get('fileName','')
-    deleteFilePath = os.path.join(uploadDir,fileName)
+    fileName = request.GET.get('fileName', '')
+    deleteFilePath = os.path.join(uploadDir, fileName)
     os.remove(deleteFilePath)
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
+
+
 def upload(request):
     img_path = request.GET.get('img_path', '')
-    # headers = request.GET.get('headers', '')
-    # cookie = request.GET.get('imgcookie', '')
     path_dic = json.loads(img_path)
     ret = {}
-    # url = 'http://192.168.16.4:8000/gsinfo/photographing/updatePhotographingInfo/'
-    # for k,v in path_dic.item():
-    #     base_dir = os.path.join(BASE_DIR,v)
-    #     with open(base_dir, "rb") as f:
-    #         f1 = base64.b64encode(f.read())
-    #         headers = ''
-    #         cookie = ''
-    #         r = requests.post(url, headers=headers, cookies=cookie, params=encoded_image)
     for k, v in path_dic.items():
         base_dir = os.path.join(BASE_DIR, v)
         if os.path.exists(base_dir):
-            with open(base_dir,'rb') as f:
+            with open(base_dir, 'rb') as f:
                 f1 = base64.b64encode(f.read())
-            ret[k] =f1
+            ret[k] = f1
         else:
             break
-    with open(stopSignalPath,'w') as f:
+    with open(stopSignalPath, 'w') as f:
         result = 'done'
         f.write(result)
-    #删除本地图片
+    # 删除本地图片
     # shutil.rmtree(uploadDir)
     # shutil.rmtree(rephotoDir)
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
+
 def cancel(request):
-    with open(stopSignalPath,'w') as f:
+    with open(stopSignalPath, 'w') as f:
         result = 'done'
         f.write(result)
-    ret ={'success':'ok' }
+    ret = {'success': 'ok'}
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder)
     return HttpResponse('success_jsonpCallback(' + ret_json + ')')
 
