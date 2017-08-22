@@ -224,7 +224,8 @@ function updateInfo(index, row) {
                 var imgList = document.getElementById('filePathList')
                 for (var i = 0; i < filePathList.length; i++) {
                     var li = document.createElement('li')
-                    li.innerHTML += '<img src ="http://192.168.16.4:8000/' + filePathList[i] + '"/>' +
+                    // http://192.168.16.4:8000
+                    li.innerHTML += '<img src ="/' + filePathList[i] + '"/>' +
                         '<div class="btnWrap"><button id="rephotograph" href="#" class="rephotograph">重拍</button><button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
                     imgList.appendChild(li);
                     rephotograph()

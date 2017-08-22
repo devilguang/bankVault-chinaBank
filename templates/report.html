@@ -103,16 +103,18 @@
 					}
 
 					for(var i=0; i<ret[j].subBox.length; i++){
+					    var maoweight =  ret[j].subBox[i].totalWeight?ret[j].subBox[i].totalWeight:'';
+
 						if(i==0){
-							html += "<tr class='"+ m +"'><td>"+ k++ +"</td><td>"+ ret[j].boxNumber +"-"+ ret[j].subBox[i].subBoxNo +"</td><td>"+ ret[j].subBox[i].amount +"</td><td>"+ ret[j].subBox[i].totalWeight +"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].boxNumber +"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].amount +"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].totalWeight +"</td></tr>";
+							html += "<tr class='"+ m +"'><td>"+ k++ +"</td><td>"+ ret[j].boxNumber +"-"+ ret[j].subBox[i].subBoxNo +"</td><td>"+ ret[j].subBox[i].amount +"</td><td>"+maoweight+"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].boxNumber +"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].amount +"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].totalWeight +"</td></tr>";
 						}else{
-							html += "<tr class='"+ m +"'><td>"+ k++ +"</td><td>"+ ret[j].boxNumber +"-"+ ret[j].subBox[i].subBoxNo +"</td><td>"+ ret[j].subBox[i].amount +"</td><td>"+ ret[j].subBox[i].totalWeight +"</td></tr>";
+							html += "<tr class='"+ m +"'><td>"+ k++ +"</td><td>"+ ret[j].boxNumber +"-"+ ret[j].subBox[i].subBoxNo +"</td><td>"+ ret[j].subBox[i].amount +"</td><td>"+maoweight+"</td></tr>";
 						}
 					}
 				}
 				$("#boxnum").append(html);
 				var url = $("#url").text();
-				$("#download").attr('href', '../downloadBoxInfo/?fileName='+url);
+				$("#download").attr('href', '../manage/downloadBoxInfo/?fileName='+url);
 			});
 		</script>
 		<title>电子档案</title>
