@@ -2192,7 +2192,7 @@ function searchWork() {
     var title = '全文检索';
     var c = '<div class="easyui-layout" data-options="fit:true">' +
         '<div id="searchTab" class="easyui-tabs" style="width:100%;height:100%;">' +
-        '<div class="cgjs" title="常规检索" style="padding:20px;">' +
+        '<div class="cgSearh" title="常规检索" style="padding:20px;">' +
         '<iframe src="search/" frameborder="0" style="width:100%;height: 100%;"></iframe>' + '</div>' +
         '<div title="高级检索" style="overflow:auto;padding:20px;display:none;">' +
         '<h2>请选择数据表:</h2>' +
@@ -2214,6 +2214,7 @@ function searchWork() {
         '$("#selectedListArgu>li").on("click",".removeListCondition",function(){var index = $(this).parent().index();console.log(index);$(this).parent().remove()})'+
         '});'+
         '</script>';
+
         addTab(title, c, 'icon-archive');
     /**
      *$("#selectedListArgu>li").eq(index).remove()
