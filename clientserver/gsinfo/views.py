@@ -7,7 +7,7 @@ import base64
 from clientserver import settings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-photoDir = settings.PHOTODIR  # os.path.join(BASE_DIR,'photo')
+photoDir = os.path.join(BASE_DIR,'photo')  # settings.PHOTODIR
 uploadDir = os.path.join(BASE_DIR, 'static', 'upload')
 rephotoDir = os.path.join(BASE_DIR, 'static', 'rephoto')
 

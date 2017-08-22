@@ -1614,47 +1614,52 @@ function ClickRowList(index, row) {
 
 function extractBoxFromStore(type, index, status) {
     $("#quickMarkDlg").dialog('open').dialog('center').dialog('setTitle', '提示');
-    $("#quickMarkButtons>#save").click(function () {
-        $("#quickMarkDlg").dialog('close');
-        var boxNumber;
-        if (type == 0) {
-            $('#workGridArchivedBoxManage').datagrid('selectRow', index);
-            var row = $('#workGridArchivedBoxManage').datagrid('getSelected');
-            boxNumber = row.boxNumber;
-        } else {
-            boxNumber = index;
-        }
-        $.ajax({
-            url: 'boxInOutStore/',
-            data: {boxNumber: boxNumber, status: status},		// status: 1:封箱入库 0:提取出库
-            type: 'POST',
-            async: true,
-            dataType: 'json',
-            beforeSend: function (xhr) {
-                $.messager.progress({text: '正在处理' + boxNumber + '号箱出入库操作，请稍后....'});
-            },
-            success: function (result) {
-                $.messager.progress('close');
-                if (result.success) {
-                    $.messager.show({    // 显示成功信息
-                        title: '提示',
-                        msg: result.message,
-                        showType: 'slide',
-                        timeout: 5000
-                    });
-                    $('#workGridArchivedBoxManage').datagrid('reload');
-                }
-                else {
-                    // $.messager.alert({    // 显示失败信息
-                    //     title: '提示',
-                    //     msg: result.message,
-                    // });
-                }
-            },
-        });
-    })
-
+    $(".ly_dooutBoxValidate").attr("onclick", "outBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
 }
+
+function outBoxValidate(type, index, status){
+    var txtQR = $('#quickMark-boxNumber').val()
+    $("#quickMarkDlg").dialog('close');
+    var boxNumber;
+    if (type == 0) {
+        $('#workGridArchivedBoxManage').datagrid('selectRow', index);
+        var row = $('#workGridArchivedBoxManage').datagrid('getSelected');
+        boxNumber = row.boxNumber;
+    } else {
+        boxNumber = index;
+    }
+    $.ajax({
+        url: 'boxInOutStore/',
+        data: {boxNumber: boxNumber, status: status,txtQR:txtQR},		// status: 1:封箱入库 0:提取出库
+        type: 'POST',
+        async: true,
+        dataType: 'json',
+        beforeSend: function (xhr) {
+            $.messager.progress({text: '正在处理' + boxNumber + '号箱出入库操作，请稍后....'});
+        },
+        success: function (result) {
+            $.messager.progress('close');
+            if (result.success) {
+                $.messager.show({    // 显示成功信息
+                    title: '提示',
+                    msg: result.message,
+                    showType: 'slide',
+                    timeout: 5000
+                });
+                //$('#workGridArchivedBoxManage').datagrid('reload');
+            }
+            else {
+                debugger;
+                $.messager.alert({    // 显示失败信息
+                    title: '提示',
+                    msg: result.message,
+                });
+            }
+        },
+    });
+};
+
+
 function archivedBoxSearch() {
     var productType = $('#archivedBoxSearchParameterproductType').combobox('getValue');
     var className = $('#archivedBoxSearchParameterclassName').combobox('getValue');

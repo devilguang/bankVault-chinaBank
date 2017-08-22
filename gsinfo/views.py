@@ -28,112 +28,117 @@ def login(request):
                 "message": u'用户名或密码不能为空！'
             }
         else:
-            custom_user = gsUser.objects.get(nickName=nickName)
-            username = custom_user.user.username
-            '''
-            authenticate()---认证给出的用户名和密码是否真实。它接受两个参数：username和password ，
-            如果合法返回User 对象；如果不合法，返回None
-            '''
-            user = auth.authenticate(username=username, password=passWord)  # 身份验证
-            if user:
-                log.log(user=user, operationType=u'登录', content=u'登录系统')
-                if workRole == 'systemadmin':
-                    if (1 >= custom_user.type):  # 用户类型: 1:管理员 2:一般用户
-                        auth.login(request, user)
-                        ret = {
-                            "success": True,
-                            "url": reverse('systemAdmin')
-                        }
-                    else:
-                        ret = {
-                            "success": False,
-                            "message": u'该用户无系统管理岗位权限！'
-                        }
-                elif workRole == 'manage':
-                    hasRole = custom_user.manage
-                    if hasRole:
-                        auth.login(request, user)
-                        ret = {
-                            "success": True,
-                            "url": reverse('manage')
-                        }
-                    else:
-                        ret = {
-                            "success": False,
-                            "message": u'该用户无现场负责人岗位权限！'
-                        }
-                elif workRole == 'checking':
-                    hasRole = custom_user.checking
-                    if hasRole:
-                        auth.login(request, user)
-                        ret = {
-                            "success": True,
-                            "url": reverse('checking')
-                        }
-                    else:
-                        ret = {
-                            "success": False,
-                            "message": u'该用户无监控输出岗位权限！'
-                        }
-                elif workRole == 'numbering':
-                    hasRole = custom_user.numbering
-                    if hasRole:
-                        auth.login(request, user)
-                        ret = {
-                            "success": True,
-                            "url": reverse('numbering')
-                        }
-                    else:
-                        ret = {
-                            "success": False,
-                            "message": u'该用户无实物鉴定岗位权限！'
-                        }
-                elif workRole == 'measuring':
-                    hasRole = custom_user.measuring
-                    if hasRole:
-                        auth.login(request, user)
-                        ret = {
-                            "success": True,
-                            "url": reverse('measuring')
-                        }
-                    else:
-                        ret = {
-                            "success": False,
-                            "message": u'该用户无测量称重岗位权限！'
-                        }
-                elif workRole == 'photographing':
-                    hasRole = custom_user.photographing
-                    if hasRole:
-                        auth.login(request, user)
-                        ret = {
-                            "success": True,
-                            "url": reverse('photographing')
-                        }
-                    else:
-                        ret = {
-                            "success": False,
-                            "message": u'该用户无图像采集岗位权限！'
-                        }
-                elif workRole == 'analyzing':
-                    hasRole = custom_user.analyzing
-                    if hasRole:
-                        auth.login(request, user)
-                        ret = {
-                            "success": True,
-                            "url": reverse('analyzing')
-                        }
-                    else:
-                        ret = {
-                            "success": False,
-                            "message": u'该用户无频谱分析岗位权限！'
-                        }
+            try:
+                custom_user = gsUser.objects.get(nickName=nickName)
+                username = custom_user.user.username
+                '''
+                authenticate()---认证给出的用户名和密码是否真实。它接受两个参数：username和password ，
+                如果合法返回User 对象；如果不合法，返回None
+                '''
+                user = auth.authenticate(username=username, password=passWord)  # 身份验证
+                if user:
+                    log.log(user=user, operationType=u'登录', content=u'登录系统')
+                    if workRole == 'systemadmin':
+                        if (1 >= custom_user.type):  # 用户类型: 1:管理员 2:一般用户
+                            auth.login(request, user)
+                            ret = {
+                                "success": True,
+                                "url": reverse('systemAdmin')
+                            }
+                        else:
+                            ret = {
+                                "success": False,
+                                "message": u'该用户无系统管理岗位权限！'
+                            }
+                    elif workRole == 'manage':
+                        hasRole = custom_user.manage
+                        if hasRole:
+                            auth.login(request, user)
+                            ret = {
+                                "success": True,
+                                "url": reverse('manage')
+                            }
+                        else:
+                            ret = {
+                                "success": False,
+                                "message": u'该用户无现场负责人岗位权限！'
+                            }
+                    elif workRole == 'checking':
+                        hasRole = custom_user.checking
+                        if hasRole:
+                            auth.login(request, user)
+                            ret = {
+                                "success": True,
+                                "url": reverse('checking')
+                            }
+                        else:
+                            ret = {
+                                "success": False,
+                                "message": u'该用户无监控输出岗位权限！'
+                            }
+                    elif workRole == 'numbering':
+                        hasRole = custom_user.numbering
+                        if hasRole:
+                            auth.login(request, user)
+                            ret = {
+                                "success": True,
+                                "url": reverse('numbering')
+                            }
+                        else:
+                            ret = {
+                                "success": False,
+                                "message": u'该用户无实物鉴定岗位权限！'
+                            }
+                    elif workRole == 'measuring':
+                        hasRole = custom_user.measuring
+                        if hasRole:
+                            auth.login(request, user)
+                            ret = {
+                                "success": True,
+                                "url": reverse('measuring')
+                            }
+                        else:
+                            ret = {
+                                "success": False,
+                                "message": u'该用户无测量称重岗位权限！'
+                            }
+                    elif workRole == 'photographing':
+                        hasRole = custom_user.photographing
+                        if hasRole:
+                            auth.login(request, user)
+                            ret = {
+                                "success": True,
+                                "url": reverse('photographing')
+                            }
+                        else:
+                            ret = {
+                                "success": False,
+                                "message": u'该用户无图像采集岗位权限！'
+                            }
+                    elif workRole == 'analyzing':
+                        hasRole = custom_user.analyzing
+                        if hasRole:
+                            auth.login(request, user)
+                            ret = {
+                                "success": True,
+                                "url": reverse('analyzing')
+                            }
+                        else:
+                            ret = {
+                                "success": False,
+                                "message": u'该用户无频谱分析岗位权限！'
+                            }
 
-            else:  # user that auth.authenticate returns is None
+                else:  # user that auth.authenticate returns is None
+                    ret = {
+                        "success": False,
+                        "message": u'用户名或密码错误！'
+                    }
+            except Exception as e:
                 ret = {
                     "success": False,
-                    "message": u'用户名或密码错误！'
+                    "message": u'用户名或密码错误！111'
                 }
-
         ret_json = json.dumps(ret, separators=(',', ':'))
         return HttpResponse(ret_json)
 

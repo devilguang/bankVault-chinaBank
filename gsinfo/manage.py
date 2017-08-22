@@ -549,6 +549,7 @@ def boxInOutStore(request):
         box = gsBox.objects.get(boxNumber=boxNumber)
         if subBoxNumber == '':
             trueQRtxt = box.txtQR
+            trueQRtxt = trueQRtxt.replace('\n',' ')
             scanTimes = box.scanTimes
         else:
             subBox = gsSubBox.objects.get(box=box, subBoxNumber=subBoxNumber)
@@ -590,7 +591,7 @@ def boxInOutStore(request):
                         }
             else:
                 if subBoxNumber == '':
-                    gsBox.objects.filter(box=box).update(scanTimes=scanTimes + 1)
+                    gsBox.objects.filter(boxNumber=boxNumber).update(scanTimes=scanTimes + 1)
                 else:
                     gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(scanTimes=scanTimes+1)
                 ret = {
@@ -598,6 +599,10 @@ def boxInOutStore(request):
                     "message": '开箱出库失败，已报警！'
                 }
         else:
+            if subBoxNumber == '':
+                gsBox.objects.filter(boxNumber=boxNumber).update(scanTimes=scanTimes + 1)
+            else:
+                gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(scanTimes=scanTimes + 1)
             ret = {
                 "success": False,
                 "message": '开箱出库失败，二维码信息有误！'
