@@ -1649,7 +1649,6 @@ function outBoxValidate(type, index, status){
                 //$('#workGridArchivedBoxManage').datagrid('reload');
             }
             else {
-                debugger;
                 $.messager.alert({    // 显示失败信息
                     title: '提示',
                     msg: result.message,
@@ -1658,8 +1657,6 @@ function outBoxValidate(type, index, status){
         },
     });
 };
-
-
 function archivedBoxSearch() {
     var productType = $('#archivedBoxSearchParameterproductType').combobox('getValue');
     var className = $('#archivedBoxSearchParameterclassName').combobox('getValue');
@@ -2206,7 +2203,7 @@ function searchWork() {
         '<ul id="selectedListArgu" style="list-style:none;">' + '<li style="margin-bottom: 20px">' + '<span>' + '<select class="easyui-combobox" name="dept"  style="width:80px;">' + '<option value="">请选择</option>' + '<option value="">OR</option>' + '<option value="">AND</option>' + '<option value="">NO</option>' + '</select>' + '</span>' +
         '<span style="margin-left: 20px">' + '<select  class="easyui-combobox" name="dept" style="width:80px;margin-left: 90px">' + '<option value="">成色</option>' + '<option value=""></option>' + '</select>' + '</span>' +
         '<span style="margin-left: 20px">' + '<select  class="easyui-combobox" name="dept" style="width:80px;margin-left: 30px">' + '<option value="">&le;</option>' + '<option value="">&ge;</option>' + '<option value="">=</option>' + '<option value="">></option>' + '<option value=""><</option>' + '</select>' + '</span>' +
-        '<input type="text" placeholder="" style="width: 50px;margin-left: 20px">' + '<a class="btnAdd" style="margin-left:20px;cursor:pointer;background:#E0ECFF ;display: inline-block;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7">+</a>'  + '</li>' + '</ul>' +
+        '<input type="text" placeholder="" style="width: 50px;margin-left: 20px">' + '<a class="btnAdd" style="margin-left:20px;cursor:pointer;background:#2984a4 ;display: inline-block;height: 20px;width:40px;line-height:20px;text-align: center;color:#ffffff;border-radius:5px;">增加+</a>'  + '</li>' + '</ul>' +
         '</div>' + '</div>' + '</div>' + '</div>'+'<script >$(\'.btnAdd\').click(function()' +
         '{var selectedListArgu = document.getElementById("selectedListArgu");' +
         'var li = document.createElement("li");$("<li></li>").addClass("conditionList").css("margin-bottom","20px").appendTo($("#selectedListArgu"));' +
@@ -2215,7 +2212,7 @@ function searchWork() {
         '$("<select><option>请选择</option><option>成色</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","margin-left":"20px"}).appendTo($(".conditionList:last-child").children().eq(1));'+
         '$("<select><option>请选择</option><option>&le;</option><option>&ge;</option><option>=</option><option>></option><option><</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","margin-left":"20px"}).appendTo($(".conditionList:last-child").children().eq(2));'+
         '$("<input></input>").css({"width":"50px","margin-left":"20px"}).attr("type","text").appendTo($(".conditionList:last-child"));'+
-        '$("<a>-</a>").css({"background":"#E0ECFF","cursor":"pointer","display":"inline-block","margin-left":"20px","height":"20px","width":"30px","line-height":"20px","text-align":"center","color":"#95B8E7"}).addClass("removeListCondition").appendTo($(".conditionList:last-child"));'+
+        '$("<a>删除-</a>").css({"background":"lightgray","cursor":"pointer","display":"inline-block","margin-left":"20px","height":"20px","width":"40px","line-height":"20px","text-align":"center","color":"red","border-radius":"5px"}).addClass("removeListCondition").appendTo($(".conditionList:last-child"));'+
         '$("#selectedListArgu>li").on("click",".removeListCondition",function(){var index = $(this).parent().index();console.log(index);$(this).parent().remove()})'+
         '});'+
         '</script>';
