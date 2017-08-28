@@ -548,7 +548,6 @@ def boxInOutStore(request):
         box = gsBox.objects.get(boxNumber=boxNumber)
         if subBoxNumber == '':
             trueQRtxt = box.txtQR
-            trueQRtxt = trueQRtxt.replace('\n',' ')
             scanTimes = box.scanTimes
         else:
             subBox = gsSubBox.objects.get(box=box, subBoxNumber=subBoxNumber)

@@ -245,14 +245,14 @@ def boxTag(boxNumber,userName,subBoxNumber):
         t = int(time.time() * 1000)
         ti = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         if subBoxNumber == '':
-            data = ''.join([str(boxNumber),'号箱','\n','现场负责人：',userName,'\n',str(t)])
+            data = ''.join([str(boxNumber),'号箱','|','现场负责人：',userName,'|',str(t)])
             gsBox.objects.filter(boxNumber=boxNumber).update(txtQR=data)
-            txt = ''.join([str(boxNumber),'号箱','\n','现场负责人：',userName,'\n',str(ti)])
+            txt = ''.join([str(boxNumber),'号箱','|','现场负责人：',userName,'|',str(ti)])
         else:
-            data = ''.join([str(boxNumber), '-',str(subBoxNumber),'号箱','\n','现场负责人：', userName,'\n',str(t)])
+            data = ''.join([str(boxNumber), '-',str(subBoxNumber),'号箱','|','现场负责人：', userName,'|',str(t)])
             box = gsBox.objects.get(boxNumber=boxNumber)
             gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(txtQR=data)
-            txt = ''.join([str(boxNumber), '-', str(subBoxNumber), '号箱', '\n', '现场负责人：', userName, '\n', str(ti)])
+            txt = ''.join([str(boxNumber), '-', str(subBoxNumber), '号箱', '|', '现场负责人：', userName, '|', str(ti)])
 
         img = qrcode.make(data=data)
         picName = xlFileName.replace('.xlsx','.png')

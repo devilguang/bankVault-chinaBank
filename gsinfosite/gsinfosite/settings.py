@@ -27,8 +27,9 @@ TAG_DATA_PATH = os.path.join(DATA_PATH, 'tag')
 BOX_DATA_PATH = os.path.join(DATA_PATH, 'box')
 WORK_DATA_PATH = os.path.join(DATA_PATH, 'work')
 TEMPLATE_DATA_PATH = os.path.join(DATA_PATH, 'template')
-PHOTO_DATA_PATH = os.path.join(DATA_PATH, 'photo')
+IMGS_DATA_PATH = os.path.join(DATA_PATH, 'imgs')
 HARDDIR = r''
+
 # Printing paths for sanity's sake
 # print 'Project root:', BASE_DIR
 # print 'Templates:', TEMPLATE_PATH
@@ -132,12 +133,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'gsinfosite.wsgi.application'
 
 # Database
-
 DATABASES = {
-    # 'default': {
-    #    'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # },
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'gsinfo',
@@ -185,6 +181,7 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     STATIC_PATH,
     BOX_DATA_PATH,
+    IMGS_DATA_PATH,
 )
 APPEND_SLASH=False
 # DOWNLOAD_PATH
@@ -193,5 +190,5 @@ DATA_DIRS = {
     'box_dir': BOX_DATA_PATH,
     'work_dir': WORK_DATA_PATH,
     'template_dir': TEMPLATE_DATA_PATH,
-    'photo_dir': PHOTO_DATA_PATH,
+    'imgs_path':IMGS_DATA_PATH,
 }
