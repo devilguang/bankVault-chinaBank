@@ -137,7 +137,7 @@ def login(request):
             except Exception as e:
                 ret = {
                     "success": False,
-                    "message": u'用户名或密码错误！111'
+                    "message": u'用户名或密码错误！'
                 }
         ret_json = json.dumps(ret, separators=(',', ':'))
         return HttpResponse(ret_json)
@@ -343,6 +343,13 @@ def searchThingInfo(request):
         wt = gsWorkThing.objects.get(thing=t)  # 无该元素则会抛出 ObjectDoesNotExist 异常
         work = wt.work  # 这里的work、box、status都是外键，会指向对应的表
         box = work.box
+        subBox = work.subBox
+        boxNumber = box.boxNumber
+        if subBox:
+            subBoxNumber = subBox.subBoxNumber
+            boxOrSubBox = str(boxNumber) + '-' + str(subBoxNumber)
+        else:
+            boxOrSubBox = str(boxNumber)
         status = wt.status
 
         wts = gsWorkThing.objects.filter(work=work)
@@ -392,7 +399,7 @@ def searchThingInfo(request):
     except Exception as e:
         ret = {
             'success': False,
-            'message': u'查找编号为{0}的实物失败！原因:{1}'.format(serialNumber, e.message),
+            'message': u'查找编号为{0}的实物失败！'.format(serialNumber),
         }
     else:
         ret = {}
@@ -401,6 +408,7 @@ def searchThingInfo(request):
         ret['workName'] = work.workName
         ret['thingStatus'] = 'complete' if thingStatus else 'notComplete'
         ret['seq'] = idx
+        ret['boxOrSubBox'] = boxOrSubBox
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 

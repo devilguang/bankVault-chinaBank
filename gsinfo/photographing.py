@@ -53,13 +53,27 @@ def updatePhotographingInfo(request):
     boxOrSubBox = request.POST.get('boxNumber', '')
     pic_path = request.POST.get('pic_path', '')
     ret = {}
+    today = datetime.datetime.now()
+    date_today = str(today.strftime('%Y%m%d'))
+
+    date_path = os.path.join(settings.DATA_PATH,'imgs',date_today)
+    if not os.path.exists(date_path):
+        os.makedirs(date_path)
+
+    box_path = os.path.join(settings.DATA_PATH,'imgs',date_today,boxOrSubBox)
+    if not os.path.exists(box_path):
+        os.makedirs(box_path)
+
+    serialNumber_path = os.path.join(settings.DATA_PATH, 'imgs', date_today, boxOrSubBox,serialNumber)
+    if not os.path.exists(serialNumber_path):
+        os.makedirs(serialNumber_path)
+
     if pic_path:
         img_path = json.loads(pic_path)
 
-        for k,v in img_path.items():
-            file_name = serialNumber + '-' + k + '.jpg'
-            save_path = os.path.join(settings.STATIC_PATH,'img',boxOrSubBox,serialNumber,file_name)
-            img = base64.b64decode(v)
+        for file_name,img in img_path.items():
+            save_path = os.path.join(serialNumber_path,file_name)
+            img = base64.b64decode(img)
             with open(save_path,'wb') as f:
                 f.write(img)
 
