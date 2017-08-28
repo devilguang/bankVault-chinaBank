@@ -141,32 +141,30 @@ function closeUpdateInfo() {
         dataType: "jsonp",
         jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
         jsonpCallback: "success_jsonpCallback",
-        data:{}
+        data: {}
     });
-     $('#UpdateInfoDlg').dialog('close');
+    $('#UpdateInfoDlg').dialog('close');
     //unInitUpdateInfoDlg();
 }
-$('.panel-tool').click(function(){
-    console.log('我点击了吗');
+$('.panel-tool').click(function () {
     $.ajax({
         type: "get",
         url: "http://127.0.0.1:8000/gsinfo/cancel/",
         dataType: "jsonp",
         jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
         jsonpCallback: "success_jsonpCallback",
-        data:{},success:function (data) {
-            console.log(data)
+        data: {}, success: function (data) {
         }
     })
 })
 
 function updateInfo(index, row) {
-    $('#masking').hide()
+    // $('#masking').hide()
     $("#filePathList").html('')
     var fileArr = []
-    $('#editBtn').attr({'style': 'width:90px;display:none'});
-    $('#saveBtn').attr({'style': 'width:90px'});
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
+    $('#editBtn').attr({'style': 'width:90px;display:none'});
+    $('#saveBtn').attr("onclick", "upLoadImg(" + row.boxNumber + ", \'" + row.serialNumber + "\')").css('width', '90px');
     $('#UpdateInfoForm').form('clear');
     $('.serialNumber').text(row.serialNumber);
     $.ajax({
@@ -189,12 +187,10 @@ function updateInfo(index, row) {
                         data: {
                             serialNumber: row.serialNumber
                         }, success: function (data) {
-                            console.log(data)
                             var file = data.filePath
                             var rephotoPathSrc = data.rephotoPath
                             var stop = data.stop
                             if (stop == 'True') {
-                                console.log('12312312312321')
                                 clearInterval(timer)
                                 return
                             }
@@ -217,7 +213,7 @@ function updateInfo(index, row) {
                         }
                     })
                 }, 2000)
-                upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
+                // upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             } else {
                 $("#saveBtn").attr('disable', true)
                 var filePathList = data.filePathList
@@ -226,12 +222,12 @@ function updateInfo(index, row) {
                     var li = document.createElement('li')
                     // http://192.168.16.4:8000
                     li.innerHTML += '<img src ="/' + filePathList[i] + '"/>' +
-                        '<div class="btnWrap"><button id="rephotograph" href="#" class="rephotograph">重拍</button><button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
+                        '<div class="btnWrap"><button id="rephotograph" href="#" class="rephotograph" >重拍</button><button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
                     imgList.appendChild(li);
                     rephotograph()
                     removePic(row.boxNumber, row.serialNumber) //删除按钮
                 }
-                upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
+                // upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
             }
         }
     });
@@ -284,58 +280,61 @@ function removePic(boxNumber, serialNumber) {
 }
 //上传图片的方法
 function upLoadImg(boxNumber, serialNumber) {
-    $("#saveBtn").click(function () {
-        if ($("#filePathList").children().length == 0) {
-            $.messager.alert({
-                title: '提示',
-                msg: '图片不能为空'
-            })
-            return false;
-        }
-        $('#masking').show()
-        var imgSrc = []
-        var serial_number = []
-        var img_path = {}
-        for (var i = 0; i < $("#filePathList>li").length; i++) {
-            var index1 = $("#filePathList>li").eq(i).children('img').attr('src').indexOf('static')
-            imgSrc.push($("#filePathList>li").eq(i).children('img').attr('src').substr(index1))
-            var index = $("#filePathList>li").eq(i).children('img').attr('src').substr(index1).split('.')[0].lastIndexOf('-')
-            serial_number.push($("#filePathList>li").eq(i).children('img').attr('src').substr(index1).split('.')[0].substr(index + 1))
-        }
-        for (var i = 0; i < imgSrc.length; i++) {
-            img_path[serial_number[i]] = imgSrc[i]
-        }
-        $.ajax({
-            type: 'get',
-            url: 'http://127.0.0.1:8000/gsinfo/upload/',
-            dataType: "jsonp",
-            jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
-            jsonpCallback: "success_jsonpCallback",
-            data: {
-                img_path: JSON.stringify(img_path)
-            }, success: function (data) {
-                $.ajax({
-                    type: 'post',
-                    url: 'http://192.168.16.4:8000/gsinfo/photographing/updatePhotographingInfo/',
-                    // dataType: "jsonp",
-                    // jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
-                    // jsonpCallback: "success_jsonpCallback",
-                    data: {
-                        boxNumber: boxNumber,
-                        serialNumber: serialNumber,
-                        pic_path: JSON.stringify(data)
-                    }, success: function (data) {
-                        var data = JSON.parse(data)
-                        if (data.success == true) {
-                            $("#masking").hide()
-                            $('#UpdateInfoDlg').dialog('close');
-                        }
+    if ($("#filePathList>li").length == 0) {
+        $.messager.alert({    // 显示失败信息
+            title: '提示',
+            msg:'请至少选择一张照片上传',
+        });
+        return
+    }
+    // $('#masking').show()
+    var imgSrc = []
+    var serial_number = []
+    var img_path = {}
+    for (var i = 0; i < $("#filePathList>li").length; i++) {
+        var index1 = $("#filePathList>li").eq(i).children('img').attr('src').indexOf('static')
+        imgSrc.push($("#filePathList>li").eq(i).children('img').attr('src').substr(index1))
+        var index = $("#filePathList>li").eq(i).children('img').attr('src').substr(index1).split('.')[0].lastIndexOf('-')
+        serial_number.push($("#filePathList>li").eq(i).children('img').attr('src').substr(index1).split('.')[0].substr(index + 1))
+    }
+    for (var i = 0; i < imgSrc.length; i++) {
+        img_path[serial_number[i]] = imgSrc[i]
+    }
+    $.ajax({
+        type: 'get',
+        url: 'http://127.0.0.1:8000/gsinfo/upload/',
+        dataType: "jsonp",
+        jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+        jsonpCallback: "success_jsonpCallback",
+        data: {
+            img_path: JSON.stringify(img_path)
+        },
+         beforeSend: function (xhr) {
+            $.messager.progress({text: '正在上传中，请稍后....'});
+        },
+        success: function (data) {
+            $.ajax({
+                type: 'post',
+                url: 'http://192.168.16.4:8000/gsinfo/photographing/updatePhotographingInfo/',
+                // dataType: "jsonp",
+                // jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+                // jsonpCallback: "success_jsonpCallback",
+                data: {
+                    boxNumber: boxNumber,
+                    serialNumber: serialNumber,
+                    pic_path: JSON.stringify(data)
+                }, success: function (data) {
+                    var data = JSON.parse(data)
+                    if (data.success == true) {
+                        $('#UpdateInfoDlg').dialog('close');
                     }
-                })
-            }
-        })
+                }
+            })
+        }
     })
 }
+
+
 function editInfo() {
     var productType = $('#UpdateInfoproductType').textbox('getValue');
     // 根据实物类型, 处理确认输入框的显示情况
