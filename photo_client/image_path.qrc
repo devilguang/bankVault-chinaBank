@@ -1,0 +1,9 @@
+<RCC>
+<qresource>
+    <file>images/logo.ico</file>
+	<file>images/logo.jpg</file>
+	<file>images/logout.png</file>
+	<file>images/no.png</file>
+	<file>images/settings.jpeg</file>
+</qresource>
+</RCC>

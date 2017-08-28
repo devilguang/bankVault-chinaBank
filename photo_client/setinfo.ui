@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>setdialog</class>
+ <widget class="QDialog" name="setdialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>431</width>
+    <height>251</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>设置</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="image_path.qrc">
+    <normaloff>:/images/logo.ico</normaloff>:/images/logo.ico</iconset>
+  </property>
+  <widget class="QLabel" name="ip_label">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>40</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>服务器IP地址：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="port_label">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>90</y>
+     <width>91</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>服务器端口号：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="photodir_label">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>140</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>相机输出路径：</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="ip_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>30</y>
+     <width>260</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="port_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>80</y>
+     <width>260</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="photodir_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>130</y>
+     <width>260</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="setcancelButton">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>190</y>
+     <width>80</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>取消</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="setokButton">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>190</y>
+     <width>80</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>确定</string>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="image_path.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>setcancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>setdialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>215</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

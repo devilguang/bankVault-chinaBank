@@ -1,0 +1,399 @@
+# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+from PyQt5.QtWidgets import (QWidget, QToolTip, QPushButton, QApplication, QMessageBox, QDesktopWidget,
+                             QLabel,QHBoxLayout,QVBoxLayout,QGridLayout,QLineEdit,QTextEdit,QMainWindow,
+                             QAction, QAction, qApp,QLCDNumber, QSlider,QInputDialog,QFrame,QColorDialog,
+                             QSizePolicy,QFileDialog,QCheckBox,QProgressBar,QCalendarWidget,QDialog,QScrollArea,
+                             QTabWidget,QToolButton)
+from PyQt5.QtGui import QFont,QColor,QPixmap,QIcon,QPainter,QImage,QTextCursor
+from PyQt5.QtCore import QCoreApplication,Qt,pyqtSignal, QObject,QBasicTimer,QDate,QRect,QSize,QTimer
+import login
+import requests
+import settings
+import photo
+import setinfo
+import tdcode
+import json, os
+from PIL import Image, ImageDraw, ImageFont
+import base64
+import time
+
+
+class LoginWidget(QDialog,login.Ui_Form):
+    def __init__(self, parent=None):
+        super(LoginWidget, self).__init__(parent)
+        self.setupUi(self)
+        self.client = requests.session()
+        self.settingButton.clicked.connect(self.settingDialog)
+        self.okButton.clicked.connect(self.login)
+        self.show()
+
+
+    def login(self):
+        try:
+            if settings.SERVERHOST:
+                if settings.SERVERPORT:
+                    url = r'http://{0}:{1}/gsinfo/login/'.format(settings.SERVERHOST, settings.SERVERPORT)
+                    res = self.client.get(url)
+                    csrftoken = res.cookies['csrftoken']
+                    data = {
+                        'csrfmiddlewaretoken': csrftoken,
+                        'nickName':self.lineEdit.text(),
+                        'passWord':self.lineEdit_2.text(),
+                        'workRole':'photographing'
+                    }
+                    resp = self.client.post(url,data=data)
+                    txt = json.loads(resp.text)
+                    success = txt['success']
+                    if success:
+                        self.accept()
+                    else:
+                        message = txt['message']
+                        self.tiplabel.setText("<font color=red>{0}</font>".format(message))
+                else:
+                    self.tiplabel.setText("<font color=red>请设置服务器端口号！</font>")
+            else:
+                self.tiplabel.setText("<font color=red>请设置服务器IP地址！</font>")
+        except Exception as e:
+            print e
+            self.tiplabel.setText("<font color=red>登录失败！</font>")
+
+    def settingDialog(self):
+        reload(settings)
+        newForm = setinfoDil()
+        newForm.show()
+        newForm.exec_()
+
+class exitSetForm(QObject):
+    closeApp = pyqtSignal()
+
+class setinfoDil(QDialog, setinfo.Ui_setdialog):
+    def __init__(self, parent=None):
+        super(setinfoDil, self).__init__(parent)
+        self.setupUi(self)
+
+        self.ip_lineEdit.setText(settings.SERVERHOST)
+        self.port_lineEdit.setText(settings.SERVERPORT)
+        self.photodir_lineEdit.setText(settings.PHOTODIR)
+
+        self.exitSet = exitSetForm()
+        self.setokButton.clicked.connect(self.confirmInfo)
+        self.exitSet.closeApp.connect(self.close)
+
+    def confirmInfo(self):
+        new_ele = []
+        with open('settings.py','r') as f:
+            ele_list = f.readlines()
+            for ele in ele_list:
+                if 'SERVERHOST' in ele:
+                    ip = "SERVERHOST = '{0}'".format(self.ip_lineEdit.text())
+                    new_ele.append(ip)
+                    new_ele.append('\n')
+                elif 'SERVERPORT' in ele:
+                    port = "SERVERPORT = '{0}'".format(self.port_lineEdit.text())
+                    new_ele.append(port)
+                    new_ele.append('\n')
+                elif 'PHOTODIR' in ele:
+                    photo_dir = "PHOTODIR = r'{0}'".format(self.photodir_lineEdit.text())
+                    new_ele.append(photo_dir)
+                    new_ele.append('\n')
+                else:
+                    new_ele.append(ele)
+        with open('settings.py', 'w') as f:
+            f.truncate()
+        with open('settings.py','a') as f:
+            for i in new_ele:
+                f.write(i)
+        self.exitSet.closeApp.emit()
+
+
+class tdcodeDil(QDialog, tdcode.Ui_code_Dialog):
+    def __init__(self, client=None):
+        super(tdcodeDil, self).__init__()
+        self.client = client
+        self.setupUi(self)
+        self.setGeometry(5, 35, 335, 80)
+        self.lineEdit.returnPressed.connect(self.haveSerialNumber)
+        self.SerialNumber = ''
+        self.boxOrSubBox = ''
+        self.isvis = False
+        self.timer = QTimer()
+
+    def haveSerialNumber(self):
+        sNumber = self.lineEdit.text()
+        if sNumber:
+            # 检测serialNumber是否可用
+            url = r'http://{0}:{1}/gsinfo/photographing/searchThingInfo/'.format(settings.SERVERHOST, settings.SERVERPORT)
+            cookies = self.client.cookies
+            csrftoken = cookies['csrftoken']
+            data = {
+                'csrfmiddlewaretoken':csrftoken,
+                'serialNumber': str(sNumber),
+                'processId': '6',
+            }
+            resp = self.client.post(url, data=data,cookies=cookies)
+            txt = json.loads(resp.text)
+            self.success = txt['success']
+            if self.success:
+                self.code_label.setText("")
+                self.SerialNumber = sNumber
+                self.boxOrSubBox = txt['boxOrSubBox']
+            else:
+                self.code_label.setText("<font color=red>{0}</font>".format(txt['message']))
+        else:
+            self.code_label.setText("<font color=red>请扫描二维码！</font>")
+
+    # 修改窗体自身的X关闭按钮，只要重载closeEvent方法即可
+    def closeEvent(self,event):
+        self.isvis = False
+        self.timer.stop()  # close timer
+        print('timer stoped!')
+        self.close()
+
+
+class Window(QMainWindow,photo.Ui_Form):
+    def __init__(self,client=None):
+        super(Window, self).__init__()
+        self.setupUi(self)
+
+        self.client = client
+        self.codeForm = tdcodeDil(client=self.client)
+
+        self.codeButton.clicked.connect(self.codeDil)
+        self.delButton.clicked.connect(self.delPic)
+        self.uploadButton.clicked.connect(self.uploadPic)
+
+        self.photo_dir = settings.PHOTODIR
+        self.upload_dir = settings.UPLOADDIR
+
+        self.img_list = {}
+        self.img_list['A'] = self.img1
+        self.img_list['B'] = self.img2
+        self.img_list['C'] = self.img3
+        self.img_list['D'] = self.img4
+        self.img_list['E'] = self.img5
+        self.img_list['F'] = self.img6
+        self.img_list['G'] = self.img7
+        self.img_list['H'] = self.img8
+        self.img_list['I'] = self.img9
+        self.img_list['J'] = self.img10
+        self.img_list['K'] = self.img11
+        self.img_list['L'] = self.img12
+
+        self.naem_list = {}
+        self.naem_list['A'] = self.name1
+        self.naem_list['B'] = self.name2
+        self.naem_list['C'] = self.name3
+        self.naem_list['D'] = self.name4
+        self.naem_list['E'] = self.name5
+        self.naem_list['F'] = self.name6
+        self.naem_list['G'] = self.name7
+        self.naem_list['H'] = self.name8
+        self.naem_list['I'] = self.name9
+        self.naem_list['J'] = self.name10
+        self.naem_list['K'] = self.name11
+        self.naem_list['L'] = self.name12
+
+
+    def codeDil(self):
+        if not self.codeForm.isvis:
+            self.codeForm.show()
+            self.codeForm.isvis = self.codeForm.isVisible()
+
+            self.codeForm.timer.setInterval(3000)
+            self.codeForm.timer.start()
+            self.codeForm.timer.timeout.connect(self.findPoto)
+
+            self.showMinimized()
+            self.codeForm.exec_()
+
+
+    def findPoto(self):
+        # 首先判断相机目录是否存在
+        if not os.path.exists(self.upload_dir):
+            os.mkdir(self.upload_dir)
+        serial_num = self.codeForm.SerialNumber
+        print '--',serial_num
+        if serial_num:
+            photoList = os.listdir(self.photo_dir)
+            photo_len = len(photoList)
+
+            if photo_len == 1:
+                picName = photoList[0]
+                picPath = os.path.join(self.photo_dir, picName)
+
+                image = Image.open(picPath)
+                imgNew = image.resize((256, 256))
+                draw = ImageDraw.Draw(imgNew)
+
+                upload_len = len(os.listdir(self.upload_dir))
+                char = chr(ord('A') + upload_len)
+                newSerial = serial_num + '-' + char
+
+                # 指定要使用的字体和大小；/Library/Fonts/是macOS字体目录；Linux的字体目录是/usr/share/fonts/
+                font = ImageFont.truetype('arial.ttf',16)  # 第二个参数表示字符大小
+                width, height = font.getsize(newSerial)
+                x = int((256 - width) / 2)
+                y = 256 - height - 12
+                draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
+                ab_filePath = os.path.join(self.upload_dir, '{0}.jpg'.format(newSerial))
+                imgNew.save(ab_filePath)
+                os.remove(picPath)
+                file_name = newSerial + '.jpg'
+                pic_num = len(os.listdir(self.upload_dir))
+                shang,yushu = divmod(pic_num,3)
+                if yushu > 0:
+                    self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402*(shang+1)))
+
+                for k,v,in self.img_list.items():
+                    if char == k:
+                        self.pixmap = QPixmap(ab_filePath)
+                        self.img_list[k].setPixmap(self.pixmap)
+                        self.naem_list[k].setText(file_name)
+                        self.showMaximized()
+            elif photo_len > 1:
+                for file in photoList:
+                    p = os.path.join(self.photo_dir, file)
+                    os.remove(p)
+    def delPic(self):
+        pic_name_list = os.listdir(self.upload_dir)
+        pic_num = len(pic_name_list)
+        char = chr(ord('A') + pic_num - 1)
+
+        for pic_name in pic_name_list:
+            if char in pic_name:
+                p = os.path.join(self.upload_dir, pic_name)
+                os.remove(p)
+
+        for k, v, in self.img_list.items():
+            if char == k:
+                self.pixmap = QPixmap('')
+                self.img_list[k].setPixmap(self.pixmap)
+                self.naem_list[k].setText('')
+                self.showMinimized()
+
+        pic_num = len(os.listdir(self.upload_dir))
+        shang,yushu = divmod(pic_num,3)
+        if yushu > 0:
+            self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402*(shang+1)))
+        elif shang > 0 and yushu == 0:
+            self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402 * shang))
+
+    def uploadPic(self):
+        print self.codeForm.isvis
+        if self.codeForm.isvis:
+            # QMessageBox.about(self, "测试", "点击弹出窗口成功")
+            # QMessageBox.warning(self, "Cannot save file",
+            #                     "The file could not be saved.",
+            #                     QMessageBox_StandardButtons=QMessageBox.NoButton,)
+            serial_num = self.codeForm.SerialNumber
+            box_Sub = self.codeForm.boxOrSubBox
+            pic_name_list = os.listdir(self.upload_dir)
+            all_img = {}
+            for pic_name in pic_name_list:
+                file_path = os.path.join(self.upload_dir, pic_name)
+                se_char = pic_name.split('.')[0]
+                char = se_char.split('-')[-1]
+                for k, v, in self.img_list.items():
+                    if char == k:
+                        self.pixmap = QPixmap('')
+                        self.img_list[k].setPixmap(self.pixmap)
+                        self.naem_list[k].setText('')
+                        self.showMinimized()
+                with open(file_path, 'rb') as f:
+                    f1 = base64.b64encode(f.read())
+                    all_img[pic_name] = f1
+            imgs = json.dumps(all_img)
+            url = r'http://{0}:{1}/gsinfo/photographing/updatePhotographingInfo/'.format(settings.SERVERHOST, settings.SERVERPORT)
+            cookies = self.client.cookies
+            csrftoken = cookies['csrftoken']
+            data = {
+                'csrfmiddlewaretoken': csrftoken,
+                'serialNumber': str(serial_num),
+                'boxNumber': box_Sub,
+                'pic_path':imgs
+            }
+            resp = self.client.post(url, data=data, cookies=cookies)
+            if resp.status_code == 200:
+                txt = json.loads(resp.text)
+                suc = txt['success']
+                if suc:
+                    for pic_name in pic_name_list:
+                        file_path = os.path.join(self.upload_dir, pic_name)
+                        os.remove(file_path)
+                    messagebox = TimerMessageBox(3)
+                    messagebox.exec_()
+                else:
+                    QMessageBox.about(self, "警告", "上传失败！")
+
+    def mouseDoubleClickEvent(self,event):
+        self.showMinimized()
+
+class TimerMessageBox(QMessageBox):
+    def __init__(self, timeout=None):
+        super(TimerMessageBox, self).__init__()
+        self.setWindowTitle("wait")
+        self.time_to_wait = timeout
+        self.setText("上传成功！（{0}）".format(timeout))
+        self.setStandardButtons(QMessageBox.NoButton)
+        self.timer = QTimer(self)
+        self.timer.start()
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(self.changeContent)
+
+    def changeContent(self):
+        self.setText("上传成功！（{0}）".format(self.time_to_wait))
+        self.time_to_wait -= 1
+        if self.time_to_wait <= 0:
+            self.close()
+
+    def closeEvent(self, event):
+        self.timer.stop()
+        event.accept()
+
+
+# class CustomMessageBox(QMessageBox):
+#
+#     def __init__(self, *__args):
+#         QMessageBox.__init__(self)
+#         self.timeout = 0
+#         self.autoclose = False
+#         self.currentTime = 0
+#
+#     def showEvent(self, QShowEvent):
+#         self.currentTime = 0
+#         if self.autoclose:
+#             self.startTimer(1000)
+#
+#     def timerEvent(self, *args, **kwargs):
+#         self.currentTime += 1
+#         if self.currentTime >= self.timeout:
+#             self.done(0)
+#
+#     @staticmethod
+#     def showWithTimeout(timeoutSeconds, message, title, icon=QMessageBox.Information, buttons=QMessageBox.Ok):
+#         w = CustomMessageBox()
+#         w.autoclose = True
+#         w.timeout = timeoutSeconds
+#         w.setText(message)
+#         w.setWindowTitle(title)
+#         w.setIcon(icon)
+#         w.setStandardButtons(buttons)
+#         w.exec_()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    login = LoginWidget()
+    if login.exec_() == QDialog.Accepted:
+        client = login.client
+
+        window = Window(client=client)
+        window.show()
+
+        sys.exit(app.exec_())
+
+

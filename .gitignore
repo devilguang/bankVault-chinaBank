@@ -103,6 +103,8 @@ ENV/
 !/data/work/README.txt
 /data/box/*
 !/data/box/README.txt
+/data/imgs/*
+!/data/imgs/README.txt
 
 # .idea/
 .idea/
