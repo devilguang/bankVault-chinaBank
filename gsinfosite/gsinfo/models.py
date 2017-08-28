@@ -90,7 +90,6 @@ class gsBoxManager(models.Manager):
         wareHouseCode = kwargs['wareHouse']
         amount = kwargs['amount']
         startSeq = kwargs['startSeq']
-        packageCapacity = kwargs['packageCapacity']
         grossWeight = kwargs['grossWeight']
 
         # 生成一条Box记录
@@ -100,21 +99,14 @@ class gsBoxManager(models.Manager):
                                                                     subClassName=subClassName,
                                                                     wareHouse=wareHouseCode,
                                                                     amount=amount,
-                                                                    packageCapacity=packageCapacity,
                                                                     grossWeight=grossWeight)
 
         # 生成实物索引表, 依据实物类型, 在实物索引表生成相应的实物索引记录
         thingsList = []
-        realCapacity = packageCapacity
-        packageNumber = int(math.ceil(float(amount)/float(packageCapacity)))
-        for i in range(1, packageNumber+1):
-            if i * packageCapacity > amount:
-                realCapacity = amount - (i-1) * packageCapacity
-            for _ in range(realCapacity):
-                serialNumber = classNameCode + '-' + subClassNameCode + '-' + wareHouseCode + '-' + str(startSeq)
-                pack = i
-                thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box,packageNo=pack))
-                startSeq = startSeq + 1
+        for _ in range(amount):
+            serialNumber = classNameCode + '-' + subClassNameCode + '-' + wareHouseCode + '-' + str(startSeq)
+            thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box))
+            startSeq = startSeq + 1
         gsThing.objects.bulk_create(thingsList)  # bulk_create批量数据入库，参数是list
         return (box, createdBox)
 
@@ -131,50 +123,19 @@ class gsBoxManager(models.Manager):
 
         box = super(models.Manager, self).get(boxNumber=boxNumber)
 
-        boxAmount= box.amount
-        boxPackageCapacity = box.packageCapacity
-        packageNum = int(math.ceil(float(boxAmount)/float(boxPackageCapacity)))
-        leftItem = packageNum*boxPackageCapacity-boxAmount
-        newPackageNum = int(math.ceil(float(boxAmount+amount)/float(boxPackageCapacity)))
         thingsList = []
         subBoxSeq = gsThing.objects.filter(box=box).order_by('-subBoxSeq')[0].subBoxSeq + 1
 
         # 生成实物索引记录
-        if leftItem == 0:
-            for k in range(packageNum+1,newPackageNum+1):
-                if k*boxPackageCapacity <= (boxAmount+amount):
-                    num = boxPackageCapacity
-                else:
-                    num = boxAmount+amount-(k-1) * boxPackageCapacity
-                for _ in range(num):
-                    serialNumber = classNameCode + '-' + subClassNameCode + '-' + wareHouseCode + '-' + str(startSeq)
-                    if subBoxNumber == '':
-                        thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,
-                                                  packageNo=k))
-                    else:
-                        thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,
-                                              packageNo=k, subBoxNo=int(subBoxNumber)))
-                    startSeq = startSeq + 1
-        else:
-            for k in range(packageNum, newPackageNum + 1):
-                if k == packageNum:
-                    num = leftItem
-                elif k*boxPackageCapacity <= (boxAmount+amount):
-                    num = boxPackageCapacity
-                else:
-                    num = boxAmount + amount - (k-1) * boxPackageCapacity
-                for _ in range(num):
-                    serialNumber = classNameCode + '-' + subClassNameCode + '-' + wareHouseCode + '-' + str(startSeq)
-                    if subBoxNumber == '':
-                        thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,
-                                                  packageNo=k))
-                    else:
-                        thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,
-                                                  packageNo=k, subBoxNo=int(subBoxNumber)))
-                    startSeq = startSeq + 1
+        for _ in range(amount):
+            serialNumber = classNameCode + '-' + subClassNameCode + '-' + wareHouseCode + '-' + str(startSeq)
+            if subBoxNumber == '':
+                thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,))
+            else:
+                thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,subBoxNo=int(subBoxNumber)))
+            startSeq = startSeq + 1
 
         gsThing.objects.bulk_create(thingsList)
-
         super(models.Manager, self).filter(boxNumber=boxNumber).update(amount=amount + box.amount)
 
         return (box, True)
@@ -203,7 +164,6 @@ class gsBox(models.Model):
     wareHouse = models.CharField(max_length=255)  # 所属发行库
     amount = models.PositiveIntegerField()  # 件数
     grossWeight = models.FloatField(null=True)  # 总毛重
-    packageCapacity = models.PositiveIntegerField()  # 包最大容量
     status = models.BooleanField(default=False)  # False:未封箱; True：已封箱入库
     printTimes = models.PositiveIntegerField(default=0)  # 箱体二维码打印次数
     scanTimes = models.PositiveIntegerField(default=0)  # 箱体二维码扫描次数
@@ -383,7 +343,6 @@ class gsThing(models.Model):
     box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
     subBoxSeq = models.PositiveIntegerField(default=1)  # 子箱号, 从1开始
     isAllocate = models.BooleanField(default=False)  # 实物是否已分配
-    packageNo = models.PositiveIntegerField(default=1)
     subBoxNo = models.PositiveIntegerField(default=1)  # 拆箱后形成的子箱编号，默认为0,表示未拆箱，子箱编号从1开始
     historyNo = models.IntegerField(null=True)
 

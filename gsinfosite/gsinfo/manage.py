@@ -28,7 +28,6 @@ def createBox(request):
     wareHouse = request.POST.get('wareHouse', '')  # 发行库
     amount = int(request.POST.get('amount', ''))  # 件数
     startSeq = int(request.POST.get('startSeq', ''))  # 起始序列号
-    packageCapacity = int(request.POST.get('packageCapacity', ''))  # 包最大容量
     grossWeight = float(request.POST.get('grossWeight', ''))  # 毛重
 
     if not gsBox.objects.filter(boxNumber=boxNumber).exists():
@@ -37,7 +36,7 @@ def createBox(request):
 
             box, createdBox = gsBox.objects.createBox(boxNumber=boxNumber, productType=productType, className=className,
                                                       subClassName=subClassName, wareHouse=wareHouse, amount=amount,
-                                                      startSeq=startSeq, packageCapacity=packageCapacity,grossWeight=grossWeight)
+                                                      startSeq=startSeq, grossWeight=grossWeight)
 
             # 构造对应的存储目录结构
             boxRootDir = settings.DATA_DIRS['box_dir']
@@ -688,13 +687,11 @@ def addToExistingBox(request):
         className = box.className
         subClassName = box.subClassName
         wareHouse = box.wareHouse
-        packageCapacity = box.packageCapacity
 
         log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱并箱操作'.format(boxNumber))
         (box, added) = gsBox.objects.addToExistingBox(boxNumber=boxNumber, productType=productType, className=className,
                                                       subClassName=subClassName, wareHouse=wareHouse, amount=amount,
-                                                      startSeq=startSeq, packageCapacity=packageCapacity,
-                                                      subBoxNumber=subBoxNumber)
+                                                      startSeq=startSeq,subBoxNumber=subBoxNumber)
 
         # 构造对应的存储目录结构
         boxRootDir = settings.DATA_DIRS['box_dir']

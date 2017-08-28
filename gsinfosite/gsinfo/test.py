@@ -143,3 +143,36 @@ finally:
 # print row
 
 
+import requests
+from suds import WebFault
+from suds.client import Client
+
+
+def TestUrlOpen():
+    url = "http://www.webxml.com.cn/WebServices/WeatherWebService.asmx/getWeatherbyCityName?theCityName=58367"
+    page = requests.get(url)
+    txt = page.text
+    print txt
+    # lines = page.readlines()
+    # page.close()
+    # document = ""
+    # for line in lines:
+    #     document = document + line.decode('utf-8')
+    #
+    # from xml.dom.minidom import parseString
+    # dom = parseString(document)
+    # strings = dom.getElementsByTagName("string")
+    # print (strings[6].childNodes[0].data + " " + strings[7].childNodes[0].data)
+
+
+def TestSuds():
+    url = 'http://webservice.webxml.com.cn/WebServices/WeatherWS.asmx?WSDL'
+    client = Client(url)
+    print(client)
+    print(client.service.getWeather('58367'))
+
+if __name__ == '__main__':
+    # TestUrlOpen()
+    TestSuds()
+
+
