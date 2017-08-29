@@ -200,9 +200,9 @@ def updateNumberingInfo(request):
 # ---------------------------------------------------------------------
 # 录入信息检测
 def checkInfo(request):
-    productType = u'金银锭类' # request.POST.get('productType', '')  # u'金银锭类'
-    key = 'typeName' # request.POST.get('key', '')
-    value = u'看' # request.POST.get('value', '')
+    productType = request.POST.get('productType', '')  # u'金银锭类'
+    key = request.POST.get('key', '')
+    value = request.POST.get('value', '')
     ret ={}
 
     if productType == u'金银锭类':
@@ -220,9 +220,21 @@ def checkInfo(request):
             historyInfo[thing] = historyInfo.get(thing, 0) + 1
 
     sortedClassCount = sorted(historyInfo.items(), key=operator.itemgetter(1),reverse=True)
+    sort_len = len(sortedClassCount)
     if sortedClassCount:
         ret['success'] = True
-        ret['message'] = sortedClassCount[0][0]
+        message_list = []
+        if sort_len == 1:
+            message_list.append(sortedClassCount[0][0])
+        if sort_len == 2:
+            message_list.append(sortedClassCount[0][0])
+            message_list.append(sortedClassCount[1][0])
+        else:
+            message_list.append(sortedClassCount[0][0])
+            message_list.append(sortedClassCount[1][0])
+            message_list.append(sortedClassCount[2][0])
+        ret['message'] = message_list
+
     else:
         ret['success'] = False
     ret_json = json.dumps(ret, separators=(',', ':'))
