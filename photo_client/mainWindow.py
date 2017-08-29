@@ -35,30 +35,36 @@ class LoginWidget(QDialog,login.Ui_Form):
 
 
     def login(self):
+        reload(settings)
+        nickName = str(self.lineEdit.text())
+        passWord = str(self.lineEdit_2.text())
         try:
-            if settings.SERVERHOST:
-                if settings.SERVERPORT:
-                    url = r'http://{0}:{1}/gsinfo/login/'.format(settings.SERVERHOST, settings.SERVERPORT)
-                    res = self.client.get(url)
-                    csrftoken = res.cookies['csrftoken']
-                    data = {
-                        'csrfmiddlewaretoken': csrftoken,
-                        'nickName':self.lineEdit.text(),
-                        'passWord':self.lineEdit_2.text(),
-                        'workRole':'photographing'
-                    }
-                    resp = self.client.post(url,data=data)
-                    txt = json.loads(resp.text)
-                    success = txt['success']
-                    if success:
-                        self.accept()
+            if nickName and passWord:
+                if settings.SERVERHOST:
+                    if settings.SERVERPORT:
+                        url = r'http://{0}:{1}/gsinfo/login/'.format(settings.SERVERHOST, settings.SERVERPORT)
+                        res = self.client.get(url)
+                        csrftoken = res.cookies['csrftoken']
+                        data = {
+                            'csrfmiddlewaretoken': csrftoken,
+                            'nickName':nickName,
+                            'passWord':passWord,
+                            'workRole':'photographing'
+                        }
+                        resp = self.client.post(url,data=data)
+                        txt = json.loads(resp.text)
+                        success = txt['success']
+                        if success:
+                            self.accept()
+                        else:
+                            message = txt['message']
+                            self.tiplabel.setText("<font color=red>{0}</font>".format(message))
                     else:
-                        message = txt['message']
-                        self.tiplabel.setText("<font color=red>{0}</font>".format(message))
+                        self.tiplabel.setText("<font color=red>请设置服务器端口号！</font>")
                 else:
-                    self.tiplabel.setText("<font color=red>请设置服务器端口号！</font>")
+                    self.tiplabel.setText("<font color=red>请设置服务器IP地址！</font>")
             else:
-                self.tiplabel.setText("<font color=red>请设置服务器IP地址！</font>")
+                self.tiplabel.setText("<font color=red>请输入正确的用户或密码！</font>")
         except Exception as e:
             print e
             self.tiplabel.setText("<font color=red>登录失败！</font>")

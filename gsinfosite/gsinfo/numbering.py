@@ -199,7 +199,7 @@ def updateNumberingInfo(request):
 # ---------------------------------------------------------------------
 # 录入信息检测
 def checkInfo(request):
-    productType = u'金银锭类' #request.POST.get('productType', '')
+    productType = u'金银锭类' # request.POST.get('productType', '')
     carveName = u'泰康古银'# request.POST.get('carveName', '')
 
     if productType == u'金银锭类':

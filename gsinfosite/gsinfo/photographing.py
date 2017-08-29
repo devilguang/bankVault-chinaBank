@@ -22,7 +22,7 @@ def getPictures(request):
 
     ret = {}
 
-    boxDir = os.path.join(settings.STATIC_PATH,'img', boxOrSubBox)
+    boxDir = os.path.join(settings.IMGS_DATA_PATH,'img', boxOrSubBox)
     if not os.path.exists(boxDir):
         os.mkdir(boxDir)
 
