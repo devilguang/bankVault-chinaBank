@@ -134,16 +134,14 @@
                        data-options="readonly:true, editable:false">
             </div>
 
-            <div class="FormItem" id="detailedName" onchange="changeInputValue()">
+            <div class="FormItem" id="detailedName" >
                 <label for="UpdateInfo-detailedName">名称</label>
                 {#                <input id="UpdateInfo-detailedName" name="detailedName" class="easyui-textbox">#}
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="UpdateInfo-detailedName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;"/>
+                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="detailedName" id="physical_detailedName" onkeyup="changeInputValue('physical_detailedName','UpdateInfo-detailedName')"/>
                     <datalist id="UpdateInfo-detailedName">
-                        <option value="我"></option>
-                        <option value="我是"></option>
-                        <option value="我是的"></option>
+
                     </datalist>
                 </span>
             </div>
@@ -152,11 +150,9 @@
                 {#                <input id="UpdateInfo-typeName" name="typeName" class="easyui-textbox">#}
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="UpdateInfo-typeName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;"/>
+                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="typeName" id="physical_typeName" onkeyup="changeInputValue('physical_typeName','UpdateInfo-typeName')"/>
                     <datalist id="UpdateInfo-typeName">
-                        <option value="我"></option>
-                        <option value="我是"></option>
-                        <option value="我是的"></option>
+
                     </datalist>
                 </span>
             </div>
@@ -164,11 +160,9 @@
                 <label for="UpdateInfo-peroid">时代</label>
                 {#                <input id="UpdateInfo-peroid" name="peroid" class="easyui-textbox">#}
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
-                    <input list="UpdateInfo-peroid" style="border: none;margin-left: 3px;width: 295px;outline: none;"/>
+                    <input list="UpdateInfo-peroid" style="border: none;margin-left: 3px;width: 295px;outline: none;" name="peroid" id="physical_peroid" onkeyup="changeInputValue('physical_typeName','UpdateInfo-peroid')"/>
                     <datalist id="UpdateInfo-peroid">
-                        <option value="我"></option>
-                        <option value="我是"></option>
-                        <option value="我是的"></option>
+
                     </datalist>
                 </span>
             </div>
@@ -177,11 +171,9 @@
                 {#                <input id="UpdateInfo-producerPlace" name="producerPlace" class="easyui-textbox">#}
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="UpdateInfo-producerPlace"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;"/>
+                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="producerPlace" id="physical_producerPlace" onkeyup="changeInputValue('physical_producerPlace','UpdateInfo-producerPlace')"/>
                     <datalist id="UpdateInfo-producerPlace">
-                        <option value="我"></option>
-                        <option value="我是"></option>
-                        <option value="我是的"></option>
+
                     </datalist>
                 </span>
             </div>
@@ -190,7 +182,7 @@
                 {#                <input id="UpdateInfo-carveName" name="carveName" class="easyui-textbox">#}
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="UpdateInfo-carveName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;"/>
+                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="carveName" id="physical_carveName" onkeyup="changeInputValue('physical_carveName','UpdateInfo-carveName')"/>
                     <datalist id="UpdateInfo-carveName">
                         <option value="我"></option>
                         <option value="我是"></option>
@@ -229,10 +221,12 @@
             <div class="FormItem">
                 <label for="UpdateInfo-remark">备注</label>
                 <input id="UpdateInfo-remark" name="remark" class="easyui-textbox" data-options="multiline:true"
-                       style="height: 24px;">
+                       style="height: 24px;background: #ffffff">
             </div>
         </form>
     </div>
+
+
     <div id="UpdateInfoDlgButtons">
         <a id="editBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"
            onclick="editUpdateInfo()" style="width:90px">编辑</a>
