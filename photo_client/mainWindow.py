@@ -5,13 +5,9 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-from PyQt5.QtWidgets import (QWidget, QToolTip, QPushButton, QApplication, QMessageBox, QDesktopWidget,
-                             QLabel,QHBoxLayout,QVBoxLayout,QGridLayout,QLineEdit,QTextEdit,QMainWindow,
-                             QAction, QAction, qApp,QLCDNumber, QSlider,QInputDialog,QFrame,QColorDialog,
-                             QSizePolicy,QFileDialog,QCheckBox,QProgressBar,QCalendarWidget,QDialog,QScrollArea,
-                             QTabWidget,QToolButton)
-from PyQt5.QtGui import QFont,QColor,QPixmap,QIcon,QPainter,QImage,QTextCursor
-from PyQt5.QtCore import QCoreApplication,Qt,pyqtSignal, QObject,QBasicTimer,QDate,QRect,QSize,QTimer
+from PyQt5.QtWidgets import QApplication, QMessageBox,QMainWindow,QDialog
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import pyqtSignal, QObject,QSize,QTimer
 import login
 import requests
 import settings
@@ -52,6 +48,7 @@ class LoginWidget(QDialog,login.Ui_Form):
                             'workRole':'photographing'
                         }
                         resp = self.client.post(url,data=data)
+                        print resp.status_code
                         txt = json.loads(resp.text)
                         success = txt['success']
                         if success:
