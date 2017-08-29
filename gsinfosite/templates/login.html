@@ -3,106 +3,120 @@
 
 <html>
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css'%}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/default.css'%}">
-	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js'%}"></script>
-	<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js'%}"></script>
-	<script type="text/javascript">
-		$.ajaxSetup({
-			  data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
-			});
-			
-		/*$(function(){
-			$('#login-passWord').textbox('textbox').blur(validatePassword);
-		});*/
-		
-		function login(){
-			user = $('#login-nickName').combobox('getText');
-			pwd = $('#login-passWord').textbox('getValue');
-			role = $('#login-workRole').combobox('getValue');
-			
-			validateUser();
-			validateRole();
-			validatePassword();
-			if (user == '' || pwd == '' || role == ''){
-				return ;
-			}
-			
-			// 登录
-			$.post(
-				'',
-				{nickName:user, passWord:pwd, workRole:role}, 
-				function(result){
-				    console.log(result)
-					if (result.success){
-						url = window.location.protocol+'//';
-						url = url+window.location.host+result.url;
-						window.location.replace(url);
-					}
-					else{
-						$.messager.alert({    // 显示失败信息
-							title: '提示',
-							msg: result.message
-						});
-					}
-				}, 'json');
-		}
-		
-		function validateUser(){
-			user = $('#login-nickName').combobox('getText');
-			if (user == ''){
-				$('#login-nickName-tip').attr('style', 'color:#ff0000');
-			}
-			else{
-				$('#login-nickName-tip').attr('style', 'display:none;color:#ff0000');
-			}
-		}
-		
-		function validateRole(){
-			role = $('#login-workRole').combobox('getValue');
-			if (role == ''){
-				$('#login-workRole-tip').attr('style', 'color:#ff0000');
-			}
-			else{
-				$('#login-workRole-tip').attr('style', 'display:none;color:#ff0000');
-			}
-		}
-		
-		function validatePassword(){
-			pwd = $('#login-passWord').textbox('getValue');
-			if (pwd == ''){
-				$('#login-passWord-tip').attr('style', 'color:#ff0000');
-			}
-			else{
-				$('#login-passWord-tip').attr('style', 'display:none;color:#ff0000');
-			}
-		}
-	</script>
-	
-	<title>登录</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+        });
+
+        /*$(function(){
+         $('#login-passWord').textbox('textbox').blur(validatePassword);
+         });*/
+
+        function login() {
+            user = $('#login-nickName').combobox('getText');
+            pwd = $('#login-passWord').textbox('getValue');
+            role = $('#login-workRole').combobox('getValue');
+
+            validateUser();
+            validateRole();
+            validatePassword();
+            if (user == '' || pwd == '' || role == '') {
+                return;
+            }
+
+            // 登录
+            $.post(
+                '',
+                {nickName: user, passWord: pwd, workRole: role},
+                function (result) {
+                    console.log(result)
+                    if (result.success) {
+                        url = window.location.protocol + '//';
+                        url = url + window.location.host + result.url;
+                        window.location.replace(url);
+                    }
+                    else {
+                        $.messager.alert({    // 显示失败信息
+                            title: '提示',
+                            msg: result.message
+                        });
+                    }
+                }, 'json');
+        }
+        document.onkeydown = function (event) {
+            var e = event || window.event;
+            var keyCode = e.keyCode || e.which;
+            switch (keyCode) {
+                case 13:
+                    event.returnValue = false;
+                    event.cancel = true;
+                   login();
+                    break;
+                default:
+                    break;
+            }
+        }
+        function validateUser() {
+            user = $('#login-nickName').combobox('getText');
+            if (user == '') {
+                $('#login-nickName-tip').attr('style', 'color:#ff0000');
+            }
+            else {
+                $('#login-nickName-tip').attr('style', 'display:none;color:#ff0000');
+            }
+        }
+
+        function validateRole() {
+            role = $('#login-workRole').combobox('getValue');
+            if (role == '') {
+                $('#login-workRole-tip').attr('style', 'color:#ff0000');
+            }
+            else {
+                $('#login-workRole-tip').attr('style', 'display:none;color:#ff0000');
+            }
+        }
+
+        function validatePassword() {
+            pwd = $('#login-passWord').textbox('getValue');
+            if (pwd == '') {
+                $('#login-passWord-tip').attr('style', 'color:#ff0000');
+            }
+            else {
+                $('#login-passWord-tip').attr('style', 'display:none;color:#ff0000');
+            }
+        }
+    </script>
+
+    <title>登录</title>
 </head>
 <body style="text-align:center;">
-	<div class="easyui-layout" data-options="width:1022, height:655" style="margin: 0 auto;">
-		<div data-options="region:'north', border:false">
-			<div class="logo">
-				<div class="title">
-					<img src="{% static 'img/logo.jpg' %}" height="113px" width="100%"/>
-					<span>金银清点查验业务系统</span>
-				</div>
-			</div>
-		</div>
-		
-		<div data-options="region:'center', border:false">
-			<div style="margin:20px 0;"></div>
-			<div class="easyui-panel" data-options="border:false" style="width:100%;margin-top:80px">
-				<div style="margin-bottom:10px;padding-left:336px">
-					<label for="login-nickName" style="display:inline-block;margin-right:10px;width:50px;font-size:16px;font-family:sans-serif">用&nbsp;&nbsp;&nbsp;&nbsp;户</label>
-					<input id="login-nickName" name="nickName" class="easyui-combobox" style="width:280px;height:40px;padding:12px" data-options="
+<div class="easyui-layout" data-options="width:1022, height:655" style="margin: 0 auto;">
+    <div data-options="region:'north', border:false">
+        <div class="logo">
+            <div class="title">
+                <img src="{% static 'img/logo.jpg' %}" height="113px" width="100%"/>
+                <span>金银清点查验业务系统</span>
+            </div>
+        </div>
+    </div>
+
+    <div data-options="region:'center', border:false">
+        <div style="margin:20px 0;"></div>
+        <div class="easyui-panel" data-options="border:false" style="width:100%;margin-top:80px">
+            <div style="margin-bottom:10px;padding-left:336px">
+                <label for="login-nickName"
+                       style="display:inline-block;margin-right:10px;width:50px;font-size:16px;font-family:sans-serif">用&nbsp;&nbsp;&nbsp;&nbsp;户</label>
+                <input id="login-nickName" name="nickName" class="easyui-combobox"
+                       style="width:280px;height:40px;padding:12px" data-options="
 						prompt:'请选择',
 						valueField: 'id',
 						textField: 'text',
@@ -113,11 +127,13 @@
 						panelHeight: 'auto',
 						onChange: validateUser,
 					">
-					<label id="login-nickName-tip" style="display:none;color:#ff0000">用户不能为空！</label>
-				</div>
-				<div style="margin-bottom:10px;padding-left:336px">
-					<label for="login-workRole" style="display:inline-block;margin-right:10px;width:50px;font-size:16px;font-family:sans-serif">岗&nbsp;&nbsp;&nbsp;&nbsp;位</label>
-					<input id="login-workRole" name="workRole" class="easyui-combobox" style="width:280px;height:40px;padding:12px" data-options="
+                <label id="login-nickName-tip" style="display:none;color:#ff0000">用户不能为空！</label>
+            </div>
+            <div style="margin-bottom:10px;padding-left:336px">
+                <label for="login-workRole"
+                       style="display:inline-block;margin-right:10px;width:50px;font-size:16px;font-family:sans-serif">岗&nbsp;&nbsp;&nbsp;&nbsp;位</label>
+                <input id="login-workRole" name="workRole" class="easyui-combobox"
+                       style="width:280px;height:40px;padding:12px" data-options="
 						prompt:'请选择',
 						valueField: 'id',
 						textField: 'text',
@@ -126,32 +142,35 @@
 						panelHeight: 'auto',
 						onChange: validateRole,
 					">
-					<label id="login-workRole-tip" style="display:none;color:#ff0000">岗位不能为空！</label>
-				</div>
-				<div style="margin-bottom:10px;padding-left:336px">
-					<label for="login-passWord" style="display:inline-block;margin-right:10px;width:50px;font-size:16px;font-family:sans-serif">密&nbsp;&nbsp;&nbsp;&nbsp;码</label>
-					<input id="login-passWord" name="passWord" class="easyui-textbox" type="password" style="width:280px;height:40px;padding:12px" data-options="iconCls:'icon-lock', iconWidth:38,
+                <label id="login-workRole-tip" style="display:none;color:#ff0000">岗位不能为空！</label>
+            </div>
+            <div style="margin-bottom:10px;padding-left:336px">
+                <label for="login-passWord"
+                       style="display:inline-block;margin-right:10px;width:50px;font-size:16px;font-family:sans-serif">密&nbsp;&nbsp;&nbsp;&nbsp;码</label>
+                <input id="login-passWord" name="passWord" class="easyui-textbox" type="password"
+                       style="width:280px;height:40px;padding:12px" data-options="iconCls:'icon-lock', iconWidth:38,
 						onChange: validatePassword,
 					">
-					<label id="login-passWord-tip" style="display:none;color:#ff0000">密码不能为空！</label>
-				</div>
-				<div style="width:350px;margin-top:13px;margin-bottom:40px;padding-left:336px">
-					<!--<input type="checkbox">
-					<span>记住我</span>-->
-					<a href="updatePassword" style="float:right;text-decoration:none;color:blue">更改密码</a>
-				</div>
-				<div style="width:350px;margin-bottom:20px;padding-left:336px">
-					<a href="#" onclick="login()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="padding:5px 0px;width:100%;">
-						<span style="font-size:14px;">登&nbsp;&nbsp;&nbsp;&nbsp;录</span>
-					</a>
-				</div>
-			</div>
-		</div>
-		
-		<div data-options="region:'south', border:false" id="footer" class="footer">
-			<a href="/software/" style="text-decoration:none;color:blue;display:block;text-align:center;font-size:15px;">工具下载中心</a>
-			<p>Copyright &copy; 中国人民银行武汉分行货币金银处 &nbsp;技术支持 &nbsp;(sunshine)</p>
-		</div>
-	</div>
+                <label id="login-passWord-tip" style="display:none;color:#ff0000">密码不能为空！</label>
+            </div>
+            <div style="width:350px;margin-top:13px;margin-bottom:40px;padding-left:336px">
+                <!--<input type="checkbox">
+                <span>记住我</span>-->
+                <a href="updatePassword" style="float:right;text-decoration:none;color:blue">更改密码</a>
+            </div>
+            <div style="width:350px;margin-bottom:20px;padding-left:336px">
+                <a href="#" onclick="login()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'"
+                   style="padding:5px 0px;width:100%;">
+                    <span style="font-size:14px;">登&nbsp;&nbsp;&nbsp;&nbsp;录</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div data-options="region:'south', border:false" id="footer" class="footer">
+        <a href="/software/" style="text-decoration:none;color:blue;display:block;text-align:center;font-size:15px;">工具下载中心</a>
+        <p>Copyright &copy; 中国人民银行武汉分行货币金银处 &nbsp;技术支持 &nbsp;(sunshine)</p>
+    </div>
+</div>
 </body>
 </html>

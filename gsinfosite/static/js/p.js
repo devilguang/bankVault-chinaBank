@@ -176,59 +176,62 @@ function updateInfo(index, row) {
         }, success: function (data) {
             var data = JSON.parse(data)
             var havePic = data.havePic
-            if (havePic == false) {
-                var timer = setInterval(function () {
-                    $.ajax({
-                        type: 'get',
-                        url: 'http://127.0.0.1:8000/gsinfo/getSeq/',
-                        dataType: "jsonp",
-                        jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
-                        jsonpCallback: "success_jsonpCallback",
-                        data: {
-                            serialNumber: row.serialNumber
-                        }, success: function (data) {
-                            var file = data.filePath
-                            var rephotoPathSrc = data.rephotoPath
-                            var stop = data.stop
-                            if (stop == 'True') {
-                                clearInterval(timer)
-                                return
-                            }
-                            if (data.havePic == true && file) {
-                                var imgList = document.getElementById('filePathList')
-                                var file = data.filePath
-                                fileArr.push(file)
-                                var li = document.createElement('li')
-                                li.innerHTML = '<img src ="http://127.0.0.1:8000/' + file + '"/>' +
-                                    '<div class="btnWrap"><button id="rephotograph" href="#"  class="rephotograph">重拍</button>' +
-                                    '<button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
-                                imgList.appendChild(li)
-                                rephotograph() //重拍图片的方法
-                                removePic(row.boxNumber, row.serialNumber)  //删除图片的方法
-                            }
-                            if (rephotoPathSrc) {
-                                $("#filePathList>li").eq(picIndex).children().eq(0).attr('src', "http://127.0.0.1:8000/" + rephotoPathSrc)
-                                $("#filePathList>li").eq(picIndex).children().eq(1).children().eq(0).attr('disabled', false).css('opacity', 1)
-                            }
-                        }
-                    })
-                }, 2000)
-                // upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
-            } else {
-                $("#saveBtn").attr('disable', true)
-                var filePathList = data.filePathList
-                var imgList = document.getElementById('filePathList')
-                for (var i = 0; i < filePathList.length; i++) {
-                    var li = document.createElement('li')
-                    // http://192.168.16.4:8000
-                    li.innerHTML += '<img src ="/' + filePathList[i] + '"/>' +
-                        '<div class="btnWrap"><button id="rephotograph" href="#" class="rephotograph" >重拍</button><button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
-                    imgList.appendChild(li);
-                    rephotograph()
-                    removePic(row.boxNumber, row.serialNumber) //删除按钮
-                }
-                // upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
-            }
+
+            // if (havePic == false) {
+            //     var timer = setInterval(function () {
+            //         $.ajax({
+            //             type: 'get',
+            //             url: 'http://127.0.0.1:8000/gsinfo/getSeq/',
+            //             dataType: "jsonp",
+            //             jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数
+            //             jsonpCallback: "success_jsonpCallback",
+            //             data: {
+            //                 serialNumber: row.serialNumber
+            //             }, success: function (data) {
+            //                 var file = data.filePath
+            //                 var rephotoPathSrc = data.rephotoPath
+            //                 var stop = data.stop
+            //                 if (stop == 'True') {
+            //                     clearInterval(timer)
+            //                     return
+            //                 }
+            //                 if (data.havePic == true && file) {
+            //                     var imgList = document.getElementById('filePathList')
+            //                     var file = data.filePath
+            //                     fileArr.push(file)
+            //                     var li = document.createElement('li')
+            //                     li.innerHTML = '<img src ="http://127.0.0.1:8000/' + file + '"/>' +
+            //                         '<div class="btnWrap"><button id="rephotograph" href="#"  class="rephotograph">重拍</button>' +
+            //                         '<button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
+            //                     imgList.appendChild(li)
+            //                     rephotograph() //重拍图片的方法
+            //                     removePic(row.boxNumber, row.serialNumber)  //删除图片的方法
+            //                 }
+            //                 if (rephotoPathSrc) {
+            //                     $("#filePathList>li").eq(picIndex).children().eq(0).attr('src', "http://127.0.0.1:8000/" + rephotoPathSrc)
+            //                     $("#filePathList>li").eq(picIndex).children().eq(1).children().eq(0).attr('disabled', false).css('opacity', 1)
+            //                 }
+            //             }
+            //         })
+            //     }, 2000)
+            //     // upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
+            // } else {
+            //     $("#saveBtn").attr('disable', true)
+            //     var filePathList = data.filePathList
+            //     var imgList = document.getElementById('filePathList')
+            //     for (var i = 0; i < filePathList.length; i++) {
+            //         var li = document.createElement('li')
+            //         // http://192.168.16.4:8000
+            //         li.innerHTML += '<img src ="/' + filePathList[i] + '"/>' +
+            //             '<div class="btnWrap"><button id="rephotograph" href="#" class="rephotograph" >重拍</button><button id="removePic" href="#" class="easyui-linkbutton">删除</button></div>';
+            //         imgList.appendChild(li);
+            //         rephotograph()
+            //         removePic(row.boxNumber, row.serialNumber) //删除按钮
+            //     }
+            //     // upLoadImg(row.boxNumber, row.serialNumber)  //上传图片的方法
+            // }
+            
+            
         }
     });
     //url = 'updatePhotographingInfo/';
