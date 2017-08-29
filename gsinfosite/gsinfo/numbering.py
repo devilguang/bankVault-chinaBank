@@ -226,7 +226,7 @@ def checkInfo(request):
         message_list = []
         if sort_len == 1:
             message_list.append(sortedClassCount[0][0])
-        if sort_len == 2:
+        elif sort_len == 2:
             message_list.append(sortedClassCount[0][0])
             message_list.append(sortedClassCount[1][0])
         else:
