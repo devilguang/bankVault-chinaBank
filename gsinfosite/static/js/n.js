@@ -42,6 +42,17 @@ function loadDataProcess(node, data){
 		}
 	}
 }
+function changeInputValue(){
+	$.ajax({
+		type:'post',
+		url:'checkInfo/',
+		data:{
+			productType:'',
+			key:'detailedName',
+			value:''
+		}
+	})
+}
 function treeSelectHandler(node){
 	var isWork = node.attributes.isWork
 	if (!isWork)
