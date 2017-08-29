@@ -6,6 +6,7 @@ import json
 from report_process import *
 from django.contrib.auth.decorators import login_required
 import datetime
+import operator
 
 
 
@@ -199,28 +200,43 @@ def updateNumberingInfo(request):
 # ---------------------------------------------------------------------
 # 录入信息检测
 def checkInfo(request):
-    productType = u'金银锭类' # request.POST.get('productType', '')
-    carveName = u'泰康古银'# request.POST.get('carveName', '')
+    productType = request.POST.get('productType', '')  # u'金银锭类'
+    key = request.POST.get('key', '')
+    value = request.POST.get('value', '')
+    ret ={}
 
     if productType == u'金银锭类':
-        things = gsDing.objects.values_list('carveName',flat=True)
+        things = gsDing.objects.values_list(key,flat=True)
     elif productType == u'金银币章类':
-        pass
+        things = gsDing.objects.values_list(key, flat=True)
     elif productType == u'银元类':
-        pass
+        things = gsDing.objects.values_list(key, flat=True)
     elif productType == u'金银工艺品类':
-        pass
+        things = gsDing.objects.values_list(key, flat=True)
 
-    historyInfo = []
+    historyInfo = {}
     for thing in things:
-        historyInfo.append(thing)
+        if thing.startswith(value):
+            historyInfo[thing] = historyInfo.get(thing, 0) + 1
 
-    allInfo = list(set(historyInfo))
-    if carveName in allInfo:
-        ret = {'success': True,}
+    sortedClassCount = sorted(historyInfo.items(), key=operator.itemgetter(1),reverse=True)
+    sort_len = len(sortedClassCount)
+    if sortedClassCount:
+        ret['success'] = True
+        message_list = []
+        if sort_len == 1:
+            message_list.append(sortedClassCount[0][0])
+        if sort_len == 2:
+            message_list.append(sortedClassCount[0][0])
+            message_list.append(sortedClassCount[1][0])
+        else:
+            message_list.append(sortedClassCount[0][0])
+            message_list.append(sortedClassCount[1][0])
+            message_list.append(sortedClassCount[2][0])
+        ret['message'] = message_list
+
     else:
-        ret = {'success': False, }
-
+        ret['success'] = False
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
