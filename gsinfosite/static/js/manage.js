@@ -64,7 +64,7 @@ function boxManage() {
 }
 function boxOperationFormatter(value, row, index) {
     if (row.haveSubBox == "0") {
-        return '<div style="float:left"><a href="javascript:void(0);" onclick="openAddToExistingBoxDlg(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">生成装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">生成装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(0, \'' + index + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;">修改</a></div>'
+        return '<div style="float:left"><a href="javascript:void(0);" onclick="openAddToExistingBoxDlg(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(0, \'' + index + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;">修改</a></div>'
     } else {
         //return '<div style="float:left; min-width: 498px;"></div>'
         return '<div style="float:left" min-width: 498px;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;"></a></div>';
@@ -579,7 +579,7 @@ function ClickRow(index, row) {
         var trhtml = "";
         for (var key in boxMap) {
             thhtml += "<tr class='ly_hides' style='height: 25px;'><td><div class='datagrid-cell-rownumber'></div></td></tr>";
-            trhtml += '<tr class="ly_hides" style="height: 25px;"><td field="boxNumber"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-boxNumber">' + row.boxNumber + '-' + key + '</div></td><td field="productType"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-productType">' + row.productType + '</div></td><td field="className"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-className">' + row.className + '</div></td><td field="subClassName"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-subClassName">' + row.subClassName + '</div></td><td field="wareHouse"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-wareHouse">' + row.wareHouse + '</div></td><td field="amount"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-amount">' + boxMap[key] + '</div></td><td field="operation"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-operation"><div style="float:left"><a href="javascript:void(0);" onclick="openAddToExistingBoxDlg(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">生成装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">生成装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(1, \'' + row.boxNumber + '-' + key + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;">修改</a></div></div></td></tr>';
+            trhtml += '<tr class="ly_hides" style="height: 25px;"><td field="boxNumber"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-boxNumber">' + row.boxNumber + '-' + key + '</div></td><td field="productType"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-productType">' + row.productType + '</div></td><td field="className"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-className">' + row.className + '</div></td><td field="subClassName"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-subClassName">' + row.subClassName + '</div></td><td field="wareHouse"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-wareHouse">' + row.wareHouse + '</div></td><td field="amount"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-amount">' + boxMap[key] + '</div></td><td field="operation"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-operation"><div style="float:left"><a href="javascript:void(0);" onclick="openAddToExistingBoxDlg(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(1, \'' + row.boxNumber + '-' + key + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;">修改</a></div></div></td></tr>';
         }
         $("#" + selectids[0].id).after(thhtml);
         $("#" + selectids[1].id).after(trhtml);
@@ -631,7 +631,7 @@ function doWeightBox() {
 function putBoxIntoStore(type, index, status) {
     $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#putBoxValidateForm').form('clear');
-    $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+    // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
 }
 
 function putBoxValidate(type, index, status) {
@@ -671,7 +671,6 @@ function putBoxValidate(type, index, status) {
                     showType: 'slide',
                     timeout: 5000
                 });
-
                 $('#workGridBoxManage').datagrid('reload');
             }
             else {
@@ -683,8 +682,6 @@ function putBoxValidate(type, index, status) {
         },
     });
 }
-
-
 function deleteBox() {
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (!row) {
@@ -923,28 +920,30 @@ function generateContentForWork() {
     });
 }
 function generateBoxInfo(index, number) {
-    $('#workGridBoxManage').datagrid('selectRow', index);
-    var row = $('#workGridBoxManage').datagrid('getSelected');
+    $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $('#putBoxValidateForm').form('clear');
+    // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
 
-    $('#generateBoxInfoDlg').dialog('open').dialog('center').dialog('setTitle', '生成装箱清单');
-    $('#generateBoxInfoForm').form('clear');
+    // $('#workGridBoxManage').datagrid('selectRow', index);
 
-    if (number == 0) {
-        $('#generateBoxInfo-boxNumber').val(row.boxNumber);
-    } else {
-        $('#generateBoxInfo-boxNumber').val(number);
-    }
+    // var row = $('#workGridBoxManage').datagrid('getSelected');
+    // $('#generateBoxInfoDlg').dialog('open').dialog('center').dialog('setTitle', '生成装箱清单');
+    // $('#generateBoxInfoForm').form('clear');
 
-    var today = new Date();
-    $('#generateBoxInfoDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+    // if (number == 0) {
+    //     $('#generateBoxInfo-boxNumber').val(row.boxNumber);
+    // } else {
+    //     $('#generateBoxInfo-boxNumber').val(number);
+    // }
+    //
+    // var today = new Date();
+    // $('#generateBoxInfoDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
 }
 function doGenerateBoxInfo() {
     $('#generateBoxInfoDlg').dialog('close');
-
     var row = $('#workGridBoxManage').datagrid('getSelected');
     var date = $('#generateBoxInfoDateTime').datebox('getValue');
     var number = $('#generateBoxInfo-boxNumber').val();
-
     $.ajax({
         url: 'generateBoxInfo/',
         data: {boxNumber: number, dateTime: date},
@@ -968,38 +967,41 @@ function doGenerateBoxInfo() {
         },
     });
 }
+
 function generateBoxInfoDetailedVersion(index, number) {
+    $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $('#putBoxValidateForm').form('clear');
     $('#workGridBoxManage').datagrid('selectRow', index);
     var row = $('#workGridBoxManage').datagrid('getSelected');
-    if (number == 0) {
-        row["newnumber"] = row.boxNumber;
-    } else {
-        row["newnumber"] = number;
-    }
-    var valid = true;
-    // 目前因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 所以不提供生成装箱清单(详细版)！
-    var productTypes = ["金银工艺品类", "银元类", "金银币章类"]
-    $.each(productTypes, function (idx, e) {
-        if (row.productType == e) {
-            valid = false;
-
-            $.messager.alert({
-                title: '提示',
-                msg: '因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 暂不提供生成装箱清单(详细版)！请联系管理员！'
-            });
-
-            return valid;
-        }
-    });
-    if (!valid) {
-        return;
-    }
-
-    $('#generateBoxInfoDetailedVersionDlg').dialog('open').dialog('center').dialog('setTitle', '生成装箱清单(详细版)');
-    $('#generateBoxInfoDetailedVersionForm').form('clear');
-
-    var today = new Date();
-    $('#generateBoxInfoDetailedVersionDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+    // if (number == 0) {
+    //     row["newnumber"] = row.boxNumber;
+    // } else {
+    //     row["newnumber"] = number;
+    // }
+    // var valid = true;
+    // // 目前因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 所以不提供生成装箱清单(详细版)！
+    // var productTypes = ["金银工艺品类", "银元类", "金银币章类"]
+    // $.each(productTypes, function (idx, e) {
+    //     if (row.productType == e) {
+    //         valid = false;
+    //
+    //         $.messager.alert({
+    //             title: '提示',
+    //             msg: '因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 暂不提供生成装箱清单(详细版)！请联系管理员！'
+    //         });
+    //
+    //         return valid;
+    //     }
+    // });
+    // if (!valid) {
+    //     return;
+    // }
+    //
+    // $('#generateBoxInfoDetailedVersionDlg').dialog('open').dialog('center').dialog('setTitle', '生成装箱清单(详细版)');
+    // $('#generateBoxInfoDetailedVersionForm').form('clear');
+    //
+    // var today = new Date();
+    // $('#generateBoxInfoDetailedVersionDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
 }
 function doGenerateBoxInfoDetailedVersion() {
     $('#generateBoxInfoDetailedVersionDlg').dialog('close');
@@ -1030,37 +1032,41 @@ function doGenerateBoxInfoDetailedVersion() {
     });
 }
 function generateAbstract(index) {
-    $('#workGridWorkManage').datagrid('selectRow', index);
-    workGridWorkManage
-    var row = $('#workGridWorkManage').datagrid('getSelected');
+    $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $('#putBoxValidateForm').form('clear');
 
-    $.ajax({
-        url: 'generateAbstract/',
-        data: {
-            workName: row.workName,
-            boxNumber: row.boxNumber,
-            subBoxNumber: row.subBoxNumber,
-            workSeq: row.workSeq
-        },
-        type: 'POST',
-        async: true,
-        dataType: 'json',
-        beforeSend: function (xhr) {
-            // $.messager.progress({text:'正在导出'+row.workName+'标签，请稍后....'});
-            showMask(400, '正在导出' + row.workName + '实物信息摘要，请稍后....');
-        },
-        success: function (data) {
-            // $.messager.progress('close');
-            hideMask();
-            if (data.success) {
-                var downloadURL = data.downloadURL;
-                $.messager.alert('提示', row.workName + '实物信息摘要生成成功！\r\n请点击<a href="' + downloadURL + '">下载</a>');
-            }
-            else {
-                $.messager.alert('提示', '作业尚未完成！\r\n' + row.workName + '实物信息摘要生成失败！');
-            }
-        },
-    });
+    // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+    // $('#workGridWorkManage').datagrid('selectRow', index);
+    // workGridWorkManage
+    // var row = $('#workGridWorkManage').datagrid('getSelected');
+    //
+    // $.ajax({
+    //     url: 'generateAbstract/',
+    //     data: {
+    //         workName: row.workName,
+    //         boxNumber: row.boxNumber,
+    //         subBoxNumber: row.subBoxNumber,
+    //         workSeq: row.workSeq
+    //     },
+    //     type: 'POST',
+    //     async: true,
+    //     dataType: 'json',
+    //     beforeSend: function (xhr) {
+    //         // $.messager.progress({text:'正在导出'+row.workName+'标签，请稍后....'});
+    //         showMask(400, '正在导出' + row.workName + '实物信息摘要，请稍后....');
+    //     },
+    //     success: function (data) {
+    //         // $.messager.progress('close');
+    //         hideMask();
+    //         if (data.success) {
+    //             var downloadURL = data.downloadURL;
+    //             $.messager.alert('提示', row.workName + '实物信息摘要生成成功！\r\n请点击<a href="' + downloadURL + '">下载</a>');
+    //         }
+    //         else {
+    //             $.messager.alert('提示', '作业尚未完成！\r\n' + row.workName + '实物信息摘要生成失败！');
+    //         }
+    //     },
+    // });
 }
 function createWork() {
     var workName = $('#createWork-workName').textbox('getValue');
@@ -1252,7 +1258,7 @@ function dateTimeFormatter(value, row, index) {
 function workOperationFormatter(value, row, index) {
     if (row.status == 0) {
         // return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop('+index+', 1)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">分发</a><a href="javascript:void(0);" onclick="generateTag('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">生成标签</a><a href="javascript:void(0);" onclick="generateArchives('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">生成信息档案</a><a href="javascript:void(0);" onclick="exploreWork('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="openEditWorkDlg('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">编辑</a><a href="javascript:void(0);" onclick="deleteWork('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">删除</a></div>'
-        return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop(' + index + ', 1)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">分发</a><a href="javascript:void(0);" onclick="generateTag(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">生成标签</a><a href="javascript:void(0);" onclick="generateArchives(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">生成信息档案</a><a href="javascript:void(0);" onclick="generateAbstract(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">生成实物信息摘要</a><a href="javascript:void(0);" onclick="exploreWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="deleteWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">删除</a></div>'
+        return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop(' + index + ', 1)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">分发</a><a href="javascript:void(0);" onclick="generateTag(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印标签</a><a href="javascript:void(0);" onclick="generateArchives(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印信息档案</a><a href="javascript:void(0);" onclick="generateAbstract(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印实物信息摘要</a><a href="javascript:void(0);" onclick="exploreWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="deleteWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">删除</a></div>'
     }
     else if (row.status == 1) {
         return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop(' + index + ', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">收回</a><a href="javascript:void(0);" onclick="exploreWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a></div>'
@@ -1513,41 +1519,49 @@ function openEditWorkDlg(index) {
     });
 }
 function generateTag(index) {
-    $('#workGridWorkManage').datagrid('selectRow', index);
-    var row = $('#workGridWorkManage').datagrid('getSelected');
-
-    $.ajax({
-        url: 'generateTag/',
-        data: {boxNumber: row.boxNumber, subBoxNumber: row.subBoxNumber, workSeq: row.workSeq},
-        type: 'POST',
-        async: true,
-        dataType: 'json',
-        beforeSend: function (xhr) {
-            // $.messager.progress({text:'正在导出'+row.workName+'标签，请稍后....'});
-            showMask(400, '正在导出' + row.workName + '标签，请稍后....');
-        },
-        success: function (data) {
-            // $.messager.progress('close');
-            hideMask();
-            if (data.success) {
-                var downloadURL = data.downloadURL;
-                $.messager.alert('提示', row.workName + '作业标签生成成功！\r\n请点击<a href="' + downloadURL + '">下载</a>');
-            }
-            else {
-                $.messager.alert('提示', row.workName + '作业标签生成失败！\n请重试，或者联系技术支持人员！');
-            }
-        },
-    });
+    $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $('#putBoxValidateForm').form('clear');
+    // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+    // $('#workGridWorkManage').datagrid('selectRow', index);
+    // var row = $('#workGridWorkManage').datagrid('getSelected');
+    //
+    // $.ajax({
+    //     url: 'generateTag/',
+    //     data: {boxNumber: row.boxNumber, subBoxNumber: row.subBoxNumber, workSeq: row.workSeq},
+    //     type: 'POST',
+    //     async: true,
+    //     dataType: 'json',
+    //     beforeSend: function (xhr) {
+    //         // $.messager.progress({text:'正在导出'+row.workName+'标签，请稍后....'});
+    //         showMask(400, '正在导出' + row.workName + '标签，请稍后....');
+    //     },
+    //     success: function (data) {
+    //         // $.messager.progress('close');
+    //         hideMask();
+    //         if (data.success) {
+    //             var downloadURL = data.downloadURL;
+    //             $.messager.alert('提示', row.workName + '作业标签生成成功！\r\n请点击<a href="' + downloadURL + '">下载</a>');
+    //         }
+    //         else {
+    //             $.messager.alert('提示', row.workName + '作业标签生成失败！\n请重试，或者联系技术支持人员！');
+    //         }
+    //     },
+    // });
 }
 function generateArchives(index) {
-    $('#workGridWorkManage').datagrid('selectRow', index);
-    var row = $('#workGridWorkManage').datagrid('getSelected');
+     $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+     $('#putBoxValidateForm').form('clear');
+     // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+    
 
-    $('#generateArchivesDlg').dialog('open').dialog('center').dialog('setTitle', '生成信息档案');
-    $('#generateArchivesForm').form('clear');
-
-    var today = new Date();
-    $('#generateArchivesDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+    // $('#workGridWorkManage').datagrid('selectRow', index);
+    // var row = $('#workGridWorkManage').datagrid('getSelected');
+    //
+    // $('#generateArchivesDlg').dialog('open').dialog('center').dialog('setTitle', '生成信息档案');
+    // $('#generateArchivesForm').form('clear');
+    //
+    // var today = new Date();
+    // $('#generateArchivesDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
 }
 function doGenerateArchives() {
     $('#generateArchivesDlg').dialog('close');
@@ -1617,7 +1631,7 @@ function extractBoxFromStore(type, index, status) {
     $(".ly_dooutBoxValidate").attr("onclick", "outBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
 }
 
-function outBoxValidate(type, index, status){
+function outBoxValidate(type, index, status) {
     var txtQR = $('#quickMark-boxNumber').val()
     $("#quickMarkDlg").dialog('close');
     var boxNumber;
@@ -1630,7 +1644,7 @@ function outBoxValidate(type, index, status){
     }
     $.ajax({
         url: 'boxInOutStore/',
-        data: {boxNumber: boxNumber, status: status,txtQR:txtQR},		// status: 1:封箱入库 0:提取出库
+        data: {boxNumber: boxNumber, status: status, txtQR: txtQR},		// status: 1:封箱入库 0:提取出库
         type: 'POST',
         async: true,
         dataType: 'json',
@@ -2154,7 +2168,6 @@ function prev() {
     $('#propertySave').attr('style', 'display:none');
     $('#cancel').attr('style', 'display:none');
 }
-
 function searchArchive() {
     var title = '档案查询';
     var c = '<div class="easyui-layout" data-options="fit:true"><div data-options="region:\'center\'"><table id="archiveGrid" class="easyui-datagrid" data-options="url:\'getArchive/\', border:false, rownumbers:true, fitcolumns:true, fit:true, pagination:true, pagsize:10"><thead><tr><th field="boxNumber" align="center" width="50">箱号</th><th field="productType" align="center" width="150">实物类型</th><th field="amount" align="center" width="150">数量</th><th field="archiveUrl" align="center" formatter="archiveBoxFormatter" width="430">资料</th></tr></thead></table></div></div><script type="text/javascript">$(function(){ $(\'#archiveGrid\').datagrid({ view: detailview, detailFormatter:function(index,row){ return \'<div style="padding:2px"><table class="ddv"></table></div>\';}, onExpandRow: function(index,row){ var ddv = $(this).datagrid(\'getRowDetail\',index).find(\'table.ddv\'); ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品名\',width:50,align:\'center\'},{field:\'subClassName\',title:\'明细品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:archiveThingFormatter}]],onResize:function(){$(\'#archiveGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#archiveGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#archiveGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#archiveGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
@@ -2203,21 +2216,20 @@ function searchWork() {
         '<ul id="selectedListArgu" style="list-style:none;">' + '<li style="margin-bottom: 20px">' + '<span>' + '<select class="easyui-combobox" name="dept"  style="width:80px;">' + '<option value="">请选择</option>' + '<option value="">OR</option>' + '<option value="">AND</option>' + '<option value="">NO</option>' + '</select>' + '</span>' +
         '<span style="margin-left: 20px">' + '<select  class="easyui-combobox" name="dept" style="width:80px;margin-left: 90px">' + '<option value="">成色</option>' + '<option value=""></option>' + '</select>' + '</span>' +
         '<span style="margin-left: 20px">' + '<select  class="easyui-combobox" name="dept" style="width:80px;margin-left: 30px">' + '<option value="">&le;</option>' + '<option value="">&ge;</option>' + '<option value="">=</option>' + '<option value="">></option>' + '<option value=""><</option>' + '</select>' + '</span>' +
-        '<input type="text" placeholder="" style="width: 50px;margin-left: 20px">' + '<a class="btnAdd" style="margin-left:20px;cursor:pointer;background:#2984a4 ;display: inline-block;height: 20px;width:40px;line-height:20px;text-align: center;color:#ffffff;border-radius:5px;">增加+</a>'  + '</li>' + '</ul>' +
-        '</div>' + '</div>' + '</div>' + '</div>'+'<script >$(\'.btnAdd\').click(function()' +
+        '<input type="text" placeholder="" style="width: 50px;margin-left: 20px;border-color:#95b8e7;border-radius:5px">' + '<a class="btnAdd" style="margin-left:20px;cursor:pointer;background:#2984a4 ;display: inline-block;height: 20px;width:40px;line-height:20px;text-align: center;color:#ffffff;border-radius:5px;">增加+</a>' + '</li>' + '</ul>' +
+        '</div>' + '</div>' + '</div>' + '</div>' + '<script >$(\'.btnAdd\').click(function()' +
         '{var selectedListArgu = document.getElementById("selectedListArgu");' +
         'var li = document.createElement("li");$("<li></li>").addClass("conditionList").css("margin-bottom","20px").appendTo($("#selectedListArgu"));' +
         'for(var i = 0;i<3;i++){$("<span></span>").appendTo($(".conditionList:last-child"));};' +
-        '$("<select><option>请选择</option><option>OR</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px"}).appendTo($(".conditionList:last-child").children().eq(0));' +
-        '$("<select><option>请选择</option><option>成色</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","margin-left":"20px"}).appendTo($(".conditionList:last-child").children().eq(1));'+
-        '$("<select><option>请选择</option><option>&le;</option><option>&ge;</option><option>=</option><option>></option><option><</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","margin-left":"20px"}).appendTo($(".conditionList:last-child").children().eq(2));'+
-        '$("<input></input>").css({"width":"50px","margin-left":"20px"}).attr("type","text").appendTo($(".conditionList:last-child"));'+
-        '$("<a>删除-</a>").css({"background":"lightgray","cursor":"pointer","display":"inline-block","margin-left":"20px","height":"20px","width":"40px","line-height":"20px","text-align":"center","color":"red","border-radius":"5px"}).addClass("removeListCondition").appendTo($(".conditionList:last-child"));'+
-        '$("#selectedListArgu>li").on("click",".removeListCondition",function(){var index = $(this).parent().index();console.log(index);$(this).parent().remove()})'+
-        '});'+
+        '$("<select><option>请选择</option><option>OR</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","border-radius":"5px"}).appendTo($(".conditionList:last-child").children().eq(0));' +
+        '$("<select><option>请选择</option><option>成色</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","border-radius":"5px","margin-left":"20px"}).appendTo($(".conditionList:last-child").children().eq(1));' +
+        '$("<select><option>请选择</option><option>&le;</option><option>&ge;</option><option>=</option><option>></option><option><</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","margin-left":"20px","border-radius":"5px"}).appendTo($(".conditionList:last-child").children().eq(2));' +
+        '$("<input></input>").css({"width":"50px","margin-left":"20px","border-color":"#95b8e7","outline":"none","border-radius":"5px"}).attr("type","text").appendTo($(".conditionList:last-child"));' +
+        '$("<a>删除-</a>").css({"background":"lightgray","cursor":"pointer","display":"inline-block","margin-left":"20px","height":"20px","width":"40px","line-height":"20px","text-align":"center","color":"red","border-radius":"5px"}).addClass("removeListCondition").appendTo($(".conditionList:last-child"));' +
+        '$("#selectedListArgu>li").on("click",".removeListCondition",function(){var index = $(this).parent().index();console.log(index);$(this).parent().remove()})' +
+        '});' +
         '</script>';
-
-        addTab(title, c, 'icon-archive');
+    addTab(title, c, 'icon-archive');
     /**
      *$("#selectedListArgu>li").eq(index).remove()
      *
@@ -2228,7 +2240,6 @@ function searchWork() {
         ' ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品名\',width:50,align:\'center\'},{field:\'subClassName\',title:\'明细品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:workThingFormatter}]],onResize:function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#workGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}' +
 
      // '<script>$(".btnAdd").click(function(){var selectedListArgu = document.getElementById("selectedListArgu");var li = document.createElement("li");li.innerHTML = "<span style='+'"margin-left: 20px"'+'><select name="" class="easyui-combobox" name="dept" style="width:80px;"><option value="">请选择</option><option value="">OR</option><option value="">AND</option><option value="">NO</option></select>"</span>"+"<span></span><span></span>";selectedListArgu.appendChild(li)})</script>';
-
      //"<script>$(\".btnAdd\").click(function(){var selectedListArgu = document.getElementById(\"selectedListArgu\");var li = document.createElement(\"li\");li.innerHTML = \"<span style='"+"margin-left: 20px'><select name=\"\" class=\"easyui-combobox\" name=\"dept\" style=\"width:80px;\"><option value=\"\">请选择</option><option value=\"\">OR</option><option value=\"\">AND</option><option value=\"\">NO</option></select>\"</span>\"+\"<span></span><span></span>\";selectedListArgu.appendChild(li)})</script>"
      '<div data-options="region:\'center\'">' +
      '<table id="workGrid" class="easyui-datagrid" data-options="url:\'getWorkContent/\', border:false, rownumbers:true, fitcolumns:true, fit:true, pagination:true, pagsize:10">' +
@@ -2242,12 +2253,7 @@ function searchWork() {
      '</thead>' +
      '</table>' +
      '</div>' +
-
      "<script>$(\".btnAdd\").click(function(){var selectedListArgu = document.getElementById(\"selectedListArgu\");var li = document.createElement(\"li\");li.innerHTML = \"<span style='+'\"margin-left: 20px\"'+'><select name=\"\" class=\"easyui-combobox\" name=\"dept\" style=\"width:80px;\"><option value=\"\">请选择</option><option value=\"\">OR</option><option value=\"\">AND</option><option value=\"\">NO</option></select>\"</span>\"+\"<span></span><span></span>\";selectedListArgu.appendChild(li)})</script>";
-
-
-
-
      */
     // initPagination();
 }

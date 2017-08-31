@@ -9,9 +9,7 @@ function setCookie(name, value) {
 //读取cookies
 function getCookie(name) {
     var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-
     if (arr = document.cookie.match(reg))
-
         return unescape(arr[2]);
     else
         return null;
@@ -39,6 +37,7 @@ function loadDataProcess(node, data) {
         }
     }
 }
+
 function treeSelectHandler(node) {
     var isWork = node.attributes.isWork
     if (!isWork) {
@@ -61,7 +60,6 @@ function addTab(title, content) {
             content: content,
             closable: true,
         });
-
         initPagination();
         initToolbar();
     }
@@ -89,7 +87,6 @@ function lastUpdateTimeFormatter(value, row, index) {
         return value;
     }
 }
-
 var url;
 /*function initUpdateInfoDlg(row){
  if (row.productType == '银元类' || row.productType == '金银币章类'){
@@ -98,7 +95,6 @@ var url;
  else{
  $('#thing1').attr({'style':'display:none'});
  }
-
  if (row.status == 1){
  // 记录已更新, 待编辑
  $('#editBtn').attr({'style':'width:90px'});
@@ -109,6 +105,7 @@ var url;
  if (row.productType == '银元类' || row.productType == '金银币章类'){
  $('#UpdateInfodiameter').textbox('readonly', true);
  $('#UpdateInfothick').textbox('readonly', true);
+
  }
  else{
  $('#UpdateInfolength').textbox('readonly', true);

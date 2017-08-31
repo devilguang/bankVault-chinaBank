@@ -39,7 +39,8 @@ function loadDataProcess(node, data) {
         }
     }
 }
-function changeInputValue(idName, getIdName) {
+function changeInputValue(idName, getIdName,productKey) {
+    //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producerPlace 铭文：carveName
     var value = $("#" + idName).val();
     var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
     var getIdName = document.getElementById(getIdName);
@@ -49,7 +50,7 @@ function changeInputValue(idName, getIdName) {
         url: 'checkInfo/',
         data: {
             productType: productType,
-            key: 'detailedName',
+            key: productKey,
             value: value
         }, success: function (data) {
             var mes = JSON.parse(data);
