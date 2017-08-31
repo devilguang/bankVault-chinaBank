@@ -27,17 +27,9 @@ TAG_DATA_PATH = os.path.join(DATA_PATH, 'tag')
 BOX_DATA_PATH = os.path.join(DATA_PATH, 'box')
 WORK_DATA_PATH = os.path.join(DATA_PATH, 'work')
 TEMPLATE_DATA_PATH = os.path.join(DATA_PATH, 'template')
-IMGS_DATA_PATH = os.path.join(DATA_PATH, 'imgs')
+IMGS_DATA_PATH = os.path.join(STATIC_PATH, 'photo')
 HARDDIR = r''
 
-# Printing paths for sanity's sake
-# print 'Project root:', BASE_DIR
-# print 'Templates:', TEMPLATE_PATH
-# print 'Static:', STATIC_PATH
-# print 'Tag Data:', TAG_DATA_PATH
-# print 'Box Data:', BOX_DATA_PATH
-# print 'Work Data:', WORK_DATA_PATH
-# print 'Template Data:', TEMPLATE_DATA_PATH
 
 # take pymysql as MySQLdb
 import pymysql
@@ -181,7 +173,6 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     STATIC_PATH,
     BOX_DATA_PATH,
-    IMGS_DATA_PATH,
 )
 APPEND_SLASH=False
 # DOWNLOAD_PATH

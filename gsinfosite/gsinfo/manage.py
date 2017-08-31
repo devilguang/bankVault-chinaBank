@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from . import log
 import MySQLdb
+import win32print
 
 @login_required
 def manage(request):
@@ -244,26 +245,11 @@ def processInfo(request):
         subBoxSet = set(allNo)
         subBoxList = list(subBoxSet)
 
-        # if productType == u'金银锭类':
-        #     ts = gsDing.objects
-        # elif productType == u'金银币章类':
-        #     ts = gsBiZhang.objects
-        # elif productType == u'银元类':
-        #     ts = gsYinYuan.objects
-        # elif productType == u'金银工艺品类':
-        #     ts = gsGongYiPin.objects
-
         for no in subBoxList:
             subBox = {}
             subBox['subBoxNo'] = no
             things = gsThing.objects.filter(box=box.pk,subBoxNo=no)
             subBox['amount'] = things.count()
-            # totalWeight =0
-            # for thing in things:
-            #     serialNumber = thing.serialNumber
-            #     w = ts.get(serialNumber=serialNumber).grossWeight
-            #     if w:
-            #         totalWeight += w
             totalWeight = gsSubBox.objects.get(box=box,subBoxNumber=no).grossWeight
             subBox['totalWeight'] = totalWeight
             boxLevel['subBox'].append(subBox)
@@ -275,30 +261,12 @@ def processInfo(request):
         ret.append(boxLevel)
 
     fileName = createBoxTable(boxList)
+    box_dir = os.path.join(settings.DATA_DIRS['box_dir'], u'箱体报表')
+    file_path = os.path.join(box_dir, fileName)
+    log.log(user=request.user, operationType=u'业务操作', content=u'箱体报表下载')
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-    return render(request, 'report.html', context={'ret': ret_json,'boxReportPath': fileName})
+    return render(request, 'report.html', context={'ret': ret_json,'file_path': file_path})
 
-# 报表打印
-# def printBoxInfo(request):
-#     boxList = {'1':u'金银锭类'}
-#     ret = {}
-#     #boxInfoFileNameList = createBoxTable(boxList, dateTime)
-#     try:
-#         log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱箱体报表打印'.format([k for k in boxList.keys()]))
-#         ret['boxReportPath'] = createBoxTable(boxList)
-#     except Exception as e:
-#         ret = {
-#             "success": False,
-#             "message": '打印失败！\r\n原因：{0}'.format(e.message)
-#         }
-#     else:
-#         ret = {
-#             'success': True,
-#             'message': '打印成功!'
-#         }
-#     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-#
-#     return HttpResponse(ret_json)
 
 def downloadBoxInfo(request):
     fileName = request.GET.get('fileName', '')
@@ -312,78 +280,6 @@ def downloadBoxInfo(request):
 
     return response
 
-# -----------------------------------------------
-# 箱体二维码打印
-# def getBoxQR(request):
-#     boxOrSubBox = request.POST.get('boxNumber', '')
-#     nickName = request.POST.get('nickName', '')  # 系统负责人用户名
-#     password = request.POST.get('password', '')  # 系统负责人密码
-#     user = request.user
-#     userName = gsUser.objects.get(user=user).nickName
-#
-#     if '-' in boxOrSubBox:
-#         boxNumber = int(boxOrSubBox.split('-')[0])
-#         subBoxNumber = int(boxOrSubBox.split('-')[1])
-#     else:
-#         boxNumber = int(boxOrSubBox)
-#         subBoxNumber = ''
-#
-#     def printOrNot(printtimes,boxNumber,userName,subBoxNumber):
-#         if int(printtimes) == 0:
-#             log.log(user=request.user, operationType=u'业务操作', content=u'箱体二维码打印')
-#             boxTag(boxNumber,userName,subBoxNumber)
-#             if subBoxNumber == '':  # 原箱
-#                 gsBox.objects.filter(boxNumber=boxNumber).update(scanTimes=0)
-#             else:  # 子箱
-#                 box = gsBox.objects.get(boxNumber=boxNumber)
-#                 gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(
-#                     scanTimes=0)
-#             ret = {
-#                 'success': True,
-#                 'message': u'打印成功！'
-#             }
-#         else:
-#             ret = {
-#                 "success": False,
-#                 "message": u'该箱体的二维码已被打印过一次！'
-#             }
-#         return ret
-#
-#     custom_user = gsUser.objects.filter(nickName=nickName)
-#     if custom_user:
-#         custom_user= custom_user[0]
-#         if int(custom_user.type) == 0:
-#             username = custom_user.user.username
-#             user = auth.authenticate(username=username, password=password)
-#             if user:  # 通过系统管理员授权
-#                 box = gsBox.objects.get(boxNumber=boxNumber)
-#                 if subBoxNumber == '':  # 原箱
-#                     printtimes = box.printTimes
-#                     ret = printOrNot(printtimes,boxNumber,userName,subBoxNumber)
-#                     gsBox.objects.filter(boxNumber=boxNumber).update(printTimes=printtimes + 1)
-#                 else:  # 子箱
-#                     subBox=gsSubBox.objects.get(box=box, subBoxNumber=subBoxNumber)
-#                     printtimes = subBox.printTimes
-#                     ret = printOrNot(printtimes,boxNumber,userName,subBoxNumber)
-#                     gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(
-#                         printTimes=printtimes + 1)
-#             else:
-#                 ret = {
-#                     "success": False,
-#                     "message": u'密码错误！'
-#                 }
-#         else:
-#             ret = {
-#                 "success": False,
-#                 "message": u'该用户无此权限！'
-#             }
-#     else:
-#         ret = {
-#             'success': False,
-#             'message': u'用户名错误！'
-#         }
-#     ret_json = json.dumps(ret, separators=(',', ':'))
-#     return HttpResponse(ret_json)
 # -----------------------------------------------
 # 包号二维码打印
 def packageQR(request):
@@ -1200,11 +1096,24 @@ def generateTag(request):
 
         createTag(boxNumber, subBoxNumber, workSeq)
 
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        if subBoxNumber:
+            subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(subBoxNumber))
+            work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
+        else:
+            work = gsWork.objects.get(box=box, workSeq=workSeq)
+
+        workName = work.workName
+        fileName = u'{0}_标签.xlsx'.format(workName)
+        tag_dir = os.path.join(settings.DATA_DIRS['tag_dir'], str(boxNumber))
+        file_path = os.path.join(tag_dir, fileName)
+
         ret = {
             'success': True,
-            'downloadURL': u'generateTag/?boxNumber={0}&subBoxNumber={1}&workSeq={2}'.format(boxNumber,subBoxNumber,workSeq),
+            # 'downloadURL': u'generateTag/?boxNumber={0}&subBoxNumber={1}&workSeq={2}'.format(boxNumber,subBoxNumber,workSeq),
+            'file_path':file_path
         }
-
+        log.log(user=request.user, operationType=u'业务操作', content=u'打印实物二维码')
         ret_json = json.dumps(ret, separators=(',', ':'))
 
         return HttpResponse(ret_json)
@@ -1266,13 +1175,26 @@ def generateArchives(request):
         dateTime = request.POST.get('dateTime', '')
         subBoxNumber = request.POST.get('subBoxNumber', '')
 
-        createArchivesFromWork(boxNumber,subBoxNumber, workSeq, dateTime)
+        createArchivesFromWork(boxNumber,subBoxNumber, workSeq, dateTime)  # 生成文件
+
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        if subBoxNumber:
+            subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(subBoxNumber))
+            work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
+        else:
+            work = gsWork.objects.get(box=box, workSeq=workSeq)
+
+        workName = work.workName
+        fileName = u'{0}_信息档案.zip'.format(workName)
+        work_dir = os.path.join(settings.DATA_DIRS['work_dir'], str(boxNumber))
+        file_path = os.path.join(work_dir, fileName)
 
         ret = {
             'success': True,
-            'downloadURL': u'generateArchives/?boxNumber={0}&subBoxNumber={1}&workSeq={2}'.format(boxNumber,subBoxNumber,workSeq),
+            # 'downloadURL': u'generateArchives/?boxNumber={0}&subBoxNumber={1}&workSeq={2}'.format(boxNumber,subBoxNumber,workSeq),
+            'file_path': file_path,
         }
-
+        log.log(user=request.user, operationType=u'业务操作', content=u'打印信息档案')
         ret_json = json.dumps(ret, separators=(',', ':'))
 
         return HttpResponse(ret_json)
@@ -1313,16 +1235,20 @@ def generateBoxInfo(request):
             subBoxNumber = ''
 
         boxInfoFileName = createBoxInfo(boxNumber,subBoxNumber, dateTime)
+        box_dir = os.path.join(settings.DATA_DIRS['box_dir'], boxNumber)
+        file_path = os.path.join(box_dir, boxInfoFileName)
 
-        downloadURL = ''
-        downloadURL = downloadURL + u'<a href="generateBoxInfo/?boxNumber={0}&boxInfoFileName={1}" style="margin-right:20px">{2}</a>'.format(
-            boxNumber, boxInfoFileName, boxInfoFileName)
+
+        # downloadURL = ''
+        # downloadURL = downloadURL + u'<a href="generateBoxInfo/?boxNumber={0}&boxInfoFileName={1}" style="margin-right:20px">{2}</a>'.format(
+        #     boxNumber, boxInfoFileName, boxInfoFileName)
 
         ret = {
             'success': True,
-            'downloadURL': downloadURL,
+            # 'downloadURL': downloadURL,
+            'file_path':file_path,
         }
-
+        log.log(user=request.user, operationType=u'业务操作', content=u'打印装箱清单')
         ret_json = json.dumps(ret, separators=(',', ':'))
 
         return HttpResponse(ret_json)
@@ -1352,15 +1278,19 @@ def generateBoxInfoDetailedVersion(request):
 
         boxInfoFileName = createBoxInfoDetailedVersion(boxNumber,subBoxNumber, dateTime)
 
-        downloadURL = ''
-        downloadURL = downloadURL + u'<a href="generateBoxInfoDetailedVersion/?boxNumber={0}&boxInfoFileName={1}" style="margin-right:20px">{2}</a>'.format(
-            boxNumber, boxInfoFileName, boxInfoFileName)
+        box_dir = os.path.join(settings.DATA_DIRS['box_dir'], boxNumber)
+        file_path = os.path.join(box_dir, boxInfoFileName)
+
+        # downloadURL = ''
+        # downloadURL = downloadURL + u'<a href="generateBoxInfoDetailedVersion/?boxNumber={0}&boxInfoFileName={1}" style="margin-right:20px">{2}</a>'.format(
+        #     boxNumber, boxInfoFileName, boxInfoFileName)
 
         ret = {
             'success': True,
-            'downloadURL': downloadURL,
+            # 'downloadURL': downloadURL,
+            'file_path':file_path,
         }
-
+        log.log(user=request.user, operationType=u'业务操作', content=u'打印装箱清单（详细版）')
         ret_json = json.dumps(ret, separators=(',', ':'))
 
         return HttpResponse(ret_json)
@@ -1669,13 +1599,6 @@ def summarizeDailyWork(request):
 #     ts = gsStatus.objects.filter(analyzingUpdateDateTime__range=())
 #
 # # 2017-08-04 09:30:52.720000
-#
-#
-#
-#
-#
-#
-#
 #     # '金银锭类':
 #
 #     #Entry.objects.filter(pub_date__range=(start_date, end_date))
@@ -1685,3 +1608,41 @@ def summarizeDailyWork(request):
 #     ts = gsYinYuan.objects
 #     # '金银工艺品类':
 #     ts = gsGongYiPin.objects
+
+def print_service(request):
+    file_path = request.POST.get('file_path', '')
+    print win32print.GetDefaultPrinter()
+    # win32api.ShellExecute(0,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter (),".",0)
+
+
+def print_auth(request):
+    nickName = request.POST.get('user', '')  # 系统负责人用户名
+    password = request.POST.get('password', '')  # 系统负责人密码
+
+    custom_user = gsUser.objects.filter(nickName=nickName)
+    if custom_user:
+        custom_user = custom_user[0]
+        if int(custom_user.type) == 0:
+            username = custom_user.user.username
+            user = auth.authenticate(username=username, password=password)
+            if user:  # 通过系统管理员授权后先打印二维码后封箱入库
+                ret = {
+                    "success": True,
+                }
+            else:
+                ret = {
+                    "success": False,
+                    "message": u'密码错误！'
+                }
+        else:
+            ret = {
+                "success": False,
+                "message": u'该用户无此权限！'
+            }
+    else:
+        ret = {
+            'success': False,
+            'message': u'用户名错误！'
+        }
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)

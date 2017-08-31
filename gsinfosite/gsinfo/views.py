@@ -497,9 +497,9 @@ def exploreThing(request, boxNumber, serialNumber):
     context['lastUpdateDate'] = dateTimeHandler(lastUpdateDate) if (lastUpdateDate is not None) else ''
 
     # 图像路径
-    year = s.numberingCreateDateTime.year
-    seq = t.subBoxSeq
-    picturePathPrefix = u'/static/img/{0}/{1}/{2}'.format(boxOrSubBox, serialNumber,serialNumber)
+    # year = s.numberingCreateDateTime.year
+    # seq = t.subBoxSeq
+    picturePathPrefix = u'/static/photo/{0}/{1}/{2}'.format(boxOrSubBox, serialNumber,serialNumber)
     context['A'] = u'{0}-A.jpg'.format(picturePathPrefix)
     context['B'] = u'{0}-B.jpg'.format(picturePathPrefix)
     context['C'] = u'{0}-C.jpg'.format(picturePathPrefix)
