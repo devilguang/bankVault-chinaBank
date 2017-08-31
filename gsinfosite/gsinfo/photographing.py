@@ -53,18 +53,22 @@ def updatePhotographingInfo(request):
     boxOrSubBox = request.POST.get('boxNumber', '')
     pic_path = request.POST.get('pic_path', '')
     ret = {}
-    today = datetime.datetime.now()
-    date_today = str(today.strftime('%Y%m%d'))
+    # today = datetime.datetime.now()
+    # date_today = str(today.strftime('%Y%m%d'))
 
-    date_path = os.path.join(settings.DATA_PATH,'imgs',date_today)
-    if not os.path.exists(date_path):
-        os.makedirs(date_path)
+    # date_path = os.path.join(settings.DATA_PATH,'imgs',date_today)
+    # if not os.path.exists(date_path):
+    #     os.makedirs(date_path)
 
-    box_path = os.path.join(settings.DATA_PATH,'imgs',date_today,boxOrSubBox)
+    img_dir = settings.IMGS_DATA_PATH
+    if not os.path.exists(img_dir):
+        os.makedirs(img_dir)
+
+    box_path = os.path.join(img_dir,boxOrSubBox)
     if not os.path.exists(box_path):
         os.makedirs(box_path)
 
-    serialNumber_path = os.path.join(settings.DATA_PATH, 'imgs', date_today, boxOrSubBox,serialNumber)
+    serialNumber_path = os.path.join(box_path,serialNumber)
     if not os.path.exists(serialNumber_path):
         os.makedirs(serialNumber_path)
 

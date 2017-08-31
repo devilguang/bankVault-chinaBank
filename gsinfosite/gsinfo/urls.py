@@ -99,6 +99,8 @@ urlpatterns = [
     #url(r'^manage/search/$', SearchView(), name='haystack_search'),
     url(r'^manage/restore/$', manage.restore, name='restore'),
     url(r'^manage/summarizeDailyWork/$', manage.summarizeDailyWork, name='summarizeDailyWork'),
+    url(r'^manage/print_service/$', manage.print_service, name='print_service'),
+    url(r'^manage/print_auth/$', manage.print_auth, name='print_auth'),
 
     url(r'^checking/$', checking.checking, name='checking'),
     url(r'^checking/getProductType/$', views.getProductType, name='getProductType'),

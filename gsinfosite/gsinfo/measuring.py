@@ -63,7 +63,7 @@ def getMeasuringInfo(request):
 
 def updateMeasuringInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
-    boxNumber = int(request.POST.get('boxNumber', ''))
+    boxOrSubBox = request.POST.get('boxNumber', '')
     productType = request.POST.get('productType', '')
     className = request.POST.get('className', '')
     subClassName = request.POST.get('subClassName', '')
@@ -86,6 +86,13 @@ def updateMeasuringInfo(request):
         width = float(width)
     if height != '':
         height = float(height)
+
+    if '-' in boxOrSubBox:
+        boxNumber = int(boxOrSubBox.split('-')[0])
+        subBoxNumber = boxOrSubBox.split('-')[1]
+    else:
+        boxNumber = int(boxOrSubBox)
+        subBoxNumber = ''
 
     box = gsBox.objects.get(boxNumber=boxNumber)
 
@@ -123,14 +130,12 @@ def updateMeasuringInfo(request):
     except Exception as e:
         ret = {}
         ret['success'] = False
-        ret['message'] = str(boxNumber) + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else str(
-            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
+        ret['message'] = boxOrSubBox + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else boxOrSubBox + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
         ret['message'] = ret['message'] + u'\r\n原因:' + e.message
     else:
         ret = {}
         ret['success'] = True
-        ret['message'] = str(boxNumber) + u'号箱作业更新成功！' if (0 == cmp(serialNumber, '')) else str(
-            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
+        ret['message'] = boxOrSubBox + u'号箱作业更新成功！' if (0 == cmp(serialNumber, '')) else boxOrSubBox + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 

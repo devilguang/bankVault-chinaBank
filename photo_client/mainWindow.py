@@ -6,7 +6,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 from PyQt5.QtWidgets import QApplication, QMessageBox,QMainWindow,QDialog
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap,QIcon
 from PyQt5.QtCore import pyqtSignal, QObject,QSize,QTimer
 import login
 import requests
@@ -18,6 +18,8 @@ import json, os
 from PIL import Image, ImageDraw, ImageFont
 import base64
 import time
+import ctypes
+from ctypes import wintypes
 
 
 class LoginWidget(QDialog,login.Ui_Form):
@@ -48,7 +50,6 @@ class LoginWidget(QDialog,login.Ui_Form):
                             'workRole':'photographing'
                         }
                         resp = self.client.post(url,data=data)
-                        print resp.status_code
                         txt = json.loads(resp.text)
                         success = txt['success']
                         if success:
@@ -288,54 +289,69 @@ class Window(QMainWindow,photo.Ui_Form):
             self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402 * shang))
 
     def uploadPic(self):
-        print self.codeForm.isvis
         if self.codeForm.isvis:
             # QMessageBox.about(self, "测试", "点击弹出窗口成功")
             # QMessageBox.warning(self, "Cannot save file",
             #                     "The file could not be saved.",
             #                     QMessageBox_StandardButtons=QMessageBox.NoButton,)
+
             serial_num = self.codeForm.SerialNumber
             box_Sub = self.codeForm.boxOrSubBox
             pic_name_list = os.listdir(self.upload_dir)
-            all_img = {}
-            for pic_name in pic_name_list:
-                file_path = os.path.join(self.upload_dir, pic_name)
-                se_char = pic_name.split('.')[0]
-                char = se_char.split('-')[-1]
-                for k, v, in self.img_list.items():
-                    if char == k:
-                        self.pixmap = QPixmap('')
-                        self.img_list[k].setPixmap(self.pixmap)
-                        self.naem_list[k].setText('')
+            if len(pic_name_list) > 0:
+                all_img = {}
+                for pic_name in pic_name_list:
+                    file_path = os.path.join(self.upload_dir, pic_name)
+                    se_char = pic_name.split('.')[0]
+                    char = se_char.split('-')[-1]
+                    for k, v, in self.img_list.items():
+                        if char == k:
+                            self.pixmap = QPixmap('')
+                            self.img_list[k].setPixmap(self.pixmap)
+                            self.naem_list[k].setText('')
+                    with open(file_path, 'rb') as f:
+                        f1 = base64.b64encode(f.read())
+                        all_img[pic_name] = f1
+                imgs = json.dumps(all_img)
+                url = r'http://{0}:{1}/gsinfo/photographing/updatePhotographingInfo/'.format(settings.SERVERHOST, settings.SERVERPORT)
+                cookies = self.client.cookies
+                csrftoken = cookies['csrftoken']
+                data = {
+                    'csrfmiddlewaretoken': csrftoken,
+                    'serialNumber': str(serial_num),
+                    'boxNumber': box_Sub,
+                    'pic_path':imgs
+                }
+                resp = self.client.post(url, data=data, cookies=cookies)
+                if resp.status_code == 200:
+                    txt = json.loads(resp.text)
+                    suc = txt['success']
+                    print suc
+                    if suc:
+                        for pic_name in pic_name_list:
+                            file_path = os.path.join(self.upload_dir, pic_name)
+                            os.remove(file_path)
+
+                        self.codeForm.lineEdit.setText('')
+                        self.codeForm.SerialNumber = self.codeForm.lineEdit.text()
+                        messagebox = TimerMessageBox(2)
+                        messagebox.exec_()
+                        time.sleep(0.5)
                         self.showMinimized()
-                with open(file_path, 'rb') as f:
-                    f1 = base64.b64encode(f.read())
-                    all_img[pic_name] = f1
-            imgs = json.dumps(all_img)
-            url = r'http://{0}:{1}/gsinfo/photographing/updatePhotographingInfo/'.format(settings.SERVERHOST, settings.SERVERPORT)
-            cookies = self.client.cookies
-            csrftoken = cookies['csrftoken']
-            data = {
-                'csrfmiddlewaretoken': csrftoken,
-                'serialNumber': str(serial_num),
-                'boxNumber': box_Sub,
-                'pic_path':imgs
-            }
-            resp = self.client.post(url, data=data, cookies=cookies)
-            if resp.status_code == 200:
-                txt = json.loads(resp.text)
-                suc = txt['success']
-                if suc:
-                    for pic_name in pic_name_list:
-                        file_path = os.path.join(self.upload_dir, pic_name)
-                        os.remove(file_path)
-                    messagebox = TimerMessageBox(3)
-                    messagebox.exec_()
-                else:
-                    QMessageBox.about(self, "警告", "上传失败！")
+
+                    else:
+                        QMessageBox.about(self, "警告", "上传失败！")
+            else:
+                QMessageBox.about(self, "提示", "暂无图片上传！")
+
 
     def mouseDoubleClickEvent(self,event):
         self.showMinimized()
+
+
+    def closeEvent(self,event):
+        self.codeForm.close()
+        self.close()
 
 class TimerMessageBox(QMessageBox):
     def __init__(self, timeout=None):
@@ -345,13 +361,13 @@ class TimerMessageBox(QMessageBox):
         self.setText("上传成功！（{0}）".format(timeout))
         self.setStandardButtons(QMessageBox.NoButton)
         self.timer = QTimer(self)
-        self.timer.start()
         self.timer.setInterval(1000)
+        self.timer.start()
         self.timer.timeout.connect(self.changeContent)
 
     def changeContent(self):
-        self.setText("上传成功！（{0}）".format(self.time_to_wait))
         self.time_to_wait -= 1
+        self.setText("上传成功！（{0}）".format(self.time_to_wait))
         if self.time_to_wait <= 0:
             self.close()
 
@@ -389,8 +405,10 @@ class TimerMessageBox(QMessageBox):
 #         w.setStandardButtons(buttons)
 #         w.exec_()
 if __name__ == "__main__":
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
     app = QApplication(sys.argv)
     login = LoginWidget()
+
     if login.exec_() == QDialog.Accepted:
         client = login.client
 
