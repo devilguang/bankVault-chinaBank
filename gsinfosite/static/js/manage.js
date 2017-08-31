@@ -1034,8 +1034,7 @@ function doGenerateBoxInfoDetailedVersion() {
 function generateAbstract(index) {
     $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#putBoxValidateForm').form('clear');
-
-    // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+    $(".ly_doputBoxValidate").attr("onclick", "jiusbudian(" + type + ", \'" + index + "\', " + status + ")");
     // $('#workGridWorkManage').datagrid('selectRow', index);
     // workGridWorkManage
     // var row = $('#workGridWorkManage').datagrid('getSelected');
