@@ -1,12 +1,10 @@
 # encoding=UTF-8
-import sys
 from django.shortcuts import render
 from django.http.response import HttpResponse
-import json, os
+import json
 from report_process import *
 from gsinfosite import settings
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
 import datetime
 import base64
 

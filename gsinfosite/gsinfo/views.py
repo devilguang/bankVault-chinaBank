@@ -202,7 +202,7 @@ def getWorkData(request, workSeq):
         if thingStatus == 'cancheck':
             # 检索数据复核环节，可以复核的实物
             ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, numberingStatus=True,
-                                         measuringStatus=True, analyzingStatus=True)  # , photographingStatus=True
+                                         measuringStatus=True, analyzingStatus=True, photographingStatus=True)
         else:
             if thingStatus == 'notComplete':
                 status = False

@@ -281,7 +281,8 @@ def updateCheckingInfo(request):
             # 作业不可用
             raise ValueError(u'作业不可用！请联系现场负责人进行分发，并刷新页面！')
 
-        now = datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
+        # now = datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
+        now = datetime.now()
         gsStatus.objects.filter(serialNumber=serialNumber).update(checkingStatus=True, checkingOperator=operator,
                                                                   checkingUpdateDateTime=now)
     except Exception as e:

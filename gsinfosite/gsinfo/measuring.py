@@ -1,20 +1,10 @@
 # encoding=UTF-8
-import sys
 from django.shortcuts import render
-from django.http.response import HttpResponse, StreamingHttpResponse, HttpResponseRedirect
-from django.core.serializers.json import DjangoJSONEncoder
-from django.core.exceptions import ObjectDoesNotExist
-from models import *
-import json, os
-from utils import readFile, dateTimeHandler, deleteDir
-from tag_process import *
+from django.http.response import HttpResponse
+import json
 from report_process import *
-from gsinfosite import settings
-from django.contrib import auth
-from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
-from django.utils import timezone
 import datetime
 
 
