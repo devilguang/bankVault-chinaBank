@@ -529,7 +529,6 @@ function reportBox() {
         map[row[i].boxNumber] = row[i].productType;
     }
     map = JSON.stringify(map);
-
     if (row.length < 1) {
         $.messager.alert({
             title: '提示',
@@ -540,6 +539,7 @@ function reportBox() {
     $('#reportBoxDlg').dialog('close'); //关闭对话框
 
     window.open('processInfo?map=' + map);
+
     /*$.ajax({url: 'processInfo/',
      data: {boxList: map},
      type: 'POST',
@@ -919,25 +919,70 @@ function generateContentForWork() {
         },
     });
 }
+
+
+//打印身份认证
+function printsConfirm() {
+    var user = $('#printTheListUserValidate').val()
+    var password = $('#printTheListUserpassword').val()
+    if (user == '' || password == '') {
+        $.messager.alert('提示', '用户或密码不能为空');
+        return
+    }
+    $.ajax({
+        type: 'post',
+        url: 'print_auth/',
+        data: {
+            user: user,
+            password: password
+        }, success: function (data) {
+            var data = JSON.parse(data)
+            if (data.success) { //成功登陆
+
+
+            } else {
+                $.messager.alert('提示', data.message);
+            }
+        }
+    })
+}
 function generateBoxInfo(index, number) {
-    $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
-    $('#putBoxValidateForm').form('clear');
+    $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $('#printTheListForm').form('clear');
+    $('#printSave').click(function () {
+        var user = $('#printTheListUserValidate').val()
+        var password = $('#printTheListUserpassword').val()
+        if (user == '' || password == '') {
+            $.messager.alert('提示', '用户或密码不能为空');
+            return;
+        }
+        $.ajax({
+            type: 'post',
+            url: 'print_auth/',
+            data: {
+                user: user,
+                password: password
+            }, success: function (data) {
+                var data = JSON.parse(data)
+                if (data.success) { //成功登陆
+                    $('#printTheList').dialog('close')
+                    $('#workGridBoxManage').datagrid('selectRow', index);
+                    var row = $('#workGridBoxManage').datagrid('getSelected');
+                    if (number == 0) {
+                        $('#generateBoxInfo-boxNumber').val(row.boxNumber);
+                    } else {
+                        $('#generateBoxInfo-boxNumber').val(number);
+                    }
+                    var today = new Date();
+                    $('#generateBoxInfoDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+                    doGenerateBoxInfo()
+                } else {
+                    $.messager.alert('提示', data.message);
+                }
+            }
+        })
+    })
     // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
-
-    // $('#workGridBoxManage').datagrid('selectRow', index);
-
-    // var row = $('#workGridBoxManage').datagrid('getSelected');
-    // $('#generateBoxInfoDlg').dialog('open').dialog('center').dialog('setTitle', '生成装箱清单');
-    // $('#generateBoxInfoForm').form('clear');
-
-    // if (number == 0) {
-    //     $('#generateBoxInfo-boxNumber').val(row.boxNumber);
-    // } else {
-    //     $('#generateBoxInfo-boxNumber').val(number);
-    // }
-    //
-    // var today = new Date();
-    // $('#generateBoxInfoDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
 }
 function doGenerateBoxInfo() {
     $('#generateBoxInfoDlg').dialog('close');
@@ -958,8 +1003,10 @@ function doGenerateBoxInfo() {
             // $.messager.progress('close');
             hideMask();
             if (data.success) {
-                var downloadURL = data.downloadURL;
-                $.messager.alert('提示', row.boxNumber + '号箱装箱清单生成成功！\r\n请点击下载:' + downloadURL);
+                var filePath = data.file_path
+                printservice(filePath)
+                // var downloadURL = data.downloadURL;
+                // $.messager.alert('提示', row.boxNumber + '号箱装箱清单生成成功！\r\n请点击下载:' + downloadURL);
             }
             else {
                 $.messager.alert('提示', row.boxNumber + '号箱装箱清单生成失败！\n请重试，或者联系技术支持人员！');
@@ -967,45 +1014,74 @@ function doGenerateBoxInfo() {
         },
     });
 }
-
-function generateBoxInfoDetailedVersion(index, number) {
-    $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
-    $('#putBoxValidateForm').form('clear');
-    $('#workGridBoxManage').datagrid('selectRow', index);
-    var row = $('#workGridBoxManage').datagrid('getSelected');
-    // if (number == 0) {
-    //     row["newnumber"] = row.boxNumber;
-    // } else {
-    //     row["newnumber"] = number;
-    // }
-    // var valid = true;
-    // // 目前因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 所以不提供生成装箱清单(详细版)！
-    // var productTypes = ["金银工艺品类", "银元类", "金银币章类"]
-    // $.each(productTypes, function (idx, e) {
-    //     if (row.productType == e) {
-    //         valid = false;
-    //
-    //         $.messager.alert({
-    //             title: '提示',
-    //             msg: '因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 暂不提供生成装箱清单(详细版)！请联系管理员！'
-    //         });
-    //
-    //         return valid;
-    //     }
-    // });
-    // if (!valid) {
-    //     return;
-    // }
-    //
-    // $('#generateBoxInfoDetailedVersionDlg').dialog('open').dialog('center').dialog('setTitle', '生成装箱清单(详细版)');
-    // $('#generateBoxInfoDetailedVersionForm').form('clear');
-    //
-    // var today = new Date();
-    // $('#generateBoxInfoDetailedVersionDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+function printservice(filePath) {
+    $.ajax({
+        type: 'post',
+        url: 'print_service/',
+        data: {
+            file_path: filePath
+        }, success: function (data) {
+            var data = JSON.parse(data)
+            $.messager.alert('提示', data.message);
+        }
+    })
 }
+function generateBoxInfoDetailedVersion(index, number) {
+    $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $('#printTheListForm').form('clear');
+    $("#printSave").click(function () {
+        var user = $('#printTheListUserValidate').val()
+        var password = $('#printTheListUserpassword').val()
+        if (user == '' || password == '') {
+            $.messager.alert('提示', '用户或密码不能为空');
+            return
+        }
+        $.ajax({
+            type: 'post',
+            url: 'print_auth/',
+            data: {
+                user: user,
+                password: password
+            }, success: function (data) {
+                var data = JSON.parse(data)
+                if (data.success) {
+                    $('#printTheList').dialog('close')
+                    $('#workGridBoxManage').datagrid('selectRow', index);
+                    var row = $('#workGridBoxManage').datagrid('getSelected');
+                    if (number == 0) {
+                        row["newnumber"] = row.boxNumber;
+                    } else {
+                        row["newnumber"] = number;
+                    }
+                    var valid = true;
+                    // 目前因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 所以不提供生成装箱清单(详细版)！
+                    var productTypes = ["金银工艺品类", "银元类", "金银币章类"]
+                    $.each(productTypes, function (idx, e) {
+                        if (row.productType == e) {
+                            valid = false;
+                            $.messager.alert({
+                                title: '提示',
+                                msg: '因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 暂不提供生成装箱清单(详细版)！请联系管理员！'
+                            });
+                            return valid;
+                        }
+                    });
+                    if (!valid) {
+                        return;
+                    }
+                    var today = new Date();
+                    $('#generateBoxInfoDetailedVersionDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+                    doGenerateBoxInfoDetailedVersion()
+                } else {
+                    $.messager.alert('提示', data.message);
+                }
+            }
+        })
+    })
+}
+
 function doGenerateBoxInfoDetailedVersion() {
     $('#generateBoxInfoDetailedVersionDlg').dialog('close');
-
     var row = $('#workGridBoxManage').datagrid('getSelected');
     var date = $('#generateBoxInfoDetailedVersionDateTime').datebox('getValue');
     $.ajax({
@@ -1022,8 +1098,8 @@ function doGenerateBoxInfoDetailedVersion() {
             // $.messager.progress('close');
             hideMask();
             if (data.success) {
-                var downloadURL = data.downloadURL;
-                $.messager.alert('提示', row.boxNumber + '号箱装箱清单(详细版)生成成功！\r\n请点击下载:' + downloadURL);
+                var filePath = data.file_path
+                printservice(filePath)
             }
             else {
                 $.messager.alert('提示', row.boxNumber + '号箱装箱清单(详细版)生成失败！\n请重试，或者联系技术支持人员！');
@@ -1237,7 +1313,6 @@ function completePercentFormatter(value, row, index) {
 function openDetailedCompleteInfo(index) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
-    console.log(row)
     $('#detailedCompleteInfoDlg').dialog('open').dialog('center').dialog('setTitle', row.workName + '完成进度详细信息');
     $('#detailedCompleteInfoForm').form('clear');
     $('#detailedCompleteInfoCheckingCompleteAmount').text(row.checkingCompleteAmount);
@@ -1547,27 +1622,44 @@ function generateTag(index) {
     //     },
     // });
 }
-function generateArchives(index) {
-     $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
-     $('#putBoxValidateForm').form('clear');
-     // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
-    
 
-    // $('#workGridWorkManage').datagrid('selectRow', index);
-    // var row = $('#workGridWorkManage').datagrid('getSelected');
-    //
-    // $('#generateArchivesDlg').dialog('open').dialog('center').dialog('setTitle', '生成信息档案');
-    // $('#generateArchivesForm').form('clear');
-    //
-    // var today = new Date();
-    // $('#generateArchivesDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+function generateArchives(index) {
+    $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $('#printTheListForm').form('clear');
+    $("#printSave").click(function () {
+        var user = $('#printTheListUserValidate').val()
+        var password = $('#printTheListUserpassword').val()
+        if (user == '' || password == '') {
+            $.messager.alert('提示', '用户或密码不能为空');
+            return
+        }
+        $.ajax({
+            type: 'post',
+            url: 'print_auth/',
+            data: {
+                user: user,
+                password: password
+            }, success: function (data) {
+                var data = JSON.parse(data);
+                if (data.success) {
+                      $('#printTheList').dialog('close')
+                    $('#workGridWorkManage').datagrid('selectRow', index);
+                    var row = $('#workGridWorkManage').datagrid('getSelected');
+                    var today = new Date();
+                    $('#generateArchivesDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+                    doGenerateArchives()
+
+                } else {
+                    $.messager.alert('提示', data.message);
+                }
+            }
+        })
+    })
 }
 function doGenerateArchives() {
     $('#generateArchivesDlg').dialog('close');
-
     var row = $('#workGridWorkManage').datagrid('getSelected');
     var date = $('#generateArchivesDateTime').datebox('getValue');
-
     $.ajax({
         url: 'generateArchives/',
         data: {boxNumber: row.boxNumber, subBoxNumber: row.subBoxNumber, workSeq: row.workSeq, dateTime: date},
@@ -1579,16 +1671,15 @@ function doGenerateArchives() {
             showMask(500, '正在生成' + row.workName + '信息档案，请稍后....');
         },
         success: function (data) {
-            // $.messager.progress('close');
             hideMask();
             if (data.success) {
-                var downloadURL = data.downloadURL;
-                $.messager.alert('提示', row.workName + '作业信息档案生成成功！\r\n请点击<a href="' + downloadURL + '">下载</a>');
+                var filePath = data.file_path
+                printservice(filePath)
             }
             else {
                 $.messager.alert('提示', row.workName + '作业信息档案生成失败！\n请重试，或者联系技术支持人员！');
             }
-        },
+        }
     });
 }
 
@@ -2225,7 +2316,7 @@ function searchWork() {
         '$("<select><option>请选择</option><option>&le;</option><option>&ge;</option><option>=</option><option>></option><option><</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","margin-left":"20px","border-radius":"5px"}).appendTo($(".conditionList:last-child").children().eq(2));' +
         '$("<input></input>").css({"width":"50px","margin-left":"20px","border-color":"#95b8e7","outline":"none","border-radius":"5px"}).attr("type","text").appendTo($(".conditionList:last-child"));' +
         '$("<a>删除-</a>").css({"background":"lightgray","cursor":"pointer","display":"inline-block","margin-left":"20px","height":"20px","width":"40px","line-height":"20px","text-align":"center","color":"red","border-radius":"5px"}).addClass("removeListCondition").appendTo($(".conditionList:last-child"));' +
-        '$("#selectedListArgu>li").on("click",".removeListCondition",function(){var index = $(this).parent().index();console.log(index);$(this).parent().remove()})' +
+        '$("#selectedListArgu>li").on("click",".removeListCondition",function(){var index = $(this).parent().index();$(this).parent().remove()})' +
         '});' +
         '</script>';
     addTab(title, c, 'icon-archive');

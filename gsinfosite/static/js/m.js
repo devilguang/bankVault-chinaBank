@@ -71,6 +71,9 @@ function loadDataProcess(node, data){
 	}
 }
 function treeSelectHandler(node){
+	var index = node.text.indexOf('日')
+	var index1 = node.text.indexOf('号')
+	var subBoxNumber = node.text.substring(index+1,index1).split('-')[1]?node.text.substring(index+1,index1).split('-')[1]:'0'
 	var isWork = node.attributes.isWork
 	if (!isWork)
 	{
@@ -80,7 +83,7 @@ function treeSelectHandler(node){
 	var id = node.id;
 	var workSeq = node.attributes.workSeq;
 	var boxNumber = node.attributes.boxNumber;
-	var c = '<table id="workGrid'+id+'" class="easyui-datagrid" data-options="url:\'getWorkData/'+workSeq+'\', queryParams:{processId: $(\'#processId\').val(), boxNumber: \''+boxNumber+'\', thingStatus: \'cancheck\'}, toolbar:\'#workGridToolBar'+id+'\', singleSelect:true, fitColumns:true, loaded:false, rownumbers:true, loadMsg:\''+title+'作业数据正在载入，请稍后...\', onDblClickRow:dbClickRow, pagination:true, fit:true, pageSize:20"><thead><tr><th field="serialNumber" align="center" rowspan="2">编号</th><th field="operation" formatter="operationFormatter" align="center" rowspan="2">操作</th><th align="center" colspan="3">数据复核</th></tr><tr><th field="status" formatter="statusFormatter" align="center">是否完成</th><th field="operator" formatter="operatorFormatter" align="center">复核人</th><th field="lastUpdateTime" align="center" formatter="updateDateFormatter">更新时间</th></tr></thead></table><div id="workGridToolBar'+id+'"><label for="workGrid'+id+'StatusCombobox" style="margin-left:5px;margin-right:5px;">状态</label><input id="workGrid'+id+'StatusCombobox" style="margin-right:20px;padding-top:5px;" /><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGrid'+id+'\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">var timer'+id+'; function timingUpdate(){$(\'#workGrid'+id+'\').datagrid(\'reload\'); timer'+id+'=setTimeout("timingUpdate()", 120000);  $.post("getWorkStatus/", {boxNumber:\''+boxNumber+'\'}, function(data, status){if (data.workStatus == 1){ clearTimeout(t); $.messager.alert(\'提示\', \''+title+'作业已经完成，可以导出！\'); }}, \'json\')} function clearTimer'+id+'(){ clearTimeout(timer'+id+'); } function dbClickRow(index, row){/*$.messager.alert(\'提示\', \'select\');*/} function initPagination(){$(\'#workGrid'+id+'\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});} function initToolbar(){ $(\'#workGrid'+id+'StatusCombobox\').combobox({valueField: \'id\', textField: \'text\', editable: false, data: [{id: \'cancheck\', text: \'可复核\'}, {id: \'notComplete\', text: \'未完成\'}, {id: \'all\', text: \'全部\'}, {id: \'complete\', text: \'已完成\'}, ], panelHeight: \'auto\', \'onSelect\':function(record){ $(\'#workGrid'+id+'\').datagrid(\'options\').queryParams[\'thingStatus\'] = record.id; $(\'#workGrid'+id+'\').datagrid(\'reload\'); },}).combobox(\'setValue\', \'cancheck\'); }</script>';
+	var c = '<table id="workGrid'+id+'" class="easyui-datagrid" data-options="url:\'getWorkData/'+workSeq+'\', queryParams:{processId: $(\'#processId\').val(), boxNumber: \''+boxNumber+'\',subBoxNumber: \''+subBoxNumber+'\', thingStatus: \'cancheck\'}, toolbar:\'#workGridToolBar'+id+'\', singleSelect:true, fitColumns:true, loaded:false, rownumbers:true, loadMsg:\''+title+'作业数据正在载入，请稍后...\', onDblClickRow:dbClickRow, pagination:true, fit:true, pageSize:20"><thead><tr><th field="serialNumber" align="center" rowspan="2">编号</th><th field="operation" formatter="operationFormatter" align="center" rowspan="2">操作</th><th align="center" colspan="3">数据复核</th></tr><tr><th field="status" formatter="statusFormatter" align="center">是否完成</th><th field="operator" formatter="operatorFormatter" align="center">复核人</th><th field="lastUpdateTime" align="center" formatter="updateDateFormatter">更新时间</th></tr></thead></table><div id="workGridToolBar'+id+'"><label for="workGrid'+id+'StatusCombobox" style="margin-left:5px;margin-right:5px;">状态</label><input id="workGrid'+id+'StatusCombobox" style="margin-right:20px;padding-top:5px;" /><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGrid'+id+'\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">var timer'+id+'; function timingUpdate(){$(\'#workGrid'+id+'\').datagrid(\'reload\'); timer'+id+'=setTimeout("timingUpdate()", 120000);  $.post("getWorkStatus/", {boxNumber:\''+boxNumber+'\'}, function(data, status){if (data.workStatus == 1){ clearTimeout(t); $.messager.alert(\'提示\', \''+title+'作业已经完成，可以导出！\'); }}, \'json\')} function clearTimer'+id+'(){ clearTimeout(timer'+id+'); } function dbClickRow(index, row){/*$.messager.alert(\'提示\', \'select\');*/} function initPagination(){$(\'#workGrid'+id+'\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});} function initToolbar(){ $(\'#workGrid'+id+'StatusCombobox\').combobox({valueField: \'id\', textField: \'text\', editable: false, data: [{id: \'cancheck\', text: \'可复核\'}, {id: \'notComplete\', text: \'未完成\'}, {id: \'all\', text: \'全部\'}, {id: \'complete\', text: \'已完成\'}, ], panelHeight: \'auto\', \'onSelect\':function(record){ $(\'#workGrid'+id+'\').datagrid(\'options\').queryParams[\'thingStatus\'] = record.id; $(\'#workGrid'+id+'\').datagrid(\'reload\'); },}).combobox(\'setValue\', \'cancheck\'); }</script>';
 	addTab(title, c, 'icon-box');
 }
 function addTab(title, content, icon){
@@ -122,10 +125,12 @@ function updateDateFormatter(value, row, index){
 	}
 }
 function operationFormatter(value, row, index){
+	var boxNumber = row.boxNumber.split('-')[0]
+	var subBoxNumber = row.boxNumber.split('-')[1]?row.boxNumber.split('-')[1]:'0'
 	if (value){
 		// 实物鉴定, 频谱分析, 测量称重三环节均已完成, 可以进行复核
 		var operator = $('#operator').val();
-		return '<div style="float:center"><a href="exploreThing/'+row.boxNumber+'/'+row.serialNumber+'?isVerify=1&operator='+operator+'" target="blank" style="text-decoration:none;color:blue;">复核</a></div>';
+		return '<div style="float:center"><a href="exploreThing/'+boxNumber+'/'+row.serialNumber+'?isVerify=1&operator='+operator+'&subBoxNumber='+subBoxNumber+'"+ target="blank" style="text-decoration:none;color:blue;">复核</a></div>';
 	}
 	else{
 		return '-';

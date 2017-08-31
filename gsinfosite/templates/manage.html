@@ -524,7 +524,7 @@
 </div>
 <div id="reportBoxDlgButtons">
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="reportBox()"
-       style="width:90px">创建</a>
+       style="width:90px">预览</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#reportBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
@@ -571,6 +571,31 @@
        onclick="doputBoxValidate()" style="width:90px">确定</a>
     <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#putBoxValidateDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+
+<!-- 打印清单-管理员认真 -->
+<div id="printTheList" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
+     data-options="closed:true, buttons:'#printTheListButtons', modal:true">
+    <form id="printTheListForm" method="POST" novalidate  style="width: 260px;margin: auto">
+        <input type="hidden" id="printTheList-boxNumber"/>
+        <table width="260px">
+            <tr>
+                <th>用户名：</th>
+                <td><input id="printTheListUserValidate"/></td>
+            </tr>
+            <tr>
+                <th>密码：</th>
+                <td><input type="password" id="printTheListUserpassword"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="printTheListButtons">
+    <a href="javascript:void(0)" id="printSave" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
+        style="width:90px">确定</a>
+    <a href="javascript:void(0)" id="printCancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#printTheList').dialog('close')" style="width:90px">取消</a>
 </div>
 
 <!-- 并箱操作对话框 -->

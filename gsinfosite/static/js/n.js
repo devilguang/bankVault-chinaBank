@@ -477,6 +477,7 @@ function saveUpdateInfo() {
                     msg: result.message
                 });
             } else {
+                $('#workGrid1').datagrid('reload')
                 $('#UpdateInfoDlg').dialog('close');        	 // 关闭对话框
                 $.messager.show({		// 显示成功信息
                     title: '提示',
