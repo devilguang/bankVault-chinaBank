@@ -1,6 +1,5 @@
 ﻿# encoding=UTF-8
 import os
-import math
 import qrcode  # 二维码生成库
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
