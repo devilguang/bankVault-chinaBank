@@ -403,23 +403,19 @@
 							fit: true,"/>
                 </td>
             </tr>
-
             <tr >
                 <th>箱号</th>
                 <td ><input id="createBox-boxNumber" name="boxNumber" class="easyui-numberbox"
                                        data-options="min:0, fit: true"/></td>
                 <th>毛重</th>
                 <td><input id="createBox-grossWeight" name="grossWeight" class="easyui-numberbox"
-                           data-options="min:0, fit: true"/></td>
+                     data-options="min:0, fit: true"/></td>
             </tr>
-
 {#            <tr>#}
 {#                <th>包容量</th>#}
 {#                <td><input id="createBox-packageCapacity" name="packageCapacity" class="easyui-numberbox"#}
 {#                           data-options="min:0, fit: true"/></td>#}
-{##}
 {#            </tr>#}
-
             <tr>
                 <th>件数</th>
                 <td><input id="createBox-amount" name="amount" class="easyui-numberbox"
@@ -554,11 +550,11 @@
 </div>
 
 <!-- 封箱入库-管理员验证 -->
-<div id="putBoxValidateDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px"
+<div id="putBoxValidateDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
      data-options="closed:true, buttons:'#putBoxValidateDlgButtons', modal:true">
-    <form id="putBoxValidateForm" method="POST" novalidate>
+    <form id="putBoxValidateForm" method="POST" novalidate  style="width: 260px;margin: auto">
         <input type="hidden" id="putBoxValidate-boxNumber"/>
-        <table width="295px">
+        <table width="260px">
             <tr>
                 <th>用户名：</th>
                 <td><input id="userValidate"/></td>
