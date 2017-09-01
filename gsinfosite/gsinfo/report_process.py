@@ -110,7 +110,7 @@ def createBoxTable(boxList):
     if not os.path.exists(boxDir):
         os.mkdir(boxDir)  # 转移至创建作业时, 生成相应的目录
 
-    ti = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+    ti = time.strftime("%Y%m%d%H", time.localtime())
     boxReportName = u'{0}箱体报表.xlsx'.format(str(ti))
     boxReportPath = os.path.join(boxDir, boxReportName)
 
