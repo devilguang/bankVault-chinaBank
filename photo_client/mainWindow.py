@@ -20,6 +20,7 @@ import base64
 import time
 import ctypes
 from ctypes import wintypes
+import upload_tip
 
 
 class LoginWidget(QDialog,login.Ui_Form):
@@ -159,6 +160,11 @@ class tdcodeDil(QDialog, tdcode.Ui_code_Dialog):
         print('timer stoped!')
         self.close()
 
+class uploadTip(QDialog, upload_tip.Ui_Dialog):
+    def __init__(self, client=None):
+        super(uploadTip, self).__init__()
+        self.setupUi(self)
+        self.show()
 
 class Window(QMainWindow,photo.Ui_Form):
     def __init__(self,client=None):
@@ -290,15 +296,12 @@ class Window(QMainWindow,photo.Ui_Form):
 
     def uploadPic(self):
         if self.codeForm.isvis:
-            # QMessageBox.about(self, "测试", "点击弹出窗口成功")
-            # QMessageBox.warning(self, "Cannot save file",
-            #                     "The file could not be saved.",
-            #                     QMessageBox_StandardButtons=QMessageBox.NoButton,)
-
             serial_num = self.codeForm.SerialNumber
             box_Sub = self.codeForm.boxOrSubBox
             pic_name_list = os.listdir(self.upload_dir)
             if len(pic_name_list) > 0:
+                self.tipDlg = uploadTip(self)
+                self.tipDlg.label.setText("正在上传中...")
                 all_img = {}
                 for pic_name in pic_name_list:
                     file_path = os.path.join(self.upload_dir, pic_name)
@@ -334,15 +337,22 @@ class Window(QMainWindow,photo.Ui_Form):
 
                         self.codeForm.lineEdit.setText('')
                         self.codeForm.SerialNumber = self.codeForm.lineEdit.text()
-                        messagebox = TimerMessageBox(2)
+                        self.tipDlg.close()
+                        geom = self.geometry()
+                        x = geom.left()
+                        y =geom.top()
+                        w = geom.width()
+                        h = geom.height()
+                        print geom.left(),geom.right(),geom.width(),geom.height(),geom.top()
+                        messagebox = TimerMessageBox(3)
+                        messagebox.setGeometry(x+w*0.5,y+h*0.5,100,160)
                         messagebox.exec_()
-                        time.sleep(0.5)
                         self.showMinimized()
-
                     else:
-                        QMessageBox.about(self, "警告", "上传失败！")
+                        self.tipDlg.close()
+                        QMessageBox.critical(self, "警告：", self.tr("     上传失败!       "))
             else:
-                QMessageBox.about(self, "提示", "暂无图片上传！")
+                QMessageBox.critical(self, "提示：",self.tr("     暂无图片上传!       "))
 
 
     def mouseDoubleClickEvent(self,event):
@@ -356,7 +366,7 @@ class Window(QMainWindow,photo.Ui_Form):
 class TimerMessageBox(QMessageBox):
     def __init__(self, timeout=None):
         super(TimerMessageBox, self).__init__()
-        self.setWindowTitle("wait")
+        self.setWindowTitle("上传")
         self.time_to_wait = timeout
         self.setText("上传成功！（{0}）".format(timeout))
         self.setStandardButtons(QMessageBox.NoButton)

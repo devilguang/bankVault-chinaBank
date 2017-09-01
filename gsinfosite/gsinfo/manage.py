@@ -263,7 +263,8 @@ def processInfo(request):
     fileName = createBoxTable(boxList)
     box_dir = os.path.join(settings.DATA_DIRS['box_dir'], u'箱体报表')
     file_path = os.path.join(box_dir, fileName)
-    log.log(user=request.user, operationType=u'业务操作', content=u'箱体报表下载')
+
+    log.log(user=request.user, operationType=u'业务操作', content=u'箱体报表打印')
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
     return render(request, 'report.html', context={'ret': ret_json,'file_path': file_path})
 

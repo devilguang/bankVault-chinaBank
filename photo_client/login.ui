@@ -25,7 +25,12 @@
   <property name="font">
    <font>
     <family>宋体</family>
+    <weight>50</weight>
+    <bold>false</bold>
    </font>
+  </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
    <string>登录-图像采集岗</string>
@@ -46,8 +51,24 @@
      <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>宋体</family>
+     <pointsize>9</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(170, 170, 255);
+font: 9pt &quot;宋体&quot;;</string>
+   </property>
    <property name="text">
-    <string>确定</string>
+    <string>确 定</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit">
@@ -108,8 +129,18 @@
      <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
    <property name="text">
-    <string>取消</string>
+    <string>取 消</string>
    </property>
   </widget>
   <widget class="QGraphicsView" name="graphicsView">
@@ -158,6 +189,9 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
    <property name="focusPolicy">
     <enum>Qt::NoFocus</enum>
    </property>
@@ -187,6 +221,8 @@
    <property name="font">
     <font>
      <pointsize>8</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="text">

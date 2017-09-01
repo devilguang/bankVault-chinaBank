@@ -17,6 +17,9 @@ class Ui_setdialog(object):
         setdialog.setWindowIcon(icon)
         self.ip_label = QtWidgets.QLabel(setdialog)
         self.ip_label.setGeometry(QtCore.QRect(40, 40, 81, 20))
+        font = QtGui.QFont()
+        font.setKerning(True)
+        self.ip_label.setFont(font)
         self.ip_label.setObjectName("ip_label")
         self.port_label = QtWidgets.QLabel(setdialog)
         self.port_label.setGeometry(QtCore.QRect(40, 90, 91, 21))
@@ -35,9 +38,13 @@ class Ui_setdialog(object):
         self.photodir_lineEdit.setObjectName("photodir_lineEdit")
         self.setcancelButton = QtWidgets.QPushButton(setdialog)
         self.setcancelButton.setGeometry(QtCore.QRect(260, 190, 80, 30))
+        self.setcancelButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.setcancelButton.setAutoDefault(False)
         self.setcancelButton.setObjectName("setcancelButton")
         self.setokButton = QtWidgets.QPushButton(setdialog)
         self.setokButton.setGeometry(QtCore.QRect(90, 190, 80, 30))
+        self.setokButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.setokButton.setStyleSheet("background-color: rgb(170, 170, 255);")
         self.setokButton.setObjectName("setokButton")
 
         self.retranslateUi(setdialog)
@@ -50,7 +57,7 @@ class Ui_setdialog(object):
         self.ip_label.setText(_translate("setdialog", "服务器IP地址："))
         self.port_label.setText(_translate("setdialog", "服务器端口号："))
         self.photodir_label.setText(_translate("setdialog", "相机输出路径："))
-        self.setcancelButton.setText(_translate("setdialog", "取消"))
-        self.setokButton.setText(_translate("setdialog", "确定"))
+        self.setcancelButton.setText(_translate("setdialog", "取 消"))
+        self.setokButton.setText(_translate("setdialog", "确 定"))
 
 import image_path_rc

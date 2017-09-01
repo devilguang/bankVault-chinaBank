@@ -27,8 +27,8 @@ def deleteDir(targetDir):
 def dateTimeHandler(obj):
     if isinstance(obj, datetime.datetime):
         # UTC时区 转换至 Asian/ShangHai
-        converted = datetime.datetime(obj.year, obj.month, obj.day, 24-(obj.hour+8)%23 if ((obj.hour+8)>=24) else (obj.hour+8), obj.minute, obj.second)
-        # converted = datetime.datetime(obj.year, obj.month, obj.day, obj.hour, obj.minute, obj.second) 
+        # converted = datetime.datetime(obj.year, obj.month, obj.day, 24-(obj.hour+8)%23 if ((obj.hour+8)>=24) else (obj.hour+8), obj.minute, obj.second)
+        converted = datetime.datetime(obj.year, obj.month, obj.day, obj.hour, obj.minute, obj.second)
         return converted.strftime('%Y年%m月%d日 %H:%M')
     else:
         raise TypeError
