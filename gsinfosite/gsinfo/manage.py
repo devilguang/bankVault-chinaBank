@@ -1612,8 +1612,21 @@ def summarizeDailyWork(request):
 
 def print_service(request):
     file_path = request.POST.get('file_path', '')
-    print win32print.GetDefaultPrinter()
-    # win32api.ShellExecute(0,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter (),".",0)
+    try:
+        print win32print.GetDefaultPrinter()
+        # win32api.ShellExecute(0,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter (),".",0)
+    except Exception as e:
+        ret = {
+            'success': False,
+            'message': u'打印失败！'
+        }
+    else:
+        ret = {
+            'success': True,
+            'message': u'打印成功！'
+        }
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
 
 
 def print_auth(request):

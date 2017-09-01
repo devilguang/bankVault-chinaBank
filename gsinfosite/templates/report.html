@@ -2,151 +2,280 @@
 {% load static %}
 
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css'%}">
-		<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css'%}">
-		<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css'%}">
-		<link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css'%}">
-		<link rel="stylesheet" type="text/css" href="{% static 'css/default.css'%}">
-		<link rel="stylesheet" type="text/css" href="{% static 'css/viewer/viewer.css'%}">
-		<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js'%}"></script>
-		<script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js'%}"></script>
-		<script type="text/javascript" src="{% static 'js/viewer/viewer.js'%}"></script>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/default/easyui.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/icon.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/themes/color.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/viewer/viewer.css' %}">
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/viewer/viewer.js' %}"></script>
 
-		<style type="text/css">
-			.pagination {margin-top:15px; margin-bottom:15px; display:block; margin-left:auto; margin-right:auto;}
-			.pagination a {text-decoration: none; color: blue; margin-right:25px;}
-			.content table {width:65%;margin: 0 auto;}
-			caption.head {font-size:30px; font-weight:bold; margin-bottom:15px;margin-top:15px;}
-			thead {height:45px}
-			tbody {height:45px}
-			.col1 {width:5%}
-			.col2 {width:15%}
-			.col3 {width:15%}
-			.col4 {width:15%}
-			.col5 {width:15%}
-			.col6 {width:15%}
-			.col7 {width:15%}
-		</style>
+    <style type="text/css">
+        .pagination {
+            margin-top: 15px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
-		<style>
-			table{
-				border-collapse: collapse;
-				cellpadding: 0;
-				cellspacing: 1;
-				fit: true;
-			}
+        .pagination a {
+            text-decoration: none;
+            color: blue;
+            margin-right: 25px;
+        }
 
-			table th, table td {
-				padding: 5px;
-				border: 1px solid grey;
-			}
+        .content table {
+            width: 65%;
+            margin: 0 auto;
+        }
 
-			table th {
-				font-family: Arial,Verdana,Sans-serif;
-				font-size: 14px;
-				font-weight: normal;
-				text-align: center;
-				background-color: #E0ECFF;
-				width: 50px;
-			}
+        caption.head {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            margin-top: 15px;
+        }
 
-			table td{
-				font-family: Arial,Verdana,Sans-serif;
-				font-size: 14px;
-				font-weight: normal;
-				text-align: center;
-			}
+        thead {
+            height: 45px
+        }
 
-			table .alter td{
-				font-family: Arial,Verdana,Sans-serif;
-				font-size: 14px;
-				font-weight: normal;
-				text-align: center;
-				background-color: #E0ECFF;
-			}
+        tbody {
+            height: 45px
+        }
 
-			form  table{
-				border-collapse: collapse;
-				cellpadding: 0;
-				cellspacing: 1;
-				fit: true;
-			}
+        .col1 {
+            width: 5%
+        }
 
-			form table th, table td {
-				padding: 5px;
-				border: 1px solid grey;
-			}
+        .col2 {
+            width: 15%
+        }
 
-			form table th {
-				font-family: Arial,Verdana,Sans-serif;
-				font-size: 12px;
-				font-weight: normal;
-				text-align: center;
-				background-color: #E0ECFF;
-				width: 100px;
-			}
-		</style>
+        .col3 {
+            width: 15%
+        }
 
-		<script type="text/javascript">
-			$(function(){
-				var html = "";
-				var ret = $.parseJSON($("#ret").text());
-				var k = 1;
-				var m = "";
-				for(var j=0; j<ret.length; j++){
-					if(j%2==0){
-						m = "";
-					}else{
-						m = "alter";
-					}
+        .col4 {
+            width: 15%
+        }
 
-					for(var i=0; i<ret[j].subBox.length; i++){
-					    var maoweight =  ret[j].subBox[i].totalWeight?ret[j].subBox[i].totalWeight:'';
+        .col5 {
+            width: 15%
+        }
 
-						if(i==0){
-							html += "<tr class='"+ m +"'><td>"+ k++ +"</td><td>"+ ret[j].boxNumber +"-"+ ret[j].subBox[i].subBoxNo +"</td><td>"+ ret[j].subBox[i].amount +"</td><td>"+maoweight+"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].boxNumber +"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].amount +"</td><td rowspan='"+ ret[j].subBox.length +"'>"+ ret[j].totalWeight +"</td></tr>";
-						}else{
-							html += "<tr class='"+ m +"'><td>"+ k++ +"</td><td>"+ ret[j].boxNumber +"-"+ ret[j].subBox[i].subBoxNo +"</td><td>"+ ret[j].subBox[i].amount +"</td><td>"+maoweight+"</td></tr>";
-						}
-					}
-				}
-				$("#boxnum").append(html);
-				var url = $("#url").text();
-				$("#download").attr('href', '../manage/downloadBoxInfo/?fileName='+url);
-			});
-		</script>
-		<title>电子档案</title>
-	</head>
+        .col6 {
+            width: 15%
+        }
 
-	<body style="text-align:center;">
-		<div id="ret" style="display: none;">{{ret}}</div>
-		<div id="url" style="display: none;">{{boxReportPath}}</div>
-		<div class="content">
-			<table border="1">
-				<caption class="head">箱体报表信息档案</caption>
-				<thead>
-					<tr>
-						<th class="col1">序号</th>
-						<th class="col2">子箱号</th>
-						<th class="col3">件数</th>
-						<th class="col4">毛重（g）</th>
-						<th class="col5">原箱号</th>
-						<th class="col6">件数</th>
-						<th class="col7">毛重（g）</th>
-					</tr>
-				</thead>
+        .col7 {
+            width: 15%
+        }
+    </style>
 
-				<tbody id="boxnum">
+    <style>
+        table {
+            border-collapse: collapse;
+            cellpadding: 0;
+            cellspacing: 1;
+            fit: true;
+        }
 
-				</tbody>
-			</table>
-		</div>
+        table th, table td {
+            padding: 5px;
+            border: 1px solid grey;
+        }
 
-		<div style="margin-top:20px;display:inline-block;">
-			<a href="javascript:void(0)" id="download" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:80px;margin-right:20px;">下载</a>
-			<!--<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-edit" onclick="edit()" style="width:80px;margin-right:20px;">修改</a>-->
-		</div>
-	</body>
+        table th {
+            font-family: Arial, Verdana, Sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            text-align: center;
+            background-color: #E0ECFF;
+            width: 50px;
+        }
+
+        table td {
+            font-family: Arial, Verdana, Sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            text-align: center;
+        }
+
+        table .alter td {
+            font-family: Arial, Verdana, Sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            text-align: center;
+            background-color: #E0ECFF;
+        }
+
+        form table {
+            border-collapse: collapse;
+            cellpadding: 0;
+            cellspacing: 1;
+            fit: true;
+        }
+
+        form table th, table td {
+            padding: 5px;
+            border: 1px solid grey;
+        }
+
+        form table th {
+            font-family: Arial, Verdana, Sans-serif;
+            font-size: 12px;
+            font-weight: normal;
+            text-align: center;
+            background-color: #E0ECFF;
+            width: 100px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var filePath;
+        function getCookie(name) {
+            var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+
+            if (arr = document.cookie.match(reg))
+
+                return unescape(arr[2]);
+            else
+                return null;
+        }
+        $(function () {
+            var html = "";
+            var ret = $.parseJSON($("#ret").text());
+            var file_path = $("#file_path").text();
+            filePath = file_path
+            var k = 1;
+            var m = "";
+            for (var j = 0; j < ret.length; j++) {
+                if (j % 2 == 0) {
+                    m = "";
+                } else {
+                    m = "alter";
+                }
+                for (var i = 0; i < ret[j].subBox.length; i++) {
+                    var maoweight = ret[j].subBox[i].totalWeight ? ret[j].subBox[i].totalWeight : '';
+
+                    if (i == 0) {
+                        html += "<tr class='" + m + "'><td>" + k++ + "</td><td>" + ret[j].boxNumber + "-" + ret[j].subBox[i].subBoxNo + "</td><td>" + ret[j].subBox[i].amount + "</td><td>" + maoweight + "</td><td rowspan='" + ret[j].subBox.length + "'>" + ret[j].boxNumber + "</td><td rowspan='" + ret[j].subBox.length + "'>" + ret[j].amount + "</td><td rowspan='" + ret[j].subBox.length + "'>" + ret[j].totalWeight + "</td></tr>";
+                    } else {
+                        html += "<tr class='" + m + "'><td>" + k++ + "</td><td>" + ret[j].boxNumber + "-" + ret[j].subBox[i].subBoxNo + "</td><td>" + ret[j].subBox[i].amount + "</td><td>" + maoweight + "</td></tr>";
+                    }
+                }
+            }
+            $("#boxnum").append(html);
+            {#                    var url = $("#url").text();#}
+            {#                    $("#download").attr('href', '../manage/downloadBoxInfo/?fileName=' + url);#}
+        });
+        function prints() {
+            $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+            $('#printTheListForm').form('clear');
+        }
+        function printSave() {
+            var user = $('#printTheListUserValidate').val()
+            var password = $('#printTheListUserpassword').val()
+            if (user == '' || password == '') {
+                $.messager.alert('提示', '用户或密码不能为空');
+                return;
+            }
+            $.ajax({
+                type: 'post',
+                url: 'print_auth/',
+                data: {
+                    user: user,
+                    password: password,
+                    csrfmiddlewaretoken: getCookie('csrftoken'),
+                }, success: function (data) {
+                    var data = JSON.parse(data)
+                    if (data.success) {
+                        $('#printTheList').dialog('close')
+                        proint(filePath)
+                    } else {
+                        $.messager.alert('提示', data.message);
+                    }
+                }
+            })
+        }
+        function proint(filePath) {
+            $.ajax({
+                type: 'post',
+                url: 'print_service/',
+                data: {
+                    file_path: filePath,
+                    csrfmiddlewaretoken: getCookie('csrftoken'),
+                }, success: function (data) {
+                    var data = JSON.parse(data)
+                    if (data.success) {
+                        $.messager.alert('提示', data.message);
+                    } else {
+                        $.messager.alert('提示', data.message);
+                    }
+                }
+            })
+        }
+
+    </script>
+    <title>电子档案</title>
+</head>
+
+<body style="text-align:center;">
+<div id="ret" style="display: none;">{{ ret }}</div>
+<div id="file_path" style="display: none;">{{ file_path }}</div>
+<div id="url" style="display: none;">{{ boxReportPath }}</div>
+<div class="content">
+    <table border="1">
+        <caption class="head">箱体报表信息档案</caption>
+        <thead>
+        <tr>
+            <th class="col1">序号</th>
+            <th class="col2">子箱号</th>
+            <th class="col3">件数（件）</th>
+            <th class="col4">毛重（g）</th>
+            <th class="col5">原箱号</th>
+            <th class="col6">件数（件）</th>
+            <th class="col7">毛重（g）</th>
+        </tr>
+        </thead>
+        <tbody id="boxnum">
+
+        </tbody>
+    </table>
+</div>
+<div id="printTheList" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
+     data-options="closed:true, buttons:'#printTheListButtons', modal:true">
+    <form id="printTheListForm" method="POST" novalidate style="width: 260px;margin: auto">
+        <input type="hidden" id="printTheList-boxNumber"/>
+        <table width="260px">
+            <tr>
+                <th>用户名：</th>
+                <td><input id="printTheListUserValidate"/></td>
+            </tr>
+            <tr>
+                <th>密码：</th>
+                <td><input type="password" id="printTheListUserpassword"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="printTheListButtons">
+    <a href="javascript:void(0)" id="printSave" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
+       style="width:90px" onclick="printSave()">确定</a>
+    <a href="javascript:void(0)" id="printCancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#printTheList').dialog('close')" style="width:90px">取消</a>
+</div>
+
+
+<div style="margin-top:20px;display:inline-block;">
+    <a href="javascript:void(0)" id="download" class="easyui-linkbutton c6" iconCls="icon-ok"
+       style="width:80px;margin-right:20px;" onclick="prints()">打印</a>
+</div>
+</body>
 </html>
