@@ -538,7 +538,7 @@ function reportBox() {
     }
     $('#reportBoxDlg').dialog('close'); //关闭对话框
 
-    window.open('processInfo?map=' + map);
+    window.open('processInfo?map=' + map+'&file_path='+map);
 
     /*$.ajax({url: 'processInfo/',
      data: {boxList: map},
@@ -1453,30 +1453,30 @@ function workSearchReset() {
 }
 
 function workStartOrStop(index, status) {
-    $('#workGridWorkManage').datagrid('selectRow', index);
-    var row = $('#workGridWorkManage').datagrid('getSelected');
+    $('#workgridworkmanage').datagrid('selectrow', index);
+    var row = $('#workgridworkmanage').datagrid('getselected');
     $.ajax({
-        url: 'startOrStopWork/',
+        url: 'startorstopwork/',
         data: {
-            workName: row.workName,
-            boxNumber: row.boxNumber,
-            subBoxNumber: row.subBoxNumber,
-            workSeq: row.workSeq,
+            workname: row.workname,
+            boxnumber: row.boxnumber,
+            subboxnumber: row.subboxnumber,
+            workseq: row.workseq,
             status: status
         },
-        type: 'POST',
+        type: 'post',
         async: true,
-        dataType: 'json',
+        datatype: 'json',
         success: function (result) {
             if (result.success) {
                 $.messager.show({    // 显示成功信息
                     title: '提示',
                     msg: result.message,
-                    showType: 'slide',
+                    showtype: 'slide',
                     timeout: 5000
                 });
 
-                $('#workGridWorkManage').datagrid('reload');
+                $('#workgridworkmanage').datagrid('reload');
             }
             else {
                 $.messager.show({    // 显示失败信息

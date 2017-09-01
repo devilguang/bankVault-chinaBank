@@ -281,6 +281,7 @@ def getWorkData(request, workSeq):
             r['status'] = s.checkingStatus
             r['operator'] = s.checkingOperator
             r['lastUpdateTime'] = s.checkingUpdateDateTime if s.checkingStatus else ''
+            print r['lastUpdateTime']
         ret['rows'].append(r)
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)

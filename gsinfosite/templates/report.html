@@ -138,6 +138,7 @@
     </style>
 
     <script type="text/javascript">
+        var filePath;
         function getCookie(name) {
             var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
 
@@ -150,6 +151,8 @@
         $(function () {
             var html = "";
             var ret = $.parseJSON($("#ret").text());
+            var file_path = $("#file_path").text();
+            filePath = file_path
             var k = 1;
             var m = "";
             for (var j = 0; j < ret.length; j++) {
@@ -175,42 +178,49 @@
         function prints() {
             $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
             $('#printTheListForm').form('clear');
-            $('#printSave').click(function () {
-                var user = $('#printTheListUserValidate').val()
-                var password = $('#printTheListUserpassword').val()
-                if (user == '' || password == '') {
-                    $.messager.alert('提示', '用户或密码不能为空');
-                    return;
-                }
-                $.ajax({
-                    type: 'post',
-                    url: 'print_auth/',
-                    data: {
-                        user: user,
-                        password: password,
-                        csrfmiddlewaretoken: getCookie('csrftoken'),
-                    }, success: function (data) {
-                        var data = JSON.parse(data)
-                        var filePath = window.location.href;
-                        console.log(filePath)
-                        if (data.success) {
-                            $('#printTheList').dialog('close')
-                            {#                            $.ajax({#}
-                            {#                                type:'post',#}
-                            {#                                url:'print_service/',#}
-                            {#                                data:{#}
-                            {##}
-                            {#                                }#}
-                            {#                            })#}
-                        } else {
-                            $.messager.alert('提示', data.message);
-                        }
+        }
+        function printSave() {
+            var user = $('#printTheListUserValidate').val()
+            var password = $('#printTheListUserpassword').val()
+            if (user == '' || password == '') {
+                $.messager.alert('提示', '用户或密码不能为空');
+                return;
+            }
+            $.ajax({
+                type: 'post',
+                url: 'print_auth/',
+                data: {
+                    user: user,
+                    password: password,
+                    csrfmiddlewaretoken: getCookie('csrftoken'),
+                }, success: function (data) {
+                    var data = JSON.parse(data)
+                    if (data.success) {
+                        $('#printTheList').dialog('close')
+                        proint(filePath)
+                    } else {
+                        $.messager.alert('提示', data.message);
                     }
-
-                })
+                }
             })
         }
-
+        function proint(filePath) {
+            $.ajax({
+                type: 'post',
+                url: 'print_service/',
+                data: {
+                    file_path: filePath,
+                    csrfmiddlewaretoken: getCookie('csrftoken'),
+                }, success: function (data) {
+                    var data = JSON.parse(data)
+                    if (data.success) {
+                        $.messager.alert('提示', data.message);
+                    } else {
+                        $.messager.alert('提示', data.message);
+                    }
+                }
+            })
+        }
 
     </script>
     <title>电子档案</title>
@@ -218,6 +228,7 @@
 
 <body style="text-align:center;">
 <div id="ret" style="display: none;">{{ ret }}</div>
+<div id="file_path" style="display: none;">{{ file_path }}</div>
 <div id="url" style="display: none;">{{ boxReportPath }}</div>
 <div class="content">
     <table border="1">
@@ -256,7 +267,7 @@
 </div>
 <div id="printTheListButtons">
     <a href="javascript:void(0)" id="printSave" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
-       style="width:90px">确定</a>
+       style="width:90px" onclick="printSave()">确定</a>
     <a href="javascript:void(0)" id="printCancel" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#printTheList').dialog('close')" style="width:90px">取消</a>
 </div>
