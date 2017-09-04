@@ -14,6 +14,9 @@ import datetime
 from . import log
 import MySQLdb
 import win32print
+import win32api
+import requests
+import uuid
 
 @login_required
 def manage(request):
@@ -22,57 +25,90 @@ def manage(request):
 
 
 def createBox(request):
-    boxNumber = int(request.POST.get('boxNumber', ''))  # 箱号
+    # boxNumber = int(request.POST.get('boxNumber', ''))  # 箱号
     productType = request.POST.get('productType', '')  # 实物类型
     className = request.POST.get('className', '')  # 品名
     subClassName = request.POST.get('subClassName', '')  # 明细品名
     wareHouse = request.POST.get('wareHouse', '')  # 发行库
     amount = int(request.POST.get('amount', ''))  # 件数
-    startSeq = int(request.POST.get('startSeq', ''))  # 起始序列号
-    grossWeight = float(request.POST.get('grossWeight', ''))  # 毛重
+    # startSeq = int(request.POST.get('startSeq', ''))  # 起始序列号
+    grossWeight = request.POST.get('grossWeight', '')  # 毛重
+    if grossWeight:
+        grossWeight = float(grossWeight)
+    else:
+        grossWeight = float(0)
 
-    if not gsBox.objects.filter(boxNumber=boxNumber).exists():
-        try:
-            log.log(user=request.user, operationType=u'业务操作', content=u'新建{0}号箱实物'.format(boxNumber))
+    # 从数据库中查最大箱号
+    boxNumber_list = gsBox.objects.all().values_list('boxNumber', flat=True)
+    if not boxNumber_list:
+        boxNumber = 1
+    else:
+        sorted_boxNumber_list = sorted(boxNumber_list,reverse=True)
+        boxNumber = int(sorted_boxNumber_list[0])+1
+    # filter(box=lastedBox).order_by('-seq').first().seq + 1
 
-            box, createdBox = gsBox.objects.createBox(boxNumber=boxNumber, productType=productType, className=className,
-                                                      subClassName=subClassName, wareHouse=wareHouse, amount=amount,
-                                                      startSeq=startSeq, grossWeight=grossWeight)
+    # 从数据库中查最大实物序列号
+    lastedBox = gsBox.objects.filter(wareHouse=wareHouse, className=className,subClassName=subClassName).order_by('-id').first()
+    if lastedBox:
+        startSeq = gsThing.objects.filter(box=lastedBox).order_by('-seq').first().seq + 1
+    else:
+        startSeq = 1
 
-            # 构造对应的存储目录结构
-            boxRootDir = settings.DATA_DIRS['box_dir']
-            boxDir = os.path.join(boxRootDir, str(boxNumber))
-            if (not os.path.exists(boxDir)):
-                os.mkdir(boxDir)
+    # 向货发二代系统请求箱号和实物随机号
+    '''
+    要给货发二代系统的数据
+    box_number = int(request.POST.get('boxNumber', ''))  # 箱号
+    productType = request.POST.get('productType', '')  # 实物类型
+    className = request.POST.get('className', '')  # 品名
+    subClassName = request.POST.get('subClassName', '')  # 明细品名
+    wareHouse = request.POST.get('wareHouse', '')  # 发行库
+    amount = int(request.POST.get('amount', ''))  # 件数
+    '''
+    # 箱号由发行库代码，实物类别代码，品名代码，明细品名代码和箱序号五部分组成
+    # 二代系统并不保存此时生成的序号数据，那么他就不知道箱的顺序号
+    boxSeq = '-'.join([wareHouse, productType, className, subClassName, str(boxNumber)])
 
-            subBoxSeq = gsThing.objects.filter(box=box).first().subBoxSeq
-            now = datetime.datetime.now()
-            wareHouseCode = box.wareHouse
-            wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
-            wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(now.year, subBoxSeq, wareHouse.type))
-            if (not os.path.exists(wordDir)):
-                os.mkdir(wordDir)
+    thing_num_list = []
+    for i in range(amount):
+        thing_num_list.append(str(uuid.uuid4()))
 
-            photoDir = os.path.join(boxDir, u'{0}_{1}_{2}_photo'.format(now.year, subBoxSeq, wareHouse.type))
-            if (not os.path.exists(photoDir)):
-                os.mkdir(photoDir)
+    thing_num = '|'.join(thing_num_list)
 
-        except Exception as e:
-            ret = {
-                "success": False,
-                "message": '{0}号箱实物新建失败！'.format(boxNumber)
-            }
-        else:
-            ret = {
-                'success': True,
-                'message': '{0}号箱实物新建成功!'.format(boxNumber)
-            }
+    try:
+        log.log(user=request.user, operationType=u'业务操作', content=u'新建{0}号箱实物'.format(boxNumber))
+
+        box, createdBox = gsBox.objects.createBox(boxNumber=boxNumber, productType=productType, className=className,
+                                                  subClassName=subClassName, wareHouse=wareHouse, amount=amount,
+                                                  startSeq=startSeq, grossWeight=grossWeight,boxSeq=boxSeq,thing_num=thing_num)
+
+        # 构造对应的存储目录结构
+        boxRootDir = settings.DATA_DIRS['box_dir']
+        boxDir = os.path.join(boxRootDir, str(boxNumber))
+        if not os.path.exists(boxDir):
+            os.mkdir(boxDir)
+
+        # subBoxSeq = gsThing.objects.filter(box=box).first().subBoxSeq
+        # now = datetime.datetime.now()
+        # wareHouseCode = box.wareHouse
+        # wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
+        # wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(now.year, subBoxSeq, wareHouse.type))
+        # if (not os.path.exists(wordDir)):
+        #     os.mkdir(wordDir)
+        #
+        # photoDir = os.path.join(boxDir, u'{0}_{1}_{2}_photo'.format(now.year, subBoxSeq, wareHouse.type))
+        # if (not os.path.exists(photoDir)):
+        #     os.mkdir(photoDir)
+
+    except Exception as e:
+        ret = {
+            "success": False,
+            "message": '{0}号箱实物新建失败！'.format(boxNumber)
+        }
     else:
         ret = {
-            'success': False,
-            'message': '{0}号箱实物已存在!'.format(boxNumber)
+            'success': True,
+            'message': '{0}号箱实物新建成功!'.format(boxNumber)
         }
-
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
@@ -81,40 +117,33 @@ def createBox(request):
 # 拆箱操作
 def allotBox(request):
     boxNumber = int(request.POST.get('boxNumber', ''))  # 箱号
-    productType = request.POST.get('productType', '')  # 实物类型
-    fromSubBox = int(request.POST.get('fromSubBox', ''))
+    fromSubBox = request.POST.get('fromSubBox', '')
     pageSize = int(request.POST.get('rows', ''))
     page = int(request.POST.get('page', ''))
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-    status1 = gsThing.objects.filter(box=box.pk, subBoxNo=fromSubBox)
-    num = len(status1)
+    subBox = gsSubBox.objects.filter(box=box)
+    if fromSubBox == '1' and not subBox:
+        thing_set = gsThing.objects.filter(box=box)
+    else:
+        subBox = gsSubBox.objects.get(box=box,subBoxNumber=fromSubBox)
+        thing_set = gsThing.objects.filter(box=box,subBox=subBox)
+    num = len(thing_set)
     ret = {}
     ret['total'] = num
     ret['rows'] = []
 
     start = (page - 1) * pageSize
     end = num if (page * pageSize > num) else page * pageSize
-    status2 = status1[start:end]
-    for s in status2:
+    sub_thing_set = thing_set[start:end]
+    for s in sub_thing_set:
         r = {}
         r['serialNumber'] = s.serialNumber
         ret['rows'].append(r)
 
-    things = gsThing.objects.filter(box=box).values('subBoxNo')
-    allNo = []
-    for thing in things:
-        allNo.append(thing.values()[0])
-
-    ret['subBoxList'] = list(set(allNo))
-
-    # if 0 in subBoxList:
-    #     subBoxList.sort()
-    #     ret['subBoxList'] = subBoxList
-    # else:
-    #     subBoxList.append(0)
-    #     subBoxList.sort()
-    #     ret['subBoxList'] = subBoxList
+    # 找出一个箱子所属的所有子箱
+    all_subBox = gsSubBox.objects.filter(box=box,isValid=True).values_list('subBoxNumber', flat=True)
+    ret['subBoxList'] = list(all_subBox)
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
     return HttpResponse(ret_json)
@@ -126,20 +155,30 @@ def confirmAllotBox(request):
     fromSubBox = int(request.POST.get('fromSubBox', ''))
     toSubBox = int(request.POST.get('toSubBox', ''))
 
-    serialNumber_list = selectedThings.split(';')[:-1]
+    selected_serialNumber = selectedThings.split(';')[:-1]
     box = gsBox.objects.get(boxNumber=boxNumber)
+
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱进行拆箱'.format(boxNumber))
-        if not gsSubBox.objects.filter(subBoxNumber=1,box=box.pk):
-            gsSubBox.objects.create(subBoxNumber=1,box_id=box.pk,isValid=True)
-        if fromSubBox == 1 and toSubBox == 1:
-            currentMaxNo = int(gsThing.objects.filter(box=box.pk).order_by('-subBoxNo').first().subBoxNo)
-            gsSubBox.objects.create(subBoxNumber=currentMaxNo + 1,box_id=box.pk,isValid=True)
-            for serialNumber in serialNumber_list:
-                gsThing.objects.filter(box=box.pk, serialNumber=serialNumber).update(subBoxNo=currentMaxNo + 1)
+        if fromSubBox == 1 and toSubBox == 1 and not gsSubBox.objects.filter(box=box):
+            all_serialNumber = gsThing.objects.filter(box=box).values_list('serialNumber', flat=True)
+            all_serialNumber = list(all_serialNumber)
+            other_serialNumber = []
+            for serialNumber in all_serialNumber:
+                if serialNumber not in selected_serialNumber:
+                    other_serialNumber.append(serialNumber)
+
+            subBox1 = gsSubBox.objects.create(subBoxNumber=1, box=box, isValid=True)
+            subBox2 = gsSubBox.objects.create(subBoxNumber=2, box=box, isValid=True)
+            gsThing.objects.filter(box=box, serialNumber__in=other_serialNumber).update(subBox=subBox1)
+            gsThing.objects.filter(box=box, serialNumber__in=selected_serialNumber).update(subBox=subBox2)
+        elif fromSubBox == 1 and toSubBox == 1 and gsSubBox.objects.filter(box=box):
+            maxSubBoxNumber = gsSubBox.objects.filter(box=box).order_by('-subBoxNumber').first().subBoxNumber
+            subBox = gsSubBox.objects.create(subBoxNumber=maxSubBoxNumber+1, box=box, isValid=True)
+            gsThing.objects.filter(box=box, serialNumber__in=selected_serialNumber).update(subBox=subBox)
         else:
-            for serialNumber in serialNumber_list:
-                gsThing.objects.filter(box=box.pk, serialNumber=serialNumber).update(subBoxNo=toSubBox)
+            subBox = gsSubBox.objects.get(subBoxNumber=toSubBox, box=box, isValid=True)
+            gsThing.objects.filter(box=box, serialNumber=selected_serialNumber).update(subBox=subBox)
     except Exception as e:
         ret = {
             "success": False,
@@ -162,16 +201,13 @@ def mergeBox(request):
 
     ret = {}
     box = gsBox.objects.get(boxNumber=boxNumber)
-    things = gsThing.objects.filter(box=box).values('subBoxNo')
-    allNo = []
-    for thing in things:
-        allNo.append(thing.values()[0])
-    subBoxSet = set(allNo)
-    allBox = list(subBoxSet)
-    if len(allBox) == 1 and int(allBox[0]) == 1:
-        ret['subBoxList'] = []
+
+    all_subBox = gsSubBox.objects.filter(box=box).values_list('subBoxNumber',flat=True)
+    allSubBox = list(all_subBox)
+    if allSubBox:
+        ret['subBoxList'] = allSubBox
     else:
-        ret['subBoxList'] = allBox
+        ret['subBoxList'] = []
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
     return HttpResponse(ret_json)
 
@@ -181,15 +217,15 @@ def confirmMergeBox(request):
     originSubBox = request.POST.get('originSubBox', '')
     boxList = originSubBox.split(';')[:-1]
     box = gsBox.objects.get(boxNumber=boxNumber)
-    currentMaxNo = int(gsThing.objects.filter(box=box.pk).order_by('-subBoxNo').first().subBoxNo)
+    currentMaxNo = int(gsSubBox.objects.filter(box=box).order_by('-subBoxNumber').first().subBoxNumber)
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱的{1}子箱进行并箱'.format(boxNumber,boxList))
-        gsSubBox.objects.create(subBoxNumber=currentMaxNo + 1,box_id=box.pk,isValid=True)  # 新建一个
+        newSubBox = gsSubBox.objects.create(subBoxNumber=currentMaxNo + 1,box=box,isValid=True)  # 新建一个
         for no in boxList:
-            gsSubBox.objects.filter(subBoxNumber=no, box_id=box.pk).update(isValid=False)  # 将之前的置为无效
-            things = gsThing.objects.filter(box=box.pk, subBoxNo=no)
-            for t in things:
-                gsThing.objects.filter(box=box.pk, serialNumber=t.serialNumber).update(subBoxNo=currentMaxNo + 1,historyNo=no)
+            oldSubBox = gsSubBox.objects.get(box=box, subBoxNumber=no)
+            oldSubBox.update(isValid=False)  # 将之前的置为无效
+            serialNumber_list = gsThing.objects.filter(box=box, subBox=oldSubBox).values_list('serialNumber',flat=True)
+            gsThing.objects.filter(box=box, serialNumber__in=serialNumber_list).update(subBox=newSubBox,historyNo=oldSubBox)
 
     except Exception as e:
         ret = {
@@ -237,18 +273,12 @@ def processInfo(request):
         boxLevel = {}
         boxLevel['subBox'] = []
         box = gsBox.objects.get(boxNumber=boxNumber)
-
-        allNo = []
-        things = gsThing.objects.filter(box=box).values('subBoxNo')
-        for thing in things:
-            allNo.append(thing.values()[0])
-        subBoxSet = set(allNo)
-        subBoxList = list(subBoxSet)
-
+        subBoxList = gsSubBox.objects.filter(box=box).values_list('subBoxNumber',flat=True)
         for no in subBoxList:
             subBox = {}
             subBox['subBoxNo'] = no
-            things = gsThing.objects.filter(box=box.pk,subBoxNo=no)
+            subBox = gsSubBox.objects.filter(box=box,subBoxNumber=no)
+            things = gsThing.objects.filter(box=box,subBox=subBox)
             subBox['amount'] = things.count()
             totalWeight = gsSubBox.objects.get(box=box,subBoxNumber=no).grossWeight
             subBox['totalWeight'] = totalWeight
@@ -283,32 +313,33 @@ def downloadBoxInfo(request):
 
 # -----------------------------------------------
 # 包号二维码打印
-def packageQR(request):
-    boxOrSubBox = '1-5'  # request.POST.get('boxNumber', '')
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-    log.log(user=request.user, operationType=u'业务操作', content=u'包号二维码打印')
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    if subBoxNumber == '':
-        packageNo = gsThing.objects.filter(box=box).values_list('packageNo', flat=True)
-        packageList = list(set(packageNo))
-    else:
-        packageNo = gsThing.objects.filter(box=box,subBoxNo=subBoxNumber).values_list('packageNo', flat=True)
-        packageList = list(set(packageNo))
-
-    packageTag(boxNumber,subBoxNumber,packageList)
-    ret = {
-            'success': True,
-        }
-
-    ret_json = json.dumps(ret, separators=(',', ':'))
-
-    return HttpResponse(ret_json)
+# def packageQR(request):
+#     boxOrSubBox = '1-5'  # request.POST.get('boxNumber', '')
+#
+#     if '-' in boxOrSubBox:
+#         boxNumber = int(boxOrSubBox.split('-')[0])
+#         subBoxNumber = int(boxOrSubBox.split('-')[1])
+#     else:
+#         boxNumber = int(boxOrSubBox)
+#         subBoxNumber = ''
+#     log.log(user=request.user, operationType=u'业务操作', content=u'包号二维码打印')
+#     box = gsBox.objects.get(boxNumber=boxNumber)
+#     if subBoxNumber == '':
+#         packageNo = gsThing.objects.filter(box=box).values_list('packageNo', flat=True)
+#         packageList = list(set(packageNo))
+#     else:
+#         subBox = gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber)
+#         packageNo = gsThing.objects.filter(box=box,subBox=subBox).values_list('packageNo', flat=True)
+#         packageList = list(set(packageNo))
+#
+#     packageTag(boxNumber,subBoxNumber,packageList)
+#     ret = {
+#             'success': True,
+#         }
+#
+#     ret_json = json.dumps(ret, separators=(',', ':'))
+#
+#     return HttpResponse(ret_json)
 
 # -----------------------------------------------
 # # 点击开箱出库弹出二维码
@@ -689,25 +720,21 @@ def getBox(request):
         r = {}
         r['boxNumber'] = b.boxNumber
         box = gsBox.objects.get(boxNumber=b.boxNumber)
-        things = gsThing.objects.filter(box=box).values('subBoxNo')
-        allNo = []
-        for thing in things:
-            allNo.append(thing.values()[0])
-        subBoxList = list(set(allNo))
-
-        if len(subBoxList) == 1 and subBoxList[0] == 1:
-            r['haveSubBox'] = '0'  # 无子箱
-        else:
+        subBoxList = gsSubBox.objects.filter(box=box).values_list('subBoxNumber',flat=True)
+        if subBoxList:
             r['haveSubBox'] = '1'  # 有子箱
             r2 = {}
             for i in subBoxList:
-                if status == 0 and gsSubBox.objects.get(box=box,subBoxNumber=int(i)).status == 0:
-                    thingCount = gsThing.objects.filter(box=box,subBoxNo=int(i)).count()
+                subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(i))
+                if status == 0 and subBox.status == 0:
+                    thingCount = gsThing.objects.filter(box=box, subBox=subBox).count()
                     r2[i] = thingCount
-                if status == 1 and gsSubBox.objects.get(box=box,subBoxNumber=int(i)).status == 1:
-                    thingCount = gsThing.objects.filter(box=box,subBoxNo=int(i)).count()
+                if status == 1 and subBox.status == 1:
+                    thingCount = gsThing.objects.filter(box=box, subBox=subBox).count()
                     r2[i] = thingCount
             r['subBoxDict'] = r2
+        else:
+            r['haveSubBox'] = '0'  # 无子箱
 
         productType = gsProperty.objects.get(project='实物类型', code=b.productType)
         r['productType'] = productType.type
@@ -757,12 +784,14 @@ def getThing(request):
         else:
             ts = gsThing.objects.filter(box=box)
     else:
+        subBox = gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber)
         if isAllocated == 'notAllocated':
-            ts = gsThing.objects.filter(box=box,subBoxNo=subBoxNumber, isAllocate=False)
+
+            ts = gsThing.objects.filter(box=box,subBox=subBox, isAllocate=False)
         elif isAllocated == 'allocated':
-            ts = gsThing.objects.filter(box=box,subBoxNo=subBoxNumber, isAllocate=True)
+            ts = gsThing.objects.filter(box=box,subBox=subBox, isAllocate=True)
         else:
-            ts = gsThing.objects.filter(box=box,subBoxNo=subBoxNumber)
+            ts = gsThing.objects.filter(box=box,subBox=subBox)
 
     ret = {}
     n = ts.count()
@@ -811,28 +840,17 @@ def generateWorkName(request):
         subBoxNumber = ''
 
     box = gsBox.objects.get(boxNumber=int(boxNumber))
-    if subBoxNumber == '':
-        ws = gsWork.objects.filter(box=box).order_by('-workSeq')
-        workSeq = 1
-        if 0 != ws.count():
-            workSeq = ws[0].workSeq + 1
-
-        now = datetime.datetime.now()
-        workName = u'{0}年{1}月{2}日{3}号箱作业{4}'.format(now.year, now.month, now.day, boxNumber, workSeq)
-        ret = {
-            'workName': workName,
-        }
+    ws = gsWork.objects.filter(box=box).order_by('-workSeq').first()
+    if ws:
+        workSeq = ws.workSeq + 1
     else:
-        ws = gsWork.objects.filter(box=box).order_by('-workSeq')
         workSeq = 1
-        if 0 != ws.count():
-            workSeq = ws[0].workSeq + 1
 
-        now = datetime.datetime.now()
-        workName = u'{0}年{1}月{2}日{3}-{4}号箱作业{5}'.format(now.year, now.month, now.day, boxNumber,subBoxNumber,workSeq)
-        ret = {
-            'workName': workName,
-        }
+    now = datetime.datetime.now()
+    workName = u'{0}年{1}月{2}日{3}号箱作业{4}'.format(now.year, now.month, now.day, boxOrSubBox, workSeq)
+    ret = {
+        'workName': workName,
+    }
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
@@ -927,7 +945,7 @@ def getWork(request):
     subClassName = request.POST.get('subClassName', '')
     status = int(request.POST.get('status', ''))  # 1: 已入库 0: 未入库
 
-    bs = gsBox.objects.filter(status=True if status != 0 else False)
+    bs = gsBox.objects.filter(status=status)
     ws = gsWork.objects.filter(box__in=bs)
     # 按查询条件进行筛选
     if productType != '':
@@ -951,24 +969,20 @@ def getWork(request):
     ret = {}
     ret['total'] = n
     ret['rows'] = []
-    for w in ws[start:end]:
+    for work in ws[start:end]:
         r = {}
-        r['id'] = w.id
-        r['workName'] = w.workName
-        r['workSeq'] = w.workSeq
-        r['boxNumber'] = w.box.boxNumber
-        if w.subBox:
-            r['subBoxNumber'] = w.subBox.subBoxNumber
-        else:
-            r['subBoxNumber'] = ''
-        r['createDateTime'] = w.createDateTime
-        r['completeDateTime'] = w.completeDateTime if w.completeDateTime is not None else ''
-        r['status'] = w.status
-        r['amount'] = gsWorkThing.objects.filter(work=w).count()
+        r['id'] = work.id
+        r['workName'] = work.workName
+        r['workSeq'] = work.workSeq
+        r['boxNumber'] = work.box.boxNumber
+        r['subBoxNumber'] = work.subBox.subBoxNumber if work.subBox else ''
+        r['createDateTime'] = work.createDateTime
+        r['completeDateTime'] = work.completeDateTime if work.completeDateTime is not None else ''
+        r['status'] = work.status
+        work_thing = gsThing.objects.filter(work=work)
 
-        wt = gsWorkThing.objects.filter(work=w)
-        specialStatusIDList = wt.values_list('status', flat=True)
-        ss = gsStatus.objects.filter(id__in=specialStatusIDList)
+        r['amount'] = work_thing.count()
+        ss = gsStatus.objects.filter(thing__in=work_thing)
         r['checkingCompleteAmount'] = ss.filter(checkingStatus=True).count()
         r['numberingCompleteAmount'] = ss.filter(numberingStatus=True).count()
         r['analyzingCompleteAmount'] = ss.filter(analyzingStatus=True).count()
@@ -1002,25 +1016,15 @@ def startOrStopWork(request):
             work = gsWork.objects.get(box=box, workSeq=workSeq)
             gsWork.objects.filter(workSeq=workSeq, box=box).update(status=status)
 
-        #wts = gsWorkThing.objects.filter(work=work)
-        #specialThingIDList = wts.values_list('thing', flat=True)
-        #specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber',flat=True)
-        #ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, status=True)
-
-        if (status == 0):
+        if status == 0:
             # 收回操作时, 检查作业是否完成. 若已完成, 则更新作业完成时间
-            # work = gsWork.objects.get(box=box, workSeq=workSeq)
-            wts = gsWorkThing.objects.filter(work=work)
-            specialThingIDList = wts.values_list('thing', flat=True)
-            specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber',
-                                                                                                    flat=True)
-
-            ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, status=True)
+            work_things = gsThing.objects.filter(work=work)
+            status_set = gsStatus.objects.filter(thing__in=work_things, status=True)
             t = []
-            if (wts.count() == ss.count()):
+            if work_things.count() == status_set.count():
                 # 作业所属实物均清点查验完毕
                 try:
-                    numberingLatest = ss.latest('numberingUpdateDateTime')  # 取最近的/最新的一个对象，注意是一个对象
+                    numberingLatest = status_set.latest('numberingUpdateDateTime')  # 取最近的/最新的一个对象，注意是一个对象
                 except Exception as e:
                     dateTime1 = None
                 else:
@@ -1028,7 +1032,7 @@ def startOrStopWork(request):
                     t.append(dateTime1)
 
                 try:
-                    analyzingLatest = ss.latest('analyzingUpdateDateTime')
+                    analyzingLatest = status_set.latest('analyzingUpdateDateTime')
                 except Exception as e:
                     dateTime2 = None
                 else:
@@ -1036,7 +1040,7 @@ def startOrStopWork(request):
                     t.append(dateTime2)
 
                 try:
-                    measuringLatest = ss.latest('measuringUpdateDateTime')
+                    measuringLatest = status_set.latest('measuringUpdateDateTime')
                 except Exception as e:
                     dateTime3 = None
                 else:
@@ -1044,7 +1048,7 @@ def startOrStopWork(request):
                     t.append(dateTime3)
 
                 try:
-                    checkingLatest = ss.latest('checkingUpdateDateTime')
+                    checkingLatest = status_set.latest('checkingUpdateDateTime')
                 except Exception as e:
                     dateTime4 = None
                 else:
@@ -1052,7 +1056,7 @@ def startOrStopWork(request):
                     t.append(dateTime4)
 
                 try:
-                    photographingLatest = ss.latest('photographingUpdateDateTime')
+                    photographingLatest = status_set.latest('photographingUpdateDateTime')
                 except Exception as e:
                     dateTime5 = None
                 else:
@@ -1068,11 +1072,7 @@ def startOrStopWork(request):
                     workCompleteDateTime = t[max_index]
                 else:
                     workCompleteDateTime = None
-
-                # dateTime6 = dateTime1 if dateTime1 > dateTime2 else dateTime2
-                # dateTime7 = dateTime3 if dateTime3 > dateTime4 else dateTime4
-                # workCompleteDateTime = dateTime5 if dateTime6 > dateTime7 else dateTime7
-                gsWork.objects.filter(box=box, workSeq=workSeq).update(completeDateTime=workCompleteDateTime)
+                    work.update(completeDateTime=workCompleteDateTime)
     except Exception as e:
         ret = {
             'success': False,
@@ -1236,7 +1236,7 @@ def generateBoxInfo(request):
             subBoxNumber = ''
 
         boxInfoFileName = createBoxInfo(boxNumber,subBoxNumber, dateTime)
-        box_dir = os.path.join(settings.DATA_DIRS['box_dir'], boxNumber)
+        box_dir = os.path.join(settings.DATA_DIRS['box_dir'], str(boxNumber))
         file_path = os.path.join(box_dir, boxInfoFileName)
 
 
@@ -1337,15 +1337,13 @@ def exploreBox(request):
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
 
     work = gsWork.objects.filter(box=box)
-    wts = gsWorkThing.objects.filter(work__in=work)
-    specialThingIDList = wts.values_list('thing', flat=True)
-    specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber', flat=True)
-    serialNumberList = list(specialSerialNumberList)
+    serialNumberList = gsThing.objects.filter(work__in=work).values_list('serialNumber', flat=True)
 
     if subBoxNumber == '':
         ts = gsThing.objects.filter(box=box)
     else:
-        ts = gsThing.objects.filter(box=box,subBoxNo=subBoxNumber)
+        subBox = gsSubBox.objects.filter(subBoxNumber=subBoxNumber)
+        ts = gsThing.objects.filter(box=box,subBox=subBox)
     n = ts.count()
 
     start = (page - 1) * pageSize
@@ -1356,7 +1354,8 @@ def exploreBox(request):
     ret['rows'] = []
     for t in ts[start:end]:
         r = {}
-        r['serialNumber'] = t.serialNumber
+        serialNumber = t.serialNumber
+        r['serialNumber'] = serialNumber
         r['boxNumber'] = boxNumber
         if subBoxNumber != '':
             r['subBoxNumber'] = subBoxNumber
@@ -1366,8 +1365,8 @@ def exploreBox(request):
         r['className'] = className.type
         r['subClassName'] = subClassName.type
         r['wareHouse'] = wareHouse.type
-        if (t.serialNumber in serialNumberList):
-            r['workName'] = gsWorkThing.objects.get(thing=t.id).work.workName
+        if (serialNumber in serialNumberList):
+            r['workName'] = work.workName
             r['status'] = gsStatus.objects.get(box=box, serialNumber=t.serialNumber).status
         else:
             r['workName'] = ''
@@ -1493,25 +1492,19 @@ def getStatusData(request):
                                           parentType=className.type, grandpaProject=productType.project,
                                           grandpaType=productType.type)
 
-    if workSeq != '':
-        workSeq = int(workSeq)
+    workSeq = int(workSeq)
 
-        if subBoxNumber:
-            subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(subBoxNumber))
-            work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
-        else:
-            work = gsWork.objects.get(box=box, workSeq=workSeq)
+    if subBoxNumber:
+        subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(subBoxNumber))
+        work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
+    else:
+        work = gsWork.objects.get(box=box, workSeq=workSeq)
 
-        wts = gsWorkThing.objects.filter(work=work)
-        specialThingIDList = wts.values_list('thing', flat=True)
-        specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber',
-                                                                                                flat=True)
+    things = gsThing.objects.filter(work=work)
 
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-    else:  # 什么时候回出现这种情况？
-        ss = gsStatus.objects.filter(box=box)
+    thing_status_list = gsStatus.objects.filter(thing__in=things)
 
-    n = ss.count()
+    n = thing_status_list.count()
 
     start = (page - 1) * pageSize
     end = n if (page * pageSize > n) else page * pageSize
@@ -1520,9 +1513,9 @@ def getStatusData(request):
     ret['total'] = n
     ret['rows'] = []
     workStatus = 1
-    for s in ss[start:end]:
+    for thing_status in thing_status_list[start:end]:
         r = {}
-        r['serialNumber'] = s.serialNumber
+        r['serialNumber'] = thing_status.thing.serialNumber
         r['boxNumber'] = boxNumber
         if subBoxNumber != '':
             r['subBoxNumber'] =subBoxNumber
@@ -1532,35 +1525,35 @@ def getStatusData(request):
         r['className'] = className.type
         r['subClassName'] = subClassName.type
 
-        r['status1st'] = s.numberingStatus
-        if (s.numberingStatus != 1):
+        r['status1st'] = thing_status.numberingStatus
+        if (thing_status.numberingStatus != 1):
             workStatus = 0
-        r['operator1st'] = s.numberingOperator
-        r['updateDate1st'] = s.numberingUpdateDateTime
+        r['operator1st'] = thing_status.numberingOperator
+        r['updateDate1st'] = thing_status.numberingUpdateDateTime
 
-        r['status2nd'] = s.analyzingStatus
-        if (s.analyzingStatus != 1):
+        r['status2nd'] = thing_status.analyzingStatus
+        if (thing_status.analyzingStatus != 1):
             workStatus = 0
-        r['operator2nd'] = s.analyzingOperator
-        r['updateDate2nd'] = s.analyzingUpdateDateTime
+        r['operator2nd'] = thing_status.analyzingOperator
+        r['updateDate2nd'] = thing_status.analyzingUpdateDateTime
 
-        r['status3rd'] = s.measuringStatus
-        if (s.measuringStatus != 1):
+        r['status3rd'] = thing_status.measuringStatus
+        if (thing_status.measuringStatus != 1):
             workStatus = 0
-        r['operator3rd'] = s.measuringOperator
-        r['updateDate3rd'] = s.measuringUpdateDateTime
+        r['operator3rd'] = thing_status.measuringOperator
+        r['updateDate3rd'] = thing_status.measuringUpdateDateTime
 
-        r['status4th'] = s.checkingStatus
-        if (s.checkingStatus != 1):
+        r['status4th'] = thing_status.checkingStatus
+        if (thing_status.checkingStatus != 1):
             workStatus = 0
-        r['operator4th'] = s.checkingOperator
-        r['updateDate4th'] = s.checkingUpdateDateTime
+        r['operator4th'] = thing_status.checkingOperator
+        r['updateDate4th'] = thing_status.checkingUpdateDateTime
 
-        r['status5th'] = s.photographingStatus
-        if (s.photographingStatus != 1):
+        r['status5th'] = thing_status.photographingStatus
+        if (thing_status.photographingStatus != 1):
             workStatus = 0
-        r['operator5th'] = s.photographingOperator
-        r['updateDate5th'] = s.photographingUpdateDateTime
+        r['operator5th'] = thing_status.photographingOperator
+        r['updateDate5th'] = thing_status.photographingUpdateDateTime
 
         ret['rows'].append(r)
 

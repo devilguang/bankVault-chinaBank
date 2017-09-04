@@ -26,31 +26,27 @@ def updateAnalyzingInfo(request):
 
     try:
         # 检测作业是否可用
-        t = gsThing.objects.get(serialNumber=serialNumber)
-        wt = gsWorkThing.objects.get(thing=t)
-        if (wt.work.status != 1):
+        thing = gsThing.objects.get(serialNumber=serialNumber)
+        thing_status = gsStatus.objects.filter(thing=thing)
+        thing_obj = thing_status[0]
+        if thing_obj.status == 0:
             # 作业不可用
             raise ValueError, u'作业不可用！请联系现场负责人进行分发！'
 
         if (0 == cmp(productType, u'金银锭类')):
-            ts = gsDing.objects.filter(box=box, serialNumber=serialNumber).update(detectedQuantity=detectedQuantity)
+            ts = gsDing.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
         elif (0 == cmp(productType, u'金银币章类')):
-            ts = gsBiZhang.objects.filter(box=box, serialNumber=serialNumber).update(detectedQuantity=detectedQuantity)
+            ts = gsBiZhang.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
         elif (0 == cmp(productType, u'银元类')):
-            ts = gsYinYuan.objects.filter(box=box, serialNumber=serialNumber).update(detectedQuantity=detectedQuantity)
+            ts = gsYinYuan.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
         elif (0 == cmp(productType, u'金银工艺品类')):
-            ts = gsGongYiPin.objects.filter(box=box, serialNumber=serialNumber).update(
-                detectedQuantity=detectedQuantity)
+            ts = gsGongYiPin.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
 
-        # now = datetime.utcnow() # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
-        # now = datetime.datetime.now()
-        gsStatus.objects.filter(box=box, serialNumber=serialNumber).update(analyzingStatus=True,
-                                                                           analyzingOperator=operator,
-                                                                           analyzingUpdateDateTime=dt)
+        thing_status.update(analyzingStatus=True,analyzingOperator=operator,analyzingUpdateDateTime=dt)
 
-        s = gsStatus.objects.get(box=box, serialNumber=serialNumber)
-        status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus
-        gsStatus.objects.filter(box=box, serialNumber=serialNumber).update(status=status)
+        status = thing_obj.numberingStatus and thing_obj.analyzingStatus and thing_obj.measuringStatus and \
+                 thing_obj.photographingStatus and thing_obj.checkingStatus
+        thing_status.update(status=status)
     except Exception as e:
         ret = {}
         ret['success'] = False
@@ -67,17 +63,12 @@ def updateAnalyzingInfo(request):
     return HttpResponse(ret_json)
 
 def getAnalyzingWorkData(request):
-    ws = gsWork.objects.filter(status=1)
+    work_list = gsWork.objects.filter(status=1)
 
     ret = {}
-    for w in ws:
-        box = w.box
-        wts = gsWorkThing.objects.filter(work=w)
-        specialThingIDList = wts.values_list('thing', flat=True)
-        specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber',
-                                                                                                flat=True)
-
-        key = w.workName
+    for work in work_list:
+        box = work.box
+        key = work.workName
         ret[key] = {}
         ret[key]['boxNumber'] = box.boxNumber
         productTypeCode = box.productType
@@ -88,30 +79,33 @@ def getAnalyzingWorkData(request):
                                            parentType=productType.type)
         ret[key]['className'] = className.type
 
-        if (0 == cmp(productType.type, u'金银锭类')):
-            ts = gsDing.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        elif (0 == cmp(productType.type, u'金银币章类')):
-            ts = gsBiZhang.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        elif (0 == cmp(productType.type, u'银元类')):
-            ts = gsYinYuan.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        elif (0 == cmp(productType.type, u'金银工艺品类')):
-            ts = gsGongYiPin.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        thing_set = gsThing.objects.filter(work=work)
+        # if (0 == cmp(productType.type, u'金银锭类')):
+        #     ts = gsDing.objects.filter(thing__in=thing_set)
+        # elif (0 == cmp(productType.type, u'金银币章类')):
+        #     ts = gsBiZhang.objects.filter(thing__in=thing_set)
+        # elif (0 == cmp(productType.type, u'银元类')):
+        #     ts = gsYinYuan.objects.filter(thing__in=thing_set)
+        # elif (0 == cmp(productType.type, u'金银工艺品类')):
+        #     ts = gsGongYiPin.objects.filter(thing__in=thing_set)
 
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        status_set = gsStatus.objects.filter(thing__in=thing_set)
 
         idx = 1
         ret[key]['data'] = {}
         ret[key]['NotComplete'] = {}
-        for t, s in zip(ts, ss):
+        for thing, status in zip(thing_set, status_set):
+            serialNumber = thing.serialNumber
+            analyzingStatus =status.analyzingStatus
             ret[key]['data'][idx] = []
-            ret[key]['data'][idx].append(t.serialNumber)
+            ret[key]['data'][idx].append(serialNumber)
             ret[key]['data'][idx].append(productType.type)
-            ret[key]['data'][idx].append(s.analyzingStatus)
+            ret[key]['data'][idx].append(analyzingStatus)
 
-            if not s.analyzingStatus:
+            if not status.analyzingStatus:
                 ret[key]['NotComplete'][idx] = []
-                ret[key]['NotComplete'][idx].append(t.serialNumber)
-                ret[key]['NotComplete'][idx].append(s.analyzingStatus)
+                ret[key]['NotComplete'][idx].append(serialNumber)
+                ret[key]['NotComplete'][idx].append(analyzingStatus)
 
             idx = idx + 1
 

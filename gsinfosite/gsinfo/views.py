@@ -87,7 +87,7 @@ def login(request):
                         else:
                             ret = {
                                 "success": False,
-                                "message": u'该用户无实物鉴定岗位权限！'
+                                "message": u'该用户无外观信息采集岗位权限！'
                             }
                     elif workRole == 'measuring':
                         hasRole = custom_user.measuring
@@ -194,33 +194,28 @@ def getWorkData(request, workSeq):
         subBox = gsSubBox.objects.get(box=box,subBoxNumber=int(subBoxNumber))
         work = gsWork.objects.get(box=box, workSeq=workSeq,subBox=subBox)
 
-    wts = gsWorkThing.objects.filter(work=work)
-    specialThingIDList = wts.values_list('thing', flat=True)
-    specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber', flat=True)
+    thing_set = gsThing.objects.filter(work=work)
 
     if thingStatus != '' and thingStatus != 'all':
         if thingStatus == 'cancheck':
-            # 检索数据复核环节，可以复核的实物
-            ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, numberingStatus=True,
-                                         measuringStatus=True, analyzingStatus=True, photographingStatus=True)
+            # 检索实物认定环节，可以复核的实物
+            status_set = gsStatus.objects.filter(thing__in=thing_set, numberingStatus=True)
         else:
             if thingStatus == 'notComplete':
                 status = False
             elif thingStatus == 'complete':
                 status = True
 
-            if 2 == processId:  # 实物鉴定环节
-                ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, numberingStatus=status)
+            if 2 == processId:  # 外观信息采集环节
+                status_set = gsStatus.objects.filter(thing__in=thing_set, numberingStatus=status)
             elif 3 == processId:  # 频谱分析环节
-                ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, analyzingStatus=status)
+                status_set = gsStatus.objects.filter(thing__in=thing_set, analyzingStatus=status)
             elif 4 == processId:  # 测量称重环节
-                ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, measuringStatus=status)
-            elif 5 == processId:  # 数据复核环节
-                ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, checkingStatus=status)
+                status_set = gsStatus.objects.filter(thing__in=thing_set, measuringStatus=status)
+            elif 5 == processId:  # 实物认定环节
+                status_set = gsStatus.objects.filter(thing__in=thing_set, checkingStatus=status)
             elif 6 == processId:  # 图像采集环节
-                ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList, photographingStatus=status)
-
-        specialSerialNumberList = ss.values_list('serialNumber', flat=True)
+                status_set = gsStatus.objects.filter(thing__in=thing_set, photographingStatus=status)
 
     productTypeCode = box.productType
     classNameCode = box.className
@@ -235,27 +230,26 @@ def getWorkData(request, workSeq):
                                           grandpaType=productType.type)
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
 
-    if productType.type == u'金银锭类':
-        ts = gsDing.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-    elif productType.type == u'金银币章类':
-        ts = gsBiZhang.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-    elif productType.type == u'银元类':
-        ts = gsYinYuan.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-    elif productType.type == u'金银工艺品类':
-        ts = gsGongYiPin.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+    # thing_list = ss.values_list('thing', flat=True)
+    # if productType.type == u'金银锭类':
+    #     ts = gsDing.objects.filter(thing__in=thing_list)
+    # elif productType.type == u'金银币章类':
+    #     ts = gsBiZhang.objects.filter(thing__in=thing_list)
+    # elif productType.type == u'银元类':
+    #     ts = gsYinYuan.objects.filter(thing__in=thing_list)
+    # elif productType.type == u'金银工艺品类':
+    #     ts = gsGongYiPin.objects.filter(thing__in=thing_list)
 
-    ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-    n = ts.count()
-
+    n = status_set.count()
     start = (page - 1) * pageSize
     end = n if (page * pageSize > n) else page * pageSize
 
     ret = {}
     ret['total'] = n
     ret['rows'] = []
-    for t, s in zip(ts[start:end], ss[start:end]):
+    for status in status_set[start:end]:
         r = {}
-        r['serialNumber'] = t.serialNumber
+        r['serialNumber'] = status.thing.serialNumber
         r['productType'] = productType.type
         if subBoxNumber == '':
             r['boxNumber'] = boxNumber
@@ -264,24 +258,23 @@ def getWorkData(request, workSeq):
         r['className'] = className.type
         r['subClassName'] = subClassName.type
         r['wareHouse'] = wareHouse.type
-        if (2 == processId):  # 实物鉴定环节
-            r['status'] = s.numberingStatus
-            r['operator'] = s.numberingOperator
-            r['lastUpdateTime'] = s.numberingUpdateDateTime if s.numberingStatus else ''
+        if (2 == processId):  # 外观信息采集环节
+            r['status'] = status.numberingStatus
+            r['operator'] = status.numberingOperator
+            r['lastUpdateTime'] = status.numberingUpdateDateTime if status.numberingStatus else ''
         elif (4 == processId):  # 测量称重环节
-            r['status'] = s.measuringStatus
-            r['operator'] = s.measuringOperator
-            r['lastUpdateTime'] = s.measuringUpdateDateTime if s.measuringStatus else ''
+            r['status'] = status.measuringStatus
+            r['operator'] = status.measuringOperator
+            r['lastUpdateTime'] = status.measuringUpdateDateTime if status.measuringStatus else ''
         elif (6 == processId):  # 图像采集环节
-            r['status'] = s.photographingStatus
-            r['operator'] = s.photographingOperator
-            r['lastUpdateTime'] = s.photographingUpdateDateTime if s.photographingStatus else ''
-        elif (5 == processId):  # 数据复核环节
-            r['operation'] = s.numberingStatus and s.measuringStatus and s.analyzingStatus
-            r['status'] = s.checkingStatus
-            r['operator'] = s.checkingOperator
-            r['lastUpdateTime'] = s.checkingUpdateDateTime if s.checkingStatus else ''
-            print r['lastUpdateTime']
+            r['status'] = status.photographingStatus
+            r['operator'] = status.photographingOperator
+            r['lastUpdateTime'] = status.photographingUpdateDateTime if status.photographingStatus else ''
+        elif (5 == processId):  # 实物认定环节
+            r['operation'] = status.numberingStatus and status.measuringStatus and status.analyzingStatus
+            r['status'] = status.checkingStatus
+            r['operator'] = status.checkingOperator
+            r['lastUpdateTime'] = status.checkingUpdateDateTime if status.checkingStatus else ''
         ret['rows'].append(r)
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
@@ -340,54 +333,43 @@ def searchThingInfo(request):
     processId = int(request.POST.get('processId', ''))
 
     try:
-        t = gsThing.objects.get(serialNumber=serialNumber)
-        wt = gsWorkThing.objects.get(thing=t)  # 无该元素则会抛出 ObjectDoesNotExist 异常
-        work = wt.work  # 这里的work、box、status都是外键，会指向对应的表
-        box = work.box
-        subBox = work.subBox
+        thing = gsThing.objects.get(serialNumber=serialNumber)
+        work = thing.work
+        box = thing.box
+        subBox = thing.subBox
         boxNumber = box.boxNumber
         if subBox:
             subBoxNumber = subBox.subBoxNumber
             boxOrSubBox = str(boxNumber) + '-' + str(subBoxNumber)
         else:
             boxOrSubBox = str(boxNumber)
-        status = wt.status
 
-        wts = gsWorkThing.objects.filter(work=work)
-        specialThingIDList = wts.values_list('thing', flat=True)
-        specialSerialNumberList1 = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber',
-                                                                                                 flat=True)
+        thing_set = gsThing.objects.filter(work=work)
+
+        status = gsStatus.objects.get(thing=thing)
         if (2 == processId):
-            # 实物鉴定环节
+            # 外观信息采集环节
             thingStatus = status.numberingStatus
-            specialSerialNumberList2 = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList1,
-                                                               numberingStatus=thingStatus).values_list('serialNumber',
-                                                                                                        flat=True)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,numberingStatus=thingStatus).values_list('thing',flat=True)
         if (3 == processId):
             # 频谱分析环节
-            thingStatus = status.numberingStatus
-            specialSerialNumberList2 = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList1,
-                                                               analyzingStatus=thingStatus).values_list('serialNumber',
-                                                                                                        flat=True)
+            thingStatus = status.analyzingStatus
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,analyzingStatus=thingStatus).values_list('thing',flat=True)
         elif (4 == processId):
             # 测量称重环节
             thingStatus = status.measuringStatus
-            specialSerialNumberList2 = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList1,
-                                                               measuringStatus=thingStatus).values_list('serialNumber',
-                                                                                                        flat=True)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,measuringStatus=thingStatus).values_list('thing',flat=True)
         elif (5 == processId):
-            # 数据复核环节
+            # 实物认定环节
             thingStatus = status.checkingStatus
-            specialSerialNumberList2 = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList1,
-                                                               checkingStatus=thingStatus).values_list('serialNumber',
-                                                                                                       flat=True)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,checkingStatus=thingStatus).values_list('thing',flat=True)
         elif (6 == processId):
             # 图像采集环节
             thingStatus = status.photographingStatus
-            specialSerialNumberList2 = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList1,
-                                                               photographingStatus=thingStatus).values_list('serialNumber',
-                                                                                                            flat=True)
-        serialNumberList = list(specialSerialNumberList2)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,photographingStatus=thingStatus).values_list('thing',flat=True)
+
+        specialSerialNumberList = gsThing.objects.filter(thing__in=thing_set2).values_list('serialNumber',flat=True)
+        serialNumberList = list(specialSerialNumberList)
         n = len(serialNumberList)
 
         idx = serialNumberList.index(serialNumber) + 1
@@ -457,12 +439,8 @@ def exploreThing(request, boxNumber, serialNumber):
         # 最后在context中添加isVerify环境变量
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-    t = gsThing.objects.get(serialNumber=serialNumber)
-    wt = gsWorkThing.objects.get(thing=t)
-    work = wt.work
-    specialThingIDList = gsWorkThing.objects.filter(work=work).values_list('thing', flat=True)
-    specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber',
-                                                                                            flat=True)
+    thing = gsThing.objects.get(serialNumber=serialNumber)
+    work =thing.work
 
     context = {}
     context['boxNumber'] = boxOrSubBox
@@ -580,7 +558,7 @@ def exploreThing(request, boxNumber, serialNumber):
 
         html = 'gongyipin.html'
 
-    serialNumberList = list(specialSerialNumberList)
+    serialNumberList = gsThing.objects.filter(work=work).values_list('serialNumber', flat=True)
     n = len(serialNumberList)
     first = 0
     last = n - 1

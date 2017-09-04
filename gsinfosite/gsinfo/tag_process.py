@@ -133,21 +133,22 @@ def createTag(boxNumber,subBoxNumber, workSeq):
         work = gsWork.objects.get(box=box, workSeq=workSeq)
 
     workName = work.workName
-    wts = gsWorkThing.objects.filter(work=work)
-    specialThingIDList = wts.values_list('thing', flat=True)
-    specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber', flat=True)
+    # wts = gsWorkThing.objects.filter(work=work)
+    # specialThingIDList = wts.values_list('thing', flat=True)
+    # specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber', flat=True)
 
+    thing_set = gsThing.objects.filter(work__in=work)
     productTypeCode = box.productType
     productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
 
-    if (0 == cmp(productType.type, u'金银锭类')):
-        rs = gsDing.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-    elif (0 == cmp(productType.type, u'金银币章类')):
-        rs = gsBiZhang.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-    elif (0 == cmp(productType.type, u'银元类')):
-        rs = gsYinYuan.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-    elif (0 == cmp(productType.type, u'金银工艺品类')):
-        rs = gsGongYiPin.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+    if productType.type == u'金银锭类':
+        rs = gsDing.objects.filter(thing__in=thing_set)
+    elif productType.type == u'金银币章类':
+        rs = gsBiZhang.objects.filter(thing__in=thing_set)
+    elif productType.type == u'银元类':
+        rs = gsYinYuan.objects.filter(thing__in=thing_set)
+    elif productType.type == u'金银工艺品类':
+        rs = gsGongYiPin.objects.filter(thing__in=thing_set)
 
     global tagDir
     tagDir = os.path.join(tagRootDir, str(boxNumber))

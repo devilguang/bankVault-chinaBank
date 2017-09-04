@@ -11,9 +11,11 @@ class gsUserManager(models.Manager):
         nickName = kwargs['nickName']
         type = kwargs['type']
         password = kwargs['password']
+        organization = kwargs['organization']
+        department = kwargs['department']
         # 生成User
         u = User.objects.order_by('-id')  # User类操作的是数据库中的auth_user表，u是一个对象列表，按照id倒叙排列
-        if (0 != u.count()):
+        if 0 != u.count():
             username = 'user{0}'.format(u[0].id + 1)  #
         else:
             username = 'user'
@@ -27,14 +29,16 @@ class gsUserManager(models.Manager):
                 analyzing = True
                 checking = True
                 photographing =True
-                newUser, created = gsUser.objects.get_or_create(user=user, nickName=nickName, type=type,
+                gsUser.objects.get_or_create(user=user, nickName=nickName, organization=organization,
+                                                                department=department, type=type,
                                                                 numbering=numbering, measuring=measuring,
                                                                 analyzing=analyzing, checking=checking,
                                                                 photographing=photographing)
             else:
-                newUser, created = gsUser.objects.get_or_create(user=user, nickName=nickName, type=type)
+                gsUser.objects.get_or_create(user=user, nickName=nickName,organization=organization,
+                                                                department=department, type=type)
 
-            return (newUser, created)
+            return
 
     def deleteUser(self, **kwargs):
         nickName = kwargs['nickName']
@@ -57,7 +61,9 @@ class gsUser(models.Model):
     user = models.OneToOneField(User)  # OneToOneField(someModel) 可以理解为 ForeignKey(SomeModel, unique=True)
     type = models.PositiveIntegerField()  # 用户类型: 0:超级管理员 1:管理员 2:一般用户
     nickName = models.CharField(max_length=255, unique=True)  # 昵称
-    numbering = models.BooleanField(default=False)  # 实物鉴定权限: True:拥有 False:未拥有
+    numbering = models.BooleanField(default=False)  # 外观信息采集权限: True:拥有 False:未拥有
+    organization = models.CharField(max_length=255,null=True)  # 用户所在组织
+    department = models.CharField(max_length=255,null=True)  # 用户所在部门
     analyzing = models.BooleanField(default=False)  # 频谱分析权限: True:拥有 False:未拥有
     measuring = models.BooleanField(default=False)  # 测量称重权限: True:拥有 False:未拥有
     checking = models.BooleanField(default=False)  # 数据审核权限: True:拥有 False:未拥有
@@ -86,11 +92,12 @@ class gsBoxManager(models.Manager):
         classNameCode = kwargs['className']
         subClassName = kwargs['subClassName']
         boxNumber = kwargs['boxNumber']
-        subClassNameCode = kwargs['subClassName']
         wareHouseCode = kwargs['wareHouse']
         amount = kwargs['amount']
         startSeq = kwargs['startSeq']
         grossWeight = kwargs['grossWeight']
+        boxSeq = kwargs['boxSeq']
+        thing_num = kwargs['thing_num']
 
         # 生成一条Box记录
         box, createdBox = super(models.Manager, self).get_or_create(boxNumber=boxNumber,
@@ -99,13 +106,14 @@ class gsBoxManager(models.Manager):
                                                                     subClassName=subClassName,
                                                                     wareHouse=wareHouseCode,
                                                                     amount=amount,
-                                                                    grossWeight=grossWeight)
+                                                                    grossWeight=grossWeight,
+                                                                    boxSeq=boxSeq)
 
         # 生成实物索引表, 依据实物类型, 在实物索引表生成相应的实物索引记录
+        thing_num_list = thing_num.split('|')
         thingsList = []
-        for _ in range(amount):
-            serialNumber = classNameCode + '-' + subClassNameCode + '-' + wareHouseCode + '-' + str(startSeq)
-            thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box))
+        for thing in thing_num_list:
+            thingsList.append(gsThing(serialNumber=thing, seq=startSeq, box=box))
             startSeq = startSeq + 1
         gsThing.objects.bulk_create(thingsList)  # bulk_create批量数据入库，参数是list
         return (box, createdBox)
@@ -132,7 +140,8 @@ class gsBoxManager(models.Manager):
             if subBoxNumber == '':
                 thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,))
             else:
-                thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,subBoxNo=int(subBoxNumber)))
+                subBox = gsSubBox.objects.get(box=box,subBoxNumber=subBoxNumber)
+                thingsList.append(gsThing(serialNumber=serialNumber, seq=startSeq, box=box, subBoxSeq=subBoxSeq,subBox=subBox))
             startSeq = startSeq + 1
 
         gsThing.objects.bulk_create(thingsList)
@@ -158,6 +167,7 @@ class gsBoxManager(models.Manager):
 # 箱体实物表
 class gsBox(models.Model):
     boxNumber = models.PositiveIntegerField(unique=True)  # 箱号
+    boxSeq = models.CharField(max_length=255,unique=True)  # 货发二代系统提供的箱号
     productType = models.CharField(max_length=255)  # 实物类型
     className = models.CharField(max_length=255)  # 品名
     subClassName = models.CharField(max_length=255)  # 明细品名
@@ -236,25 +246,17 @@ class gsWorkManager(models.Manager):
             infosList = []
             statusList = []
             for serialNumber in ts:
-                seq = int(serialNumber.split('-')[3])   # 实物索引记录中的startseq
+                thing = gsThing.objects.get(serialNumber=serialNumber)
                 # 生成一条实物信息档案记录
-                infosList.append(info(serialNumber=serialNumber, box=box, seq=seq))
+                infosList.append(info(thing=thing))
                 # 生成一条实物信息采集状态记录  
-                statusList.append(gsStatus(serialNumber=serialNumber, box=box, seq=seq))
+                statusList.append(gsStatus(thing=thing))
 
             infoManager.bulk_create(infosList)
             gsStatus.objects.bulk_create(statusList)
 
-            # 生成作业与实物关联表
-            wtList = []
-            for t1 in ts:
-                r = gsThing.objects.get(serialNumber=t1)
-                s = gsStatus.objects.get(serialNumber=t1)
-                # 生成一条作业与实物关联记录
-                wtList.append(gsWorkThing(thing=r, work=work, status=s))
-            gsWorkThing.objects.bulk_create(wtList)
             # 更新实物的作业分配状态
-            gsThing.objects.filter(serialNumber__in=ts).update(isAllocate=True)
+            gsThing.objects.filter(serialNumber__in=ts).update(isAllocate=True,work=work)
 
         return (work, createdWork)
 
@@ -271,30 +273,8 @@ class gsWorkManager(models.Manager):
             else:
                 work = super(models.Manager, self).get(box=box, workSeq=workSeq)
             # 删除实物信息档案记录和实物信息采集状态记录
-            productTypeCode = work.box.productType
-            wts = gsWorkThing.objects.filter(work=work)
-            specialThingIDList = wts.values_list('thing', flat=True)
-            specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber',
-                                                                                                    flat=True)
-
-            '''for wt in wts:
-                s = gsStatus.objects.get(id = wt.status.id)
-                s.delete()
-                
-                if ('1' == productTypeCode):      # 金银锭类
-                    infoManager = gsDing.objects
-                elif ('2' == productTypeCode):    # 金银币章类
-                    infoManager = gsBiZhang.objects
-                elif ('3' == productTypeCode):    # 银元类
-                    infoManager = gsYinYuan.objects
-                elif ('4' == productTypeCode):    # 金银工艺品类
-                    infoManager = gsGongYiPin.objects
-                    
-                info = infoManager.get(serialNumber = wt.thing.serialNumber)
-                info.delete()
-                
-                # 更新实物的作业分配状态
-                thingManager.filter(serialNumber = wt.thing.serialNumber).update(isAllocate = False)'''
+            productTypeCode = box.productType
+            work_things = gsThing.objects.filter(work=work)
 
             if ('1' == productTypeCode):  # 金银锭类
                 infoManager = gsDing.objects
@@ -305,12 +285,11 @@ class gsWorkManager(models.Manager):
             elif ('4' == productTypeCode):  # 金银工艺品类
                 infoManager = gsGongYiPin.objects
 
-            serialNumberList = list(specialSerialNumberList)
-            n = len(serialNumberList)
+            n = len(work_things)
             if n > 0:
-                infoManager.filter(box=box, serialNumber__in=list(specialSerialNumberList)).delete()
-                gsStatus.objects.filter(box=box, serialNumber__in=list(specialSerialNumberList)).delete()
-                gsThing.objects.filter(box=box, serialNumber__in=list(specialSerialNumberList)).update(isAllocate=False)
+                infoManager.filter(thing__in=work_things).delete()
+                gsStatus.objects.filter(thing__in=work_things).delete()
+                work_things.update(isAllocate=False)
 
             work.delete()
             deletedWork = True
@@ -338,13 +317,15 @@ class gsWork(models.Model):
 
 # 实物索引表
 class gsThing(models.Model):
-    serialNumber = models.CharField(max_length=255, unique=True)  # 编号由四部分组成：品名代码-明细品名代码-发行库代码-实物序号
+    serialNumber = models.CharField(max_length=255,unique=True)  # 货发二代系统提供的随机生成的实物编号
+    serialNumber2 = models.CharField(max_length=255,unique=True,null=True)  # 编号由四部分组成：品名代码-明细品名代码-发行库代码-实物序号
     seq = models.PositiveIntegerField()  # 实物序号, 取自编号的最后一部分
-    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
     subBoxSeq = models.PositiveIntegerField(default=1)  # 子箱号, 从1开始
     isAllocate = models.BooleanField(default=False)  # 实物是否已分配
-    subBoxNo = models.PositiveIntegerField(default=1)  # 拆箱后形成的子箱编号，默认为0,表示未拆箱，子箱编号从1开始
     historyNo = models.IntegerField(null=True)
+    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
+    subBox = models.ForeignKey(gsSubBox,null=True)
+    work = models.ForeignKey(gsWork,null=True)
 
     class Meta:
         ordering = ['seq']
@@ -352,15 +333,13 @@ class gsThing(models.Model):
 
 # 状态表
 class gsStatus(models.Model):
-    serialNumber = models.CharField(max_length=255, unique=True)  # 编号
-    seq = models.PositiveIntegerField()  # 实物序号, 取自编号的最后一部分
-    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
+    thing = models.ForeignKey(gsThing)
     status = models.BooleanField(default=False)  # 实物状态: False:未完成 True:完成
 
-    numberingStatus = models.BooleanField(default=False)  # 环节1实物鉴定状态: False:未完成 True:完成
-    numberingOperator = models.CharField(max_length=512, blank=True)  # 环节1实物鉴定记录员
-    numberingCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节1实物鉴定记录生成时间
-    numberingUpdateDateTime = models.DateTimeField(null=True)  # 环节1实物鉴定记录最近一次修改时间
+    numberingStatus = models.BooleanField(default=False)  # 环节1外观信息采集状态: False:未完成 True:完成
+    numberingOperator = models.CharField(max_length=512, blank=True)  # 环节1外观信息采集记录员
+    numberingCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节1外观信息采集记录生成时间
+    numberingUpdateDateTime = models.DateTimeField(null=True)  # 环节1外观信息采集记录最近一次修改时间
 
     analyzingStatus = models.BooleanField(default=False)  # 环节2频谱检测状态: False:未完成 True:完成
     analyzingOperator = models.CharField(max_length=512, blank=True)  # 环节2频谱检测记录员
@@ -382,24 +361,21 @@ class gsStatus(models.Model):
     photographingCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节4数据审核记录生成时间
     photographingUpdateDateTime = models.DateTimeField(null=True)  # 环节4数据审核记录最近一次修改时间
 
-
-# 作业与实物关系表
-class gsWorkThing(models.Model):
-    thing = models.ForeignKey(gsThing)  # 实物, 参照gsThing表"id"列
-    work = models.ForeignKey(gsWork)  # 作业, 参照gsWork表"id"列
-    status = models.ForeignKey(gsStatus)  # 实物对应的清点查验状态, 参照gsStatus表"id"列
-
-    class Meta:
-        unique_together = (('thing', 'work'))
+#
+# # 作业与实物关系表
+# class gsWorkThing(models.Model):
+#     thing = models.ForeignKey(gsThing)  # 实物, 参照gsThing表"id"列
+#     work = models.ForeignKey(gsWork)  # 作业, 参照gsWork表"id"列
+#     status = models.ForeignKey(gsStatus)  # 实物对应的清点查验状态, 参照gsStatus表"id"列
+#
+#     class Meta:
+#         unique_together = (('thing', 'work'))
 
 
 # 实物属性表
 # 金银锭类    
 class gsDing(models.Model):
-    serialNumber = models.CharField(max_length=255, unique=True)  # 编号由四部分组成：品名代码-明细品名代码-发行库代码-实物序号
-    seq = models.PositiveIntegerField()  # 实物序号, 取自编号的最后一部分
-    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
-
+    thing = models.ForeignKey(gsThing)
     detailedName = models.CharField(max_length=1024, blank=True)  # 名称
     typeName = models.CharField(max_length=512, blank=True)  # 型制类型
     peroid = models.CharField(max_length=255, blank=True)  # 时代
@@ -460,9 +436,7 @@ class gsDing(models.Model):
 
 # 金银币章类
 class gsBiZhang(models.Model):
-    serialNumber = models.CharField(max_length=255, unique=True)  # 编号由四部分组成：品名代码-明细品名代码-发行库代码-实物序号
-    seq = models.PositiveIntegerField()  # 实物序号, 取自编号的最后一部分
-    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
+    thing = models.ForeignKey(gsThing)
 
     detailedName = models.CharField(max_length=1024, blank=True)  # 名称
     versionName = models.CharField(max_length=1024, blank=True)  # 版别
@@ -480,49 +454,11 @@ class gsBiZhang(models.Model):
     thick = models.FloatField(null=True)  # 厚度
     grossWeight = models.FloatField(null=True)  # 毛重
     pureWeight = models.FloatField(null=True)  # 净重
-    # # -----------------------------------------------------------
-    # measureTime = models.TimeField(null=True)  # 测量时间
-    # measureDate = models.DateField(null=True)  # 测量日期
-    # Au = models.CharField(max_length=255, null=True)  # 金
-    # Ag = models.CharField(max_length=255, null=True)  # 银
-    # Cu = models.CharField(max_length=255, null=True)  # 铜
-    # Pt = models.CharField(max_length=255, null=True)  # 铂
-    # Pd = models.CharField(max_length=255, null=True)  # 钯
-    # Zn = models.CharField(max_length=255, null=True)  # 锌
-    # Ni = models.CharField(max_length=255, null=True)  # 镍
-    # Cd = models.CharField(max_length=255, null=True)  # 镉
-    # Co = models.CharField(max_length=255, null=True)  # 钴
-    # Ru = models.CharField(max_length=255, null=True)  # 钌
-    # Ir = models.CharField(max_length=255, null=True)  # 铱
-    # Rh = models.CharField(max_length=255, null=True)  # 铑
-    # In = models.CharField(max_length=255, null=True)  # 铟
-    # Pb = models.CharField(max_length=255, null=True)  # 铅
-    # Fe = models.CharField(max_length=255, null=True)  # 铁
-    # Os = models.CharField(max_length=255, null=True)  # 锇
-    # W = models.CharField(max_length=255, null=True)  # 钨
-    # Others = models.CharField(max_length=255, null=True)  # 其他
-    # testUnit = models.CharField(max_length=255, null=True)  # 送检单位
-    # testPerson = models.CharField(max_length=255, null=True)  # 检测人员
-    # # 序号
-    # # 生产厂家
-    # # 样品编号
-    # sampleName = models.CharField(max_length=255, null=True)  # 样品名称
-    # # 重量
-    # reportQuality = models.CharField(max_length=255, null=True)  # 申报成色
-    # testResult = models.CharField(max_length=255, null=True)  # 检测结果
-    # remarks = models.CharField(max_length=255, null=True)  # 备注
-    # # 检测依据
-    # # 检测单位地址
-    # # 联系电话
-    # # 检测单位
-    # testRequire = models.CharField(max_length=255, null=True)  # 测试要求
-    # # -----------------------------------------------------------
+
 
 # 银元类
 class gsYinYuan(models.Model):
-    serialNumber = models.CharField(max_length=255, unique=True)  # 编号由四部分组成：品名代码-明细品名代码-发行库代码-实物序号
-    seq = models.PositiveIntegerField()  # 实物序号, 取自编号的最后一部分
-    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
+    thing = models.ForeignKey(gsThing)
 
     detailedName = models.CharField(max_length=1024, blank=True)  # 名称
     versionName = models.CharField(max_length=1024, blank=True)  # 版别
@@ -541,49 +477,11 @@ class gsYinYuan(models.Model):
     thick = models.FloatField(null=True)  # 厚度
     grossWeight = models.FloatField(null=True)  # 毛重
     pureWeight = models.FloatField(null=True)  # 净重
-    # # -----------------------------------------------------------
-    # measureTime = models.TimeField(null=True)  # 测量时间
-    # measureDate = models.DateField(null=True)  # 测量日期
-    # Au = models.CharField(max_length=255, null=True)  # 金
-    # Ag = models.CharField(max_length=255, null=True)  # 银
-    # Cu = models.CharField(max_length=255, null=True)  # 铜
-    # Pt = models.CharField(max_length=255, null=True)  # 铂
-    # Pd = models.CharField(max_length=255, null=True)  # 钯
-    # Zn = models.CharField(max_length=255, null=True)  # 锌
-    # Ni = models.CharField(max_length=255, null=True)  # 镍
-    # Cd = models.CharField(max_length=255, null=True)  # 镉
-    # Co = models.CharField(max_length=255, null=True)  # 钴
-    # Ru = models.CharField(max_length=255, null=True)  # 钌
-    # Ir = models.CharField(max_length=255, null=True)  # 铱
-    # Rh = models.CharField(max_length=255, null=True)  # 铑
-    # In = models.CharField(max_length=255, null=True)  # 铟
-    # Pb = models.CharField(max_length=255, null=True)  # 铅
-    # Fe = models.CharField(max_length=255, null=True)  # 铁
-    # Os = models.CharField(max_length=255, null=True)  # 锇
-    # W = models.CharField(max_length=255, null=True)  # 钨
-    # Others = models.CharField(max_length=255, null=True)  # 其他
-    # testUnit = models.CharField(max_length=255, null=True)  # 送检单位
-    # testPerson = models.CharField(max_length=255, null=True)  # 检测人员
-    # # 序号
-    # # 生产厂家
-    # # 样品编号
-    # sampleName = models.CharField(max_length=255, null=True)  # 样品名称
-    # # 重量
-    # reportQuality = models.CharField(max_length=255, null=True)  # 申报成色
-    # testResult = models.CharField(max_length=255, null=True)  # 检测结果
-    # remarks = models.CharField(max_length=255, null=True)  # 备注
-    # # 检测依据
-    # # 检测单位地址
-    # # 联系电话
-    # # 检测单位
-    # testRequire = models.CharField(max_length=255, null=True)  # 测试要求
-    # # -----------------------------------------------------------
+
 
 # 金银工艺品类    
 class gsGongYiPin(models.Model):
-    serialNumber = models.CharField(max_length=255, unique=True)  # 编号由四部分组成：品名代码-明细品名代码-发行库代码-实物序号
-    seq = models.PositiveIntegerField()  # 实物序号, 取自编号的最后一部分
-    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
+    thing = models.ForeignKey(gsThing)
 
     detailedName = models.CharField(max_length=1024, blank=True)  # 名称
     peroid = models.CharField(max_length=255, blank=True)  # 时代
@@ -599,43 +497,6 @@ class gsGongYiPin(models.Model):
     height = models.FloatField(null=True)  # 高度
     grossWeight = models.FloatField(null=True)  # 毛重
     pureWeight = models.FloatField(null=True)  # 净重
-    # # -----------------------------------------------------------
-    # measureTime = models.TimeField(null=True)  # 测量时间
-    # measureDate = models.DateField(null=True)  # 测量日期
-    # Au = models.CharField(max_length=255, null=True)  # 金
-    # Ag = models.CharField(max_length=255, null=True)  # 银
-    # Cu = models.CharField(max_length=255, null=True)  # 铜
-    # Pt = models.CharField(max_length=255, null=True)  # 铂
-    # Pd = models.CharField(max_length=255, null=True)  # 钯
-    # Zn = models.CharField(max_length=255, null=True)  # 锌
-    # Ni = models.CharField(max_length=255, null=True)  # 镍
-    # Cd = models.CharField(max_length=255, null=True)  # 镉
-    # Co = models.CharField(max_length=255, null=True)  # 钴
-    # Ru = models.CharField(max_length=255, null=True)  # 钌
-    # Ir = models.CharField(max_length=255, null=True)  # 铱
-    # Rh = models.CharField(max_length=255, null=True)  # 铑
-    # In = models.CharField(max_length=255, null=True)  # 铟
-    # Pb = models.CharField(max_length=255, null=True)  # 铅
-    # Fe = models.CharField(max_length=255, null=True)  # 铁
-    # Os = models.CharField(max_length=255, null=True)  # 锇
-    # W = models.CharField(max_length=255, null=True)  # 钨
-    # Others = models.CharField(max_length=255, null=True)  # 其他
-    # testUnit = models.CharField(max_length=255, null=True)  # 送检单位
-    # testPerson = models.CharField(max_length=255, null=True)  # 检测人员
-    # # 序号
-    # # 生产厂家
-    # # 样品编号
-    # sampleName = models.CharField(max_length=255, null=True)  # 样品名称
-    # # 重量
-    # reportQuality = models.CharField(max_length=255, null=True)  # 申报成色
-    # testResult = models.CharField(max_length=255, null=True)  # 检测结果
-    # remarks = models.CharField(max_length=255, null=True)  # 备注
-    # # 检测依据
-    # # 检测单位地址
-    # # 联系电话
-    # # 检测单位
-    # testRequire = models.CharField(max_length=255, null=True)  # 测试要求
-    # # -----------------------------------------------------------
 
 # 属性表
 class gsProperty(models.Model):
@@ -653,6 +514,8 @@ class gsProperty(models.Model):
 class gsLog(models.Model):
     userID = models.PositiveIntegerField()  # 用户ID
     userName = models.CharField(max_length=255)  # 用户姓名
+    organization = models.CharField(max_length=255,null=True)  # 组织
+    department = models.CharField(max_length=255,null=True)  # 部门
     operationType = models.CharField(max_length=255)  # 操作类型
     content = models.CharField(max_length=256)  # 内容
     when = models.DateTimeField(auto_now_add=True)  # 操作日期

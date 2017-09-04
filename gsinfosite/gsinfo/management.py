@@ -102,6 +102,6 @@ def add_property(project, type, code=None, parentProject='', parentType='', gran
 def init_authority():
     from gsinfo.models import gsUser
     # 添加系统默认管理员
-    admin, flag = gsUser.objects.createUser(nickName='sysadmin', password='123456', type=0)  # 'hbjy@396'
+    gsUser.objects.createUser(nickName='sysadmin', password='123456', type=0,organization='system_default',department='system_default')  # 'hbjy@396'
 
 post_migrate.connect(batchInsert)
