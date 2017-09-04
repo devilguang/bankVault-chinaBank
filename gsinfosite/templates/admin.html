@@ -241,9 +241,17 @@
 			data-options="closed:true, buttons:'#userDlgButtons', modal:true">
 		<div class="FormTitle">用户信息</div>
 		<form id="userForm" method="POST" novalidate>
-			<div class="FormItem">
+            <div class="FormItem">
 				<label for="user-nickName">用户名称</label>
 				<input id="user-nickName" name="nickName" class="easyui-textbox">
+			</div>
+            <div class="FormItem">
+				<label for="user-organization">所在组织</label>
+				<input id="user-organization" name="organization" class="easyui-textbox">
+			</div>
+            <div class="FormItem">
+				<label for="user-department">所在部门</label>
+				<input id="user-department" name="department" class="easyui-textbox">
 			</div>
 			<div class="FormItem">
 				<label for="user-type">用户类型</label>

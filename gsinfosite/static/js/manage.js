@@ -538,7 +538,7 @@ function reportBox() {
     }
     $('#reportBoxDlg').dialog('close'); //关闭对话框
 
-    window.open('processInfo?map=' + map+'&file_path='+map);
+    window.open('processInfo?map=' + map + '&file_path=' + map);
 
     /*$.ajax({url: 'processInfo/',
      data: {boxList: map},
@@ -938,8 +938,6 @@ function printsConfirm() {
         }, success: function (data) {
             var data = JSON.parse(data)
             if (data.success) { //成功登陆
-
-
             } else {
                 $.messager.alert('提示', data.message);
             }
@@ -949,40 +947,75 @@ function printsConfirm() {
 function generateBoxInfo(index, number) {
     $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#printTheListForm').form('clear');
-    $('#printSave').click(function () {
-        var user = $('#printTheListUserValidate').val()
-        var password = $('#printTheListUserpassword').val()
-        if (user == '' || password == '') {
-            $.messager.alert('提示', '用户或密码不能为空');
-            return;
-        }
-        $.ajax({
-            type: 'post',
-            url: 'print_auth/',
-            data: {
-                user: user,
-                password: password
-            }, success: function (data) {
-                var data = JSON.parse(data)
-                if (data.success) { //成功登陆
-                    $('#printTheList').dialog('close')
-                    $('#workGridBoxManage').datagrid('selectRow', index);
-                    var row = $('#workGridBoxManage').datagrid('getSelected');
-                    if (number == 0) {
-                        $('#generateBoxInfo-boxNumber').val(row.boxNumber);
-                    } else {
-                        $('#generateBoxInfo-boxNumber').val(number);
-                    }
-                    var today = new Date();
-                    $('#generateBoxInfoDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
-                    doGenerateBoxInfo()
-                } else {
-                    $.messager.alert('提示', data.message);
-                }
-            }
-        })
-    })
     // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+    $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\')");
+}
+
+function clickPrints(index, number) {
+    var user = $('#printTheListUserValidate').val()
+    var password = $('#printTheListUserpassword').val()
+    if (user == '' || password == '') {
+        $.messager.alert('提示', '用户或密码不能为空');
+        return;
+    }
+    $.ajax({
+        type: 'post',
+        url: 'print_auth/',
+        data: {
+            user: user,
+            password: password
+        }, success: function (data) {
+            var data = JSON.parse(data)
+            if (data.success) { //成功登陆
+                $('#printTheList').dialog('close')
+                printPackingList(number,index)
+            } else {
+                $.messager.alert('提示', data.message);
+            }
+        }
+    })
+}
+//打印装箱清单
+function printPackingList(number,index) {
+    $('#workGridBoxManage').datagrid('selectRow', index);
+    var row = $('#workGridBoxManage').datagrid('getSelected');
+    if (number == 0) {
+        $('#generateBoxInfo-boxNumber').val(row.boxNumber);
+    } else {
+        $('#generateBoxInfo-boxNumber').val(number);
+    }
+    var today = new Date();
+    $('#generateBoxInfoDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+    doGenerateBoxInfo()
+}
+//打印装箱清单详细版
+function packingListIsDetailed(number, index) {
+    $('#workGridBoxManage').datagrid('selectRow', index);
+    var row = $('#workGridBoxManage').datagrid('getSelected');
+    if (number == 0) {
+        row["newnumber"] = row.boxNumber;
+    } else {
+        row["newnumber"] = number;
+    }
+    var valid = true;
+    // 目前因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 所以不提供生成装箱清单(详细版)！
+    var productTypes = ["金银工艺品类", "银元类", "金银币章类"]
+    $.each(productTypes, function (idx, e) {
+        if (row.productType == e) {
+            valid = false;
+            $.messager.alert({
+                title: '提示',
+                msg: '因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 暂不提供生成装箱清单(详细版)！请联系管理员！'
+            });
+            return valid;
+        }
+    });
+    if (!valid) {
+        return;
+    }
+    var today = new Date();
+    $('#generateBoxInfoDetailedVersionDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+    doGenerateBoxInfoDetailedVersion()
 }
 function doGenerateBoxInfo() {
     $('#generateBoxInfoDlg').dialog('close');
@@ -1029,6 +1062,7 @@ function printservice(filePath) {
 function generateBoxInfoDetailedVersion(index, number) {
     $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#printTheListForm').form('clear');
+    $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\')");
     $("#printSave").click(function () {
         var user = $('#printTheListUserValidate').val()
         var password = $('#printTheListUserpassword').val()
@@ -1046,38 +1080,15 @@ function generateBoxInfoDetailedVersion(index, number) {
                 var data = JSON.parse(data)
                 if (data.success) {
                     $('#printTheList').dialog('close')
-                    $('#workGridBoxManage').datagrid('selectRow', index);
-                    var row = $('#workGridBoxManage').datagrid('getSelected');
-                    if (number == 0) {
-                        row["newnumber"] = row.boxNumber;
-                    } else {
-                        row["newnumber"] = number;
-                    }
-                    var valid = true;
-                    // 目前因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 所以不提供生成装箱清单(详细版)！
-                    var productTypes = ["金银工艺品类", "银元类", "金银币章类"]
-                    $.each(productTypes, function (idx, e) {
-                        if (row.productType == e) {
-                            valid = false;
-                            $.messager.alert({
-                                title: '提示',
-                                msg: '因金银币章类、银元类、金银工艺品类装箱清单(详细版)均未确定, 暂不提供生成装箱清单(详细版)！请联系管理员！'
-                            });
-                            return valid;
-                        }
-                    });
-                    if (!valid) {
-                        return;
-                    }
-                    var today = new Date();
-                    $('#generateBoxInfoDetailedVersionDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
-                    doGenerateBoxInfoDetailedVersion()
+                    packingListIsDetailed(number, index)
                 } else {
                     $.messager.alert('提示', data.message);
                 }
             }
         })
     })
+
+
 }
 
 function doGenerateBoxInfoDetailedVersion() {
@@ -1456,14 +1467,16 @@ function workSearchReset() {
 function workStartOrStop(index, status) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
+    console.log(row.workName)
+    console.log(row.boxNumber)
     $.ajax({
         type: 'post',
         url: 'startOrStopWork/',
         data: {
-            workname: row.workname,
-            boxnumber: row.boxnumber,
-            subboxnumber: row.subboxnumber,
-            workseq: row.workseq,
+            workName: row.workName,
+            boxNumber: row.boxNumber,
+            subBoxNumber: row.subBoxNumber,
+            workSeq: row.workSeq,
             status: status
         },
         success: function (result) {
@@ -1641,7 +1654,7 @@ function generateArchives(index) {
             }, success: function (data) {
                 var data = JSON.parse(data);
                 if (data.success) {
-                      $('#printTheList').dialog('close')
+                    $('#printTheList').dialog('close')
                     $('#workGridWorkManage').datagrid('selectRow', index);
                     var row = $('#workGridWorkManage').datagrid('getSelected');
                     var today = new Date();
