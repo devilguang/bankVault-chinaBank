@@ -345,7 +345,7 @@
 <div id="createBoxDlg" class="easyui-dialog" style="width: 500px; height: 300px; padding: 10px 20px"
      data-options="closed:true, buttons:'#createBoxDlgButtons', modal:true">
     <div class="FormTitle">实物信息</div>
-    <form id="createBoxForm" method="POST" novalidate>
+    <form id="createBoxForm" method="POST" novalidate style="margin-top: 30px">
         <table>
             <tr>
                 <th>实物类型</th>
@@ -404,26 +404,27 @@
                 </td>
             </tr>
             <tr >
-                <th>箱号</th>
-                <td ><input id="createBox-boxNumber" name="boxNumber" class="easyui-numberbox"
-                                       data-options="min:0, fit: true"/></td>
+{#                <th>箱号</th>#}
+{#                <td ><input id="createBox-boxNumber" name="boxNumber" class="easyui-numberbox"#}
+{#                                       data-options="min:0, fit: true"/></td>#}
                 <th>毛重</th>
                 <td><input id="createBox-grossWeight" name="grossWeight" class="easyui-numberbox"
                      data-options="min:0, fit: true"/></td>
+                <th>件数</th>
+                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"
+                           data-options="min:0, fit: true"/></td>
             </tr>
 {#            <tr>#}
 {#                <th>包容量</th>#}
 {#                <td><input id="createBox-packageCapacity" name="packageCapacity" class="easyui-numberbox"#}
 {#                           data-options="min:0, fit: true"/></td>#}
 {#            </tr>#}
-            <tr>
-                <th>件数</th>
-                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"
-                           data-options="min:0, fit: true"/></td>
-                <th>起始序号</th>
-                <td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox"
-                           data-options="min:0, fit: true"/></td>
-            </tr>
+{#                <th>件数</th>#}
+{#                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"#}
+{#                           data-options="min:0, fit: true"/></td>#}
+{#                <th>起始序号</th>#}
+{#                <td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox"#}
+{#                           data-options="min:0, fit: true"/></td>#}
         </table>
     </form>
 </div>

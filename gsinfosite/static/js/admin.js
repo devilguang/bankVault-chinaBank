@@ -145,7 +145,6 @@ function saveUser(){
 			}
 		}
 	});
-
 	$('#userForm').submit();
 }
 //将管理员转为超级管理员

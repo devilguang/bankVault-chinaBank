@@ -956,7 +956,14 @@ function generateBoxInfo(index, number) {
             $.messager.alert('提示', '用户或密码不能为空');
             return;
         }
-        $.ajax({
+        sendAjax(user,password,index,number)
+
+    })
+    // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+}
+function sendAjax(user,password,index,number){
+    debugger
+    $.ajax({
             type: 'post',
             url: 'print_auth/',
             data: {
@@ -981,14 +988,13 @@ function generateBoxInfo(index, number) {
                 }
             }
         })
-    })
-    // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
 }
 function doGenerateBoxInfo() {
     $('#generateBoxInfoDlg').dialog('close');
     var row = $('#workGridBoxManage').datagrid('getSelected');
     var date = $('#generateBoxInfoDateTime').datebox('getValue');
     var number = $('#generateBoxInfo-boxNumber').val();
+    debugger
     $.ajax({
         url: 'generateBoxInfo/',
         data: {boxNumber: number, dateTime: date},
@@ -1456,14 +1462,16 @@ function workSearchReset() {
 function workStartOrStop(index, status) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
+    console.log(row.workName)
+    console.log(row.boxNumber)
     $.ajax({
         type: 'post',
         url: 'startOrStopWork/',
         data: {
-            workname: row.workname,
-            boxnumber: row.boxnumber,
-            subboxnumber: row.subboxnumber,
-            workseq: row.workseq,
+            workName: row.workName,
+            boxNumber: row.boxNumber,
+            subBoxNumber: row.subBoxNumber,
+            workSeq: row.workSeq,
             status: status
         },
         success: function (result) {
