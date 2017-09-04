@@ -275,15 +275,15 @@ def updateCheckingInfo(request):
 
     try:
         # 检测作业是否可用
-        t = gsThing.objects.get(serialNumber=serialNumber)
-        wt = gsWorkThing.objects.get(thing=t)
-        if (wt.work.status != 1):
+        thing = gsThing.objects.get(serialNumber=serialNumber)
+        thing_status = gsStatus.objects.get(thing=thing)
+        if thing_status.status == 0:
             # 作业不可用
             raise ValueError(u'作业不可用！请联系现场负责人进行分发，并刷新页面！')
 
         # now = datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
         now = datetime.now()
-        gsStatus.objects.filter(serialNumber=serialNumber).update(checkingStatus=True, checkingOperator=operator,
+        gsStatus.objects.filter(thing=thing).update(checkingStatus=True, checkingOperator=operator,
                                                                   checkingUpdateDateTime=now)
     except Exception as e:
         ret = {
@@ -451,56 +451,53 @@ def updateThingData(request):
 
     try:
         # 检测作业是否可用
-        t = gsThing.objects.get(serialNumber=serialNumber)
-        wt = gsWorkThing.objects.get(thing=t)
-        if (wt.work.status != 1):
+        thing = gsThing.objects.get(serialNumber=serialNumber)
+        thing_status = gsStatus.objects.get(thing=thing)
+        if thing_status.status == 0:
             # 作业不可用
             raise ValueError(u'作业不可用！请联系现场负责人进行分发！')
 
-        if (0 == cmp(productType, u'金银锭类')):
-            gsDing.objects.filter(box=box, serialNumber=serialNumber).update(detailedName=detailedName,
-                                                                             typeName=typeName, peroid=peroid,
-                                                                             producerPlace=producerPlace,
-                                                                             carveName=carveName,
-                                                                             originalQuantity=originalQuantity,
-                                                                             quality=quality, level=level,
-                                                                             remark=remark,
-                                                                             detectedQuantity=detectedQuantity,
-                                                                             grossWeight=grossWeight, length=length,
-                                                                             width=width, height=height)
-        elif (0 == cmp(productType, u'金银币章类')):
-            gsBiZhang.objects.filter(box=box, serialNumber=serialNumber).update(detailedName=detailedName,
-                                                                                peroid=peroid,
-                                                                                producerPlace=producerPlace,
-                                                                                originalQuantity=originalQuantity,
-                                                                                quality=quality, level=level,
-                                                                                versionName=versionName, remark=remark,
-                                                                                detectedQuantity=detectedQuantity,
-                                                                                diameter=diameter, thick=thick,
-                                                                                grossWeight=grossWeight, value=value)
-        elif (0 == cmp(productType, u'银元类')):
-            gsYinYuan.objects.filter(box=box, serialNumber=serialNumber).update(marginShape=marginShape, peroid=peroid,
-                                                                                producerPlace=producerPlace,
-                                                                                quality=quality, level=level,
-                                                                                versionName=versionName, value=value,
-                                                                                remark=remark,
-                                                                                detectedQuantity=detectedQuantity,
-                                                                                diameter=diameter, thick=thick,
-                                                                                grossWeight=grossWeight)
-        elif (0 == cmp(productType, u'金银工艺品类')):
-            gsGongYiPin.objects.filter(box=box, serialNumber=serialNumber).update(detailedName=detailedName,
-                                                                                  peroid=peroid,
-                                                                                  originalQuantity=originalQuantity,
-                                                                                  quality=quality, level=level,
-                                                                                  remark=remark,
-                                                                                  detectedQuantity=detectedQuantity,
-                                                                                  grossWeight=grossWeight,
-                                                                                  length=length, width=width,
-                                                                                  height=height)
-
-            # now = datetime.utcnow() # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
-            # now = datetime.datetime.now()
-            # gsStatus.objects.filter(box = boxNumber, serialNumber = serialNumber).update(numberingStatus = True, numberingOperator = operator, numberingUpdateDateTime = now)
+        if productType == u'金银锭类':
+            gsDing.objects.filter(thing=thing).update(detailedName=detailedName,
+                                                      typeName=typeName, peroid=peroid,
+                                                     producerPlace=producerPlace,
+                                                     carveName=carveName,
+                                                     originalQuantity=originalQuantity,
+                                                     quality=quality, level=level,
+                                                     remark=remark,
+                                                     detectedQuantity=detectedQuantity,
+                                                     grossWeight=grossWeight, length=length,
+                                                     width=width, height=height)
+        elif productType == u'金银币章类':
+            gsBiZhang.objects.filter(thing=thing).update(detailedName=detailedName,
+                                                         peroid=peroid,
+                                                        producerPlace=producerPlace,
+                                                        originalQuantity=originalQuantity,
+                                                        quality=quality, level=level,
+                                                        versionName=versionName, remark=remark,
+                                                        detectedQuantity=detectedQuantity,
+                                                        diameter=diameter, thick=thick,
+                                                        grossWeight=grossWeight, value=value)
+        elif productType == u'银元类':
+            gsYinYuan.objects.filter(thing=thing).update(marginShape=marginShape,
+                                                         peroid=peroid,
+                                                        producerPlace=producerPlace,
+                                                        quality=quality, level=level,
+                                                        versionName=versionName, value=value,
+                                                        remark=remark,
+                                                        detectedQuantity=detectedQuantity,
+                                                        diameter=diameter, thick=thick,
+                                                        grossWeight=grossWeight)
+        elif productType == u'金银工艺品类':
+            gsGongYiPin.objects.filter(thing=thing).update(detailedName=detailedName,
+                                                           peroid=peroid,
+                                                          originalQuantity=originalQuantity,
+                                                          quality=quality, level=level,
+                                                          remark=remark,
+                                                          detectedQuantity=detectedQuantity,
+                                                          grossWeight=grossWeight,
+                                                          length=length, width=width,
+                                                          height=height)
     except Exception as e:
         ret = {
             'success': False,

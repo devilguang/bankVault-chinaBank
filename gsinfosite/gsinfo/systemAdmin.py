@@ -28,6 +28,9 @@ def userProcess(request):
     password = request.POST.get('password', '')
     opType = request.POST.get('opType', '')
     nickName = request.POST.get('nickName', '')
+    organization = request.POST.get('organization', '')  # 用户所在组织
+    department = request.POST.get('department', '')
+
     ret = {}
 
     if opType == 'add':
@@ -35,7 +38,7 @@ def userProcess(request):
             type = int(type)
             try:
                 log.log(user=request.user, operationType=u'系统管理', content=u'添加用户{0}'.format(nickName))
-                gsUser.objects.createUser(nickName=nickName, type=type, password=password)
+                gsUser.objects.createUser(nickName=nickName, type=type, password=password,organization=organization,department=department)
             except Exception as e:
                 ret = {
                     "success": False,
@@ -230,11 +233,11 @@ def authorityProcess(request):
                 log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
                 gsUser.objects.filter(nickName=nickName, type__lte=1).update(manage=True)
             elif authority == 'checking':
-                jobName = u'数据复核'
+                jobName = u'实物认定'
                 log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
                 gsUser.objects.filter(nickName=nickName).update(checking=True)
             elif authority == 'numbering':
-                jobName = u'实物鉴定'
+                jobName = u'外观信息采集'
                 log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
                 gsUser.objects.filter(nickName=nickName).update(numbering=True)
             elif authority == 'measuring':
@@ -266,11 +269,11 @@ def authorityProcess(request):
                 log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
                 gsUser.objects.filter(nickName=nickName, type__lte=1).update(manage=False)
             elif (0 == cmp(authority, 'checking')):
-                jobName = u'数据复核'
+                jobName = u'实物认定'
                 log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
                 gsUser.objects.filter(nickName=nickName).update(checking=False)
             elif (0 == cmp(authority, 'numbering')):
-                jobName = u'实物鉴定'
+                jobName = u'外观信息采集'
                 log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
                 gsUser.objects.filter(nickName=nickName).update(numbering=False)
             elif (0 == cmp(authority, 'measuring')):

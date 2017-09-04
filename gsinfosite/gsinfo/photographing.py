@@ -51,12 +51,6 @@ def updatePhotographingInfo(request):
     boxOrSubBox = request.POST.get('boxNumber', '')
     pic_path = request.POST.get('pic_path', '')
     ret = {}
-    # today = datetime.datetime.now()
-    # date_today = str(today.strftime('%Y%m%d'))
-
-    # date_path = os.path.join(settings.DATA_PATH,'imgs',date_today)
-    # if not os.path.exists(date_path):
-    #     os.makedirs(date_path)
 
     img_dir = settings.IMGS_DATA_PATH
     if not os.path.exists(img_dir):
@@ -94,21 +88,22 @@ def updatePhotographingInfo(request):
 
         try:
             # 检测作业是否可用
-            t = gsThing.objects.get(serialNumber=serialNumber)
-            wt = gsWorkThing.objects.get(thing=t)
-            if wt.work.status != 1:
+            thing = gsThing.objects.get(serialNumber=serialNumber)
+            thing_status = gsStatus.objects.filter(thing=thing)
+            thing_obj = thing_status[0]
+            if thing_obj.status == 0:
                 # 作业不可用
                 raise ValueError, u'作业不可用！请联系现场负责人进行分发，并刷新页面！'
 
             # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
             now = datetime.datetime.now()
-            gsStatus.objects.filter(box=box, serialNumber=serialNumber).update(photographingStatus=True,
-                                                                               photographingOperator=operator,
-                                                                               photographingUpdateDateTime=now)
+            thing_status.update(photographingStatus=True,
+                                                       photographingOperator=operator,
+                                                       photographingUpdateDateTime=now)
 
-            s = gsStatus.objects.get(box=box, serialNumber=serialNumber)
-            status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus
-            gsStatus.objects.filter(box=box, serialNumber=serialNumber).update(status=status)
+            status = thing_obj.numberingStatus and thing_obj.analyzingStatus and thing_obj.measuringStatus and \
+                     thing_obj.photographingStatus and thing_obj.checkingStatus
+            thing_status.update(status=status)
         except Exception as e:
             ret['success'] = False
             ret['message'] = '图片上传失败！'

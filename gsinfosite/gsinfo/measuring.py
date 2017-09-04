@@ -88,35 +88,30 @@ def updateMeasuringInfo(request):
 
     try:
         # 检测作业是否可用
-        t = gsThing.objects.get(serialNumber=serialNumber)
-        wt = gsWorkThing.objects.get(thing=t)
-        if wt.work.status != 1:  # 0:未启用 1:已启用 2:已完成
+        thing = gsThing.objects.get(serialNumber=serialNumber)
+        if thing.work.status == 0:  # 0:未启用 1:已启用 2:已完成
             # 作业不可用
             raise ValueError, u'作业不可用！请联系现场负责人进行分发，并刷新页面！'
 
         if productType == u'金银锭类':
-            gsDing.objects.filter(box=box, serialNumber=serialNumber).update(length=length, width=width, height=height,
-                                                                             grossWeight=grossWeight)
+            gsDing.objects.filter(thing=thing).update(length=length, width=width, height=height,grossWeight=grossWeight)
         elif productType == u'金银币章类':
-            gsBiZhang.objects.filter(box=box, serialNumber=serialNumber).update(diameter=diameter, thick=thick,
-                                                                                grossWeight=grossWeight)
+            gsBiZhang.objects.filter(thing=thing).update(diameter=diameter, thick=thick,grossWeight=grossWeight)
         elif productType == u'银元类':
-            gsYinYuan.objects.filter(box=box, serialNumber=serialNumber).update(diameter=diameter, thick=thick,
-                                                                                grossWeight=grossWeight)
+            gsYinYuan.objects.filter(thing=thing).update(diameter=diameter, thick=thick,grossWeight=grossWeight)
         elif productType == u'金银工艺品类':
-            gsGongYiPin.objects.filter(box=box, serialNumber=serialNumber).update(length=length, width=width,
-                                                                                  height=height,
-                                                                                  grossWeight=grossWeight)
+            gsGongYiPin.objects.filter(thing=thing).update(length=length, width=width,height=height,grossWeight=grossWeight)
 
         # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
         now = datetime.datetime.now()
-        gsStatus.objects.filter(box=box, serialNumber=serialNumber).update(measuringStatus=True,
-                                                                           measuringOperator=operator,
-                                                                           measuringUpdateDateTime=now)
+        thing_set = gsStatus.objects.filter(thing=thing)
+        thing_status =thing_set[0]
+        thing_set.update(measuringStatus=True,measuringOperator=operator,measuringUpdateDateTime=now)
 
-        s = gsStatus.objects.get(box=box, serialNumber=serialNumber)
-        status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus
-        gsStatus.objects.filter(box=box, serialNumber=serialNumber).update(status=status)
+
+        status = thing_status.numberingStatus and thing_status.analyzingStatus and thing_status.measuringStatus and \
+                 thing_status.photographingStatus and thing_status.checkingStatus
+        thing_set.update(status=status)
     except Exception as e:
         ret = {}
         ret['success'] = False

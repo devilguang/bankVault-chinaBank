@@ -25,9 +25,8 @@ def createArchivesFromWork(boxNumber,subBoxNumber, workSeq, dateTime):
         work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
     else:
         work = gsWork.objects.get(box=box, workSeq=workSeq)
-    wts = gsWorkThing.objects.filter(work=work)
-    specialThingIDList = wts.values_list('thing', flat=True)
-    specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber', flat=True)
+    work_thing = gsThing.objects.filter(work=work)
+    SerialNumberList = work_thing.values_list('serialNumber', flat=True)
 
     productTypeCode = box.productType
     productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
@@ -49,7 +48,7 @@ def createArchivesFromWork(boxNumber,subBoxNumber, workSeq, dateTime):
         os.mkdir(boxDir)  # 转移至创建作业时, 生成相应的目录
 
     createDateTime = work.createDateTime
-    subBoxesSeq = gsThing.objects.filter(id__in=specialThingIDList).values_list('subBoxSeq', flat=True).distinct()
+    subBoxesSeq = work_thing.values_list('subBoxSeq', flat=True).distinct()
 
     for subBoxSeq in subBoxesSeq:
         wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(createDateTime.year, subBoxSeq, wareHouse.type))
@@ -69,7 +68,7 @@ def createArchivesFromWork(boxNumber,subBoxNumber, workSeq, dateTime):
     zipFileName = u'{0}_信息档案.zip'.format(work.workName)
     zipFilePath = os.path.join(workDir, zipFileName)
     zip = zipfile.ZipFile(zipFilePath, 'w', zipfile.ZIP_DEFLATED)
-    for serialNumber in specialSerialNumberList:
+    for serialNumber in SerialNumberList:
         t = gsThing.objects.get(box=box, serialNumber=serialNumber)
         subBoxSeq = t.subBoxSeq
         wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(createDateTime.year, subBoxSeq, wareHouse.type))
@@ -126,7 +125,9 @@ def createBoxTable(boxList):
     totalSubBox = 0
     for boxNumber in boxList.keys():
         box = gsBox.objects.get(boxNumber=boxNumber)
-        num = gsThing.objects.filter(box=box).values('subBoxNo').distinct().count()
+        subBox_obj = gsSubBox.objects.filter(box=box)
+        num = len(subBox_obj)
+        # num = gsThing.objects.filter(box=box).values('subBox').distinct().count()
         totalSubBox += num
     sheetCnt = int(ceil(float(totalSubBox) / float(30)))
 
@@ -145,25 +146,11 @@ def createBoxTable(boxList):
     alignment = Alignment(horizontal='center', vertical='center')
 
     for boxNumber,productType in boxList.items():
-        # if productType == u'金银锭类':
-        #     ts = gsDing.objects
-        # elif productType == u'金银币章类':
-        #     ts = gsBiZhang.objects
-        # elif productType == u'银元类':
-        #     ts = gsYinYuan.objects
-        # elif productType == u'金银工艺品类':
-        #     ts = gsGongYiPin.objects
 
         boxNumber = int(boxNumber)
         box = gsBox.objects.get(boxNumber=boxNumber)
-
-        allNo = []
-        things = gsThing.objects.filter(box=box).values('subBoxNo')
-        for thing in things:
-            allNo.append(thing.values()[0])
-        subBoxSet = set(allNo)
-        subBoxList = list(subBoxSet)
-
+        subBoxList = gsSubBox.objects.filter(box=box).values_list('subBoxNumber',flat=True)
+        # subBoxList = list(subBoxSet)
         rowIdx = rowStartIdx
         for no in subBoxList:
             # 写装箱清单
@@ -183,8 +170,8 @@ def createBoxTable(boxList):
                     ws.cell(row=rowIdx, column=2).value = str(boxNumber) + '-' + str(no)  # 子箱号
                 ws.cell(row=rowIdx, column=2).font = font
                 ws.cell(row=rowIdx, column=2).alignment = alignment
-
-                things = gsThing.objects.filter(box=box.pk, subBoxNo=no)
+                subBox = gsSubBox.objects.get(box=box,subBoxNumber=no)
+                things = gsThing.objects.filter(box=box, subBox=subBox)
                 ws.cell(row=rowIdx, column=3).value = things.count()  # 件数
                 ws.cell(row=rowIdx, column=3).font = font
                 ws.cell(row=rowIdx, column=3).alignment = alignment
@@ -255,9 +242,10 @@ def createBoxTable(boxList):
 def createBoxInfo(boxNumber,subBoxNumber, date):
     box = gsBox.objects.get(boxNumber=boxNumber)
     if subBoxNumber == '':
-        ts = gsThing.objects.filter(box=box)
+        thing_set = gsThing.objects.filter(box=box)
     else:
-        ts = gsThing.objects.filter(box=box,subBoxNo=int(subBoxNumber))
+        subBox = gsSubBox.objects.get(box=box,subBoxNumber=int(subBoxNumber))
+        thing_set = gsThing.objects.filter(box=box,subBox=subBox)
 
     global boxDir
     boxDir = os.path.join(boxRootDir, str(boxNumber))
@@ -275,8 +263,7 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
                     )
 
     ds = date.split('/')
-    specialSerialNumberList = ts.values_list('serialNumber', flat=True)
-    t = ts.first()
+    t = thing_set.first()
     productTypeCode = t.box.productType
     productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
     wareHouseCode = t.box.wareHouse
@@ -288,8 +275,8 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
     boxInfoFilePath = os.path.join(boxDir, boxInfoFileName)
 
     if productType.type == u'金银锭类':
-        rs = gsDing.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        rs = gsDing.objects.filter(thing__in=thing_set)
+        ss = gsStatus.objects.filter(thing__in=thing_set)
         wb = load_workbook(os.path.join(templateRootDir, u'非银元装箱清单.xlsx'))
         ws = wb.worksheets[0]
         sheetCnt = int(ceil(rs.count() / 30))
@@ -439,8 +426,8 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
         ws.row_dimensions[36].ht = 32.25
 
     elif (0 == cmp(productType.type, u'金银币章类')):
-        rs = gsBiZhang.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        rs = gsBiZhang.objects.filter(thing__in=thing_set)
+        ss = gsStatus.objects.filter(thing__in=thing_set)
         wb = load_workbook(os.path.join(templateRootDir, u'非银元装箱清单.xlsx'))
         ws = wb.worksheets[0]
         sheetCnt = int(ceil(rs.count() / 30))
@@ -592,8 +579,8 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
         ws.row_dimensions[36].ht = 32.25
 
     elif (0 == cmp(productType.type, u'银元类')):
-        rs = gsYinYuan.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        rs = gsYinYuan.objects.filter(thing__in=thing_set)
+        ss = gsStatus.objects.filter(thing__in=thing_set)
         wb = load_workbook(os.path.join(templateRootDir, u'银元装箱清单.xlsx'))
         ws = wb.worksheets[0]
         sheetCnt = int(ceil(rs.count() / 30))
@@ -652,8 +639,8 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
             rowStartIdx = rowStartIdx + 1
 
     elif (0 == cmp(productType.type, u'金银工艺品类')):
-        rs = gsGongYiPin.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        rs = gsGongYiPin.objects.filter(thing__in=thing_set)
+        ss = gsStatus.objects.filter(thing__in=thing_set)
         wb = load_workbook(os.path.join(templateRootDir, u'非银元装箱清单.xlsx'))
         ws = wb.worksheets[0]
         sheetCnt = int(ceil(rs.count() / 30))
@@ -811,9 +798,10 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
 def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
     box = gsBox.objects.get(boxNumber=boxNumber)
     if subBoxNumber == '':
-        ts = gsThing.objects.filter(box=box)
+        thing_set = gsThing.objects.filter(box=box)
     else:
-        ts = gsThing.objects.filter(box=box, subBoxNo=int(subBoxNumber))
+        subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(subBoxNumber))
+        thing_set = gsThing.objects.filter(box=box, subBox=subBox)
 
     global boxDir
     boxDir = os.path.join(boxRootDir, str(boxNumber))
@@ -831,9 +819,8 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
                     )
 
     ds = date.split('/')
-    specialSerialNumberList = ts.values_list('serialNumber', flat=True)
 
-    t = ts.first()
+    t = thing_set.first()
     productTypeCode = t.box.productType
     productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
     wareHouseCode = t.box.wareHouse
@@ -852,8 +839,8 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
     boxInfoFilePath = os.path.join(boxDir, boxInfoFileName)
 
     if (0 == cmp(productType.type, u'金银锭类')):
-        rs = gsDing.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        rs = gsDing.objects.filter(thing__in=thing_set)
+        ss = gsStatus.objects.filter(thing__in=thing_set)
         wb = load_workbook(os.path.join(templateRootDir, u'金银锭类装箱清单(详细版).xlsx'))
         ws = wb.worksheets[0]
         sheetCnt = int(ceil(rs.count() / 30))
@@ -1068,8 +1055,8 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
         ws.row_dimensions[38].ht = 32.25
 
     elif (0 == cmp(productType.type, u'金银币章类')):
-        rs = gsBiZhang.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        rs = gsBiZhang.objects.filter(thing__in=thing_set)
+        ss = gsStatus.objects.filter(thing__in=thing_set)
         wb = load_workbook(os.path.join(templateRootDir, u'金银币章类装箱清单(详细版).xlsx'))
         ws = wb.worksheets[0]
         sheetCnt = int(ceil(rs.count() / 30))
@@ -1221,8 +1208,8 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
         ws.row_dimensions[36].ht = 32.25
 
     elif (0 == cmp(productType.type, u'银元类')):
-        rs = gsYinYuan.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        rs = gsYinYuan.objects.filter(thing__in=thing_set)
+        ss = gsStatus.objects.filter(thing__in=thing_set)
         wb = load_workbook(os.path.join(templateRootDir, u'银元类箱清单(详细版).xlsx'))
         ws = wb.worksheets[0]
         sheetCnt = int(ceil(rs.count() / 30))
@@ -1281,8 +1268,8 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
             rowStartIdx = rowStartIdx + 1
 
     elif (0 == cmp(productType.type, u'金银工艺品类')):
-        rs = gsGongYiPin.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        rs = gsGongYiPin.objects.filter(thing__in=thing_set)
+        ss = gsStatus.objects.filter(thing__in=thing_set)
         wb = load_workbook(os.path.join(templateRootDir, u'金银工艺品类装箱清单(详细版).xlsx'))
         ws = wb.worksheets[0]
         sheetCnt = int(ceil(rs.count() / 30))
@@ -2114,28 +2101,25 @@ def writeDataIntoXLS(ws, c, row, col, seq):
 def createThingAbstract(workName,subBoxNumber,boxNumber,workSeq):
     '''
     清点查验完毕，生成实物信息摘要
-    :param boxNumber: 箱号
-    :return: None
     '''
     box = gsBox.objects.get(boxNumber=boxNumber)
     productTypeCode = box.productType
     type = gsProperty.objects.get(project='实物类型', code=productTypeCode).type
 
-    if workSeq != '':
+    if workSeq:
         workSeq = int(workSeq)
         if subBoxNumber:
             subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(subBoxNumber))
             work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
         else:
             work = gsWork.objects.get(box=box, workSeq=workSeq)
-        wts = gsWorkThing.objects.filter(work=work)
-        specialThingIDList = wts.values_list('thing', flat=True)
-        specialSerialNumberList = gsThing.objects.filter(id__in=specialThingIDList).values_list('serialNumber',
-                                                                                                flat=True)
 
-        ss = gsStatus.objects.filter(box=box, serialNumber__in=specialSerialNumberList)
+        thing_set = gsThing.objects.filter(work=work)
+
+        ss = gsStatus.objects.filter(thing__in=thing_set)
     else:
-        ss = gsStatus.objects.filter(box=box)
+        thing_set = gsThing.objects.filter(box=box)
+        ss = gsStatus.objects.filter(thing=thing_set)
 
     rs = []
     for i in ss:

@@ -8,11 +8,15 @@ def log(user, operationType,content):
     userID = user.id
     userProfile = gsUser.objects.get(user=user)
     userName = userProfile.nickName
+    organization =userProfile.organization
+    department = userProfile.department
 
     gsLog.objects.create(userID=userID,
                          userName=userName,
                          operationType=operationType,
-                         content=content)
+                         content=content,
+                         organization=organization,
+                         department=department)
 
 # 获取日志信息——只有systemAdmin可以获取日志信息
 def retriveLog(**args):
