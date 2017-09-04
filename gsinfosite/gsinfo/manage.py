@@ -1034,7 +1034,6 @@ def startOrStopWork(request):
                 else:
                     dateTime1 = numberingLatest.numberingUpdateDateTime
                     t.append(dateTime1)
-
                 try:
                     analyzingLatest = status_set.latest('analyzingUpdateDateTime')
                 except Exception as e:

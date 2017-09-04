@@ -1460,8 +1460,8 @@ function workSearchReset() {
             status: 0,
         }
     });
-    initPagination();								// 设定翻页插件
-    $('#workGridWorkManage').datagrid('reload');		// 重载数据
+    initPagination();// 设定翻页插件
+    $('#workGridWorkManage').datagrid('reload');// 重载数据
 }
 
 function workStartOrStop(index, status) {
