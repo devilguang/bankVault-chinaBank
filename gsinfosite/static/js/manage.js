@@ -1454,9 +1454,8 @@ function workSearchReset() {
 }
 
 function workStartOrStop(index, status) {
-    debugger
     $('#workGridWorkManage').datagrid('selectRow', index);
-    var row = $('#workGridWorkManage').datagrid('getselected');
+    var row = $('#workGridWorkManage').datagrid('getSelected');
     $.ajax({
         type: 'post',
         url: 'startOrStopWork/',
