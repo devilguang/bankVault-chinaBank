@@ -122,7 +122,7 @@ def allotBox(request):
     page = int(request.POST.get('page', ''))
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-    subBox = gsSubBox.objects.filter(box=box)
+    subBox = gsSubBox.objects.filter(box=box,isValid=True)
     if fromSubBox == '1' and not subBox:
         thing_set = gsThing.objects.filter(box=box)
     else:
@@ -202,7 +202,7 @@ def mergeBox(request):
     ret = {}
     box = gsBox.objects.get(boxNumber=boxNumber)
 
-    all_subBox = gsSubBox.objects.filter(box=box).values_list('subBoxNumber',flat=True)
+    all_subBox = gsSubBox.objects.filter(box=box,isValid=True).values_list('subBoxNumber',flat=True)
     allSubBox = list(all_subBox)
     if allSubBox:
         ret['subBoxList'] = allSubBox
@@ -220,15 +220,12 @@ def confirmMergeBox(request):
     currentMaxNo = int(gsSubBox.objects.filter(box=box).order_by('-subBoxNumber').first().subBoxNumber)
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱的{1}子箱进行并箱'.format(boxNumber,boxList))
-        gsSubBox.objects.create(subBoxNumber=currentMaxNo + 1,box=box,isValid=True)  # 新建一个
+        newSubBox = gsSubBox.objects.create(subBoxNumber=currentMaxNo + 1,box=box,isValid=True)  # 新建一个
         for no in boxList:
             oldSubBox_set = gsSubBox.objects.filter(box=box, subBoxNumber=no)
             oldSubBox_set.update(isValid=False)  # 将之前的置为无效
             oldSubBox = oldSubBox_set[0]
-            serialNumber_list = gsThing.objects.filter(box=box, subBox=oldSubBox).values_list('serialNumber',flat=True)
-            print oldSubBox.pk
-            print type(oldSubBox.pk)
-            gsThing.objects.filter(box=box, serialNumber__in=serialNumber_list).update(subBox=newSubBox.pk,historyNo=oldSubBox.pk)
+            gsThing.objects.filter(box=box, subBox=oldSubBox).update(subBox=newSubBox,historyNo=oldSubBox.pk)
 
     except Exception as e:
         print e
@@ -277,13 +274,13 @@ def processInfo(request):
         boxLevel = {}
         boxLevel['subBox'] = []
         box = gsBox.objects.get(boxNumber=boxNumber)
-        subBoxList = gsSubBox.objects.filter(box=box).values_list('subBoxNumber',flat=True)
+        subBoxList = gsSubBox.objects.filter(box=box,isValid=True).values_list('subBoxNumber',flat=True)
         for no in subBoxList:
             subBox = {}
             subBox['subBoxNo'] = no
-            subBox = gsSubBox.objects.filter(box=box,subBoxNumber=no)
-            things = gsThing.objects.filter(box=box,subBox=subBox)
-            subBox['amount'] = things.count()
+            subBox_set = gsSubBox.objects.filter(box=box,subBoxNumber=no)
+            things_num = gsThing.objects.filter(box=box,subBox=subBox_set).count()
+            subBox['amount'] = things_num
             totalWeight = gsSubBox.objects.get(box=box,subBoxNumber=no).grossWeight
             subBox['totalWeight'] = totalWeight
             boxLevel['subBox'].append(subBox)
@@ -724,7 +721,7 @@ def getBox(request):
         r = {}
         r['boxNumber'] = b.boxNumber
         box = gsBox.objects.get(boxNumber=b.boxNumber)
-        subBoxList = gsSubBox.objects.filter(box=box).values_list('subBoxNumber',flat=True)
+        subBoxList = gsSubBox.objects.filter(box=box,isValid=True).values_list('subBoxNumber',flat=True)
         if subBoxList:
             r['haveSubBox'] = '1'  # 有子箱
             r2 = {}
@@ -1339,13 +1336,13 @@ def exploreBox(request):
                                           grandpaType=productType.type)
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
 
-    work = gsWork.objects.filter(box=box)
-    serialNumberList = gsThing.objects.filter(work__in=work).values_list('serialNumber', flat=True)
+    subBox = gsSubBox.objects.filter(box=box,subBoxNumber=subBoxNumber)
+    work_set = gsWork.objects.filter(box=box,subBox=subBox)
+    work_serialNumberList = gsThing.objects.filter(work__in=work_set).values_list('serialNumber', flat=True)
 
     if subBoxNumber == '':
         ts = gsThing.objects.filter(box=box)
     else:
-        subBox = gsSubBox.objects.filter(box=box,subBoxNumber=subBoxNumber)
         ts = gsThing.objects.filter(box=box,subBox=subBox)
     n = ts.count()
 
@@ -1368,9 +1365,9 @@ def exploreBox(request):
         r['className'] = className.type
         r['subClassName'] = subClassName.type
         r['wareHouse'] = wareHouse.type
-        if (serialNumber in serialNumberList):
-            r['workName'] = work.workName
-            r['status'] = gsStatus.objects.get(box=box, serialNumber=t.serialNumber).status
+        if (serialNumber in work_serialNumberList):
+            r['workName'] = t.work.workName
+            r['status'] = gsStatus.objects.get(thing=t).status
         else:
             r['workName'] = ''
             r['status'] = ''

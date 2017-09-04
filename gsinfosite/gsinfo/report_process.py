@@ -125,7 +125,7 @@ def createBoxTable(boxList):
     totalSubBox = 0
     for boxNumber in boxList.keys():
         box = gsBox.objects.get(boxNumber=boxNumber)
-        subBox_obj = gsSubBox.objects.filter(box=box)
+        subBox_obj = gsSubBox.objects.filter(box=box,isValid=True)
         num = len(subBox_obj)
         # num = gsThing.objects.filter(box=box).values('subBox').distinct().count()
         totalSubBox += num
@@ -149,7 +149,7 @@ def createBoxTable(boxList):
 
         boxNumber = int(boxNumber)
         box = gsBox.objects.get(boxNumber=boxNumber)
-        subBoxList = gsSubBox.objects.filter(box=box).values_list('subBoxNumber',flat=True)
+        subBoxList = gsSubBox.objects.filter(box=box,isValid=True).values_list('subBoxNumber',flat=True)
         # subBoxList = list(subBoxSet)
         rowIdx = rowStartIdx
         for no in subBoxList:
