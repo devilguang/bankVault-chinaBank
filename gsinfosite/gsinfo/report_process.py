@@ -69,28 +69,28 @@ def createArchivesFromWork(boxNumber,subBoxNumber, workSeq, dateTime):
     zipFilePath = os.path.join(workDir, zipFileName)
     zip = zipfile.ZipFile(zipFilePath, 'w', zipfile.ZIP_DEFLATED)
     for serialNumber in SerialNumberList:
-        t = gsThing.objects.get(box=box, serialNumber=serialNumber)
-        subBoxSeq = t.subBoxSeq
+        thing = gsThing.objects.get(box=box, serialNumber=serialNumber)
+        subBoxSeq = thing.subBoxSeq
         wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(createDateTime.year, subBoxSeq, wareHouse.type))
 
-        s = gsStatus.objects.get(box=box, serialNumber=serialNumber)
+        s = gsStatus.objects.get(thing=thing)
         if (0 == cmp(productType.type, u'金银锭类')):
-            r = gsDing.objects.get(box=box, serialNumber=serialNumber)
+            r = gsDing.objects.get(thing=thing)
 
             (filePath, fileName) = outputDing(r, s, manager, productType.type, className.type, subClassName.type,
                                               wareHouse.type, dateTime, wordDir)
         elif (0 == cmp(productType.type, u'金银币章类')):
-            r = gsBiZhang.objects.get(box=box, serialNumber=serialNumber)
+            r = gsBiZhang.objects.get(thing=thing)
 
             (filePath, fileName) = outputBiZhang(r, s, manager, productType.type, className.type, subClassName.type,
                                                  wareHouse.type, dateTime, wordDir)
         elif (0 == cmp(productType.type, u'银元类')):
-            r = gsYinYuan.objects.get(box=box, serialNumber=serialNumber)
+            r = gsYinYuan.objects.get(thing=thing)
 
             (filePath, fileName) = outputYinYuan(r, s, manager, productType.type, className.type, subClassName.type,
                                                  wareHouse.type, dateTime, wordDir)
         elif (0 == cmp(productType.type, u'金银工艺品类')):
-            r = gsGongYiPin.objects.get(box=box, serialNumber=serialNumber)
+            r = gsGongYiPin.objects.get(thing=thing)
 
             (filePath, fileName) = outputGongYiPin(r, s, manager, productType.type, className.type, subClassName.type,
                                                    wareHouse.type, dateTime, wordDir)
@@ -333,7 +333,7 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
             ws.cell(row=rowStartIdx, column=2).font = font
             ws.cell(row=rowStartIdx, column=2).alignment = alignment
             # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.serialNumber
+            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
             ws.cell(row=rowStartIdx, column=3).font = font
             ws.cell(row=rowStartIdx, column=3).alignment = alignment
             # 毛重
@@ -483,7 +483,7 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
             ws.cell(row=rowStartIdx, column=2).font = font
             ws.cell(row=rowStartIdx, column=2).alignment = alignment
             # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.serialNumber
+            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
             ws.cell(row=rowStartIdx, column=3).font = font
             ws.cell(row=rowStartIdx, column=3).alignment = alignment
             # 毛重
@@ -608,7 +608,7 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
             ws.cell(row=rowStartIdx, column=2).font = font
             ws.cell(row=rowStartIdx, column=2).alignment = alignment
             # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.serialNumber
+            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
             ws.cell(row=rowStartIdx, column=3).font = font
             ws.cell(row=rowStartIdx, column=3).alignment = alignment
             # 毛重
@@ -696,7 +696,7 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
             ws.cell(row=rowStartIdx, column=2).font = font
             ws.cell(row=rowStartIdx, column=2).alignment = alignment
             # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.serialNumber
+            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
             ws.cell(row=rowStartIdx, column=3).font = font
             ws.cell(row=rowStartIdx, column=3).alignment = alignment
             # 毛重
@@ -905,7 +905,7 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
             ws.cell(row=rowStartIdx, column=3).alignment = alignment
 
             # 编号
-            ws.cell(row=rowStartIdx, column=4).value = r.serialNumber
+            ws.cell(row=rowStartIdx, column=4).value = r.thing.serialNumber
             ws.cell(row=rowStartIdx, column=4).font = font
             ws.cell(row=rowStartIdx, column=4).alignment = alignment
 
@@ -1112,7 +1112,7 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
             ws.cell(row=rowStartIdx, column=2).font = font
             ws.cell(row=rowStartIdx, column=2).alignment = alignment
             # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.serialNumber
+            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
             ws.cell(row=rowStartIdx, column=3).font = font
             ws.cell(row=rowStartIdx, column=3).alignment = alignment
             # 毛重
@@ -1237,7 +1237,7 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
             ws.cell(row=rowStartIdx, column=2).font = font
             ws.cell(row=rowStartIdx, column=2).alignment = alignment
             # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.serialNumber
+            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
             ws.cell(row=rowStartIdx, column=3).font = font
             ws.cell(row=rowStartIdx, column=3).alignment = alignment
             # 毛重
@@ -1325,7 +1325,7 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
             ws.cell(row=rowStartIdx, column=2).font = font
             ws.cell(row=rowStartIdx, column=2).alignment = alignment
             # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.serialNumber
+            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
             ws.cell(row=rowStartIdx, column=3).font = font
             ws.cell(row=rowStartIdx, column=3).alignment = alignment
             # 毛重
@@ -1438,7 +1438,7 @@ def outputDing(r, s, manager, productType, className, subClassName, wareHouse, d
     ws['B3'] = u'填表日期:' + ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
 
     # 写箱号
-    ws['E5'] = r.box.boxNumber
+    ws['E5'] = r.thing.box.boxNumber
     cs = ws['E5']
     cs.alignment = a2
     # 写品名
@@ -1450,7 +1450,7 @@ def outputDing(r, s, manager, productType, className, subClassName, wareHouse, d
     cs = ws['E7']
     cs.alignment = a2
     # 写编号
-    ws['E8'] = r.serialNumber
+    ws['E8'] = r.thing.serialNumber
     cs = ws['E8']
     cs.alignment = a2
     # 写经办人
@@ -1572,7 +1572,7 @@ def outputDing(r, s, manager, productType, className, subClassName, wareHouse, d
         for cell in cells:
             cell.border = border
 
-    fileName = r.serialNumber + u'.xlsx'
+    fileName = r.thing.serialNumber + u'.xlsx'
     filePath = os.path.join(reportWordDir, fileName)
     wb.save(filePath)
 
@@ -1593,7 +1593,7 @@ def outputYinYuan(r, s, manager, productType, className, subClassName, wareHouse
     ws['B3'] = u'填表日期:' + ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
 
     # 写箱号
-    ws['E5'] = r.box.boxNumber
+    ws['E5'] = r.thing.box.boxNumber
     cs = ws['E5']
     cs.alignment = a2
     # 写品名
@@ -1605,7 +1605,7 @@ def outputYinYuan(r, s, manager, productType, className, subClassName, wareHouse
     cs = ws['E7']
     cs.alignment = a2
     # 写编号
-    ws['E8'] = r.serialNumber
+    ws['E8'] = r.thing.serialNumber
     cs = ws['E8']
     cs.alignment = a2
     # 写经办人
@@ -1699,7 +1699,7 @@ def outputYinYuan(r, s, manager, productType, className, subClassName, wareHouse
         for cell in cells:
             cell.border = border
 
-    fileName = r.serialNumber + '.xlsx'
+    fileName = r.thing.serialNumber + '.xlsx'
     filePath = os.path.join(reportWordDir, fileName)
     wb.save(filePath)
 
@@ -1720,7 +1720,7 @@ def outputBiZhang(r, s, manager, productType, className, subClassName, wareHouse
     ws['B3'] = u'填表日期:' + ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
 
     # 写箱号
-    ws['E5'] = r.box.boxNumber
+    ws['E5'] = r.thing.box.boxNumber
     cs = ws['E5']
     cs.alignment = a2
     # 写品名
@@ -1732,7 +1732,7 @@ def outputBiZhang(r, s, manager, productType, className, subClassName, wareHouse
     cs = ws['E7']
     cs.alignment = a2
     # 写编号
-    ws['E8'] = r.serialNumber
+    ws['E8'] = r.thing.serialNumber
     cs = ws['E8']
     cs.alignment = a2
     # 写经办人
@@ -1850,7 +1850,7 @@ def outputBiZhang(r, s, manager, productType, className, subClassName, wareHouse
         for cell in cells:
             cell.border = border
 
-    fileName = r.serialNumber + '.xlsx'
+    fileName = r.thing.serialNumber + '.xlsx'
     filePath = os.path.join(reportWordDir, fileName)
     wb.save(filePath)
 
@@ -1871,7 +1871,7 @@ def outputGongYiPin(r, s, manager, productType, className, subClassName, wareHou
     ws['B3'] = u'填表日期:' + ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
 
     # 写箱号
-    ws['E5'] = r.box.boxNumber
+    ws['E5'] = r.thing.box.boxNumber
     cs = ws['E5']
     cs.alignment = a2
     # 写品名
@@ -1883,7 +1883,7 @@ def outputGongYiPin(r, s, manager, productType, className, subClassName, wareHou
     cs = ws['E7']
     cs.alignment = a2
     # 写编号
-    ws['E8'] = r.serialNumber
+    ws['E8'] = r.thing.serialNumber
     cs = ws['E8']
     cs.alignment = a2
     # 写经办人
@@ -1993,7 +1993,7 @@ def outputGongYiPin(r, s, manager, productType, className, subClassName, wareHou
         for cell in cells:
             cell.border = border
 
-    fileName = r.serialNumber + '.xlsx'
+    fileName = r.thing.serialNumber + '.xlsx'
     filePath = os.path.join(reportWordDir, fileName)
     wb.save(filePath)
 
@@ -2002,7 +2002,7 @@ def outputGongYiPin(r, s, manager, productType, className, subClassName, wareHou
 
 def DingAbstract(r):
     c_format = u'箱号:{0}  编号:{1}  名称:{2}  时代:{3}  铭文:{4}  原标注成色:{5}%  检测成色:{6}%  长:{7}mm 宽:{8}mm  高:{9}mm  毛重:{10}g  纯重:{11}g'
-    c = c_format.format(r.box.boxNumber, r.serialNumber, r.detailedName, r.peroid, r.carveName, r.originalQuantity,
+    c = c_format.format(r.thing.box.boxNumber, r.thing.serialNumber, r.detailedName, r.peroid, r.carveName, r.originalQuantity,
                         r.detectedQuantity, r.length, r.width, r.height, r.grossWeight,
                         float('%0.2f' % (r.grossWeight * r.detectedQuantity / 100)))
 
@@ -2011,7 +2011,7 @@ def DingAbstract(r):
 
 def YinYuanAbstract(r):
     c_format = u'箱号:{0}  编号:{1}  名称:{2}  时代:{3}  币值:{4}  原标注成色:{5}%  检测成色:{6}%  直径:{7}mm 厚度:{8}mm 毛重:{9}g'
-    c = c_format.format(r.box.boxNumber, r.serialNumber, r.detailedName, r.peroid, r.value, r.originalQuantity,
+    c = c_format.format(r.thing.box.boxNumber, r.thing.serialNumber, r.detailedName, r.peroid, r.value, r.originalQuantity,
                         r.detectedQuantity, r.diameter, r.thick, r.grossWeight)
 
     return c
@@ -2019,7 +2019,7 @@ def YinYuanAbstract(r):
 
 def BiZhangAbstract(r):
     c_format = u'箱号:{0}  编号:{1}  名称:{2}  时代:{3}  币值:{4}  原标注成色:{5}%  检测成色:{6}%  长:{7}mm  宽:{8}mm  高:{9}mm  毛重:{10}g  纯重:{11}g'
-    c = c_format.format(r.box.boxNumber, r.serialNumber, r.detailedName, r.peroid, r.value, r.originalQuantity,
+    c = c_format.format(r.thing.box.boxNumber, r.thing.serialNumber, r.detailedName, r.peroid, r.value, r.originalQuantity,
                         r.detectedQuantity, r.length, r.width, r.height, r.grossWeight,
                         float('%0.2f' % (r.grossWeight * r.detectedQuantity / 100)))
 
@@ -2028,7 +2028,7 @@ def BiZhangAbstract(r):
 
 def GongYiPinAbstract(r):
     c_format = u'箱号:{0}  编号:{1}  名称:{2}  时代:{3}  原标注成色:{4}%  检测成色:{5}%  长:{6}mm  宽:{7}mm  高:{8}mm  毛重:{8}g  纯重:{10}g'
-    c = c_format.format(r.box.boxNumber, r.serialNumber, r.detailedName, r.peroid, r.originalQuantity,
+    c = c_format.format(r.thing.box.boxNumber, r.thing.serialNumber, r.detailedName, r.peroid, r.originalQuantity,
                         r.detectedQuantity, r.length, r.width, r.height, r.grossWeight,
                         float('%0.2f' % (r.grossWeight * r.detectedQuantity / 100)))
 
@@ -2223,7 +2223,7 @@ def createThingAbstract(workName,subBoxNumber,boxNumber,workSeq):
     #     ws = wb.active  # A workbook is always created with at least one worksheet. You can get it by using the openpyxl.workbook.Workbook.active() property
     #
     #     # r = rs[0]
-    #     # c1 = r.serialNumber
+    #     # c1 = r.thing.serialNumber
     #     # c2 = c1+'-'+boxNumber
     #     # idx = 0
     #     # tag_pic = createQRCode(c2)

@@ -463,7 +463,8 @@ def exploreThing(request, boxNumber, serialNumber):
     context['subClassName'] = subClassName.type
 
     # 档案建立时间与档案修改时间
-    s = gsStatus.objects.get(box=box, serialNumber=serialNumber)
+    # s = gsStatus.objects.get(box=box, serialNumber=serialNumber)
+    s = gsStatus.objects.get(thing=thing)
     lastUpdateDate = (s.numberingUpdateDateTime if (
         s.numberingUpdateDateTime is not None and s.analyzingUpdateDateTime is None) else s.analyzingUpdateDateTime) if (
         s.numberingUpdateDateTime is None or s.analyzingUpdateDateTime is None) else (
@@ -476,95 +477,95 @@ def exploreThing(request, boxNumber, serialNumber):
     context['lastUpdateDate'] = dateTimeHandler(lastUpdateDate) if (lastUpdateDate is not None) else ''
 
     # 图像路径
-    # year = s.numberingCreateDateTime.year
-    # seq = t.subBoxSeq
     picturePathPrefix = u'/static/photo/{0}/{1}/{2}'.format(boxOrSubBox, serialNumber,serialNumber)
     context['A'] = u'{0}-A.jpg'.format(picturePathPrefix)
     context['B'] = u'{0}-B.jpg'.format(picturePathPrefix)
     context['C'] = u'{0}-C.jpg'.format(picturePathPrefix)
 
     if (0 == cmp(productType.type, u'金银锭类')):
-        thing = gsDing.objects.get(box=box, serialNumber=serialNumber)
-        context['detailedName'] = thing.detailedName
-        context['typeName'] = thing.typeName
-        context['peroid'] = thing.peroid
-        context['producerPlace'] = thing.producerPlace
-        context['carveName'] = thing.carveName
-        context['remark'] = thing.remark
-        context['quality'] = thing.quality
-        context['level'] = thing.level
-        context['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-        context['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-        context['length'] = thing.length if (thing.length is not None) else ''
-        context['width'] = thing.width if (thing.width is not None) else ''
-        context['height'] = thing.height if (thing.height is not None) else ''
-        context['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
-        context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if (
-            thing.detectedQuantity is not None and thing.grossWeight is not None) else ''
+        work_thing = gsDing.objects.get(thing=thing)
+        context['detailedName'] = work_thing.detailedName
+        context['typeName'] = work_thing.typeName
+        context['peroid'] = work_thing.peroid
+        context['producerPlace'] = work_thing.producerPlace
+        context['carveName'] = work_thing.carveName
+        context['remark'] = work_thing.remark
+        context['quality'] = work_thing.quality
+        context['level'] = work_thing.level
+        context['originalQuantity'] = work_thing.originalQuantity if (work_thing.originalQuantity is not None) else ''
+        context['detectedQuantity'] = work_thing.detectedQuantity if (work_thing.detectedQuantity is not None) else ''
+        context['length'] = work_thing.length if (work_thing.length is not None) else ''
+        context['width'] = work_thing.width if (work_thing.width is not None) else ''
+        context['height'] = work_thing.height if (work_thing.height is not None) else ''
+        context['grossWeight'] = work_thing.grossWeight if (work_thing.grossWeight is not None) else ''
+        context['pureWeight'] = float('%0.2f' % ((work_thing.detectedQuantity * work_thing.grossWeight) / 100)) if (
+            work_thing.detectedQuantity is not None and work_thing.grossWeight is not None) else ''
 
         html = 'ding.html'
     elif (0 == cmp(productType.type, u'金银币章类')):
-        thing = gsBiZhang.objects.get(box=box, serialNumber=serialNumber)
-        context['detailedName'] = thing.detailedName
-        context['versionName'] = thing.versionName
-        context['peroid'] = thing.peroid
-        context['producerPlace'] = thing.producerPlace
-        context['value'] = thing.value
-        context['remark'] = thing.remark
-        context['quality'] = thing.quality
-        context['level'] = thing.level
-        context['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-        context['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-        context['diameter'] = thing.diameter if (thing.diameter is not None) else ''
-        context['thick'] = thing.thick if (thing.thick is not None) else ''
-        context['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
-        context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if (
-            thing.detectedQuantity is not None and thing.grossWeight is not None) else ''
+        work_thing = gsBiZhang.objects.get(thing=thing)
+        context['detailedName'] = work_thing.detailedName
+        context['versionName'] = work_thing.versionName
+        context['peroid'] = work_thing.peroid
+        context['producerPlace'] = work_thing.producerPlace
+        context['value'] = work_thing.value
+        context['remark'] = work_thing.remark
+        context['quality'] = work_thing.quality
+        context['level'] = work_thing.level
+        context['originalQuantity'] = work_thing.originalQuantity if (work_thing.originalQuantity is not None) else ''
+        context['detectedQuantity'] = work_thing.detectedQuantity if (work_thing.detectedQuantity is not None) else ''
+        context['diameter'] = work_thing.diameter if (work_thing.diameter is not None) else ''
+        context['thick'] = work_thing.thick if (work_thing.thick is not None) else ''
+        context['grossWeight'] = work_thing.grossWeight if (work_thing.grossWeight is not None) else ''
+        context['pureWeight'] = float('%0.2f' % ((work_thing.detectedQuantity * work_thing.grossWeight) / 100)) if (
+            work_thing.detectedQuantity is not None and work_thing.grossWeight is not None) else ''
 
         html = 'bizhang.html'
     elif (0 == cmp(productType.type, u'银元类')):
-        thing = gsYinYuan.objects.get(box=box, serialNumber=serialNumber)
-        context['detailedName'] = thing.detailedName
-        context['versionName'] = thing.versionName
-        context['peroid'] = thing.peroid
-        context['producerPlace'] = thing.producerPlace
-        context['value'] = thing.value
-        context['marginShape'] = thing.marginShape
-        context['remark'] = thing.remark
-        context['quality'] = thing.quality
-        context['level'] = thing.level
-        context['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-        context['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-        context['diameter'] = thing.diameter if (thing.diameter is not None) else ''
-        context['thick'] = thing.thick if (thing.thick is not None) else ''
-        context['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
+        work_thing = gsYinYuan.objects.get(thing=thing)
+        context['detailedName'] = work_thing.detailedName
+        context['versionName'] = work_thing.versionName
+        context['peroid'] = work_thing.peroid
+        context['producerPlace'] = work_thing.producerPlace
+        context['value'] = work_thing.value
+        context['marginShape'] = work_thing.marginShape
+        context['remark'] = work_thing.remark
+        context['quality'] = work_thing.quality
+        context['level'] = work_thing.level
+        context['originalQuantity'] = work_thing.originalQuantity if (work_thing.originalQuantity is not None) else ''
+        context['detectedQuantity'] = work_thing.detectedQuantity if (work_thing.detectedQuantity is not None) else ''
+        context['diameter'] = work_thing.diameter if (work_thing.diameter is not None) else ''
+        context['thick'] = work_thing.thick if (work_thing.thick is not None) else ''
+        context['grossWeight'] = work_thing.grossWeight if (work_thing.grossWeight is not None) else ''
 
         html = 'yinyuan.html'
     elif (0 == cmp(productType.type, u'金银工艺品类')):
-        thing = gsGongYiPin.objects.get(box=box, serialNumber=serialNumber)
-        context['detailedName'] = thing.detailedName
-        context['peroid'] = thing.peroid
-        context['remark'] = thing.remark
-        context['quality'] = thing.quality
-        context['level'] = thing.level
-        context['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-        context['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-        context['length'] = thing.length if (thing.length is not None) else ''
-        context['width'] = thing.width if (thing.width is not None) else ''
-        context['height'] = thing.height if (thing.height is not None) else ''
-        context['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
-        context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if (
-            thing.detectedQuantity is not None and thing.grossWeight is not None) else ''
+        work_thing = gsGongYiPin.objects.get(thing=thing)
+        context['detailedName'] = work_thing.detailedName
+        context['peroid'] = work_thing.peroid
+        context['remark'] = work_thing.remark
+        context['quality'] = work_thing.quality
+        context['level'] = work_thing.level
+        context['originalQuantity'] = work_thing.originalQuantity if (work_thing.originalQuantity is not None) else ''
+        context['detectedQuantity'] = work_thing.detectedQuantity if (work_thing.detectedQuantity is not None) else ''
+        context['length'] = work_thing.length if (work_thing.length is not None) else ''
+        context['width'] = work_thing.width if (work_thing.width is not None) else ''
+        context['height'] = work_thing.height if (work_thing.height is not None) else ''
+        context['grossWeight'] = work_thing.grossWeight if (work_thing.grossWeight is not None) else ''
+        context['pureWeight'] = float('%0.2f' % ((work_thing.detectedQuantity * work_thing.grossWeight) / 100)) if (
+            work_thing.detectedQuantity is not None and work_thing.grossWeight is not None) else ''
 
         html = 'gongyipin.html'
 
-    serialNumberList = gsThing.objects.filter(work=work).values_list('serialNumber', flat=True)
+    serialNumberSet = gsThing.objects.filter(work=work).values_list('serialNumber', flat=True)
+    serialNumberList = list(serialNumberSet)
+
     n = len(serialNumberList)
     first = 0
     last = n - 1
     context['first'] = serialNumberList[first]
     context['last'] = serialNumberList[last]
-    currentIdx = serialNumberList.index(thing.serialNumber)
+    currentIdx = serialNumberList.index(serialNumber)
 
     if (currentIdx < n - 1):
         context['next'] = serialNumberList[currentIdx + 1]

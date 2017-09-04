@@ -326,7 +326,6 @@ class gsThing(models.Model):
     box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
     subBox = models.ForeignKey(gsSubBox,null=True)
     work = models.ForeignKey(gsWork,null=True)
-
     class Meta:
         ordering = ['seq']
 

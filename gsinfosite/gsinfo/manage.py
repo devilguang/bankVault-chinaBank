@@ -220,14 +220,18 @@ def confirmMergeBox(request):
     currentMaxNo = int(gsSubBox.objects.filter(box=box).order_by('-subBoxNumber').first().subBoxNumber)
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱的{1}子箱进行并箱'.format(boxNumber,boxList))
-        newSubBox = gsSubBox.objects.create(subBoxNumber=currentMaxNo + 1,box=box,isValid=True)  # 新建一个
+        gsSubBox.objects.create(subBoxNumber=currentMaxNo + 1,box=box,isValid=True)  # 新建一个
         for no in boxList:
-            oldSubBox = gsSubBox.objects.get(box=box, subBoxNumber=no)
-            oldSubBox.update(isValid=False)  # 将之前的置为无效
+            oldSubBox_set = gsSubBox.objects.filter(box=box, subBoxNumber=no)
+            oldSubBox_set.update(isValid=False)  # 将之前的置为无效
+            oldSubBox = oldSubBox_set[0]
             serialNumber_list = gsThing.objects.filter(box=box, subBox=oldSubBox).values_list('serialNumber',flat=True)
-            gsThing.objects.filter(box=box, serialNumber__in=serialNumber_list).update(subBox=newSubBox,historyNo=oldSubBox)
+            print oldSubBox.pk
+            print type(oldSubBox.pk)
+            gsThing.objects.filter(box=box, serialNumber__in=serialNumber_list).update(subBox=newSubBox.pk,historyNo=oldSubBox.pk)
 
     except Exception as e:
+        print e
         ret = {
             "success": False,
             "message": '{0}号箱并箱失败！\r\n原因：{1}'.format(boxNumber, e.message)
@@ -1342,7 +1346,7 @@ def exploreBox(request):
     if subBoxNumber == '':
         ts = gsThing.objects.filter(box=box)
     else:
-        subBox = gsSubBox.objects.filter(subBoxNumber=subBoxNumber)
+        subBox = gsSubBox.objects.filter(box=box,subBoxNumber=subBoxNumber)
         ts = gsThing.objects.filter(box=box,subBox=subBox)
     n = ts.count()
 
