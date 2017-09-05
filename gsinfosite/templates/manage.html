@@ -575,6 +575,32 @@
 </div>
 
 
+
+<!-- 作业管理-打印标签 -->
+<div id="jobManagementLabelling" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
+     data-options="closed:true, buttons:'#jobManagementLabellingButtons', modal:true">
+    <form id="jobManagementLabellingForm" method="POST" novalidate  style="width: 260px;margin: auto">
+        <input type="hidden" id="jobManagementLabelling-boxNumber"/>
+        <table width="260px">
+            <tr>
+                <th>用户名：</th>
+                <td><input id="jobManagementLabelling-user"/></td>
+            </tr>
+            <tr>
+                <th>密码：</th>
+                <td><input type="password" id="jobManagementLabelling-passWord"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="jobManagementLabellingButtons">
+    <a href="javascript:void(0)" id="jobManagementLabellingButtonSave" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
+       onclick="jobManagementLabelling" style="width:90px">确定</a>
+    <a href="javascript:void(0)" id="jobManagementLabellingCancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#jobManagementLabelling').dialog('close')" style="width:90px">取消</a>
+</div>
+
+
 <!-- 打印清单-管理员认真 -->
 <div id="printTheList" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
      data-options="closed:true, buttons:'#printTheListButtons', modal:true">

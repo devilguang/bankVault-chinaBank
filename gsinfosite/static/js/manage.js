@@ -637,6 +637,7 @@ function putBoxIntoStore(type, index, status) {
 
 //该方法之前的名字是putBoxValidate  现在已改成doputBoxValidate
 function doputBoxValidate(type, index, status) {
+
     var boxNumber;
     if (type == 0) {
         $('#workGridBoxManage').datagrid('selectRow', index);
@@ -980,7 +981,7 @@ function clickPrints(index, number, clickType) {
                     console.log(1)
                     packingListIsDetailed(number, index)
                 }
-                if(clickType==2){
+                if (clickType == 2) {
                     console.log(2)
                     printInformationFile(index, number)
                 }
@@ -1333,6 +1334,7 @@ function dateTimeFormatter(value, row, index) {
     }
 }
 function workOperationFormatter(value, row, index) {
+
     if (row.status == 0) {
         // return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop('+index+', 1)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">分发</a><a href="javascript:void(0);" onclick="generateTag('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">生成标签</a><a href="javascript:void(0);" onclick="generateArchives('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">生成信息档案</a><a href="javascript:void(0);" onclick="exploreWork('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="openEditWorkDlg('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">编辑</a><a href="javascript:void(0);" onclick="deleteWork('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">删除</a></div>'
         return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop(' + index + ', 1)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">分发</a><a href="javascript:void(0);" onclick="generateTag(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印标签</a><a href="javascript:void(0);" onclick="generateArchives(' + index + ',null)" style="text-decoration:none;color:blue;margin-right:20px;">打印信息档案</a><a href="javascript:void(0);" onclick="generateAbstract(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印实物信息摘要</a><a href="javascript:void(0);" onclick="exploreWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="deleteWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">删除</a></div>'
@@ -1597,12 +1599,13 @@ function openEditWorkDlg(index) {
     });
 }
 function generateTag(index) {
-    $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
-    $('#putBoxValidateForm').form('clear');
-    // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+    $('#jobManagementLabelling').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $('#jobManagementLabellingForm').form('clear');
+    //之前点击保存的方法名叫putBoxValidate，我后面改成doputBoxValidate
+    $("#jobManagementLabellingButtonSave").attr("onclick", "jobManagementLabelling(" + index + ")");
+
     // $('#workGridWorkManage').datagrid('selectRow', index);
     // var row = $('#workGridWorkManage').datagrid('getSelected');
-    //
     // $.ajax({
     //     url: 'generateTag/',
     //     data: {boxNumber: row.boxNumber, subBoxNumber: row.subBoxNumber, workSeq: row.workSeq},
@@ -1625,9 +1628,50 @@ function generateTag(index) {
     //         }
     //     },
     // });
-}
 
-function generateArchives(index,number) {
+
+}
+function jobManagementLabelling(index) {
+    var user = $("#jobManagementLabelling-user").val()
+    var password = $("#jobManagementLabelling-passWord").val()
+    if (user == "" || password == "") {
+        $.messager.alert('提示', '用户或密码不能为空');
+        return;
+    }
+    $.ajax({
+        type: 'post',
+        url: 'print_auth/',
+        data: {
+            user: user,
+            password: password
+        }, success: function (data) {
+            var data = JSON.parse(data)
+            $('#jobManagementLabelling').dialog('close')
+            if (data.success) {
+                $('#workGridWorkManage').datagrid('selectRow', index);
+                var row = $('#workGridWorkManage').datagrid('getSelected');
+                $.ajax({
+                    type: 'post',
+                    url: 'printSerialNumberQR/',
+                    data: {
+                        boxNumber: row.boxNumber+"-"+row.subBoxNumber,
+                        workSeq: row.workSeq
+                    },success:function(data){
+                        var data = JSON.parse(data)
+                        console.log(data)
+
+                    }
+                })
+
+            } else {
+                $.messager.alert('提示', data.message);
+            }
+
+        }
+    })
+
+}
+function generateArchives(index, number) {
     $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#printTheListForm').form('clear');
     $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\',2)");
