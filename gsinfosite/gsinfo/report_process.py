@@ -851,208 +851,209 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
         id = 0
         font = Font(name=u'宋体', size=9)
         alignment = Alignment(horizontal='center', vertical='center')
-        for r, s in zip(rs, ss):
-            # 写装箱清单
-            if (0 == id % 30):
-                if (0 != id):
-                    # 设置当前页打印参数, 并写表尾合计
-                    # 设置页横向, 缩放比例81%
-                    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
-                    ws.page_setup.scale = 81
-                    ws.sheet_view.view = 'pageBreakPreview'
-                    # 单位: 英寸 inches. 1英寸==2.53CM
-                    ws.page_margins.left = 2.31 / 2.53
-                    ws.page_margins.right = 2.31 / 2.53
-                    ws.page_margins.top = 0 / 2.53
-                    ws.page_margins.bottom = 0 / 2.53
-                    ws.page_margins.header = 0 / 2.53
-                    ws.page_margins.footer = 0 / 2.53
+        if rs and ss: # 只有创建作业的才有可打印的
+            for r, s in zip(rs, ss):
+                # 写装箱清单
+                if (0 == id % 30):
+                    if (0 != id):
+                        # 设置当前页打印参数, 并写表尾合计
+                        # 设置页横向, 缩放比例81%
+                        ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+                        ws.page_setup.scale = 81
+                        ws.sheet_view.view = 'pageBreakPreview'
+                        # 单位: 英寸 inches. 1英寸==2.53CM
+                        ws.page_margins.left = 2.31 / 2.53
+                        ws.page_margins.right = 2.31 / 2.53
+                        ws.page_margins.top = 0 / 2.53
+                        ws.page_margins.bottom = 0 / 2.53
+                        ws.page_margins.header = 0 / 2.53
+                        ws.page_margins.footer = 0 / 2.53
 
-                    ws.insert_rows(rowStartIdx - 1, 1, above=False, copy_style=True, fill_formulae=False)
-                    ws.merge_cells('A{0}:B{0}'.format(rowStartIdx, rowStartIdx))
+                        ws.insert_rows(rowStartIdx - 1, 1, above=False, copy_style=True, fill_formulae=False)
+                        ws.merge_cells('A{0}:B{0}'.format(rowStartIdx, rowStartIdx))
 
-                    ws['A{0}'.format(rowStartIdx)] = u'小计'
-                    # 写毛重小计
-                    ws['M{0}'.format(rowStartIdx)] = u'=SUM(M6:M{0})'.format(rowStartIdx - 1)
-                    # 写纯重小计
-                    ws['Q{0}'.format(rowStartIdx)] = u'=SUM(Q6:Q{0})'.format(rowStartIdx - 1)
+                        ws['A{0}'.format(rowStartIdx)] = u'小计'
+                        # 写毛重小计
+                        ws['M{0}'.format(rowStartIdx)] = u'=SUM(M6:M{0})'.format(rowStartIdx - 1)
+                        # 写纯重小计
+                        ws['Q{0}'.format(rowStartIdx)] = u'=SUM(Q6:Q{0})'.format(rowStartIdx - 1)
 
-                    # 给当前页加边框样式, 即整个表格
-                    table = ws['A{0}:V{1}'.format(4, rowStartIdx)]
-                    for cs in table:
-                        for cell in cs:
-                            cell.border = border
+                        # 给当前页加边框样式, 即整个表格
+                        table = ws['A{0}:V{1}'.format(4, rowStartIdx)]
+                        for cs in table:
+                            for cell in cs:
+                                cell.border = border
 
-                    ws.row_dimensions[rowStartIdx + 1].ht = 32.25
+                        ws.row_dimensions[rowStartIdx + 1].ht = 32.25
 
-                # 写新一页表头
-                sheetIdx = id / 30
-                ws = wb.worksheets[sheetIdx]
-                ws['A2'] = u'中国人民银行' + wareHouse.type + productType.type + u'装箱清单'
-                ws['A3'] = u'箱号:' + str(boxNumber)
-                ws['S3'] = ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
+                    # 写新一页表头
+                    sheetIdx = id / 30
+                    ws = wb.worksheets[sheetIdx]
+                    ws['A2'] = u'中国人民银行' + wareHouse.type + productType.type + u'装箱清单'
+                    ws['A3'] = u'箱号:' + str(boxNumber)
+                    ws['S3'] = ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
 
-                rowStartIdx = 6;
+                    rowStartIdx = 6;
 
-            # 品名
-            ws.cell(row=rowStartIdx, column=2).value = className.type
-            ws.cell(row=rowStartIdx, column=2).font = font
-            ws.cell(row=rowStartIdx, column=2).alignment = alignment
+                # 品名
+                ws.cell(row=rowStartIdx, column=2).value = className.type
+                ws.cell(row=rowStartIdx, column=2).font = font
+                ws.cell(row=rowStartIdx, column=2).alignment = alignment
 
-            # 明细品名
-            ws.cell(row=rowStartIdx, column=3).value = subClassName.type
-            ws.cell(row=rowStartIdx, column=3).font = font
-            ws.cell(row=rowStartIdx, column=3).alignment = alignment
+                # 明细品名
+                ws.cell(row=rowStartIdx, column=3).value = subClassName.type
+                ws.cell(row=rowStartIdx, column=3).font = font
+                ws.cell(row=rowStartIdx, column=3).alignment = alignment
 
-            # 编号
-            ws.cell(row=rowStartIdx, column=4).value = r.thing.serialNumber
-            ws.cell(row=rowStartIdx, column=4).font = font
-            ws.cell(row=rowStartIdx, column=4).alignment = alignment
+                # 编号
+                ws.cell(row=rowStartIdx, column=4).value = r.thing.serialNumber
+                ws.cell(row=rowStartIdx, column=4).font = font
+                ws.cell(row=rowStartIdx, column=4).alignment = alignment
 
-            # 名称
-            ws.cell(row=rowStartIdx, column=5).value = r.detailedName
-            ws.cell(row=rowStartIdx, column=5).font = font
-            ws.cell(row=rowStartIdx, column=5).alignment = alignment
+                # 名称
+                ws.cell(row=rowStartIdx, column=5).value = r.detailedName
+                ws.cell(row=rowStartIdx, column=5).font = font
+                ws.cell(row=rowStartIdx, column=5).alignment = alignment
 
-            # 型制类型
-            ws.cell(row=rowStartIdx, column=6).value = r.typeName
-            ws.cell(row=rowStartIdx, column=6).font = font
-            ws.cell(row=rowStartIdx, column=6).alignment = alignment
+                # 型制类型
+                ws.cell(row=rowStartIdx, column=6).value = r.typeName
+                ws.cell(row=rowStartIdx, column=6).font = font
+                ws.cell(row=rowStartIdx, column=6).alignment = alignment
 
-            # 时代
-            ws.cell(row=rowStartIdx, column=7).value = r.typeName
-            ws.cell(row=rowStartIdx, column=7).font = font
-            ws.cell(row=rowStartIdx, column=7).alignment = alignment
+                # 时代
+                ws.cell(row=rowStartIdx, column=7).value = r.typeName
+                ws.cell(row=rowStartIdx, column=7).font = font
+                ws.cell(row=rowStartIdx, column=7).alignment = alignment
 
-            # 制造地
-            ws.cell(row=rowStartIdx, column=8).value = r.producerPlace
-            ws.cell(row=rowStartIdx, column=8).font = font
-            ws.cell(row=rowStartIdx, column=8).alignment = alignment
+                # 制造地
+                ws.cell(row=rowStartIdx, column=8).value = r.producerPlace
+                ws.cell(row=rowStartIdx, column=8).font = font
+                ws.cell(row=rowStartIdx, column=8).alignment = alignment
 
-            # 制作人
-            ws.cell(row=rowStartIdx, column=9).value = r.producerPlace
-            ws.cell(row=rowStartIdx, column=9).font = font
-            ws.cell(row=rowStartIdx, column=9).alignment = alignment
+                # 制作人
+                ws.cell(row=rowStartIdx, column=9).value = r.producerPlace
+                ws.cell(row=rowStartIdx, column=9).font = font
+                ws.cell(row=rowStartIdx, column=9).alignment = alignment
 
-            # 性质
+                # 性质
 
-            # 品相
-            ws.cell(row=rowStartIdx, column=11).value = r.quality
-            ws.cell(row=rowStartIdx, column=11).font = font
-            ws.cell(row=rowStartIdx, column=11).alignment = alignment
+                # 品相
+                ws.cell(row=rowStartIdx, column=11).value = r.quality
+                ws.cell(row=rowStartIdx, column=11).font = font
+                ws.cell(row=rowStartIdx, column=11).alignment = alignment
 
-            # 铭文
-            ws.cell(row=rowStartIdx, column=12).value = r.carveName
-            ws.cell(row=rowStartIdx, column=12).font = font
-            ws.cell(row=rowStartIdx, column=12).alignment = alignment
+                # 铭文
+                ws.cell(row=rowStartIdx, column=12).value = r.carveName
+                ws.cell(row=rowStartIdx, column=12).font = font
+                ws.cell(row=rowStartIdx, column=12).alignment = alignment
 
-            # 毛重
-            ws.cell(row=rowStartIdx, column=13).value = r.grossWeight
-            ws.cell(row=rowStartIdx, column=13).font = font
-            ws.cell(row=rowStartIdx, column=13).alignment = alignment
+                # 毛重
+                ws.cell(row=rowStartIdx, column=13).value = r.grossWeight
+                ws.cell(row=rowStartIdx, column=13).font = font
+                ws.cell(row=rowStartIdx, column=13).alignment = alignment
 
-            # 成色(原标注成色)
-            ws.cell(row=rowStartIdx, column=14).value = r.originalQuantity
-            ws.cell(row=rowStartIdx, column=14).font = font
-            ws.cell(row=rowStartIdx, column=14).alignment = alignment
+                # 成色(原标注成色)
+                ws.cell(row=rowStartIdx, column=14).value = r.originalQuantity
+                ws.cell(row=rowStartIdx, column=14).font = font
+                ws.cell(row=rowStartIdx, column=14).alignment = alignment
 
-            # 成色(仪器检测成色)
-            ws.cell(row=rowStartIdx, column=15).value = r.detectedQuantity
-            ws.cell(row=rowStartIdx, column=15).font = font
-            ws.cell(row=rowStartIdx, column=15).alignment = alignment
+                # 成色(仪器检测成色)
+                ws.cell(row=rowStartIdx, column=15).value = r.detectedQuantity
+                ws.cell(row=rowStartIdx, column=15).font = font
+                ws.cell(row=rowStartIdx, column=15).alignment = alignment
 
-            # 成色(目测)
+                # 成色(目测)
 
-            # 纯重
-            if (r.grossWeight is not None and r.detectedQuantity is not None):
-                ws.cell(row=rowStartIdx, column=17).value = float(
-                    '%0.2f' % (r.grossWeight * r.detectedQuantity / 100))
-            ws.cell(row=rowStartIdx, column=17).font = font
-            ws.cell(row=rowStartIdx, column=17).alignment = alignment
+                # 纯重
+                if (r.grossWeight is not None and r.detectedQuantity is not None):
+                    ws.cell(row=rowStartIdx, column=17).value = float(
+                        '%0.2f' % (r.grossWeight * r.detectedQuantity / 100))
+                ws.cell(row=rowStartIdx, column=17).font = font
+                ws.cell(row=rowStartIdx, column=17).alignment = alignment
 
-            # 长度
-            ws.cell(row=rowStartIdx, column=18).value = r.length
-            ws.cell(row=rowStartIdx, column=18).font = font
-            ws.cell(row=rowStartIdx, column=18).alignment = alignment
+                # 长度
+                ws.cell(row=rowStartIdx, column=18).value = r.length
+                ws.cell(row=rowStartIdx, column=18).font = font
+                ws.cell(row=rowStartIdx, column=18).alignment = alignment
 
-            # 宽度
-            ws.cell(row=rowStartIdx, column=19).value = r.width
-            ws.cell(row=rowStartIdx, column=19).font = font
-            ws.cell(row=rowStartIdx, column=19).alignment = alignment
+                # 宽度
+                ws.cell(row=rowStartIdx, column=19).value = r.width
+                ws.cell(row=rowStartIdx, column=19).font = font
+                ws.cell(row=rowStartIdx, column=19).alignment = alignment
 
-            # 高度
-            ws.cell(row=rowStartIdx, column=20).value = r.height
-            ws.cell(row=rowStartIdx, column=20).font = font
-            ws.cell(row=rowStartIdx, column=20).alignment = alignment
+                # 高度
+                ws.cell(row=rowStartIdx, column=20).value = r.height
+                ws.cell(row=rowStartIdx, column=20).font = font
+                ws.cell(row=rowStartIdx, column=20).alignment = alignment
 
-            # 直径
+                # 直径
 
-            # 评价等级
-            ws.cell(row=rowStartIdx, column=22).value = r.level
-            ws.cell(row=rowStartIdx, column=22).font = font
-            ws.cell(row=rowStartIdx, column=22).alignment = alignment
+                # 评价等级
+                ws.cell(row=rowStartIdx, column=22).value = r.level
+                ws.cell(row=rowStartIdx, column=22).font = font
+                ws.cell(row=rowStartIdx, column=22).alignment = alignment
 
-            # 生成单个实物信息档案
-            # outputDing(r, s, productType.type, className.type, subClassName.type, wareHouse.type, date, reportWordDir)
+                # 生成单个实物信息档案
+                # outputDing(r, s, productType.type, className.type, subClassName.type, wareHouse.type, date, reportWordDir)
 
-            id = id + 1
-            rowStartIdx = rowStartIdx + 1
+                id = id + 1
+                rowStartIdx = rowStartIdx + 1
 
-        # 设置最后一页打印参数, 并写表尾合计
-        # 设置页横向, 缩放比例81%
-        ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
-        ws.page_setup.scale = 81
-        ws.sheet_view.view = 'pageBreakPreview'
-        # 单位: 英寸 inches. 1英寸==2.53CM
-        ws.page_margins.left = 2.31 / 2.53
-        ws.page_margins.right = 2.31 / 2.53
-        ws.page_margins.top = 0 / 2.53
-        ws.page_margins.bottom = 0 / 2.53
-        ws.page_margins.header = 0 / 2.53
-        ws.page_margins.footer = 0 / 2.53
+            # 设置最后一页打印参数, 并写表尾合计
+            # 设置页横向, 缩放比例81%
+            ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+            ws.page_setup.scale = 81
+            ws.sheet_view.view = 'pageBreakPreview'
+            # 单位: 英寸 inches. 1英寸==2.53CM
+            ws.page_margins.left = 2.31 / 2.53
+            ws.page_margins.right = 2.31 / 2.53
+            ws.page_margins.top = 0 / 2.53
+            ws.page_margins.bottom = 0 / 2.53
+            ws.page_margins.header = 0 / 2.53
+            ws.page_margins.footer = 0 / 2.53
 
-        ws.insert_rows(35, 2, above=False, copy_style=True, fill_formulae=False)
-        ws.merge_cells('A{0}:B{0}'.format(36, 36))
-        ws['A{0}'.format(36)] = u'小计'
-        # 写毛重小计
-        ws['M{0}'.format(36)] = u'=SUM(M6:M{0})'.format(rowStartIdx - 1)
-        # 写纯重小计
-        ws['Q{0}'.format(36)] = u'=SUM(Q6:Q{0})'.format(rowStartIdx - 1)
+            ws.insert_rows(35, 2, above=False, copy_style=True, fill_formulae=False)
+            ws.merge_cells('A{0}:B{0}'.format(36, 36))
+            ws['A{0}'.format(36)] = u'小计'
+            # 写毛重小计
+            ws['M{0}'.format(36)] = u'=SUM(M6:M{0})'.format(rowStartIdx - 1)
+            # 写纯重小计
+            ws['Q{0}'.format(36)] = u'=SUM(Q6:Q{0})'.format(rowStartIdx - 1)
 
-        ws.merge_cells('A{0}:B{0}'.format(37, 37))
-        ws['A{0}'.format(37)] = u'合计'
+            ws.merge_cells('A{0}:B{0}'.format(37, 37))
+            ws['A{0}'.format(37)] = u'合计'
 
-        # 构造合计EXCEL计算公式
-        grossWeightTotalFormula = u'=SUM('
-        pureWeightTotalFormula = u'=SUM('
-        for i in range(sheetCnt + 1):
-            ws = wb.worksheets[i]
-            if (i != sheetCnt):
-                grossWeightTotalFormula = grossWeightTotalFormula + u'\'{0}\'!M36'.format(ws.title)
-                pureWeightTotalFormula = pureWeightTotalFormula + u'\'{0}\'!Q36'.format(ws.title)
-            else:
-                grossWeightTotalFormula = grossWeightTotalFormula + u'M36'.format(ws.title)
-                pureWeightTotalFormula = pureWeightTotalFormula + u'Q36'.format(ws.title)
+            # 构造合计EXCEL计算公式
+            grossWeightTotalFormula = u'=SUM('
+            pureWeightTotalFormula = u'=SUM('
+            for i in range(sheetCnt + 1):
+                ws = wb.worksheets[i]
+                if (i != sheetCnt):
+                    grossWeightTotalFormula = grossWeightTotalFormula + u'\'{0}\'!M36'.format(ws.title)
+                    pureWeightTotalFormula = pureWeightTotalFormula + u'\'{0}\'!Q36'.format(ws.title)
+                else:
+                    grossWeightTotalFormula = grossWeightTotalFormula + u'M36'.format(ws.title)
+                    pureWeightTotalFormula = pureWeightTotalFormula + u'Q36'.format(ws.title)
 
-            if (i < sheetCnt):
-                grossWeightTotalFormula = grossWeightTotalFormula + ','
-                pureWeightTotalFormula = pureWeightTotalFormula + ','
+                if (i < sheetCnt):
+                    grossWeightTotalFormula = grossWeightTotalFormula + ','
+                    pureWeightTotalFormula = pureWeightTotalFormula + ','
 
-        grossWeightTotalFormula = grossWeightTotalFormula + ')'
-        pureWeightTotalFormula = pureWeightTotalFormula + ')'
+            grossWeightTotalFormula = grossWeightTotalFormula + ')'
+            pureWeightTotalFormula = pureWeightTotalFormula + ')'
 
-        # 写毛重合计
-        ws['M{0}'.format(37)] = u'{0}'.format(grossWeightTotalFormula)
-        # 写纯重合计
-        ws['Q{0}'.format(37)] = u'{0}'.format(pureWeightTotalFormula)
+            # 写毛重合计
+            ws['M{0}'.format(37)] = u'{0}'.format(grossWeightTotalFormula)
+            # 写纯重合计
+            ws['Q{0}'.format(37)] = u'{0}'.format(pureWeightTotalFormula)
 
-        # 给最后一页加边框样式, 即整个表格
-        table = ws['A{0}:V{1}'.format(4, 37)]
-        for cs in table:
-            for cell in cs:
-                cell.border = border
+            # 给最后一页加边框样式, 即整个表格
+            table = ws['A{0}:V{1}'.format(4, 37)]
+            for cs in table:
+                for cell in cs:
+                    cell.border = border
 
-        ws.row_dimensions[38].ht = 32.25
+            ws.row_dimensions[38].ht = 32.25
 
     elif (0 == cmp(productType.type, u'金银币章类')):
         rs = gsBiZhang.objects.filter(thing__in=thing_set)
@@ -1067,145 +1068,146 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
         id = 0
         font = Font(name=u'宋体', size=9)
         alignment = Alignment(horizontal='center', vertical='center')
-        for r, s in zip(rs, ss):
-            # 写装箱清单
-            if (0 == id % 30):
-                if (0 != id):
-                    # 设置当前页打印参数, 并写表尾合计
-                    ws.sheet_view.view = 'pageBreakPreview'
-                    # 单位: 英寸 inches. 1英寸==2.53CM
-                    ws.page_margins.left = 0.43 / 2.53
-                    ws.page_margins.right = 0 / 2.53
-                    ws.page_margins.top = 0.5 / 2.53
-                    ws.page_margins.bottom = 0.3 / 2.53
-                    ws.page_margins.header = 0 / 2.53
-                    ws.page_margins.footer = 0 / 2.53
+        if rs and ss:
+            for r, s in zip(rs, ss):
+                # 写装箱清单
+                if (0 == id % 30):
+                    if (0 != id):
+                        # 设置当前页打印参数, 并写表尾合计
+                        ws.sheet_view.view = 'pageBreakPreview'
+                        # 单位: 英寸 inches. 1英寸==2.53CM
+                        ws.page_margins.left = 0.43 / 2.53
+                        ws.page_margins.right = 0 / 2.53
+                        ws.page_margins.top = 0.5 / 2.53
+                        ws.page_margins.bottom = 0.3 / 2.53
+                        ws.page_margins.header = 0 / 2.53
+                        ws.page_margins.footer = 0 / 2.53
 
-                    ws.insert_rows(rowStartIdx - 1, 1, above=False, copy_style=True, fill_formulae=False)
-                    ws.merge_cells('A{0}:B{0}'.format(rowStartIdx, rowStartIdx))
+                        ws.insert_rows(rowStartIdx - 1, 1, above=False, copy_style=True, fill_formulae=False)
+                        ws.merge_cells('A{0}:B{0}'.format(rowStartIdx, rowStartIdx))
 
-                    ws['A{0}'.format(rowStartIdx)] = u'小计'
-                    # 写毛重小计
-                    ws['D{0}'.format(rowStartIdx)] = u'=SUM(D4:D{0})'.format(rowStartIdx - 1)
-                    # 写纯重小计
-                    ws['F{0}'.format(rowStartIdx)] = u'=SUM(F4:F{0})'.format(rowStartIdx - 1)
+                        ws['A{0}'.format(rowStartIdx)] = u'小计'
+                        # 写毛重小计
+                        ws['D{0}'.format(rowStartIdx)] = u'=SUM(D4:D{0})'.format(rowStartIdx - 1)
+                        # 写纯重小计
+                        ws['F{0}'.format(rowStartIdx)] = u'=SUM(F4:F{0})'.format(rowStartIdx - 1)
 
-                    # 加边框样式
-                    row = ws['A{0}:H{1}'.format(rowStartIdx, rowStartIdx)]
-                    for cs in row:
-                        for cell in cs:
-                            cell.border = border
+                        # 加边框样式
+                        row = ws['A{0}:H{1}'.format(rowStartIdx, rowStartIdx)]
+                        for cs in row:
+                            for cell in cs:
+                                cell.border = border
 
-                    ws.row_dimensions[rowStartIdx + 1].ht = 32.25
+                        ws.row_dimensions[rowStartIdx + 1].ht = 32.25
 
-                # 写表头
-                sheetIdx = id / 30
-                ws = wb.worksheets[sheetIdx]
-                ws['A1'] = u'中国人民银行' + wareHouse.type + productType.type + u'装箱清单'
-                ws['A2'] = u'箱号:' + str(boxNumber)
-                ws['D2'] = ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
+                    # 写表头
+                    sheetIdx = id / 30
+                    ws = wb.worksheets[sheetIdx]
+                    ws['A1'] = u'中国人民银行' + wareHouse.type + productType.type + u'装箱清单'
+                    ws['A2'] = u'箱号:' + str(boxNumber)
+                    ws['D2'] = ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
 
-                rowStartIdx = 4;
+                    rowStartIdx = 4;
 
-            # 名称
-            ws.cell(row=rowStartIdx, column=2).value = r.detailedName
-            ws.cell(row=rowStartIdx, column=2).font = font
-            ws.cell(row=rowStartIdx, column=2).alignment = alignment
-            # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
-            ws.cell(row=rowStartIdx, column=3).font = font
-            ws.cell(row=rowStartIdx, column=3).alignment = alignment
-            # 毛重
-            ws.cell(row=rowStartIdx, column=4).value = r.grossWeight
-            ws.cell(row=rowStartIdx, column=4).font = font
-            ws.cell(row=rowStartIdx, column=4).alignment = alignment
-            # 成色(原标注成色)
-            ws.cell(row=rowStartIdx, column=5).value = r.originalQuantity
-            ws.cell(row=rowStartIdx, column=5).font = font
-            ws.cell(row=rowStartIdx, column=5).alignment = alignment
-            # 纯重
-            if (r.grossWeight is not None and r.detectedQuantity is not None):
-                ws.cell(row=rowStartIdx, column=6).value = float(
-                    '%0.2f' % (r.grossWeight * r.detectedQuantity / 100))
-            ws.cell(row=rowStartIdx, column=6).font = font
-            ws.cell(row=rowStartIdx, column=6).alignment = alignment
-            # 品相
-            ws.cell(row=rowStartIdx, column=7).value = r.quality
-            ws.cell(row=rowStartIdx, column=7).font = font
-            ws.cell(row=rowStartIdx, column=7).alignment = alignment
-            # 评价等级
-            ws.cell(row=rowStartIdx, column=8).value = r.level
-            ws.cell(row=rowStartIdx, column=8).font = font
-            ws.cell(row=rowStartIdx, column=8).alignment = alignment
+                # 名称
+                ws.cell(row=rowStartIdx, column=2).value = r.detailedName
+                ws.cell(row=rowStartIdx, column=2).font = font
+                ws.cell(row=rowStartIdx, column=2).alignment = alignment
+                # 编号
+                ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
+                ws.cell(row=rowStartIdx, column=3).font = font
+                ws.cell(row=rowStartIdx, column=3).alignment = alignment
+                # 毛重
+                ws.cell(row=rowStartIdx, column=4).value = r.grossWeight
+                ws.cell(row=rowStartIdx, column=4).font = font
+                ws.cell(row=rowStartIdx, column=4).alignment = alignment
+                # 成色(原标注成色)
+                ws.cell(row=rowStartIdx, column=5).value = r.originalQuantity
+                ws.cell(row=rowStartIdx, column=5).font = font
+                ws.cell(row=rowStartIdx, column=5).alignment = alignment
+                # 纯重
+                if (r.grossWeight is not None and r.detectedQuantity is not None):
+                    ws.cell(row=rowStartIdx, column=6).value = float(
+                        '%0.2f' % (r.grossWeight * r.detectedQuantity / 100))
+                ws.cell(row=rowStartIdx, column=6).font = font
+                ws.cell(row=rowStartIdx, column=6).alignment = alignment
+                # 品相
+                ws.cell(row=rowStartIdx, column=7).value = r.quality
+                ws.cell(row=rowStartIdx, column=7).font = font
+                ws.cell(row=rowStartIdx, column=7).alignment = alignment
+                # 评价等级
+                ws.cell(row=rowStartIdx, column=8).value = r.level
+                ws.cell(row=rowStartIdx, column=8).font = font
+                ws.cell(row=rowStartIdx, column=8).alignment = alignment
 
-            # 生成单个实物信息档案
-            # outputBiZhang(r, s, productType.type, className.type, subClassName.type, wareHouse.type, date, reportWordDir)
+                # 生成单个实物信息档案
+                # outputBiZhang(r, s, productType.type, className.type, subClassName.type, wareHouse.type, date, reportWordDir)
 
-            id = id + 1
-            rowStartIdx = rowStartIdx + 1
+                id = id + 1
+                rowStartIdx = rowStartIdx + 1
 
-        # 设置最后一页打印参数, 并写表尾合计
-        ws.sheet_view.view = 'pageBreakPreview'
-        # 单位: 英寸 inches. 1英寸==2.53CM
-        ws.page_margins.left = 0.43 / 2.53
-        ws.page_margins.right = 0 / 2.53
-        ws.page_margins.top = 0.5 / 2.53
-        ws.page_margins.bottom = 0.3 / 2.53
-        ws.page_margins.header = 0 / 2.53
-        ws.page_margins.footer = 0 / 2.53
+            # 设置最后一页打印参数, 并写表尾合计
+            ws.sheet_view.view = 'pageBreakPreview'
+            # 单位: 英寸 inches. 1英寸==2.53CM
+            ws.page_margins.left = 0.43 / 2.53
+            ws.page_margins.right = 0 / 2.53
+            ws.page_margins.top = 0.5 / 2.53
+            ws.page_margins.bottom = 0.3 / 2.53
+            ws.page_margins.header = 0 / 2.53
+            ws.page_margins.footer = 0 / 2.53
 
-        ws.insert_rows(33, 2, above=False, copy_style=True, fill_formulae=False)
-        ws.merge_cells('A{0}:B{0}'.format(34, 34))
-        # cs = ws['A{0}'.format(rowStartIdx)]
-        # cs.alignment = a
-        ws['A{0}'.format(34)] = u'小计'
-        # 写毛重小计
-        ws['D{0}'.format(34)] = u'=SUM(D4:D{0})'.format(rowStartIdx - 1)
-        # 写纯重小计
-        ws['F{0}'.format(34)] = u'=SUM(F4:F{0})'.format(rowStartIdx - 1)
+            ws.insert_rows(33, 2, above=False, copy_style=True, fill_formulae=False)
+            ws.merge_cells('A{0}:B{0}'.format(34, 34))
+            # cs = ws['A{0}'.format(rowStartIdx)]
+            # cs.alignment = a
+            ws['A{0}'.format(34)] = u'小计'
+            # 写毛重小计
+            ws['D{0}'.format(34)] = u'=SUM(D4:D{0})'.format(rowStartIdx - 1)
+            # 写纯重小计
+            ws['F{0}'.format(34)] = u'=SUM(F4:F{0})'.format(rowStartIdx - 1)
 
-        # 加边框样式
-        row = ws['A{0}:H{1}'.format(34, 34)]
-        for cs in row:
-            for cell in cs:
-                cell.border = border
+            # 加边框样式
+            row = ws['A{0}:H{1}'.format(34, 34)]
+            for cs in row:
+                for cell in cs:
+                    cell.border = border
 
-        ws.merge_cells('A{0}:B{0}'.format(35, 35))
-        cs = ws['A{0}'.format(rowStartIdx)]
-        # cs.alignment = a
-        ws['A{0}'.format(35)] = u'合计'
+            ws.merge_cells('A{0}:B{0}'.format(35, 35))
+            cs = ws['A{0}'.format(rowStartIdx)]
+            # cs.alignment = a
+            ws['A{0}'.format(35)] = u'合计'
 
-        # 构造合计EXCEL计算公式
-        grossWeightTotalFormula = u'=SUM('
-        pureWeightTotalFormula = u'=SUM('
-        for i in range(sheetCnt + 1):
-            ws = wb.worksheets[i]
-            if (i != sheetCnt):
-                grossWeightTotalFormula = grossWeightTotalFormula + u'{0}!D34'.format(ws.title)
-                pureWeightTotalFormula = pureWeightTotalFormula + u'{0}!F34'.format(ws.title)
-            else:
-                grossWeightTotalFormula = grossWeightTotalFormula + u'D34'.format(ws.title)
-                pureWeightTotalFormula = pureWeightTotalFormula + u'F34'.format(ws.title)
+            # 构造合计EXCEL计算公式
+            grossWeightTotalFormula = u'=SUM('
+            pureWeightTotalFormula = u'=SUM('
+            for i in range(sheetCnt + 1):
+                ws = wb.worksheets[i]
+                if (i != sheetCnt):
+                    grossWeightTotalFormula = grossWeightTotalFormula + u'{0}!D34'.format(ws.title)
+                    pureWeightTotalFormula = pureWeightTotalFormula + u'{0}!F34'.format(ws.title)
+                else:
+                    grossWeightTotalFormula = grossWeightTotalFormula + u'D34'.format(ws.title)
+                    pureWeightTotalFormula = pureWeightTotalFormula + u'F34'.format(ws.title)
 
-            if (i < sheetCnt):
-                grossWeightTotalFormula = grossWeightTotalFormula + ','
-                pureWeightTotalFormula = pureWeightTotalFormula + ','
+                if (i < sheetCnt):
+                    grossWeightTotalFormula = grossWeightTotalFormula + ','
+                    pureWeightTotalFormula = pureWeightTotalFormula + ','
 
-        grossWeightTotalFormula = grossWeightTotalFormula + ')'
-        pureWeightTotalFormula = pureWeightTotalFormula + ')'
+            grossWeightTotalFormula = grossWeightTotalFormula + ')'
+            pureWeightTotalFormula = pureWeightTotalFormula + ')'
 
-        # 写毛重合计
-        ws['D{0}'.format(35)] = u'{0}'.format(grossWeightTotalFormula)
-        # 写纯重合计
-        ws['F{0}'.format(35)] = u'{0}'.format(pureWeightTotalFormula)
+            # 写毛重合计
+            ws['D{0}'.format(35)] = u'{0}'.format(grossWeightTotalFormula)
+            # 写纯重合计
+            ws['F{0}'.format(35)] = u'{0}'.format(pureWeightTotalFormula)
 
-        # 加边框样式
-        row = ws['A{0}:H{1}'.format(35, 35)]
-        for cs in row:
-            for cell in cs:
-                cell.border = border
+            # 加边框样式
+            row = ws['A{0}:H{1}'.format(35, 35)]
+            for cs in row:
+                for cell in cs:
+                    cell.border = border
 
-        ws.row_dimensions[36].ht = 32.25
+            ws.row_dimensions[36].ht = 32.25
 
     elif (0 == cmp(productType.type, u'银元类')):
         rs = gsYinYuan.objects.filter(thing__in=thing_set)
@@ -1220,52 +1222,53 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
         id = 0
         font = Font(name=u'宋体', size=9)
         alignment = Alignment(horizontal='center', vertical='center')
-        for r, s in zip(rs, ss):
-            # 写装箱清单
-            if (0 == id % 30):
-                # 写表头
-                sheetIdx = id / 30
-                ws = wb.worksheets[sheetIdx]
-                ws['A1'] = u'中国人民银行' + wareHouse.type + productType.type + u'装箱清单'
-                ws['A2'] = u'箱号:' + str(boxNumber)
-                ws['D2'] = ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
+        if rs and ss:
+            for r, s in zip(rs, ss):
+                # 写装箱清单
+                if (0 == id % 30):
+                    # 写表头
+                    sheetIdx = id / 30
+                    ws = wb.worksheets[sheetIdx]
+                    ws['A1'] = u'中国人民银行' + wareHouse.type + productType.type + u'装箱清单'
+                    ws['A2'] = u'箱号:' + str(boxNumber)
+                    ws['D2'] = ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
 
-                rowStartIdx = 4;
+                    rowStartIdx = 4;
 
-            # 明细品名
-            ws.cell(row=rowStartIdx, column=2).value = subClassName.type
-            ws.cell(row=rowStartIdx, column=2).font = font
-            ws.cell(row=rowStartIdx, column=2).alignment = alignment
-            # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
-            ws.cell(row=rowStartIdx, column=3).font = font
-            ws.cell(row=rowStartIdx, column=3).alignment = alignment
-            # 毛重
-            ws.cell(row=rowStartIdx, column=4).value = r.grossWeight
-            ws.cell(row=rowStartIdx, column=4).font = font
-            ws.cell(row=rowStartIdx, column=4).alignment = alignment
-            # 成色(原标注成色)
-            ws.cell(row=rowStartIdx, column=5).value = r.originalQuantity
-            ws.cell(row=rowStartIdx, column=5).font = font
-            ws.cell(row=rowStartIdx, column=5).alignment = alignment
-            # 枚数
-            # ws.cell(row = rowStartIdx, column = 6).value = r.grossWeight*r.detectedQuantity
-            ws.cell(row=rowStartIdx, column=6).font = font
-            ws.cell(row=rowStartIdx, column=6).alignment = alignment
-            # 品相
-            ws.cell(row=rowStartIdx, column=7).value = r.quality
-            ws.cell(row=rowStartIdx, column=7).font = font
-            ws.cell(row=rowStartIdx, column=7).alignment = alignment
-            # 评价等级
-            ws.cell(row=rowStartIdx, column=8).value = r.level
-            ws.cell(row=rowStartIdx, column=8).font = font
-            ws.cell(row=rowStartIdx, column=8).alignment = alignment
+                # 明细品名
+                ws.cell(row=rowStartIdx, column=2).value = subClassName.type
+                ws.cell(row=rowStartIdx, column=2).font = font
+                ws.cell(row=rowStartIdx, column=2).alignment = alignment
+                # 编号
+                ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
+                ws.cell(row=rowStartIdx, column=3).font = font
+                ws.cell(row=rowStartIdx, column=3).alignment = alignment
+                # 毛重
+                ws.cell(row=rowStartIdx, column=4).value = r.grossWeight
+                ws.cell(row=rowStartIdx, column=4).font = font
+                ws.cell(row=rowStartIdx, column=4).alignment = alignment
+                # 成色(原标注成色)
+                ws.cell(row=rowStartIdx, column=5).value = r.originalQuantity
+                ws.cell(row=rowStartIdx, column=5).font = font
+                ws.cell(row=rowStartIdx, column=5).alignment = alignment
+                # 枚数
+                # ws.cell(row = rowStartIdx, column = 6).value = r.grossWeight*r.detectedQuantity
+                ws.cell(row=rowStartIdx, column=6).font = font
+                ws.cell(row=rowStartIdx, column=6).alignment = alignment
+                # 品相
+                ws.cell(row=rowStartIdx, column=7).value = r.quality
+                ws.cell(row=rowStartIdx, column=7).font = font
+                ws.cell(row=rowStartIdx, column=7).alignment = alignment
+                # 评价等级
+                ws.cell(row=rowStartIdx, column=8).value = r.level
+                ws.cell(row=rowStartIdx, column=8).font = font
+                ws.cell(row=rowStartIdx, column=8).alignment = alignment
 
-            # 生成单个实物信息档案
-            # outputYinYuan(r, s, productType.type, className.type, subClassName.type, wareHouse.type, date, reportWordDir)
+                # 生成单个实物信息档案
+                # outputYinYuan(r, s, productType.type, className.type, subClassName.type, wareHouse.type, date, reportWordDir)
 
-            id = id + 1
-            rowStartIdx = rowStartIdx + 1
+                id = id + 1
+                rowStartIdx = rowStartIdx + 1
 
     elif (0 == cmp(productType.type, u'金银工艺品类')):
         rs = gsGongYiPin.objects.filter(thing__in=thing_set)
@@ -1280,145 +1283,146 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
         id = 0
         font = Font(name=u'宋体', size=9)
         alignment = Alignment(horizontal='center', vertical='center')
-        for r, s in zip(rs, ss):
-            # 写装箱清单
-            if (0 == id % 30):
-                if (0 != id):
-                    # 设置当前页打印参数, 并写表尾合计
-                    ws.sheet_view.view = 'pageBreakPreview'
-                    # 单位: 英寸 inches. 1英寸==2.53CM
-                    ws.page_margins.left = 0.43 / 2.53
-                    ws.page_margins.right = 0 / 2.53
-                    ws.page_margins.top = 0.5 / 2.53
-                    ws.page_margins.bottom = 0.3 / 2.53
-                    ws.page_margins.header = 0 / 2.53
-                    ws.page_margins.footer = 0 / 2.53
+        if rs and ss:
+            for r, s in zip(rs, ss):
+                # 写装箱清单
+                if (0 == id % 30):
+                    if (0 != id):
+                        # 设置当前页打印参数, 并写表尾合计
+                        ws.sheet_view.view = 'pageBreakPreview'
+                        # 单位: 英寸 inches. 1英寸==2.53CM
+                        ws.page_margins.left = 0.43 / 2.53
+                        ws.page_margins.right = 0 / 2.53
+                        ws.page_margins.top = 0.5 / 2.53
+                        ws.page_margins.bottom = 0.3 / 2.53
+                        ws.page_margins.header = 0 / 2.53
+                        ws.page_margins.footer = 0 / 2.53
 
-                    ws.insert_rows(rowStartIdx - 1, 1, above=False, copy_style=True, fill_formulae=False)
-                    ws.merge_cells('A{0}:B{0}'.format(rowStartIdx, rowStartIdx))
+                        ws.insert_rows(rowStartIdx - 1, 1, above=False, copy_style=True, fill_formulae=False)
+                        ws.merge_cells('A{0}:B{0}'.format(rowStartIdx, rowStartIdx))
 
-                    ws['A{0}'.format(rowStartIdx)] = u'小计'
-                    # 写毛重小计
-                    ws['D{0}'.format(rowStartIdx)] = u'=SUM(D4:D{0})'.format(rowStartIdx - 1)
-                    # 写纯重小计
-                    ws['F{0}'.format(rowStartIdx)] = u'=SUM(F4:F{0})'.format(rowStartIdx - 1)
+                        ws['A{0}'.format(rowStartIdx)] = u'小计'
+                        # 写毛重小计
+                        ws['D{0}'.format(rowStartIdx)] = u'=SUM(D4:D{0})'.format(rowStartIdx - 1)
+                        # 写纯重小计
+                        ws['F{0}'.format(rowStartIdx)] = u'=SUM(F4:F{0})'.format(rowStartIdx - 1)
 
-                    # 加边框样式
-                    row = ws['A{0}:H{1}'.format(rowStartIdx, rowStartIdx)]
-                    for cs in row:
-                        for cell in cs:
-                            cell.border = border
+                        # 加边框样式
+                        row = ws['A{0}:H{1}'.format(rowStartIdx, rowStartIdx)]
+                        for cs in row:
+                            for cell in cs:
+                                cell.border = border
 
-                    ws.row_dimensions[rowStartIdx + 1].ht = 32.25
+                        ws.row_dimensions[rowStartIdx + 1].ht = 32.25
 
-                # 写表头
-                sheetIdx = id / 30
-                ws = wb.worksheets[sheetIdx]
-                ws['A1'] = u'中国人民银行' + wareHouse.type + productType.type + u'装箱清单'
-                ws['A2'] = u'箱号:' + str(boxNumber)
-                ws['D2'] = ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
+                    # 写表头
+                    sheetIdx = id / 30
+                    ws = wb.worksheets[sheetIdx]
+                    ws['A1'] = u'中国人民银行' + wareHouse.type + productType.type + u'装箱清单'
+                    ws['A2'] = u'箱号:' + str(boxNumber)
+                    ws['D2'] = ds[2] + u'年' + ds[0] + u'月' + ds[1] + u'日'
 
-                rowStartIdx = 4;
+                    rowStartIdx = 4;
 
-            # 名称
-            ws.cell(row=rowStartIdx, column=2).value = r.detailedName
-            ws.cell(row=rowStartIdx, column=2).font = font
-            ws.cell(row=rowStartIdx, column=2).alignment = alignment
-            # 编号
-            ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
-            ws.cell(row=rowStartIdx, column=3).font = font
-            ws.cell(row=rowStartIdx, column=3).alignment = alignment
-            # 毛重
-            ws.cell(row=rowStartIdx, column=4).value = r.grossWeight
-            ws.cell(row=rowStartIdx, column=4).font = font
-            ws.cell(row=rowStartIdx, column=4).alignment = alignment
-            # 成色(原标注成色)
-            ws.cell(row=rowStartIdx, column=5).value = r.originalQuantity
-            ws.cell(row=rowStartIdx, column=5).font = font
-            ws.cell(row=rowStartIdx, column=5).alignment = alignment
-            # 纯重
-            if (r.grossWeight is not None and r.detectedQuantity is not None):
-                ws.cell(row=rowStartIdx, column=6).value = float(
-                    '%0.2f' % (r.grossWeight * r.detectedQuantity / 100))
-            ws.cell(row=rowStartIdx, column=6).font = font
-            ws.cell(row=rowStartIdx, column=6).alignment = alignment
-            # 品相
-            ws.cell(row=rowStartIdx, column=7).value = r.quality
-            ws.cell(row=rowStartIdx, column=7).font = font
-            ws.cell(row=rowStartIdx, column=7).alignment = alignment
-            # 评价等级
-            ws.cell(row=rowStartIdx, column=8).value = r.level
-            ws.cell(row=rowStartIdx, column=8).font = font
-            ws.cell(row=rowStartIdx, column=8).alignment = alignment
+                # 名称
+                ws.cell(row=rowStartIdx, column=2).value = r.detailedName
+                ws.cell(row=rowStartIdx, column=2).font = font
+                ws.cell(row=rowStartIdx, column=2).alignment = alignment
+                # 编号
+                ws.cell(row=rowStartIdx, column=3).value = r.thing.serialNumber
+                ws.cell(row=rowStartIdx, column=3).font = font
+                ws.cell(row=rowStartIdx, column=3).alignment = alignment
+                # 毛重
+                ws.cell(row=rowStartIdx, column=4).value = r.grossWeight
+                ws.cell(row=rowStartIdx, column=4).font = font
+                ws.cell(row=rowStartIdx, column=4).alignment = alignment
+                # 成色(原标注成色)
+                ws.cell(row=rowStartIdx, column=5).value = r.originalQuantity
+                ws.cell(row=rowStartIdx, column=5).font = font
+                ws.cell(row=rowStartIdx, column=5).alignment = alignment
+                # 纯重
+                if (r.grossWeight is not None and r.detectedQuantity is not None):
+                    ws.cell(row=rowStartIdx, column=6).value = float(
+                        '%0.2f' % (r.grossWeight * r.detectedQuantity / 100))
+                ws.cell(row=rowStartIdx, column=6).font = font
+                ws.cell(row=rowStartIdx, column=6).alignment = alignment
+                # 品相
+                ws.cell(row=rowStartIdx, column=7).value = r.quality
+                ws.cell(row=rowStartIdx, column=7).font = font
+                ws.cell(row=rowStartIdx, column=7).alignment = alignment
+                # 评价等级
+                ws.cell(row=rowStartIdx, column=8).value = r.level
+                ws.cell(row=rowStartIdx, column=8).font = font
+                ws.cell(row=rowStartIdx, column=8).alignment = alignment
 
-            # 生成单个实物信息档案
-            # outputGongYiPin(r, s, productType.type, className.type, subClassName.type, wareHouse.type, date, reportWordDir)
+                # 生成单个实物信息档案
+                # outputGongYiPin(r, s, productType.type, className.type, subClassName.type, wareHouse.type, date, reportWordDir)
 
-            id = id + 1
-            rowStartIdx = rowStartIdx + 1
+                id = id + 1
+                rowStartIdx = rowStartIdx + 1
 
-        # 设置最后一页打印参数, 并写表尾合计
-        ws.sheet_view.view = 'pageBreakPreview'
-        # 单位: 英寸 inches. 1英寸==2.53CM
-        ws.page_margins.left = 0.43 / 2.53
-        ws.page_margins.right = 0 / 2.53
-        ws.page_margins.top = 0.5 / 2.53
-        ws.page_margins.bottom = 0.3 / 2.53
-        ws.page_margins.header = 0 / 2.53
-        ws.page_margins.footer = 0 / 2.53
+            # 设置最后一页打印参数, 并写表尾合计
+            ws.sheet_view.view = 'pageBreakPreview'
+            # 单位: 英寸 inches. 1英寸==2.53CM
+            ws.page_margins.left = 0.43 / 2.53
+            ws.page_margins.right = 0 / 2.53
+            ws.page_margins.top = 0.5 / 2.53
+            ws.page_margins.bottom = 0.3 / 2.53
+            ws.page_margins.header = 0 / 2.53
+            ws.page_margins.footer = 0 / 2.53
 
-        ws.insert_rows(33, 2, above=False, copy_style=True, fill_formulae=False)
-        ws.merge_cells('A{0}:B{0}'.format(34, 34))
-        # cs = ws['A{0}'.format(rowStartIdx)]
-        # cs.alignment = a
-        ws['A{0}'.format(34)] = u'小计'
-        # 写毛重小计
-        ws['D{0}'.format(34)] = u'=SUM(D4:D{0})'.format(rowStartIdx - 1)
-        # 写纯重小计
-        ws['F{0}'.format(34)] = u'=SUM(F4:F{0})'.format(rowStartIdx - 1)
+            ws.insert_rows(33, 2, above=False, copy_style=True, fill_formulae=False)
+            ws.merge_cells('A{0}:B{0}'.format(34, 34))
+            # cs = ws['A{0}'.format(rowStartIdx)]
+            # cs.alignment = a
+            ws['A{0}'.format(34)] = u'小计'
+            # 写毛重小计
+            ws['D{0}'.format(34)] = u'=SUM(D4:D{0})'.format(rowStartIdx - 1)
+            # 写纯重小计
+            ws['F{0}'.format(34)] = u'=SUM(F4:F{0})'.format(rowStartIdx - 1)
 
-        # 加边框样式
-        row = ws['A{0}:H{1}'.format(34, 34)]
-        for cs in row:
-            for cell in cs:
-                cell.border = border
+            # 加边框样式
+            row = ws['A{0}:H{1}'.format(34, 34)]
+            for cs in row:
+                for cell in cs:
+                    cell.border = border
 
-        ws.merge_cells('A{0}:B{0}'.format(35, 35))
-        cs = ws['A{0}'.format(rowStartIdx)]
-        # cs.alignment = a
-        ws['A{0}'.format(35)] = u'合计'
+            ws.merge_cells('A{0}:B{0}'.format(35, 35))
+            cs = ws['A{0}'.format(rowStartIdx)]
+            # cs.alignment = a
+            ws['A{0}'.format(35)] = u'合计'
 
-        # 构造合计EXCEL计算公式
-        grossWeightTotalFormula = u'=SUM('
-        pureWeightTotalFormula = u'=SUM('
-        for i in range(sheetCnt + 1):
-            ws = wb.worksheets[i]
-            if (i != sheetCnt):
-                grossWeightTotalFormula = grossWeightTotalFormula + u'{0}!D34'.format(ws.title)
-                pureWeightTotalFormula = pureWeightTotalFormula + u'{0}!F34'.format(ws.title)
-            else:
-                grossWeightTotalFormula = grossWeightTotalFormula + u'D34'.format(ws.title)
-                pureWeightTotalFormula = pureWeightTotalFormula + u'F34'.format(ws.title)
+            # 构造合计EXCEL计算公式
+            grossWeightTotalFormula = u'=SUM('
+            pureWeightTotalFormula = u'=SUM('
+            for i in range(sheetCnt + 1):
+                ws = wb.worksheets[i]
+                if (i != sheetCnt):
+                    grossWeightTotalFormula = grossWeightTotalFormula + u'{0}!D34'.format(ws.title)
+                    pureWeightTotalFormula = pureWeightTotalFormula + u'{0}!F34'.format(ws.title)
+                else:
+                    grossWeightTotalFormula = grossWeightTotalFormula + u'D34'.format(ws.title)
+                    pureWeightTotalFormula = pureWeightTotalFormula + u'F34'.format(ws.title)
 
-            if (i < sheetCnt):
-                grossWeightTotalFormula = grossWeightTotalFormula + ','
-                pureWeightTotalFormula = pureWeightTotalFormula + ','
+                if (i < sheetCnt):
+                    grossWeightTotalFormula = grossWeightTotalFormula + ','
+                    pureWeightTotalFormula = pureWeightTotalFormula + ','
 
-        grossWeightTotalFormula = grossWeightTotalFormula + ')'
-        pureWeightTotalFormula = pureWeightTotalFormula + ')'
+            grossWeightTotalFormula = grossWeightTotalFormula + ')'
+            pureWeightTotalFormula = pureWeightTotalFormula + ')'
 
-        # 写毛重合计
-        ws['D{0}'.format(35)] = u'{0}'.format(grossWeightTotalFormula)
-        # 写纯重合计
-        ws['F{0}'.format(35)] = u'{0}'.format(pureWeightTotalFormula)
+            # 写毛重合计
+            ws['D{0}'.format(35)] = u'{0}'.format(grossWeightTotalFormula)
+            # 写纯重合计
+            ws['F{0}'.format(35)] = u'{0}'.format(pureWeightTotalFormula)
 
-        # 加边框样式
-        row = ws['A{0}:H{1}'.format(35, 35)]
-        for cs in row:
-            for cell in cs:
-                cell.border = border
+            # 加边框样式
+            row = ws['A{0}:H{1}'.format(35, 35)]
+            for cs in row:
+                for cell in cs:
+                    cell.border = border
 
-        ws.row_dimensions[36].ht = 32.25
+            ws.row_dimensions[36].ht = 32.25
 
     wb.save(boxInfoFilePath)
     return boxInfoFileName

@@ -134,6 +134,7 @@ urlpatterns = [
     url(r'^numbering/getNumberingInfo/$', numbering.getNumberingInfo, name='getNumberingInfo'),
     url(r'^numbering/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
     url(r'^numbering/checkInfo/$', numbering.checkInfo, name='checkInfo'),
+    url(r'^numbering/getThingInfo/$', views.getThingInfo, name='getThingInfo'),
 
     url(r'^measuring/$', measuring.measuring, name='measuring'),
     url(r'^measuring/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),
