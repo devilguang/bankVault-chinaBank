@@ -16,7 +16,8 @@ import MySQLdb
 import win32print
 import win32api
 import requests
-import uuid
+import shortuuid
+from gsinfosite import settings
 
 @login_required
 def manage(request):
@@ -59,16 +60,34 @@ def createBox(request):
 
     thing_num_list = []
     for i in range(amount):
-        thing_num_list.append(str(uuid.uuid4()))
+        # serialNumber = str(uuid.uuid4())
+        serialNumber = str(shortuuid.ShortUUID().random(length=10))
+        thing_num_list.append(serialNumber)
+
+        img = qrcode.make(data=serialNumber)
+        pic_name = serialNumber + '.png'
+        box_dir = os.path.join(settings.TAG_DATA_PATH, str(boxNumber))
+        if not os.path.exists(box_dir):
+            os.makedirs(box_dir)
+        filePath = os.path.join(settings.TAG_DATA_PATH,str(boxNumber),pic_name)
+        img.resize((256, 256))
+        # img.show()
+        img.save(filePath)
 
     thing_num = '|'.join(thing_num_list)
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'新建{0}号箱实物'.format(boxNumber))
 
-        box, createdBox = gsBox.objects.createBox(boxNumber=boxNumber, productType=productType, className=className,
-                                                  subClassName=subClassName, wareHouse=wareHouse, amount=amount,
-                                                  grossWeight=grossWeight,boxSeq=boxSeq,thing_num=thing_num)
+        gsBox.objects.createBox(boxNumber=boxNumber,
+                                productType=productType,
+                                className=className,
+                                subClassName=subClassName,
+                                wareHouse=wareHouse,
+                                amount=amount,
+                                grossWeight=grossWeight,
+                                boxSeq=boxSeq,
+                                thing_num=thing_num)
 
         # 构造对应的存储目录结构
         boxRootDir = settings.DATA_DIRS['box_dir']
@@ -303,33 +322,37 @@ def downloadBoxInfo(request):
 
 # -----------------------------------------------
 # 包号二维码打印
-# def packageQR(request):
-#     boxOrSubBox = '1-5'  # request.POST.get('boxNumber', '')
-#
-#     if '-' in boxOrSubBox:
-#         boxNumber = int(boxOrSubBox.split('-')[0])
-#         subBoxNumber = int(boxOrSubBox.split('-')[1])
-#     else:
-#         boxNumber = int(boxOrSubBox)
-#         subBoxNumber = ''
-#     log.log(user=request.user, operationType=u'业务操作', content=u'包号二维码打印')
-#     box = gsBox.objects.get(boxNumber=boxNumber)
-#     if subBoxNumber == '':
-#         packageNo = gsThing.objects.filter(box=box).values_list('packageNo', flat=True)
-#         packageList = list(set(packageNo))
-#     else:
-#         subBox = gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber)
-#         packageNo = gsThing.objects.filter(box=box,subBox=subBox).values_list('packageNo', flat=True)
-#         packageList = list(set(packageNo))
-#
-#     packageTag(boxNumber,subBoxNumber,packageList)
-#     ret = {
-#             'success': True,
-#         }
-#
-#     ret_json = json.dumps(ret, separators=(',', ':'))
-#
-#     return HttpResponse(ret_json)
+def printSerialNumberQR(request):
+    boxOrSubBox = request.POST.get('boxNumber', '')
+    workSeq = request.POST.get('workSeq', '')
+
+    if '-' in boxOrSubBox:
+        boxNumber = int(boxOrSubBox.split('-')[0])
+        subBoxNumber = int(boxOrSubBox.split('-')[1])
+        box=gsBox.objects.get(boxNumber=boxNumber)
+        subBox=gsSubBox.objects.get(subBoxNumber=subBoxNumber)
+        work = gsWork.objects.filter(box=box,subBox=subBox,workSeq=workSeq)
+    else:
+        boxNumber = int(boxOrSubBox)
+        subBoxNumber = ''
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        work = gsWork.objects.filter(box=box,workSeq=workSeq)
+    log.log(user=request.user, operationType=u'业务操作', content=u'流水号二维码打印')
+
+    serialNumberSet = gsThing.objects.filter(work=work).values_list('serialNumber',flat=True)
+    serialNumberList = list(serialNumberSet)
+    tag_path = os.path.join(settings.TAG_DATA_PATH,str(boxNumber))
+    temp = []
+    for serialNumber in serialNumberList:
+        pic_path = os.path.join(tag_path,serialNumber)
+        temp.append(pic_path)
+    file_path = '|'.join(temp)
+    ret = {
+            'success': True,
+            'file_path':file_path
+        }
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
 
 # -----------------------------------------------
 # # 点击开箱出库弹出二维码
@@ -1550,27 +1573,6 @@ def getStatusData(request):
 
     return HttpResponse(ret_json)
 
-
-# ------------------------------------------------------------------------------------
-# def getStartSequence(request):
-#     codes = request.GET.get('codes','')
-#     codes = codes.split('&')
-#     ret = {}
-#     if len(codes) == 4:
-#         typeCode = codes[0]
-#         wareHouse = codes[1]
-#         classNameCode = codes[2]
-#         subClassNameCode = codes[3]
-#         lastedBox = gsBox.objects.filter(wareHouse=wareHouse, className=classNameCode,
-#                                          subClassName=subClassNameCode).order_by('-id').first()
-#         if lastedBox:
-#             ret['maxSeq'] = gsThing.objects.filter(box=lastedBox).order_by('-seq').first().seq+1
-#         else:
-#             ret['maxSeq'] = '1'
-#
-#     ret_json = json.dumps(ret, separators=(',', ':'))
-#     return HttpResponse(ret_json)
-
 # # 日终小结
 def summarizeDailyWork(request):
     pass
@@ -1593,10 +1595,18 @@ def summarizeDailyWork(request):
 #     ts = gsGongYiPin.objects
 
 def print_service(request):
-    file_path = request.POST.get('file_path', '')
+    filePath = request.POST.get('file_path', '')
+
+    if '|' in filePath:
+        file_path_list = filePath.split('|')
+    else:
+        file_path_list=[]
+        file_path_list.append(filePath)
+
     try:
-        print win32print.GetDefaultPrinter()
-        # win32api.ShellExecute(0,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter (),".",0)
+        for file_path in file_path_list:
+            print win32print.GetDefaultPrinter()
+            # win32api.ShellExecute(0,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter (),".",0)
     except Exception as e:
         ret = {
             'success': False,
