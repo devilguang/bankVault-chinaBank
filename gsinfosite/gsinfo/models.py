@@ -94,7 +94,6 @@ class gsBoxManager(models.Manager):
         boxNumber = kwargs['boxNumber']
         wareHouseCode = kwargs['wareHouse']
         amount = kwargs['amount']
-        startSeq = kwargs['startSeq']
         grossWeight = kwargs['grossWeight']
         boxSeq = kwargs['boxSeq']
         thing_num = kwargs['thing_num']
@@ -113,8 +112,7 @@ class gsBoxManager(models.Manager):
         thing_num_list = thing_num.split('|')
         thingsList = []
         for thing in thing_num_list:
-            thingsList.append(gsThing(serialNumber=thing, seq=startSeq, box=box))
-            startSeq = startSeq + 1
+            thingsList.append(gsThing(serialNumber=thing,box=box,subClassName=subClassName))
         gsThing.objects.bulk_create(thingsList)  # bulk_create批量数据入库，参数是list
         return (box, createdBox)
 
@@ -170,7 +168,7 @@ class gsBox(models.Model):
     boxSeq = models.CharField(max_length=255,unique=True)  # 货发二代系统提供的箱号
     productType = models.CharField(max_length=255)  # 实物类型
     className = models.CharField(max_length=255)  # 品名
-    subClassName = models.CharField(max_length=255)  # 明细品名
+    subClassName = models.CharField(max_length=255, null=False)  # 明细品名
     wareHouse = models.CharField(max_length=255)  # 所属发行库
     amount = models.PositiveIntegerField()  # 件数
     grossWeight = models.FloatField(null=True)  # 总毛重
@@ -319,15 +317,13 @@ class gsWork(models.Model):
 class gsThing(models.Model):
     serialNumber = models.CharField(max_length=255,unique=True)  # 货发二代系统提供的随机生成的实物编号
     serialNumber2 = models.CharField(max_length=255,unique=True,null=True)  # 编号由四部分组成：品名代码-明细品名代码-发行库代码-实物序号
-    seq = models.PositiveIntegerField()  # 实物序号, 取自编号的最后一部分
+    subClassName = models.CharField(max_length=255,null=False)  # 明细品名
     subBoxSeq = models.PositiveIntegerField(default=1)  # 子箱号, 从1开始
     isAllocate = models.BooleanField(default=False)  # 实物是否已分配
     historyNo = models.IntegerField(null=True)
     box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
     subBox = models.ForeignKey(gsSubBox,null=True)
     work = models.ForeignKey(gsWork,null=True)
-    class Meta:
-        ordering = ['seq']
 
 
 # 状态表

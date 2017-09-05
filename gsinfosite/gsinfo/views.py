@@ -444,6 +444,11 @@ def exploreThing(request, boxNumber, serialNumber):
 
     context = {}
     context['boxNumber'] = boxOrSubBox
+    if subBoxNumber == '':
+        context['subBoxNumber'] = '0'
+    else:
+        context['subBoxNumber'] = subBoxNumber
+
     context['serialNumber'] = serialNumber
 
     productTypeCode = box.productType

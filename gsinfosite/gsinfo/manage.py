@@ -25,13 +25,11 @@ def manage(request):
 
 
 def createBox(request):
-    # boxNumber = int(request.POST.get('boxNumber', ''))  # 箱号
     productType = request.POST.get('productType', '')  # 实物类型
     className = request.POST.get('className', '')  # 品名
     subClassName = request.POST.get('subClassName', '')  # 明细品名
     wareHouse = request.POST.get('wareHouse', '')  # 发行库
     amount = int(request.POST.get('amount', ''))  # 件数
-    # startSeq = int(request.POST.get('startSeq', ''))  # 起始序列号
     grossWeight = request.POST.get('grossWeight', '')  # 毛重
     if grossWeight:
         grossWeight = float(grossWeight)
@@ -39,20 +37,11 @@ def createBox(request):
         grossWeight = float(0)
 
     # 从数据库中查最大箱号
-    boxNumber_list = gsBox.objects.all().values_list('boxNumber', flat=True)
-    if not boxNumber_list:
+    maxBoxNumber_obj = gsBox.objects.all().order_by('-boxNumber').first()
+    if maxBoxNumber_obj:
+        boxNumber = maxBoxNumber_obj.boxNumber+1
+    else:
         boxNumber = 1
-    else:
-        sorted_boxNumber_list = sorted(boxNumber_list,reverse=True)
-        boxNumber = int(sorted_boxNumber_list[0])+1
-    # filter(box=lastedBox).order_by('-seq').first().seq + 1
-
-    # 从数据库中查最大实物序列号
-    lastedBox = gsBox.objects.filter(wareHouse=wareHouse, className=className,subClassName=subClassName).order_by('-id').first()
-    if lastedBox:
-        startSeq = gsThing.objects.filter(box=lastedBox).order_by('-seq').first().seq + 1
-    else:
-        startSeq = 1
 
     # 向货发二代系统请求箱号和实物随机号
     '''
@@ -79,7 +68,7 @@ def createBox(request):
 
         box, createdBox = gsBox.objects.createBox(boxNumber=boxNumber, productType=productType, className=className,
                                                   subClassName=subClassName, wareHouse=wareHouse, amount=amount,
-                                                  startSeq=startSeq, grossWeight=grossWeight,boxSeq=boxSeq,thing_num=thing_num)
+                                                  grossWeight=grossWeight,boxSeq=boxSeq,thing_num=thing_num)
 
         # 构造对应的存储目录结构
         boxRootDir = settings.DATA_DIRS['box_dir']
@@ -701,11 +690,11 @@ def getBox(request):
             bs = bs | box  # QuerySet用 | 或 chain求并集
 
     # 按查询条件进行筛选
-    if not productType == '':
+    if productType:
         bs = bs.filter(productType=productType)
-    if not className == '':
+    if className:
         bs = bs.filter(className=className)
-    if not subClassName == '':
+    if subClassName:
         bs = bs.filter(subClassName=subClassName)
     n = bs.count()
 
@@ -1564,24 +1553,24 @@ def getStatusData(request):
 
 
 # ------------------------------------------------------------------------------------
-def getStartSequence(request):
-    codes = request.GET.get('codes','')
-    codes = codes.split('&')
-    ret = {}
-    if len(codes) == 4:
-        typeCode = codes[0]
-        wareHouse = codes[1]
-        classNameCode = codes[2]
-        subClassNameCode = codes[3]
-        lastedBox = gsBox.objects.filter(wareHouse=wareHouse, className=classNameCode,
-                                         subClassName=subClassNameCode).order_by('-id').first()
-        if lastedBox:
-            ret['maxSeq'] = gsThing.objects.filter(box=lastedBox).order_by('-seq').first().seq+1
-        else:
-            ret['maxSeq'] = '1'
-
-    ret_json = json.dumps(ret, separators=(',', ':'))
-    return HttpResponse(ret_json)
+# def getStartSequence(request):
+#     codes = request.GET.get('codes','')
+#     codes = codes.split('&')
+#     ret = {}
+#     if len(codes) == 4:
+#         typeCode = codes[0]
+#         wareHouse = codes[1]
+#         classNameCode = codes[2]
+#         subClassNameCode = codes[3]
+#         lastedBox = gsBox.objects.filter(wareHouse=wareHouse, className=classNameCode,
+#                                          subClassName=subClassNameCode).order_by('-id').first()
+#         if lastedBox:
+#             ret['maxSeq'] = gsThing.objects.filter(box=lastedBox).order_by('-seq').first().seq+1
+#         else:
+#             ret['maxSeq'] = '1'
+#
+#     ret_json = json.dumps(ret, separators=(',', ':'))
+#     return HttpResponse(ret_json)
 
 # # 日终小结
 def summarizeDailyWork(request):
