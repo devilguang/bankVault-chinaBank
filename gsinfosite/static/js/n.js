@@ -222,6 +222,7 @@ function saveBatchUpdateInfo() {
 }
 
 function initUpdateInfoDlg(row) {
+    console.log(row)
     if (row.status == 1) {
         $('#editBtn').attr('style', 'width:90px');
         $('#saveBtn').attr('style', 'width:90px; display:none;');
@@ -231,7 +232,6 @@ function initUpdateInfoDlg(row) {
         $('#editBtn').attr('style', 'width:90px; display:none;');
         $('#saveBtn').attr('style', 'width:90px');
     }
-
     if (row.productType == '金银币章类') {
         $('#typeName').attr({'style': 'display:none'});
         $('#carveName').attr({'style': 'display:none'});
@@ -302,7 +302,6 @@ function unInitUpdateInfoDlg() {
     $('#marginShape').attr({'style': ''});
     $('#typeName').attr({'style': ''});
     $('#carveName').attr({'style': ''});
-
     $('#UpdateInfo-versionName').textbox('readonly', false);
     $('#UpdateInfo-value').textbox('readonly', false);
     $('#UpdateInfo-detailedName').textbox('readonly', false);
@@ -321,10 +320,8 @@ function closeUpdateInfo() {
 function updateInfo(index, row) {
     initUpdateInfoDlg(row);
     //$.messager.alert('提示', boxNumber);
-
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
     $('#UpdateInfoForm').form('clear');
-
     var data;
     if (row.status == 1) {
         // 记录已更新, 待编辑
@@ -456,6 +453,11 @@ function editUpdateInfo() {
     $('#UpdateInfo-remark').textbox('readonly', false);
 }
 function saveUpdateInfo() {
+    var colorForming =$('#originalQuantity').children().find('.textbox-value').val();
+    if(colorForming==''){
+        $.messager.alert("提示","带*号的为必填项");
+        return;
+    }
     $('#UpdateInfoForm').form({
         url: url,
         queryParams: {

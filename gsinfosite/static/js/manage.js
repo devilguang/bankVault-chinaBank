@@ -632,9 +632,11 @@ function putBoxIntoStore(type, index, status) {
     $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#putBoxValidateForm').form('clear');
     // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
+    $(".ly_doputBoxValidate").attr("onclick", "doputBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
 }
 
-function putBoxValidate(type, index, status) {
+//该方法之前的名字是putBoxValidate  现在已改成doputBoxValidate
+function doputBoxValidate(type, index, status) {
     var boxNumber;
     if (type == 0) {
         $('#workGridBoxManage').datagrid('selectRow', index);
