@@ -167,7 +167,7 @@ def confirmAllotBox(request):
             gsThing.objects.filter(box=box, serialNumber__in=selected_serialNumber).update(subBox=subBox)
         else:
             subBox = gsSubBox.objects.get(subBoxNumber=toSubBox, box=box, isValid=True)
-            gsThing.objects.filter(box=box, serialNumber=selected_serialNumber).update(subBox=subBox)
+            gsThing.objects.filter(box=box, serialNumber__in=selected_serialNumber).update(subBox=subBox)
     except Exception as e:
         ret = {
             "success": False,
@@ -234,7 +234,7 @@ def confirmMergeBox(request):
 # 箱体信息报表打印
 # 1.获取所有箱子信息
 def getAllBox(request):
-    box_id = gsSubBox.objects.filter().values_list('box_id')
+    box_id = gsSubBox.objects.filter().values_list('box')
     boxId = set(box_id)
     ret={}
     ret['rows'] = []
@@ -1257,8 +1257,8 @@ def generateBoxInfo(request):
 
 def generateBoxInfoDetailedVersion(request):
     if request.method == 'POST':
-        boxOrSubBox = '1-1'  # request.POST.get('boxNumber', '')
-        dateTime = '07/08/2017'  # request.POST.get('dateTime', '')
+        boxOrSubBox = request.POST.get('boxNumber', '')
+        dateTime = request.POST.get('dateTime', '')
         if '-' in boxOrSubBox:
             boxNumber = boxOrSubBox.split('-')[0]
             subBoxNumber = boxOrSubBox.split('-')[1]
@@ -1268,7 +1268,7 @@ def generateBoxInfoDetailedVersion(request):
 
         boxInfoFileName = createBoxInfoDetailedVersion(boxNumber,subBoxNumber, dateTime)
 
-        box_dir = os.path.join(settings.DATA_DIRS['box_dir'], boxNumber)
+        box_dir = os.path.join(settings.DATA_DIRS['box_dir'], str(boxNumber))
         file_path = os.path.join(box_dir, boxInfoFileName)
 
         # downloadURL = ''

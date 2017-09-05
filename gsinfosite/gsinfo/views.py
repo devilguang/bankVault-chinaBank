@@ -216,6 +216,18 @@ def getWorkData(request, workSeq):
                 status_set = gsStatus.objects.filter(thing__in=thing_set, checkingStatus=status)
             elif 6 == processId:  # 图像采集环节
                 status_set = gsStatus.objects.filter(thing__in=thing_set, photographingStatus=status)
+    else:
+        if 2 == processId:  # 外观信息采集环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set)
+        elif 3 == processId:  # 频谱分析环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set)
+        elif 4 == processId:  # 测量称重环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set)
+        elif 5 == processId:  # 实物认定环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set)
+        elif 6 == processId:  # 图像采集环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set)
+
 
     productTypeCode = box.productType
     classNameCode = box.className
@@ -281,6 +293,87 @@ def getWorkData(request, workSeq):
 
     return HttpResponse(ret_json)
 
+def getThingInfo(request):
+    productType = request.POST.get('productType', '')
+    serialNumber = request.POST.get('serialNumber', '')
+    thing = gsThing.objects.get(serialNumber=serialNumber)
+    ret={}
+    if productType == u'金银锭类':
+        t = gsDing.objects.get(thing=thing)
+        ret['detailedName'] = t.detailedName
+        ret['typeName'] = t.typeName
+        ret['peroid'] = t.peroid
+        ret['producerPlace'] = t.producerPlace
+        ret['carveName'] = t.carveName
+        ret['remark'] = t.remark
+        ret['quality'] = t.quality
+        ret['level'] = t.level
+        ret['originalQuantity'] = t.originalQuantity
+
+        ret['detectedQuantity'] = t.detectedQuantity
+
+        ret['length'] = t.length
+        ret['width'] = t.width
+        ret['height'] = t.height
+        ret['grossWeight'] = t.grossWeight
+        ret['pureWeight'] = t.pureWeight
+    elif productType == u'金银币章类':
+        t = gsBiZhang.objects.get(thing=thing)
+        ret['detailedName'] = t.detailedName
+        ret['versionName'] = t.versionName
+        ret['peroid'] = t.peroid
+        ret['producerPlace'] = t.producerPlace
+        ret['value'] = t.value
+        ret['remark'] = t.remark
+        ret['quality'] = t.quality
+        ret['level'] = t.level
+        ret['originalQuantity'] = t.originalQuantity
+
+        ret['detectedQuantity'] = t.detectedQuantity
+
+        ret['diameter'] = t.diameter
+        ret['thick'] = t.thick
+        ret['grossWeight'] = t.grossWeight
+        ret['pureWeight'] = t.pureWeight
+    elif productType == u'银元类':
+        t = gsYinYuan.objects.get(thing=thing)
+
+        ret['detailedName'] = t.detailedName
+        ret['versionName'] = t.versionName
+        ret['peroid'] = t.peroid
+        ret['producerPlace'] = t.producerPlace
+        ret['value'] = t.value
+        ret['marginShape'] = t.marginShape
+        ret['remark'] = t.remark
+        ret['quality'] = t.quality
+        ret['level'] = t.level
+        ret['originalQuantity'] = t.originalQuantity
+
+        ret['detectedQuantity'] = t.detectedQuantity
+
+        ret['diameter'] = t.diameter
+        ret['thick'] = t.thick
+        ret['grossWeight'] = t.grossWeight
+        ret['pureWeight'] = t.pureWeight
+
+    elif productType == u'金银工艺品类':
+        t = gsGongYiPin.objects.get(thing=thing)
+        ret['detailedName'] = t.detailedName
+        ret['peroid'] = t.peroid
+        ret['remark'] = t.remark
+        ret['quality'] = t.quality
+        ret['level'] = t.level
+        ret['originalQuantity'] = t.originalQuantity
+
+        ret['detectedQuantity'] = t.detectedQuantity
+
+        ret['length'] = t.length
+        ret['width'] = t.width
+        ret['height'] = t.height
+        ret['grossWeight'] = t.grossWeight
+        ret['pureWeight'] = t.pureWeight
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
 # --------------------------------------------------------------------------
 def getWorkSpaceContent(request):
     ws = gsWork.objects.filter(status=1)
@@ -368,7 +461,7 @@ def searchThingInfo(request):
             thingStatus = status.photographingStatus
             thing_set2 = gsStatus.objects.filter(thing__in=thing_set,photographingStatus=thingStatus).values_list('thing',flat=True)
 
-        specialSerialNumberList = gsThing.objects.filter(thing__in=thing_set2).values_list('serialNumber',flat=True)
+        specialSerialNumberList = gsThing.objects.filter(id__in=thing_set2).values_list('serialNumber',flat=True)
         serialNumberList = list(specialSerialNumberList)
         n = len(serialNumberList)
 
