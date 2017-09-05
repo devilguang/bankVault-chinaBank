@@ -25,7 +25,6 @@
             user = $('#login-nickName').combobox('getText');
             pwd = $('#login-passWord').textbox('getValue');
             role = $('#login-workRole').combobox('getValue');
-
             validateUser();
             validateRole();
             validatePassword();
@@ -137,7 +136,7 @@
 						prompt:'请选择',
 						valueField: 'id',
 						textField: 'text',
-						data: [{id: 'manage', text: '现场负责人'}, {id: 'numbering', text: '外观信息采集岗位'}, {id: 'measuring', text: '测量称重岗位'}, {id: 'checking', text: '实物认定岗位'}, {id: 'photographing', text: '图像采集岗位'}, {id: 'analyzing', text: '频谱分析岗位'},{id: 'systemadmin', text: '系统管理岗位'},],
+						data: [{id: 'manage', text: '实物分发岗位'}, {id: 'numbering', text: '外观信息采集岗位'}, {id: 'measuring', text: '测量称重岗位'}, {id: 'checking', text: '实物认定岗位'}, {id: 'photographing', text: '图像采集岗位'}, {id: 'analyzing', text: '频谱分析岗位'},{id: 'systemadmin', text: '系统管理岗位'},],
 						editable: false,
 						panelHeight: 'auto',
 						onChange: validateRole,
