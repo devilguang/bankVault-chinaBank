@@ -1654,11 +1654,21 @@ function jobManagementLabelling(index) {
                     type: 'post',
                     url: 'printSerialNumberQR/',
                     data: {
-                        boxNumber: row.boxNumber+"-"+row.subBoxNumber,
+                        boxNumber: row.boxNumber + "-" + row.subBoxNumber,
                         workSeq: row.workSeq
-                    },success:function(data){
+                    }, success: function (data) {
                         var data = JSON.parse(data)
-                        console.log(data)
+                        var file_path = data.file_path
+                        $.ajax({
+                            type: 'post',
+                            url: 'print_service/',
+                            data: {
+                                file_path: file_path
+                            }, success: function (data) {
+                                var data = JSON.parse(data)
+                                $.messager.alert('提示', data.message);
+                            }
+                        })
 
                     }
                 })
