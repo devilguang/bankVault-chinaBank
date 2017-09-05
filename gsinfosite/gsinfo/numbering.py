@@ -92,8 +92,6 @@ def updateNumberingInfo(request):
     level = request.POST.get('level', '')
     remark = request.POST.get('remark', '')
     operator = request.POST.get('operator', '')
-    workSeq = request.POST.get('workSeq', '')
-
     workSeq = request.POST.get('workSeq', '')  # 更新单件实物信息是workSeq不传值，设置缺省信息是传值
     if originalQuantity != '':
         originalQuantity = float(originalQuantity)

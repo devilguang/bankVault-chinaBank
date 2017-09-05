@@ -161,140 +161,121 @@ def getDurationCompleteThingAmount(request):
     ret['amount'] = amount
 
     ret_json = json.dumps(ret, separators=(',', ':'))
-
     return HttpResponse(ret_json)
 
 
-def getOutputConfig(request, boxNumber):
-    w = gsWorkSpace.objects.get(box=boxNumber)
-    box = w.box
-
-    productTypeCode = box.productType
-    classNameCode = box.className
-    subClassNameCode = box.subClassName
-    wareHouseCode = box.wareHouse
-
-    productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
-    className = gsProperty.objects.get(project='品名', code=classNameCode, parentProject=productType.project,
-                                       parentType=productType.type)
-    subClassName = gsProperty.objects.get(project='明细品名', code=subClassNameCode, parentProject=className.project,
-                                          parentType=className.type, grandpaProject=productType.project,
-                                          grandpaType=productType.type)
-    wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
-
-    ret = {}
-    ret['productType'] = productType.type
-    ret['boxNumber'] = box.boxNumber
-    ret['amount'] = box.amount
-    ret['className'] = className.type
-    ret['subClassName'] = subClassName.type
-    ret['wareHouse'] = wareHouse.type
-
-    ret_json = json.dumps(ret, separators=(',', ':'))
-
-    return HttpResponse(ret_json)
-
-
-def outputWork(request):
-    boxNumber = request.POST.get('boxNumber', '')
-    date = request.POST.get('date', '')
-    seq = request.POST.get('seq', '')
-
-    #createReport(boxNumber, date, seq)
-
-    ret = {}
-    ret['downloadURL'] = 'getWork/' + boxNumber;
-
-    ret_json = json.dumps(ret, separators=(',', ':'))
-
-    return HttpResponse(ret_json)
-
-
-'''def getWork(request, boxNumber):
-    fileName = boxNumber+'.zip'
-    filePath = os.path.join(settings.DATA_DIRS['report_dir'], fileName)
-
-    response = StreamingHttpResponse(readFile(filePath))
-    response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename={0}'.format(fileName)
-
-    return response'''
-
-
-# def archiveWork(request):
-#     boxNumber = request.POST.get('boxNumber', '')
+# def updateCheckingInfo(request):
+#     serialNumber = request.POST.get('serialNumber', '')
+#     operator = request.POST.get('operator', '')
 #
 #     try:
-#         # 先插入档案检索表, 后从工作空间中删除
-#         box = gsBox.objects.get(boxNumber=boxNumber)
-#         gsArchive.objects.get_or_create(box=box)
-#         w = gsWorkSpace.objects.get(box=boxNumber)
-#         w.delete()
+#         # 检测作业是否可用
+#         thing = gsThing.objects.get(serialNumber=serialNumber)
+#         thing_status = gsStatus.objects.get(thing=thing)
+#         if thing_status.status == 0:
+#             # 作业不可用
+#             raise ValueError(u'作业不可用！请联系现场负责人进行分发，并刷新页面！')
+#
+#         # now = datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
+#         now = datetime.now()
+#         gsStatus.objects.filter(thing=thing).update(checkingStatus=True, checkingOperator=operator,
+#                                                                   checkingUpdateDateTime=now)
 #     except Exception as e:
 #         ret = {
-#             "success": False,
-#             "message": str(boxNumber) + u'号箱作业归档失败！\r\n原因:' + e.message
+#             'success': False,
+#             'message': u'复核失败！\n原因: {0}'.format(e.message)
 #         }
 #     else:
 #         ret = {
-#             "success": True,
-#             "message": str(boxNumber) + '号箱作业归档成功！如需查看资料,请以管理员登录,予以查看！'
+#             'success': True,
+#             'message': u'实物{0}复核通过！\n审核员: {1}'.format(serialNumber, operator)
 #         }
 #
 #     ret_json = json.dumps(ret, separators=(',', ':'))
 #
 #     return HttpResponse(ret_json)
-
-
-'''def printTag(request):
-    boxNumber = request.POST.get('boxNumber', '')
-
-    createTag(boxNumber, False)
-
-    ret = {}
-    ret['downloadURL'] = 'getTag/'+boxNumber;
-
-    ret_json = json.dumps(ret, separators=(',', ':'))
-
-    return HttpResponse(ret_json)
-
-def getTag(request, boxNumber):
-    fileName = boxNumber+'_tag.zip'
-    filePath = os.path.join(settings.DATA_DIRS['tag_dir'], fileName)
-
-    response = StreamingHttpResponse(readFile(filePath))
-    response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename={0}'.format(fileName)
-
-    return response'''
-
-
 def updateCheckingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
+    boxOrSubBox = request.POST.get('boxNumber', '')
+    productType = request.POST.get('productType', '')
+    className = request.POST.get('className', '')
+    subClassName = request.POST.get('subClassName', '')
+    wareHouse = request.POST.get('wareHouse', '')
+    detailedName = request.POST.get('detailedName', '')
+    typeName = request.POST.get('typeName', '')
+    peroid = request.POST.get('peroid', '')
+    producerPlace = request.POST.get('producerPlace', '')
+    carveName = request.POST.get('carveName', '')
+    originalQuantity = request.POST.get('originalQuantity', '')
+    versionName = request.POST.get('versionName', '')
+    value = request.POST.get('value', '')
+    marginShape = request.POST.get('marginShape', '')
+    quality = request.POST.get('quality', '')
+    level = request.POST.get('level', '')
+    remark = request.POST.get('remark', '')
     operator = request.POST.get('operator', '')
+    if originalQuantity != '':
+        originalQuantity = float(originalQuantity)
 
-    try:
-        # 检测作业是否可用
-        thing = gsThing.objects.get(serialNumber=serialNumber)
-        thing_status = gsStatus.objects.get(thing=thing)
-        if thing_status.status == 0:
-            # 作业不可用
-            raise ValueError(u'作业不可用！请联系现场负责人进行分发，并刷新页面！')
-
-        # now = datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
-        now = datetime.now()
-        gsStatus.objects.filter(thing=thing).update(checkingStatus=True, checkingOperator=operator,
-                                                                  checkingUpdateDateTime=now)
-    except Exception as e:
-        ret = {
-            'success': False,
-            'message': u'复核失败！\n原因: {0}'.format(e.message)
-        }
+    if '-' in boxOrSubBox:
+        boxNumber = int(boxOrSubBox.split('-')[0])
+        subBoxNumber = int(boxOrSubBox.split('-')[1])
     else:
-        ret = {
-            'success': True,
-            'message': u'实物{0}复核通过！\n审核员: {1}'.format(serialNumber, operator)
-        }
+        boxNumber = int(boxOrSubBox)
+        subBoxNumber = ''
+
+    thing_set = gsThing.objects.filter(serialNumber=serialNumber)
+    ret = {}
+    try:
+        if productType == u'金银锭类':
+            gsDing.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
+                                                      typeName=typeName,
+                                                      peroid=peroid,
+                                                      producerPlace=producerPlace,
+                                                      carveName=carveName,
+                                                      originalQuantity=originalQuantity,
+                                                      quality=quality,
+                                                      level=level,
+                                                      remark=remark)
+        elif productType == u'金银币章类':
+            gsBiZhang.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
+                                                                                peroid=peroid,
+                                                                                producerPlace=producerPlace,
+                                                                                originalQuantity=originalQuantity,
+                                                                                quality=quality, level=level,
+                                                                                versionName=versionName,
+                                                                                remark=remark)
+        elif productType == u'银元类':
+            gsYinYuan.objects.filter(thing__in=thing_set).update(producerPlace=producerPlace,
+                                                         quality=quality,
+                                                         level=level,
+                                                         versionName=versionName,
+                                                         value=value,
+                                                         remark=remark)
+        elif productType == u'金银工艺品类':
+            gsGongYiPin.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
+                                                           peroid=peroid,
+                                                           originalQuantity=originalQuantity,
+                                                           quality=quality,
+                                                           level=level,
+                                                           remark=remark)
+        # now是本地时间，可以认为是你电脑现在的时间 utcnow是世界时间（时区不同，所以这两个是不一样的）
+        # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
+        now = datetime.datetime.now()
+        gsStatus.objects.filter(thing__in=thing_set).update(numberingStatus=True,numberingOperator=operator,numberingUpdateDateTime=now)
+
+        s = gsStatus.objects.get(thing=thing_set[0])
+        status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus and s.checkingStatus
+        gsStatus.objects.filter(thing=thing_set[0]).update(status=status)
+    except Exception as e:
+        ret['success'] = False
+        ret['message'] = str(boxNumber) + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else str(
+            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
+        ret['message'] = ret['message'] + u'\r\n原因:{0}'.format(e.message)
+    else:
+        ret['success'] = True
+        ret['message'] = str(boxNumber) + '号箱作业更新成功！' if (0 == cmp(serialNumber, '')) else str(
+            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 

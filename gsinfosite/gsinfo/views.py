@@ -197,25 +197,21 @@ def getWorkData(request, workSeq):
     thing_set = gsThing.objects.filter(work=work)
 
     if thingStatus != '' and thingStatus != 'all':
-        if thingStatus == 'cancheck':
-            # 检索实物认定环节，可以复核的实物
-            status_set = gsStatus.objects.filter(thing__in=thing_set, numberingStatus=True)
-        else:
-            if thingStatus == 'notComplete':
-                status = False
-            elif thingStatus == 'complete':
-                status = True
+        if thingStatus == 'notComplete':
+            status = False
+        elif thingStatus == 'complete':
+            status = True
 
-            if 2 == processId:  # 外观信息采集环节
-                status_set = gsStatus.objects.filter(thing__in=thing_set, numberingStatus=status)
-            elif 3 == processId:  # 频谱分析环节
-                status_set = gsStatus.objects.filter(thing__in=thing_set, analyzingStatus=status)
-            elif 4 == processId:  # 测量称重环节
-                status_set = gsStatus.objects.filter(thing__in=thing_set, measuringStatus=status)
-            elif 5 == processId:  # 实物认定环节
-                status_set = gsStatus.objects.filter(thing__in=thing_set, checkingStatus=status)
-            elif 6 == processId:  # 图像采集环节
-                status_set = gsStatus.objects.filter(thing__in=thing_set, photographingStatus=status)
+        if 2 == processId:  # 外观信息采集环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set, numberingStatus=status)
+        elif 3 == processId:  # 频谱分析环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set, analyzingStatus=status)
+        elif 4 == processId:  # 测量称重环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set, measuringStatus=status)
+        elif 5 == processId:  # 实物认定环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set, checkingStatus=status,numberingStatus=True)
+        elif 6 == processId:  # 图像采集环节
+            status_set = gsStatus.objects.filter(thing__in=thing_set, photographingStatus=status)
     else:
         if 2 == processId:  # 外观信息采集环节
             status_set = gsStatus.objects.filter(thing__in=thing_set)
