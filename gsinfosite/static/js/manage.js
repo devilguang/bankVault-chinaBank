@@ -948,10 +948,12 @@ function generateBoxInfo(index, number) {
     $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#printTheListForm').form('clear');
     // $(".ly_doputBoxValidate").attr("onclick", "putBoxValidate(" + type + ", \'" + index + "\', " + status + ")");
-    $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\')");
+    // $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\')");
+    $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\',0)");
+
 }
 
-function clickPrints(index, number) {
+function clickPrints(index, number, clickType) {
     var user = $('#printTheListUserValidate').val()
     var password = $('#printTheListUserpassword').val()
     if (user == '' || password == '') {
@@ -968,7 +970,18 @@ function clickPrints(index, number) {
             var data = JSON.parse(data)
             if (data.success) { //成功登陆
                 $('#printTheList').dialog('close')
-                printPackingList(number,index)
+                if (clickType == 0) {
+                    console.log(0)
+                    printPackingList(number, index)
+                }
+                if (clickType == 1) {
+                    console.log(1)
+                    packingListIsDetailed(number, index)
+                }
+                if(clickType==2){
+                    console.log(2)
+                    printInformationFile(index, number)
+                }
             } else {
                 $.messager.alert('提示', data.message);
             }
@@ -976,7 +989,7 @@ function clickPrints(index, number) {
     })
 }
 //打印装箱清单
-function printPackingList(number,index) {
+function printPackingList(number, index) {
     $('#workGridBoxManage').datagrid('selectRow', index);
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (number == 0) {
@@ -1059,36 +1072,12 @@ function printservice(filePath) {
         }
     })
 }
+
 function generateBoxInfoDetailedVersion(index, number) {
     $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#printTheListForm').form('clear');
-    $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\')");
-    $("#printSave").click(function () {
-        var user = $('#printTheListUserValidate').val()
-        var password = $('#printTheListUserpassword').val()
-        if (user == '' || password == '') {
-            $.messager.alert('提示', '用户或密码不能为空');
-            return
-        }
-        $.ajax({
-            type: 'post',
-            url: 'print_auth/',
-            data: {
-                user: user,
-                password: password
-            }, success: function (data) {
-                var data = JSON.parse(data)
-                if (data.success) {
-                    $('#printTheList').dialog('close')
-                    packingListIsDetailed(number, index)
-                } else {
-                    $.messager.alert('提示', data.message);
-                }
-            }
-        })
-    })
-
-
+    // $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\')");
+    $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\',1)");
 }
 
 function doGenerateBoxInfoDetailedVersion() {
@@ -1304,6 +1293,7 @@ function thingStatusFormatter(value, row, index) {
     }
 }
 function thingOperationFormatter(value, row, index) {
+
     if (row.workName != '') {
         return '<div style="float:center"><a href="exploreThing/' + row.boxNumber + '/' + row.serialNumber + '?subBoxNumber=' + row.subBoxNumber + '"  target="blank" style="text-decoration:none;color:blue;">查阅电子档案</a></div>';
     }
@@ -1343,7 +1333,7 @@ function dateTimeFormatter(value, row, index) {
 function workOperationFormatter(value, row, index) {
     if (row.status == 0) {
         // return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop('+index+', 1)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">分发</a><a href="javascript:void(0);" onclick="generateTag('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">生成标签</a><a href="javascript:void(0);" onclick="generateArchives('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">生成信息档案</a><a href="javascript:void(0);" onclick="exploreWork('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="openEditWorkDlg('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">编辑</a><a href="javascript:void(0);" onclick="deleteWork('+index+')" style="text-decoration:none;color:blue;margin-right:20px;">删除</a></div>'
-        return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop(' + index + ', 1)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">分发</a><a href="javascript:void(0);" onclick="generateTag(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印标签</a><a href="javascript:void(0);" onclick="generateArchives(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印信息档案</a><a href="javascript:void(0);" onclick="generateAbstract(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印实物信息摘要</a><a href="javascript:void(0);" onclick="exploreWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="deleteWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">删除</a></div>'
+        return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop(' + index + ', 1)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">分发</a><a href="javascript:void(0);" onclick="generateTag(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印标签</a><a href="javascript:void(0);" onclick="generateArchives(' + index + ',null)" style="text-decoration:none;color:blue;margin-right:20px;">打印信息档案</a><a href="javascript:void(0);" onclick="generateAbstract(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">打印实物信息摘要</a><a href="javascript:void(0);" onclick="exploreWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="deleteWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">删除</a></div>'
     }
     else if (row.status == 1) {
         return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop(' + index + ', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">收回</a><a href="javascript:void(0);" onclick="exploreWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a></div>'
@@ -1460,15 +1450,13 @@ function workSearchReset() {
             status: 0,
         }
     });
-    initPagination();								// 设定翻页插件
-    $('#workGridWorkManage').datagrid('reload');		// 重载数据
+    initPagination();// 设定翻页插件
+    $('#workGridWorkManage').datagrid('reload');// 重载数据
 }
 
 function workStartOrStop(index, status) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
-    console.log(row.workName)
-    console.log(row.boxNumber)
     $.ajax({
         type: 'post',
         url: 'startOrStopWork/',
@@ -1480,7 +1468,9 @@ function workStartOrStop(index, status) {
             status: status
         },
         success: function (result) {
+            var result = JSON.parse(result)
             if (result.success) {
+
                 $.messager.show({    // 显示成功信息
                     title: '提示',
                     msg: result.message,
@@ -1488,7 +1478,7 @@ function workStartOrStop(index, status) {
                     timeout: 5000
                 });
 
-                $('#workgridworkmanage').datagrid('reload');
+                $('#workGridWorkManage').datagrid('reload');
             }
             else {
                 $.messager.show({    // 显示失败信息
@@ -1635,41 +1625,23 @@ function generateTag(index) {
     // });
 }
 
-function generateArchives(index) {
+function generateArchives(index,number) {
     $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#printTheListForm').form('clear');
-    $("#printSave").click(function () {
-        var user = $('#printTheListUserValidate').val()
-        var password = $('#printTheListUserpassword').val()
-        if (user == '' || password == '') {
-            $.messager.alert('提示', '用户或密码不能为空');
-            return
-        }
-        $.ajax({
-            type: 'post',
-            url: 'print_auth/',
-            data: {
-                user: user,
-                password: password
-            }, success: function (data) {
-                var data = JSON.parse(data);
-                if (data.success) {
-                    $('#printTheList').dialog('close')
-                    $('#workGridWorkManage').datagrid('selectRow', index);
-                    var row = $('#workGridWorkManage').datagrid('getSelected');
-                    var today = new Date();
-                    $('#generateArchivesDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
-                    doGenerateArchives()
+    $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\',2)");
 
-                } else {
-                    $.messager.alert('提示', data.message);
-                }
-            }
-        })
-    })
+}
+function printInformationFile(index, number) {
+    $('#workGridWorkManage').datagrid('selectRow', index);
+    var row = $('#workGridWorkManage').datagrid('getSelected');
+    var today = new Date();
+    $('#generateArchivesDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
+    doGenerateArchives()
 }
 function doGenerateArchives() {
     $('#generateArchivesDlg').dialog('close');
+    console.log($("#workGridWorkManage").datagrid('getSelected'))
+
     var row = $('#workGridWorkManage').datagrid('getSelected');
     var date = $('#generateArchivesDateTime').datebox('getValue');
     $.ajax({

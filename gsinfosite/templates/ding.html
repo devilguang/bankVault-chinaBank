@@ -159,7 +159,6 @@
         function verify() {
             var serialNumber = $('#serialNumber').text();
             var operator = $('#operator').val();
-
             $.ajax({
                 url: '{% url "updateCheckingInfo" %}',
                 data: {serialNumber: serialNumber, operator: operator, csrfmiddlewaretoken: getCookie('csrftoken')},
@@ -181,11 +180,8 @@
         function edit() {
             $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '信息修改');
             $('#UpdateInfoForm').form('clear');
-
             var serialNumber = $('#serialNumber').text();
             var boxNumber = $('#boxNumber').text();
-            ;
-
             $.ajax({
                 url: '{% url "getThingData" %}',
                 data: {serialNumber: serialNumber, boxNumber: boxNumber},
@@ -193,7 +189,6 @@
                 async: true,
                 dataType: 'json',
                 success: function (result) {
-                    console.log(result)
                     data = result;
                     $('#UpdateInfoWareHouse').text(data.wareHouse);
                     $('#UpdateInfoBoxNumber').text(data.boxNumber);
@@ -220,13 +215,11 @@
         }
 
         function saveUpdateInfo() {
-
             var wareHouse = $('#UpdateInfoWareHouse').text();
             var boxNumber = $('#UpdateInfoBoxNumber').text();
             var serialNumber = $('#UpdateInfoSerialNumber').text();
             var className = $('#UpdateInfoClassName').text();
             var subClassName = $('#UpdateInfoSubClassName').text();
-
             var detailedName = $('#UpdateInfoDetailedName').textbox('getValue');
             var typeName = $('#UpdateInfoTypeName').textbox('getValue');
             var peroid = $('#UpdateInfoPeroid').textbox('getValue');
@@ -241,7 +234,6 @@
             var quality = $('#UpdateInfoQuality').textbox('getValue');
             var level = $('#UpdateInfoLevel').textbox('getValue');
             var remark = $('#UpdateInfoRemark').textbox('getValue');
-
             $.ajax({
                 url: '{% url "updateThingData" %}',
                 data: {
@@ -286,7 +278,6 @@
                 },
             });
         }
-
         $(function () {
             $('#pic_a').viewer();
             $('#pic_b').viewer();
@@ -297,10 +288,10 @@
 
 <body style="text-align:center;">
 <div class="pagination">
-    <a href="{{ first }}" target="blank" style="background:#267c99;border:2px solid #1f637b;color: #ffffff;padding: 5px 20px;border-radius: 5px ">第一页</a>
-    <a href="{{ prev }}" target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">上一页</a>
-    <a href="{{ next }}" target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">下一页</a>
-    <a href="{{ last }}" target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">最后一页</a>
+    <a href="{{ first}}?subBoxNumber={{subBoxNumber}}"  target="blank" style="background:#267c99;border:2px solid #1f637b;color: #ffffff;padding: 5px 20px;border-radius: 5px ">第一页</a>
+    <a href="{{ prev }}?subBoxNumber={{subBoxNumber}}"  target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">上一页</a>
+    <a href="{{ next }}?subBoxNumber={{subBoxNumber}}"  target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">下一页</a>
+    <a href="{{ last }}?subBoxNumber={{subBoxNumber}}"  target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">最后一页</a>
 </div>
 
 <div class="content">
@@ -327,7 +318,9 @@
         <tr class="alter">
             <td>2</td>
             <td colspan="2">箱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</td>
-            <td><span id="boxNumber">{{ boxNumber }}</span></td>
+            <td><span id="boxNumber">{{ boxNumber}}</span></td>
+
+
         </tr>
         <tr>
             <td>3</td>

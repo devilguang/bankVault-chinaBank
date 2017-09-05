@@ -425,7 +425,6 @@ function updateInfo(index, row) {
 function editUpdateInfo() {
     $('#editBtn').attr('style', 'width:90px; display:none;');
     $('#saveBtn').attr('style', 'width:90px');
-
     var productType = $('#UpdateInfo-productType').textbox('getValue');
     if (productType == '金银币章类') {
         $('#UpdateInfo-versionName').textbox('readonly', false);
@@ -435,7 +434,6 @@ function editUpdateInfo() {
         $('#UpdateInfo-originalQuantity').textbox('readonly', false);
         $('#UpdateInfo-producerPlace').textbox('readonly', false);
     }
-
     if (productType == '银元类') {
         $('#UpdateInfo-versionName').textbox('readonly', false);
         $('#UpdateInfo-value').textbox('readonly', false);
@@ -447,7 +445,6 @@ function editUpdateInfo() {
         $('#UpdateInfo-peroid').textbox('readonly', false);
         $('#UpdateInfo-originalQuantity').textbox('readonly', false);
     }
-
     if (productType == '金银锭类') {
         $('#UpdateInfo-detailedName').textbox('readonly', false);
         $('#UpdateInfo-peroid').textbox('readonly', false);
@@ -456,7 +453,6 @@ function editUpdateInfo() {
         $('#UpdateInfo-typeName').textbox('readonly', false);
         $('#UpdateInfo-carveName').textbox('readonly', false);
     }
-
     $('#UpdateInfo-remark').textbox('readonly', false);
 }
 function saveUpdateInfo() {
