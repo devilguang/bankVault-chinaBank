@@ -1669,9 +1669,7 @@ def getCloseThing(request):
     box = gsBox.objects.get(boxNumber=boxNumber)
     works = gsWork.objects.filter(box=box)
     thing_set = gsThing.objects.filter(work__in=works)
-
-    things =gsStatus.objects.filter(ting__in=thing_set, status=1, close_status=0)
-
+    things =gsStatus.objects.filter(thing__in=thing_set, status=1, close_status=0)
     n = things.count()
     start = (page - 1) * pageSize
     end = n if (page * pageSize > n) else page * pageSize
@@ -1694,7 +1692,7 @@ def closeThing(request):
     # productType = request.POST.get('productType', '')
 
     thing = gsThing.objects.get(serialNumber=serialNumber)
-    status_thing = gsStatus.objects.filter(ting=thing, status=1)
+    status_thing = gsStatus.objects.filter(thing=thing, status=1)
     status_thing.close_status = True
 
     # 请求获取实物编号及编号二维码

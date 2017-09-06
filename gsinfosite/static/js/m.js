@@ -181,7 +181,7 @@ function batchUpdateInfo(id) {
         wareHouse: row.wareHouse,
         boxNumber: row.boxNumber,
     });
-    url = 'updateCheckingInfo/';
+    url = 'updateNumberingInfo/';
     // updateNumberingInfo
 }
 function saveBatchUpdateInfo() {
@@ -377,6 +377,7 @@ function updateInfo(index, row) {
                         quality: data.quality,
                         level: data.level,
                         remark: data.remark,
+                        value:data.value
                     });
                 }
                 else if (row.productType == "银元类") {
@@ -465,6 +466,7 @@ function updateInfo(index, row) {
                         quality: data.quality,
                         level: data.level,
                         remark: data.remark,
+                        value:data.value
                     });
                 }
                 else if (row.productType == "银元类") {
@@ -515,7 +517,7 @@ function updateInfo(index, row) {
             boxNumber: row.boxNumber,
         });
     }
-    url = 'updateCheckingInfo/';
+    url = 'updateNumberingInfo/';
 }
 function editUpdateInfo() {
     $('#editBtn').attr('style', 'width:90px; display:none;');

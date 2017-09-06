@@ -327,7 +327,7 @@ class gsCase(models.Model):
 # 状态表
 class gsStatus(models.Model):
     status = models.BooleanField(default=False)  # 实物状态: False:未完成 True:完成
-    close_stautus = models.BooleanField(default=False)  # 实物是否封袋: False:未完成 True:完成
+    close_status = models.BooleanField(default=False)  # 实物是否封袋: False:未完成 True:完成
     incase_status = models.BooleanField(default=False)  # 实物装入盒子: False:未完成 True:完成
 
     numberingStatus = models.BooleanField(default=False)  # 环节1外观信息采集状态: False:未完成 True:完成

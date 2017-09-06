@@ -735,6 +735,32 @@
     <input id="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>
 </div>
 
+<!--封袋作业的对话框 -->
+<div id="sealingBagDlg" class="easyui-dialog" style="width:600px;height:500px;padding:10px 20px"
+     data-options="closed:true, buttons:'#sealingBagDlgDlgButtons', modal:true">
+    <div class="FormTitle">作业信息</div>
+    <form id="sealingBagDlgForm" method="POST" novalidate>
+        <input type="text" id="sealingBagDlg-qrCode" placeholder="请扫描二维码信息" style="margin-bottom: 20px;outline: none;border-radius: 5px;border-color:#E0ECFF"/>
+        <table width="545px">
+            <tr height="300px">
+                <td colspan="2">
+                    <table id="sealingBag-thingsGrid"></table>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="sealingBagDlgDlgButtons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick=""
+       style="width:90px">创建</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#createWorkDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+<div id="sealingBag-thingsGrid-ToolBar" style="padding:5px 0;display:none;">
+    <label for="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>
+    <input id="sealingBag-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>
+</div>
+
 <!-- 编辑作业对话框 -->
 <div id="editWorkDlg" class="easyui-dialog" style="width:600px;height:580px;padding:10px 20px"
      data-options="closed:true, buttons:'#editWorkDlgButtons', modal:true">

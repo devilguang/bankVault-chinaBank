@@ -58,7 +58,7 @@ function boxManage() {
         '<div data-options="region:\'center\'">' +
         '<table id="workGridBoxManage" class="easyui-datagrid" data-options="url:\'getBox/\', queryParams: {status: 0}, toolbar:\'#workGridToolBarBoxManage\', onClickRow:ClickRow, singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th field="boxNumber" align="center" width="7%">箱号</th>' +
         '<th field="productType" align="center">实物类型</th>' +
-        '<th field="className" align="center">品名</th><th field="subClassName" align="center">明细品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+        '<th field="className" align="center">品名</th><th field="subClassName" align="center">明细品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-box2');
     initPagination();
 }
@@ -71,6 +71,82 @@ function boxOperationFormatter(value, row, index) {
     }
 }
 
+//点击封袋的方法
+function sealingBag() {
+    $("#sealingBagDlg").dialog('open').dialog('center').dialog('setTitle', '封袋实物');
+    $('#sealingBagDlgForm').form('clear');
+    $('#sealingBag-thingsGrid').datagrid({
+        url: 'getCloseThing/',
+        queryParams: {boxNumber: 1},
+        columns: [[
+            {field: 'checkStatus', checkbox: true},
+            {field: 'serialNumber', title: '流水号', align: 'center'},
+            {field: 'boxNumber', title: '箱号', align: 'center'},
+            {field: 'productType', title: '实物类型', align: 'center'},
+            {field: 'className', title: '品名', align: 'center'},
+            {field: 'subClassName', title: '明细品名', align: 'center'},
+            {field: 'wareHouse', title: '发行库', align: 'center'},
+        ]],
+        pagination: true,
+        fit: true,
+        pageSize: 20,
+        fitColumns: true,
+        rownumbers: true,
+        toolbar: '#sealingBag-thingsGrid-ToolBar',
+        onCheck: function (index, row) {
+            var content = $('#createWork-selectedThing').textbox('getValue');
+            var reg = new RegExp(row.serialNumber + ';', 'g');
+            if (!reg.test(content)) {
+                content = content + row.serialNumber + ';';
+                $('#createWork-selectedThing').textbox('setValue', content);
+                var n = Number($('#createWork-selectedThingCount').text()) + 1;
+                $('#createWork-selectedThingCount').text(n);
+            }
+        },
+        onUncheck: function (index, row) {
+            var content = $('#createWork-selectedThing').textbox('getValue');
+            var target = row.serialNumber + ';';
+            var reg = new RegExp(target, 'g');
+            content = content.replace(reg, '');
+            $('#createWork-selectedThing').textbox('setValue', content);
+            var n = Number($('#createWork-selectedThingCount').text()) - 1;
+            $('#createWork-selectedThingCount').text(n);
+        },
+        onCheckAll: function (rows) {
+            var content = $('#createWork-selectedThing').textbox('getValue');
+
+            var n = Number($('#createWork-selectedThingCount').text());
+            for (var r in rows) {
+                var reg = new RegExp(rows[r].serialNumber + ';', 'g');
+                if (!reg.test(content)) {
+                    content = content + rows[r].serialNumber + ';';
+                    n = n + 1;
+                }
+            }
+            $('#createWork-selectedThingCount').text(n);
+
+            $('#createWork-selectedThing').textbox('setValue', content);
+        },
+        onUncheckAll: function (rows) {
+            var content = $('#createWork-selectedThing').textbox('getValue');
+
+            var n = Number($('#createWork-selectedThingCount').text());
+            for (var r in rows) {
+                var reg = new RegExp(rows[r].serialNumber + ';', 'g');
+                if (reg.test(content)) {
+                    content = content.replace(reg, '');
+                    n = n - 1;
+                }
+            }
+            $('#createWork-selectedThingCount').text(n);
+
+            $('#createWork-selectedThing').textbox('setValue', content);
+        },
+    }).datagrid('getPager').pagination({
+        layout: ['prev', 'sep', 'links', 'sep', 'next'],
+        displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
+    });
+}
 //点击新建的方法
 function openCreateBoxDlg() {
     $('#createBoxDlg').dialog('open').dialog('center').dialog('setTitle', '新建实物');
