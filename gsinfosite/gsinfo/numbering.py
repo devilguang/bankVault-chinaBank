@@ -133,12 +133,14 @@ def updateNumberingInfo(request):
                                                       remark=remark)
         elif productType == u'金银币章类':
             gsBiZhang.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
-                                                                                peroid=peroid,
-                                                                                producerPlace=producerPlace,
-                                                                                originalQuantity=originalQuantity,
-                                                                                quality=quality, level=level,
-                                                                                versionName=versionName,
-                                                                                remark=remark)
+                                                                 peroid=peroid,
+                                                                 producerPlace=producerPlace,
+                                                                 originalQuantity=originalQuantity,
+                                                                 quality=quality,
+                                                                 level=level,
+                                                                 value=value,
+                                                                 versionName=versionName,
+                                                                 remark=remark)
         elif productType == u'银元类':
             gsYinYuan.objects.filter(thing__in=thing_set).update(producerPlace=producerPlace,
                                                          quality=quality,
@@ -159,9 +161,10 @@ def updateNumberingInfo(request):
             now = datetime.datetime.now()
             gsStatus.objects.filter(thing__in=thing_set).update(numberingStatus=True,numberingOperator=operator,numberingUpdateDateTime=now)
 
-            s = gsStatus.objects.get(thing=thing_set[0])
+            status_set = gsStatus.objects.filter(thing=thing_set[0])
+            s = status_set[0]
             status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus and s.checkingStatus
-            gsStatus.objects.filter(thing=thing_set[0]).update(status=status)
+            status_set.update(status=status)
     except Exception as e:
         ret['success'] = False
         ret['message'] = str(boxNumber) + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else str(

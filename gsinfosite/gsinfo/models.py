@@ -3,6 +3,7 @@ from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 import math
+import datetime
 
 
 # Create your models here.
@@ -294,7 +295,7 @@ class gsWork(models.Model):
     workSeq = models.PositiveIntegerField()  # 作业序号, 从1开始
     box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
     workName = models.CharField(max_length=512)  # 作业名称
-    createDateTime = models.DateTimeField(auto_now_add=True)  # 作业创建时间, 即实物建档时间
+    createDateTime = models.DateTimeField(default=datetime.datetime.now())  # 作业创建时间, 即实物建档时间
     completeDateTime = models.DateTimeField(null=True)  # 作业完成时间, 即最后一个实物信息采集审核完成时间
     manager = models.CharField(max_length=512)  # 实物分发岗位
     status = models.PositiveIntegerField(default=0)  # 状态代码: 0:未启用 1:已启用 2:已完成
@@ -332,27 +333,27 @@ class gsStatus(models.Model):
 
     numberingStatus = models.BooleanField(default=False)  # 环节1外观信息采集状态: False:未完成 True:完成
     numberingOperator = models.CharField(max_length=512, blank=True)  # 环节1外观信息采集记录员
-    numberingCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节1外观信息采集记录生成时间
+    numberingCreateDateTime = models.DateTimeField(default=datetime.datetime.now())  # 环节1外观信息采集记录生成时间
     numberingUpdateDateTime = models.DateTimeField(null=True)  # 环节1外观信息采集记录最近一次修改时间
 
     analyzingStatus = models.BooleanField(default=False)  # 环节2频谱检测状态: False:未完成 True:完成
     analyzingOperator = models.CharField(max_length=512, blank=True)  # 环节2频谱检测记录员
-    analyzingCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节2频谱检测记录生成时间
+    analyzingCreateDateTime = models.DateTimeField(default=datetime.datetime.now())  # 环节2频谱检测记录生成时间
     analyzingUpdateDateTime = models.DateTimeField(null=True)  # 环节2频谱检测记录最近一次修改时间
 
     measuringStatus = models.BooleanField(default=False)  # 环节3测量称重状态: False:未完成 True:完成
     measuringOperator = models.CharField(max_length=512, blank=True)  # 环节3测量称重记录员
-    measuringCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节3测量称重记录生成时间
+    measuringCreateDateTime = models.DateTimeField(default=datetime.datetime.now())  # 环节3测量称重记录生成时间
     measuringUpdateDateTime = models.DateTimeField(null=True)  # 环节3测量称重记录最近一次修改时间
 
     checkingStatus = models.BooleanField(default=False)  # 环节4数据审核状态: False:未完成 True:完成
     checkingOperator = models.CharField(max_length=512, blank=True)  # 环节4数据审核记录员
-    checkingCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节4数据审核记录生成时间
+    checkingCreateDateTime = models.DateTimeField(default=datetime.datetime.now())  # 环节4数据审核记录生成时间
     checkingUpdateDateTime = models.DateTimeField(null=True)  # 环节4数据审核记录最近一次修改时间
 
     photographingStatus = models.BooleanField(default=False)  # 环节4数据审核状态: False:未完成 True:完成
     photographingOperator = models.CharField(max_length=512, blank=True)  # 环节4数据审核记录员
-    photographingCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节4数据审核记录生成时间
+    photographingCreateDateTime = models.DateTimeField(default=datetime.datetime.now())  # 环节4数据审核记录生成时间
     photographingUpdateDateTime = models.DateTimeField(null=True)  # 环节4数据审核记录最近一次修改时间
 
     thing = models.ForeignKey(gsThing)
@@ -515,4 +516,4 @@ class gsLog(models.Model):
     department = models.CharField(max_length=255,null=True)  # 部门
     operationType = models.CharField(max_length=255)  # 操作类型
     content = models.CharField(max_length=256)  # 内容
-    when = models.DateTimeField(auto_now_add=True)  # 操作日期
+    when = models.DateTimeField(default=datetime.datetime.now())  # 操作日期

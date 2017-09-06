@@ -220,22 +220,19 @@ def getWorkData(request, workSeq):
         elif 4 == processId:  # 测量称重环节
             status_set = gsStatus.objects.filter(thing__in=thing_set)
         elif 5 == processId:  # 实物认定环节
-            status_set = gsStatus.objects.filter(thing__in=thing_set)
+            status_set = gsStatus.objects.filter(thing__in=thing_set,numberingStatus=True)
         elif 6 == processId:  # 图像采集环节
             status_set = gsStatus.objects.filter(thing__in=thing_set)
 
 
     productTypeCode = box.productType
     classNameCode = box.className
-    subClassNameCode = box.subClassName
+    # subClassNameCode = box.subClassName
     wareHouseCode = box.wareHouse
 
     productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
     className = gsProperty.objects.get(project='品名', code=classNameCode, parentProject=productType.project,
                                        parentType=productType.type)
-    subClassName = gsProperty.objects.get(project='明细品名', code=subClassNameCode, parentProject=className.project,
-                                          parentType=className.type, grandpaProject=productType.project,
-                                          grandpaType=productType.type)
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
 
     # thing_list = ss.values_list('thing', flat=True)
@@ -264,6 +261,10 @@ def getWorkData(request, workSeq):
         else:
             r['boxNumber'] = str(boxNumber) + '-' + str(subBoxNumber)
         r['className'] = className.type
+        subClassName_code = status.thing.subClassName
+        subClassName = gsProperty.objects.get(project='明细品名', code=subClassName_code, parentProject=className.project,
+                                              parentType=className.type, grandpaProject=productType.project,
+                                              grandpaType=productType.type)
         r['subClassName'] = subClassName.type
         r['wareHouse'] = wareHouse.type
         if (2 == processId):  # 外观信息采集环节

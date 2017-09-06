@@ -98,10 +98,9 @@ def updatePhotographingInfo(request):
 
             # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
             now = datetime.datetime.now()
-            thing_status.update(photographingStatus=True,
-                                                       photographingOperator=operator,
-                                                       photographingUpdateDateTime=now)
-
+            gsStatus.objects.filter(thing=thing).update(photographingStatus=True,photographingOperator=operator,photographingUpdateDateTime=now)
+            thing_status = gsStatus.objects.filter(thing=thing)
+            thing_obj = thing_status[0]
             status = thing_obj.numberingStatus and thing_obj.analyzingStatus and thing_obj.measuringStatus and \
                      thing_obj.photographingStatus and thing_obj.checkingStatus
             thing_status.update(status=status)

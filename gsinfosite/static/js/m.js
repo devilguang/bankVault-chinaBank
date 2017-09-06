@@ -181,7 +181,7 @@ function batchUpdateInfo(id) {
         wareHouse: row.wareHouse,
         boxNumber: row.boxNumber,
     });
-    url = 'updateNumberingInfo/';
+    url = 'updateCheckingInfo/';
     // updateNumberingInfo
 }
 function saveBatchUpdateInfo() {
@@ -347,7 +347,7 @@ function updateInfo(index, row) {
                         serialNumber: row.serialNumber,
                         productType: row.productType,
                         className: row.className,
-                        subClassName: data.subClassName,
+                        subClassName: row.subClassName,
                         wareHouse: row.wareHouse,
                         boxNumber: row.boxNumber,
                         detailedName: data.detailedName,
@@ -517,7 +517,7 @@ function updateInfo(index, row) {
             boxNumber: row.boxNumber,
         });
     }
-    url = 'updateNumberingInfo/';
+    url = 'updateCheckingInfo/';
 }
 function editUpdateInfo() {
     $('#editBtn').attr('style', 'width:90px; display:none;');

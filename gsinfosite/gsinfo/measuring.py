@@ -105,11 +105,9 @@ def updateMeasuringInfo(request):
 
         # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
         now = datetime.datetime.now()
+        gsStatus.objects.filter(thing=thing).update(measuringStatus=True,measuringOperator=operator,measuringUpdateDateTime=now)
         thing_set = gsStatus.objects.filter(thing=thing)
-        thing_status =thing_set[0]
-        thing_set.update(measuringStatus=True,measuringOperator=operator,measuringUpdateDateTime=now)
-
-
+        thing_status = thing_set[0]
         status = thing_status.numberingStatus and thing_status.analyzingStatus and thing_status.measuringStatus and \
                  thing_status.photographingStatus and thing_status.checkingStatus
         thing_set.update(status=status)
