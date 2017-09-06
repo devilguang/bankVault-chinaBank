@@ -317,11 +317,18 @@ class gsThing(models.Model):
     subBox = models.ForeignKey(gsSubBox,null=True)
     work = models.ForeignKey(gsWork,null=True)
 
+class gsCase(models.Model):
+    caseNumber = models.CharField(max_length=255,unique=True,null=False)  # 货发二代系统提供的盒号
+    status = models.BooleanField(default=False)  # 是否封盒: False:未完成 True:完成
+    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
+    subBox = models.ForeignKey(gsSubBox,null=True)
+    work = models.ForeignKey(gsWork)
 
 # 状态表
 class gsStatus(models.Model):
-    thing = models.ForeignKey(gsThing)
     status = models.BooleanField(default=False)  # 实物状态: False:未完成 True:完成
+    close_stautus = models.BooleanField(default=False)  # 实物是否封袋: False:未完成 True:完成
+    incase_status = models.BooleanField(default=False)  # 实物装入盒子: False:未完成 True:完成
 
     numberingStatus = models.BooleanField(default=False)  # 环节1外观信息采集状态: False:未完成 True:完成
     numberingOperator = models.CharField(max_length=512, blank=True)  # 环节1外观信息采集记录员
@@ -347,6 +354,9 @@ class gsStatus(models.Model):
     photographingOperator = models.CharField(max_length=512, blank=True)  # 环节4数据审核记录员
     photographingCreateDateTime = models.DateTimeField(auto_now_add=True)  # 环节4数据审核记录生成时间
     photographingUpdateDateTime = models.DateTimeField(null=True)  # 环节4数据审核记录最近一次修改时间
+
+    thing = models.ForeignKey(gsThing)
+    package = models.ForeignKey(gsCase)
 
 #
 # # 作业与实物关系表

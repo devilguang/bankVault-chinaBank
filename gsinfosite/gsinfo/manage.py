@@ -1652,3 +1652,54 @@ def print_auth(request):
         }
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
+
+def getCloseThing(request):
+    boxNumber = request.POST.get('boxNumber', '')
+    # productType = request.POST.get('productType', '')
+    pageSize = int(request.POST.get('rows', ''))
+    page = int(request.POST.get('page', ''))
+
+    # if '-' in boxOrSubBox:
+    #     boxNumber = int(boxOrSubBox.split('-')[0])
+    #     subBoxNumber = int(boxOrSubBox.split('-')[1])
+    # else:
+    #     boxNumber = int(boxOrSubBox)
+    #     subBoxNumber = ''
+
+    box = gsBox.objects.get(boxNumber=boxNumber)
+    works = gsWork.objects.filter(box=box)
+    thing_set = gsThing.objects.filter(work__in=works)
+
+    things =gsStatus.objects.filter(ting__in=thing_set, status=1, close_status=0)
+
+    n = things.count()
+    start = (page - 1) * pageSize
+    end = n if (page * pageSize > n) else page * pageSize
+    ret = {}
+    ret['total'] = n
+    ret['rows'] = []
+    for th in things[start:end]:
+        r = {}
+        r['serialNumber'] = th.thing.serialNumber
+        r['subClassName'] = th.thing.subClassName
+        # r['productType'] = productType
+        ret['rows'].append(r)
+
+    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
+
+    return HttpResponse(ret_json)
+
+def closeThing(request):
+    serialNumber = request.POST.get('serialNumber', '')
+    # productType = request.POST.get('productType', '')
+
+    thing = gsThing.objects.get(serialNumber=serialNumber)
+    status_thing = gsStatus.objects.filter(ting=thing, status=1)
+    status_thing.close_status = True
+
+    # 请求获取实物编号及编号二维码
+    serialNumber2 = '123' + str(shortuuid.ShortUUID().random(length=5))
+    thing.serialNumber2 = serialNumber2
+
+
+
