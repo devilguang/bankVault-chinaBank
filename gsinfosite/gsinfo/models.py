@@ -23,20 +23,11 @@ class gsUserManager(models.Manager):
 
         # 先在auth_user表中创建用户，再在gsinfo_gsUser表中创建用户
         if user:
-            if (1 >= type):  # 新用户为管理员或超级管理员
-                numbering = True
-                measuring = True
-                analyzing = True
-                checking = True
-                photographing =True
-                gsUser.objects.get_or_create(user=user, nickName=nickName, organization=organization,
-                                                                department=department, type=type,
-                                                                numbering=numbering, measuring=measuring,
-                                                                analyzing=analyzing, checking=checking,
-                                                                photographing=photographing)
-            else:
-                gsUser.objects.get_or_create(user=user, nickName=nickName,organization=organization,
-                                                                department=department, type=type)
+            gsUser.objects.get_or_create(user=user,
+                                         nickName=nickName,
+                                         organization=organization,
+                                         department=department,
+                                         type=type)
 
             return
 
@@ -44,7 +35,7 @@ class gsUserManager(models.Manager):
         nickName = kwargs['nickName']
         # 删除用户名为nickName的作业, admin用户为系统默认用户,不能删除
         # 注意：Django将根据nickName的值进行"级联"删除
-        if (0 != cmp(nickName, 'admin')):
+        if nickName != 'sysadmin':
             try:
                 user = super(models.Manager, self).get(nickName=kwargs['nickName'])  # 用超级用户身份来删除
                 user.delete()
@@ -52,7 +43,7 @@ class gsUserManager(models.Manager):
             except ObjectDoesNotExist:
                 deletedUser = False
         else:
-            deletedUser = True  # 这里是否有问题？应该为False？
+            deletedUser = False  # 这里是否有问题？应该为False？
 
         return deletedUser
 
@@ -61,14 +52,15 @@ class gsUser(models.Model):
     user = models.OneToOneField(User)  # OneToOneField(someModel) 可以理解为 ForeignKey(SomeModel, unique=True)
     type = models.PositiveIntegerField()  # 用户类型: 0:超级管理员 1:管理员 2:一般用户
     nickName = models.CharField(max_length=255, unique=True)  # 昵称
-    numbering = models.BooleanField(default=False)  # 外观信息采集权限: True:拥有 False:未拥有
     organization = models.CharField(max_length=255,null=True)  # 用户所在组织
     department = models.CharField(max_length=255,null=True)  # 用户所在部门
+    auth = models.BooleanField(default=False)  # 各种打印等授权管理: True:拥有 False:未拥有
+    manage = models.BooleanField(default=False)  # 实物分发岗位权限: True:拥有 False:未拥有
+    numbering = models.BooleanField(default=False)  # 外观信息采集权限: True:拥有 False:未拥有
     analyzing = models.BooleanField(default=False)  # 频谱分析权限: True:拥有 False:未拥有
     measuring = models.BooleanField(default=False)  # 测量称重权限: True:拥有 False:未拥有
     checking = models.BooleanField(default=False)  # 数据审核权限: True:拥有 False:未拥有
-    manage = models.BooleanField(default=False)  # 现场负责人权限: True:拥有 False:未拥有
-    photographing = models.BooleanField(default=False)  # 数据审核权限: True:拥有 False:未拥有
+    photographing = models.BooleanField(default=False)  # 图像采集岗位权限: True:拥有 False:未拥有
     '''
     当我们对gsUser进行操作时，必然是通过gsUser.objects来进行的，gsUser.objects除了固有的方法（如：
     get、create、update、get_or_create等）外我们还定义的createUser和deleteUser，当我们调用：
@@ -304,7 +296,7 @@ class gsWork(models.Model):
     workName = models.CharField(max_length=512)  # 作业名称
     createDateTime = models.DateTimeField(auto_now_add=True)  # 作业创建时间, 即实物建档时间
     completeDateTime = models.DateTimeField(null=True)  # 作业完成时间, 即最后一个实物信息采集审核完成时间
-    manager = models.CharField(max_length=512)  # 现场负责人
+    manager = models.CharField(max_length=512)  # 实物分发岗位
     status = models.PositiveIntegerField(default=0)  # 状态代码: 0:未启用 1:已启用 2:已完成
     subBox = models.ForeignKey(gsSubBox,null=True)  # 箱体, gsSubBox"id"列
     objects = gsWorkManager()

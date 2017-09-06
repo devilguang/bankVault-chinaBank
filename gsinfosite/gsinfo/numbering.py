@@ -7,6 +7,7 @@ from report_process import *
 from django.contrib.auth.decorators import login_required
 import datetime
 import operator
+from . import log
 
 
 
@@ -119,6 +120,7 @@ def updateNumberingInfo(request):
             thing_set = gsThing.objects.filter(serialNumber=serialNumber)
     ret = {}
     try:
+        log.log(user=request.user, operationType=u'业务操作', content=u'实物外观信息更新')
         if productType == u'金银锭类':
             gsDing.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
                                                       typeName=typeName,

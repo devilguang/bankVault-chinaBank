@@ -74,17 +74,22 @@ def userProcess(request):
         nickNameList = request.POST.getlist('nickName[]')  # 可以一次删除多个用户
         try:
             for nickName in nickNameList:
-                log.log(user=request.user, operationType=u'系统管理', content=u'删除用户{0}'.format(nickName))
-                gsUser.objects.deleteUser(nickName=nickName)
+                if nickName == 'sysadmin':
+                    ret = {
+                        "success": False,
+                        "message": u'系统管理员不能被删除！'
+                    }
+                else:
+                    log.log(user=request.user, operationType=u'系统管理', content=u'删除用户{0}'.format(nickName))
+                    gsUser.objects.deleteUser(nickName=nickName)
+                    ret = {
+                        "success": True,
+                        "message": u'用户删除成功！'
+                    }
         except Exception as e:
             ret = {
                 "success": False,
                 "message": u'用户删除失败！\r\n原因：{0}'.format(e.message)
-            }
-        else:
-            ret = {
-                'success': True,
-                'message': u'用户删除成功！'
             }
 
     ret_json = json.dumps(ret, separators=(',', ':'))
@@ -228,10 +233,14 @@ def authorityProcess(request):
     ret = {}
     if opType == 'grant':
         try:
-            if authority == 'manage':
+            if authority == 'auth':
                 jobName = u'现场负责人'
                 log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName, type__lte=1).update(manage=True)
+                gsUser.objects.filter(nickName=nickName, type=1).update(auth=True)
+            elif authority == 'manage':
+                jobName = u'实物分发岗位'
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
+                gsUser.objects.filter(nickName=nickName, type=1).update(manage=True)
             elif authority == 'checking':
                 jobName = u'实物认定'
                 log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
@@ -264,10 +273,14 @@ def authorityProcess(request):
             }
     elif opType == 'revoke':
         try:
-            if authority == 'manage':
+            if authority == 'auth':
                 jobName = u'现场负责人'
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
+                gsUser.objects.filter(nickName=nickName).update(auth=True)
+            elif authority == 'manage':
+                jobName = u'实物分发岗位'
                 log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName, type__lte=1).update(manage=False)
+                gsUser.objects.filter(nickName=nickName).update(manage=False)
             elif (0 == cmp(authority, 'checking')):
                 jobName = u'实物认定'
                 log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
@@ -625,7 +638,7 @@ def setSysAdmin(request):
     if manage == 1:
         ret = {
             "success": False,
-            "message": u'系统管理权限不能转移给现场负责人 ！'
+            "message": u'系统管理权限不能转移给实物分发岗位 ！'
         }
     else:
         try:

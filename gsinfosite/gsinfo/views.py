@@ -39,7 +39,7 @@ def login(request):
                 if user:
                     log.log(user=user, operationType=u'登录', content=u'登录系统')
                     if workRole == 'systemadmin':
-                        if (1 >= custom_user.type):  # 用户类型: 1:管理员 2:一般用户
+                        if custom_user.type == 0:  # 用户类型: 1:管理员 2:一般用户
                             auth.login(request, user)
                             ret = {
                                 "success": True,
@@ -61,7 +61,7 @@ def login(request):
                         else:
                             ret = {
                                 "success": False,
-                                "message": u'该用户无现场负责人岗位权限！'
+                                "message": u'该用户无实物分发岗位岗位权限！'
                             }
                     elif workRole == 'checking':
                         hasRole = custom_user.checking

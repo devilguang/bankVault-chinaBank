@@ -6,7 +6,7 @@ from report_process import *
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 import datetime
-
+from . import log
 
 
 @login_required  # 测量称重岗位
@@ -87,11 +87,12 @@ def updateMeasuringInfo(request):
     box = gsBox.objects.get(boxNumber=boxNumber)
 
     try:
+        log.log(user=request.user, operationType=u'业务操作', content=u'测量称重信息更新')
         # 检测作业是否可用
         thing = gsThing.objects.get(serialNumber=serialNumber)
         if thing.work.status == 0:  # 0:未启用 1:已启用 2:已完成
             # 作业不可用
-            raise ValueError, u'作业不可用！请联系现场负责人进行分发，并刷新页面！'
+            raise ValueError, u'作业不可用！请联系实物分发岗位进行分发，并刷新页面！'
 
         if productType == u'金银锭类':
             gsDing.objects.filter(thing=thing).update(length=length, width=width, height=height,grossWeight=grossWeight)

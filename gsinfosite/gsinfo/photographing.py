@@ -7,7 +7,7 @@ from gsinfosite import settings
 from django.contrib.auth.decorators import login_required
 import datetime
 import base64
-
+from . import log
 
 @login_required  # 图像采集岗位
 def photographing(request):
@@ -64,6 +64,7 @@ def updatePhotographingInfo(request):
     if not os.path.exists(serialNumber_path):
         os.makedirs(serialNumber_path)
 
+    log.log(user=request.user, operationType=u'业务操作', content=u'图像采集信息更新')
     if pic_path:
         img_path = json.loads(pic_path)
 
@@ -93,7 +94,7 @@ def updatePhotographingInfo(request):
             thing_obj = thing_status[0]
             if thing_obj.status == 0:
                 # 作业不可用
-                raise ValueError, u'作业不可用！请联系现场负责人进行分发，并刷新页面！'
+                raise ValueError, u'作业不可用！请联系实物分发岗位进行分发，并刷新页面！'
 
             # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
             now = datetime.datetime.now()

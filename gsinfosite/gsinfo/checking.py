@@ -6,7 +6,7 @@ from .report_process import *
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.utils import timezone
-
+from . import log
 
 @login_required
 def checking(request):
@@ -34,76 +34,6 @@ def boxIsExist(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
-
-
-'''def createWork(request):
-    productTypeCode = request.POST.get('productType', '')
-    classNameCode = request.POST.get('className', '')
-    subClassNameCode = request.POST.get('subClassName', '')
-    wareHouseCode = request.POST.get('wareHouse', '')
-    boxNumber = int(request.POST.get('boxNumber', ''))
-    amount = int(request.POST.get('amount', ''))
-    startSeq = int(request.POST.get('startSeq', ''))
-    operator = request.POST.get('operator', '')
-
-    try:
-        box, created = gsBox.objects.createWork(boxNumber = boxNumber, productType = productTypeCode, className = classNameCode, subClassName = subClassNameCode, wareHouse = wareHouseCode, amount = amount, startSeq = startSeq, operator = operator)
-
-        # 创建作业对应的以箱号命名的结果目录
-        reportRootDir = settings.DATA_DIRS['report_dir']
-        reportDir = os.path.join(reportRootDir, str(boxNumber))
-        if (not os.path.exists(reportDir)):
-            os.mkdir(reportDir)
-    except Exception as e:
-        ret = {
-            "success": False,
-            "message": str(boxNumber)+u'号箱作业创建失败！\r\n原因:'+e.message
-        }
-    else:
-        ret = {
-            'success': True,
-            'message': str(boxNumber)+'号箱作业创建成功！' 
-        }
-
-    ret_json = json.dumps(ret, separators=(',', ':'))
-
-    return HttpResponse(ret_json)
-
-def deleteWork(request):
-    boxNumber = int(request.POST.get('boxNumber', ''))
-    subBoxSeq = request.POST.get('subBoxSeq', '')
-
-    try:
-        deleted = gsBox.objects.deleteWork(boxNumber = boxNumber)
-
-        # 删除作业对应的以箱号命名的结果目录和压缩文件
-        reportRootDir = settings.DATA_DIRS['report_dir']
-        reportDir = os.path.join(reportRootDir, str(boxNumber))
-        if (os.path.exists(reportDir)):
-            deleteDir(reportDir)
-
-        zipFilePath = os.path.join(reportRootDir, str(boxNumber)+'.zip')
-        if (os.path.exists(zipFilePath)):
-            os.remove(zipFilePath)
-
-        tagRootDir = settings.DATA_DIRS['tag_dir']
-        tagFilePath = os.path.join(tagRootDir, str(boxNumber)+'.zip')
-        if (os.path.exists(tagFilePath)):
-            os.remove(tagFilePath)
-    except Exception as e:
-        ret = {
-            "success": False,
-            "message": str(boxNumber)+u'号箱作业归档失败！\r\n原因:'+e.message
-        }
-    else:
-        ret = {
-            "success": True,
-            "message": str(boxNumber)+'号箱作业删除成功！' 
-        }
-
-    ret_json = json.dumps(ret, separators=(',', ':'))
-
-    return HttpResponse(ret_json)'''
 
 
 def getWorkStatus(request):
@@ -174,7 +104,7 @@ def getDurationCompleteThingAmount(request):
 #         thing_status = gsStatus.objects.get(thing=thing)
 #         if thing_status.status == 0:
 #             # 作业不可用
-#             raise ValueError(u'作业不可用！请联系现场负责人进行分发，并刷新页面！')
+#             raise ValueError(u'作业不可用！请联系实物分发岗位进行分发，并刷新页面！')
 #
 #         # now = datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
 #         now = datetime.now()
@@ -214,6 +144,7 @@ def updateCheckingInfo(request):
     level = request.POST.get('level', '')
     remark = request.POST.get('remark', '')
     operator = request.POST.get('operator', '')
+
     if originalQuantity != '':
         originalQuantity = float(originalQuantity)
 
@@ -224,11 +155,22 @@ def updateCheckingInfo(request):
         boxNumber = int(boxOrSubBox)
         subBoxNumber = ''
 
-    thing_set = gsThing.objects.filter(serialNumber=serialNumber)
+    thing = gsThing.objects.get(serialNumber=serialNumber)
     ret = {}
+
+
+
     try:
+        log.log(user=request.user, operationType=u'业务操作', content=u'实物认定信息更新')
+        new_subClassName_code = gsProperty.objects.get(type=subClassName, parentType=className,
+                                                       grandpaType=productType).code
+        old_subClassName_code = thing.subClassName
+        if new_subClassName_code != old_subClassName_code:
+            thing.subClassName = new_subClassName_code
+            thing.box.subClassName = '00'
+
         if productType == u'金银锭类':
-            gsDing.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
+            gsDing.objects.filter(thing=thing).update(detailedName=detailedName,
                                                       typeName=typeName,
                                                       peroid=peroid,
                                                       producerPlace=producerPlace,
@@ -238,22 +180,23 @@ def updateCheckingInfo(request):
                                                       level=level,
                                                       remark=remark)
         elif productType == u'金银币章类':
-            gsBiZhang.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
-                                                                                peroid=peroid,
-                                                                                producerPlace=producerPlace,
-                                                                                originalQuantity=originalQuantity,
-                                                                                quality=quality, level=level,
-                                                                                versionName=versionName,
-                                                                                remark=remark)
+            gsBiZhang.objects.filter(thing=thing).update(detailedName=detailedName,
+                                                         peroid=peroid,
+                                                         producerPlace=producerPlace,
+                                                         originalQuantity=originalQuantity,
+                                                         quality=quality,
+                                                         level=level,
+                                                         versionName=versionName,
+                                                         remark=remark)
         elif productType == u'银元类':
-            gsYinYuan.objects.filter(thing__in=thing_set).update(producerPlace=producerPlace,
+            gsYinYuan.objects.filter(thing=thing).update(producerPlace=producerPlace,
                                                          quality=quality,
                                                          level=level,
                                                          versionName=versionName,
                                                          value=value,
                                                          remark=remark)
         elif productType == u'金银工艺品类':
-            gsGongYiPin.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
+            gsGongYiPin.objects.filter(thing=thing).update(detailedName=detailedName,
                                                            peroid=peroid,
                                                            originalQuantity=originalQuantity,
                                                            quality=quality,
@@ -261,21 +204,12 @@ def updateCheckingInfo(request):
                                                            remark=remark)
         # now是本地时间，可以认为是你电脑现在的时间 utcnow是世界时间（时区不同，所以这两个是不一样的）
         # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
-        now = datetime.datetime.now()
-        gsStatus.objects.filter(thing__in=thing_set).update(numberingStatus=True,numberingOperator=operator,numberingUpdateDateTime=now)
-
-        s = gsStatus.objects.get(thing=thing_set[0])
-        status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus and s.checkingStatus
-        gsStatus.objects.filter(thing=thing_set[0]).update(status=status)
     except Exception as e:
         ret['success'] = False
-        ret['message'] = str(boxNumber) + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else str(
-            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
-        ret['message'] = ret['message'] + u'\r\n原因:{0}'.format(e.message)
+        ret['message'] = str(boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
     else:
         ret['success'] = True
-        ret['message'] = str(boxNumber) + '号箱作业更新成功！' if (0 == cmp(serialNumber, '')) else str(
-            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
+        ret['message'] = str(boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 
@@ -436,7 +370,7 @@ def updateThingData(request):
         thing_status = gsStatus.objects.get(thing=thing)
         if thing_status.status == 0:
             # 作业不可用
-            raise ValueError(u'作业不可用！请联系现场负责人进行分发！')
+            raise ValueError(u'作业不可用！请联系实物分发岗位进行分发！')
 
         if productType == u'金银锭类':
             gsDing.objects.filter(thing=thing).update(detailedName=detailedName,

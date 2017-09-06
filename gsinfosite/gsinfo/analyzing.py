@@ -5,6 +5,7 @@ import json
 from report_process import *
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
+from . import log
 
 @login_required  # 频谱分析岗位
 def analyzing(request):
@@ -25,13 +26,14 @@ def updateAnalyzingInfo(request):
     box = gsBox.objects.get(boxNumber=boxNumber)
 
     try:
+        log.log(user=request.user, operationType=u'业务操作', content=u'频谱分析信息更新')
         # 检测作业是否可用
         thing = gsThing.objects.get(serialNumber=serialNumber)
         thing_status = gsStatus.objects.filter(thing=thing)
         thing_obj = thing_status[0]
         if thing_obj.status == 0:
             # 作业不可用
-            raise ValueError, u'作业不可用！请联系现场负责人进行分发！'
+            raise ValueError, u'作业不可用！请联系实物分发岗位进行分发！'
 
         if (0 == cmp(productType, u'金银锭类')):
             ts = gsDing.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
