@@ -116,6 +116,7 @@ urlpatterns = [
     url(r'^checking/updateThingData/$', checking.updateThingData, name="updateThingData"),
     url(r'^checking/getWorkData/(?P<workSeq>\d+)$', views.getWorkData, name='getWorkData'),
     url(r'^checking/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
+    url(r'^checking/getThingInfo/$', views.getThingInfo, name='getThingInfo'),
 
     url(r'^numbering/$', numbering.numbering, name='numbering'),
     url(r'^numbering/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),
