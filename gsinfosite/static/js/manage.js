@@ -58,13 +58,13 @@ function boxManage() {
         '<div data-options="region:\'center\'">' +
         '<table id="workGridBoxManage" class="easyui-datagrid" data-options="url:\'getBox/\', queryParams: {status: 0}, toolbar:\'#workGridToolBarBoxManage\', onClickRow:ClickRow, singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th field="boxNumber" align="center" width="7%">箱号</th>' +
         '<th field="productType" align="center">实物类型</th>' +
-        '<th field="className" align="center">品名</th><th field="subClassName" align="center">明细品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-merge" plain="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+        '<th field="className" align="center">品名</th><th field="subClassName" align="center">明细品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-box2');
     initPagination();
 }
 function boxOperationFormatter(value, row, index) {
     if (row.haveSubBox == "0") {
-        return '<div style="float:left"><a href="javascript:void(0);" onclick="openAddToExistingBoxDlg(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(0, \'' + index + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;">修改</a></div>'
+        return '<div style="float:left"><a href="javascript:void(0);" disabled="true" onclick="openAddToExistingBoxDlg(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;opacity:0.5">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(0, \'' + index + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;">修改</a></div>'
     } else {
         //return '<div style="float:left; min-width: 498px;"></div>'
         return '<div style="float:left" min-width: 498px;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;"></a></div>';
@@ -132,6 +132,7 @@ function createBox() {
 
 //var totals = 0;
 function openAllotBoxDlg() {             // 打开实物拆箱
+    return
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (!row) {
         $.messager.alert('提示', '未选择记录! 请先选择一条实物记录！');
@@ -332,6 +333,7 @@ function allotBox() {
 }
 
 function openMergeBoxDlg() {             // 打开实物子箱并箱
+    return
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (!row) {
         $.messager.alert('提示', '未选择记录! 请先选择一条实物记录！');
@@ -466,6 +468,7 @@ function mergeBox() {
     });
 }
 function openReportBoxDlg() {             // 打开实物箱体列表
+    return
     $('#reportBoxDlg').dialog('open').dialog('center').dialog('setTitle', '实物箱体列表');
     $('#reportBoxForm').form('clear');
 
@@ -1192,6 +1195,7 @@ function createWork() {
     });
 }
 function openAddToExistingBoxDlg(index, number) {
+    return
     $('#workGridBoxManage').datagrid('selectRow', index);
     var row = $('#workGridBoxManage').datagrid('getSelected');
 
