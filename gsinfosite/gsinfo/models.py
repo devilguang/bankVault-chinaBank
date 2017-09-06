@@ -356,7 +356,7 @@ class gsStatus(models.Model):
     photographingUpdateDateTime = models.DateTimeField(null=True)  # 环节4数据审核记录最近一次修改时间
 
     thing = models.ForeignKey(gsThing)
-    package = models.ForeignKey(gsCase)
+    case = models.ForeignKey(gsCase,null=True)
 
 #
 # # 作业与实物关系表
