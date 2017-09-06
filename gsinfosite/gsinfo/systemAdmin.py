@@ -197,7 +197,7 @@ def getAuthority(request):
     ret = {}
 
     users = gsUser.objects.all()
-    isExistManager = gsUser.objects.filter(type__lte=1, manage=True).exists()
+    isExistManager = gsUser.objects.filter(type=1, auth=True).exists()
 
     ret['total'] = users.count()
     ret['rows'] = []
@@ -209,8 +209,8 @@ def getAuthority(request):
         r['type'] = u.type
 
         r['canBeManage'] = True if not isExistManager else False
+        r['auth'] = u.auth
         r['manage'] = u.manage
-
         r['checking'] = u.checking
         r['numbering'] = u.numbering
         r['measuring'] = u.measuring
@@ -240,7 +240,7 @@ def authorityProcess(request):
             elif authority == 'manage':
                 jobName = u'实物分发岗位'
                 log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName, type=1).update(manage=True)
+                gsUser.objects.filter(nickName=nickName).update(manage=True)
             elif authority == 'checking':
                 jobName = u'实物认定'
                 log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
@@ -276,7 +276,7 @@ def authorityProcess(request):
             if authority == 'auth':
                 jobName = u'现场负责人'
                 log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(auth=True)
+                gsUser.objects.filter(nickName=nickName).update(auth=False)
             elif authority == 'manage':
                 jobName = u'实物分发岗位'
                 log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))

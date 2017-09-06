@@ -4,7 +4,7 @@ from django.http.response import HttpResponse
 import json
 from .report_process import *
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+import datetime
 from django.utils import timezone
 from . import log
 
@@ -155,7 +155,8 @@ def updateCheckingInfo(request):
         boxNumber = int(boxOrSubBox)
         subBoxNumber = ''
 
-    thing = gsThing.objects.get(serialNumber=serialNumber)
+    thing = gsThing.objects.filter(serialNumber=serialNumber)
+    box = gsBox.objects.filter(boxNumber=boxNumber)
     ret = {}
 
 
@@ -164,10 +165,10 @@ def updateCheckingInfo(request):
         log.log(user=request.user, operationType=u'业务操作', content=u'实物认定信息更新')
         new_subClassName_code = gsProperty.objects.get(type=subClassName, parentType=className,
                                                        grandpaType=productType).code
-        old_subClassName_code = thing.subClassName
+        old_subClassName_code = thing[0].subClassName
         if new_subClassName_code != old_subClassName_code:
-            thing.subClassName = new_subClassName_code
-            thing.box.subClassName = '00'
+            thing.update(subClassName=new_subClassName_code)
+            box.update(subClassName='00')
 
         if productType == u'金银锭类':
             gsDing.objects.filter(thing=thing).update(detailedName=detailedName,
@@ -202,8 +203,8 @@ def updateCheckingInfo(request):
                                                            quality=quality,
                                                            level=level,
                                                            remark=remark)
-        # now是本地时间，可以认为是你电脑现在的时间 utcnow是世界时间（时区不同，所以这两个是不一样的）
-        # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
+        now = datetime.datetime.now()
+        gsStatus.objects.filter(thing=thing).update(checkingStatus=True, checkingOperator=operator,checkingUpdateDateTime=now)
     except Exception as e:
         ret['success'] = False
         ret['message'] = str(boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'

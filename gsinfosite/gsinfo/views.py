@@ -294,6 +294,7 @@ def getThingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
     thing = gsThing.objects.get(serialNumber=serialNumber)
     ret={}
+    ret['subClassName']=thing.subClassName
     if productType == u'金银锭类':
         t = gsDing.objects.get(thing=thing)
         ret['detailedName'] = t.detailedName
