@@ -62,6 +62,8 @@ function boxManage() {
     addTab(title, c, 'icon-box2');
     initPagination();
 }
+
+
 function boxOperationFormatter(value, row, index) {
     if (row.haveSubBox == "0") {
         return '<div style="float:left"><a href="javascript:void(0);" disabled="true" onclick="openAddToExistingBoxDlg(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;opacity:0.5">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(0, \'' + index + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;">修改</a></div>'
@@ -70,82 +72,107 @@ function boxOperationFormatter(value, row, index) {
         return '<div style="float:left" min-width: 498px;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;"></a></div>';
     }
 }
+function sealingBagDlgKey() {
 
+    if (event.keyCode == 13) {
+        $("#sealingBagDlg-qrCode").val();
+         var row = $('#workGridBoxManage').datagrid('getSelected');
+         console.log(row)
+        $.ajax({
+            type:'post',
+            url:''
+        })
+    }
+}
 //点击封袋的方法
 function sealingBag() {
     $("#sealingBagDlg").dialog('open').dialog('center').dialog('setTitle', '封袋实物');
     $('#sealingBagDlgForm').form('clear');
-    $('#sealingBag-thingsGrid').datagrid({
-        url: 'getCloseThing/',
-        queryParams: {boxNumber: 1},
-        columns: [[
-            {field: 'checkStatus', checkbox: true},
-            {field: 'serialNumber', title: '流水号', align: 'center'},
-            {field: 'boxNumber', title: '箱号', align: 'center'},
-            {field: 'productType', title: '实物类型', align: 'center'},
-            {field: 'className', title: '品名', align: 'center'},
-            {field: 'subClassName', title: '明细品名', align: 'center'},
-            {field: 'wareHouse', title: '发行库', align: 'center'},
-        ]],
-        pagination: true,
-        fit: true,
-        pageSize: 20,
-        fitColumns: true,
-        rownumbers: true,
-        toolbar: '#sealingBag-thingsGrid-ToolBar',
-        onCheck: function (index, row) {
-            var content = $('#createWork-selectedThing').textbox('getValue');
-            var reg = new RegExp(row.serialNumber + ';', 'g');
-            if (!reg.test(content)) {
-                content = content + row.serialNumber + ';';
-                $('#createWork-selectedThing').textbox('setValue', content);
-                var n = Number($('#createWork-selectedThingCount').text()) + 1;
-                $('#createWork-selectedThingCount').text(n);
-            }
-        },
-        onUncheck: function (index, row) {
-            var content = $('#createWork-selectedThing').textbox('getValue');
-            var target = row.serialNumber + ';';
-            var reg = new RegExp(target, 'g');
-            content = content.replace(reg, '');
-            $('#createWork-selectedThing').textbox('setValue', content);
-            var n = Number($('#createWork-selectedThingCount').text()) - 1;
-            $('#createWork-selectedThingCount').text(n);
-        },
-        onCheckAll: function (rows) {
-            var content = $('#createWork-selectedThing').textbox('getValue');
+    var row = $('#workGridBoxManage').datagrid('getSelected');
 
-            var n = Number($('#createWork-selectedThingCount').text());
-            for (var r in rows) {
-                var reg = new RegExp(rows[r].serialNumber + ';', 'g');
+    if (row) {
+        $('#sealingBag-thingsGrid').datagrid({
+            url: 'getCloseThing/',
+            queryParams: {
+                boxNumber: row.boxNumber,
+                productType: row.productType,
+                className: row.className,
+                wareHouse: row.wareHouse
+            },
+            columns: [[
+                // {field: 'checkStatus', checkbox: true},
+                {field: 'serialNumber', title: '流水号', align: 'center'},
+                {field: 'boxNumber', title: '箱号', align: 'center'},
+                {field: 'productType', title: '实物类型', align: 'center'},
+                {field: 'className', title: '品名', align: 'center'},
+                {field: 'subClassName', title: '明细品名', align: 'center'},
+                {field: 'wareHouse', title: '发行库', align: 'center'},
+            ]],
+            pagination: true,
+            fit: true,
+            pageSize: 20,
+            fitColumns: true,
+            rownumbers: true,
+            // toolbar: '#sealingBag-thingsGrid-ToolBar',
+            onCheck: function (index, row) {
+                var content = $('#createWork-selectedThing').textbox('getValue');
+                var reg = new RegExp(row.serialNumber + ';', 'g');
                 if (!reg.test(content)) {
-                    content = content + rows[r].serialNumber + ';';
-                    n = n + 1;
+                    content = content + row.serialNumber + ';';
+                    $('#createWork-selectedThing').textbox('setValue', content);
+                    var n = Number($('#createWork-selectedThingCount').text()) + 1;
+                    $('#createWork-selectedThingCount').text(n);
                 }
-            }
-            $('#createWork-selectedThingCount').text(n);
+            },
+            onUncheck: function (index, row) {
+                var content = $('#createWork-selectedThing').textbox('getValue');
+                var target = row.serialNumber + ';';
+                var reg = new RegExp(target, 'g');
+                content = content.replace(reg, '');
+                $('#createWork-selectedThing').textbox('setValue', content);
+                var n = Number($('#createWork-selectedThingCount').text()) - 1;
+                $('#createWork-selectedThingCount').text(n);
+            },
+            onCheckAll: function (rows) {
+                var content = $('#createWork-selectedThing').textbox('getValue');
 
-            $('#createWork-selectedThing').textbox('setValue', content);
-        },
-        onUncheckAll: function (rows) {
-            var content = $('#createWork-selectedThing').textbox('getValue');
-
-            var n = Number($('#createWork-selectedThingCount').text());
-            for (var r in rows) {
-                var reg = new RegExp(rows[r].serialNumber + ';', 'g');
-                if (reg.test(content)) {
-                    content = content.replace(reg, '');
-                    n = n - 1;
+                var n = Number($('#createWork-selectedThingCount').text());
+                for (var r in rows) {
+                    var reg = new RegExp(rows[r].serialNumber + ';', 'g');
+                    if (!reg.test(content)) {
+                        content = content + rows[r].serialNumber + ';';
+                        n = n + 1;
+                    }
                 }
-            }
-            $('#createWork-selectedThingCount').text(n);
+                $('#createWork-selectedThingCount').text(n);
 
-            $('#createWork-selectedThing').textbox('setValue', content);
-        },
-    }).datagrid('getPager').pagination({
-        layout: ['prev', 'sep', 'links', 'sep', 'next'],
-        displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
-    });
+                $('#createWork-selectedThing').textbox('setValue', content);
+            },
+            onUncheckAll: function (rows) {
+                var content = $('#createWork-selectedThing').textbox('getValue');
+
+                var n = Number($('#createWork-selectedThingCount').text());
+                for (var r in rows) {
+                    var reg = new RegExp(rows[r].serialNumber + ';', 'g');
+                    if (reg.test(content)) {
+                        content = content.replace(reg, '');
+                        n = n - 1;
+                    }
+                }
+                $('#createWork-selectedThingCount').text(n);
+                $('#createWork-selectedThing').textbox('setValue', content);
+            },
+        }).datagrid('getPager').pagination({
+            layout: ['prev', 'sep', 'links', 'sep', 'next'],
+            displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
+        });
+    } else {
+        $.messager.confirm('提示', '未选择记录! 请先选择一条实物记录！', function (r) {
+            if (r) {
+                $("#sealingBagDlg").dialog('close')
+            }
+        });
+    }
 }
 //点击新建的方法
 function openCreateBoxDlg() {

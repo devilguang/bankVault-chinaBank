@@ -144,10 +144,8 @@ function closeUpdateInfo(){
 }
 function updateInfo(index, row){
 	initUpdateInfoDlg(row);
-	
 	$('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
 	$('#UpdateInfoForm').form('clear');
-	
 	if (row.status == 1){
 		// 记录已更新, 待编辑
 		$.ajax({url: 'getMeasuringInfo/',
@@ -304,6 +302,5 @@ function saveInfo(){
 			}
 		}
 	});
-	
 	$('#UpdateInfoForm').submit();
 }
