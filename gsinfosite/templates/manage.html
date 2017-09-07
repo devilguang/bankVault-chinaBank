@@ -25,82 +25,82 @@
             $('#serialNumber').focus();
         });
 
-        $(document).keydown(function (event) {
-            var keyCode = event.keyCode;
-            if (keyCode == "13") {
-                var value = $('#serialNumber').textbox('getValue');
-                // 解析条码内容
-                var idx = value.lastIndexOf('-');
-                var serialNumber = value.substring(0, idx);
-                var boxNumber = value.substring(idx + 1);
-                // 选中对应箱号
-                var node = $('#workSpaceTree').tree('find', boxNumber);
-                $('#workSpaceTree').tree('select', node.target);
-                // 选中对应实物
-                idx = serialNumber.lastIndexOf('-');
-                var seq = serialNumber.substring(idx + 1);
-                var options = $('#workGrid' + boxNumber).datagrid('options');
-                var pageNumber = Math.ceil((seq - node.attributes.startSeq + 1) / options.pageSize);
-                /*if (pageNumber != options.pageNumber){
-                 $('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){
-                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');
-                 var i = 0;
-                 var n = rows.length;
-                 for(; i<n; ++i){
-                 if (rows[i].serialNumber == serialNumber){
-                 break;
-                 }
-                 }
-                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
-                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
-                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
-
-                 dbClickRow(rowIdx, rows[i]);
-
-                 $('#serialNumber').textbox('setValue', '');
-                 //$('#serialNumber').focus();
-                 }});
-                 }
-                 else{
-                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');
-                 var i = 0;
-                 var n = rows.length;
-                 for(; i<n; ++i){
-                 if (rows[i].serialNumber == serialNumber){
-                 break;
-                 }
-                 }
-                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);
-                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
-                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);
-
-                 dbClickRow(rowIdx, rows[i]);
-
-                 $('#serialNumber').textbox('setValue', '');
-                 //$('#serialNumber').focus();
-                 }*/
-                $('#workGrid' + boxNumber).datagrid('gotoPage', {
-                    page: pageNumber, callback: function (page) {
-                        var rows = $('#workGrid' + boxNumber).datagrid('getRows');
-                        var i = 0;
-                        var n = rows.length;
-                        for (; i < n; ++i) {
-                            if (rows[i].serialNumber == serialNumber) {
-                                break;
-                            }
-                        }
-                        var rowIdx = $('#workGrid' + boxNumber).datagrid('getRowIndex', rows[i]);
-                        //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);
-                        $('#workGrid' + boxNumber).datagrid('selectRow', rowIdx);
-
-                        dbClickRow(rowIdx, rows[i]);
-
-                        $('#serialNumber').textbox('setValue', '');
-                        //$('#serialNumber').focus();
-                    }
-                });
-            }
-        });
+{#        $(document).keydown(function (event) {#}
+{#            var keyCode = event.keyCode;#}
+{#            if (keyCode == "13") {#}
+{#                var value = $('#serialNumber').textbox('getValue');#}
+{#                // 解析条码内容#}
+{#                var idx = value.lastIndexOf('-');#}
+{#                var serialNumber = value.substring(0, idx);#}
+{#                var boxNumber = value.substring(idx + 1);#}
+{#                // 选中对应箱号#}
+{#                var node = $('#workSpaceTree').tree('find', boxNumber);#}
+{#                $('#workSpaceTree').tree('select', node.target);#}
+{#                // 选中对应实物#}
+{#                idx = serialNumber.lastIndexOf('-');#}
+{#                var seq = serialNumber.substring(idx + 1);#}
+{#                var options = $('#workGrid' + boxNumber).datagrid('options');#}
+{#                var pageNumber = Math.ceil((seq - node.attributes.startSeq + 1) / options.pageSize);#}
+{#                /*if (pageNumber != options.pageNumber){#}
+{#                 $('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){#}
+{#                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');#}
+{#                 var i = 0;#}
+{#                 var n = rows.length;#}
+{#                 for(; i<n; ++i){#}
+{#                 if (rows[i].serialNumber == serialNumber){#}
+{#                 break;#}
+{#                 }#}
+{#                 }#}
+{#                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);#}
+{#                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
+{#                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);#}
+{##}
+{#                 dbClickRow(rowIdx, rows[i]);#}
+{##}
+{#                 $('#serialNumber').textbox('setValue', '');#}
+{#                 //$('#serialNumber').focus();#}
+{#                 }});#}
+{#                 }#}
+{#                 else{#}
+{#                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');#}
+{#                 var i = 0;#}
+{#                 var n = rows.length;#}
+{#                 for(; i<n; ++i){#}
+{#                 if (rows[i].serialNumber == serialNumber){#}
+{#                 break;#}
+{#                 }#}
+{#                 }#}
+{#                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);#}
+{#                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
+{#                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);#}
+{##}
+{#                 dbClickRow(rowIdx, rows[i]);#}
+{##}
+{#                 $('#serialNumber').textbox('setValue', '');#}
+{#                 //$('#serialNumber').focus();#}
+{#                 }*/#}
+{#                $('#workGrid' + boxNumber).datagrid('gotoPage', {#}
+{#                    page: pageNumber, callback: function (page) {#}
+{#                        var rows = $('#workGrid' + boxNumber).datagrid('getRows');#}
+{#                        var i = 0;#}
+{#                        var n = rows.length;#}
+{#                        for (; i < n; ++i) {#}
+{#                            if (rows[i].serialNumber == serialNumber) {#}
+{#                                break;#}
+{#                            }#}
+{#                        }#}
+{#                        var rowIdx = $('#workGrid' + boxNumber).datagrid('getRowIndex', rows[i]);#}
+{#                        //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
+{#                        $('#workGrid' + boxNumber).datagrid('selectRow', rowIdx);#}
+{##}
+{#                        dbClickRow(rowIdx, rows[i]);#}
+{##}
+{#                        $('#serialNumber').textbox('setValue', '');#}
+{#                        //$('#serialNumber').focus();#}
+{#                    }#}
+{#                });#}
+{#            }#}
+{#        });#}
     </script>
 
     <script type="text/javascript">
@@ -403,28 +403,28 @@
 							fit: true,"/>
                 </td>
             </tr>
-            <tr >
-{#                <th>箱号</th>#}
-{#                <td ><input id="createBox-boxNumber" name="boxNumber" class="easyui-numberbox"#}
-{#                                       data-options="min:0, fit: true"/></td>#}
+            <tr>
+                {#                <th>箱号</th>#}
+                {#                <td ><input id="createBox-boxNumber" name="boxNumber" class="easyui-numberbox"#}
+                {#                                       data-options="min:0, fit: true"/></td>#}
                 <th>毛重</th>
                 <td><input id="createBox-grossWeight" name="grossWeight" class="easyui-numberbox"
-                     data-options="min:0, fit: true"/></td>
+                           data-options="min:0, fit: true"/></td>
                 <th>件数</th>
                 <td><input id="createBox-amount" name="amount" class="easyui-numberbox"
                            data-options="min:0, fit: true"/></td>
             </tr>
-{#            <tr>#}
-{#                <th>包容量</th>#}
-{#                <td><input id="createBox-packageCapacity" name="packageCapacity" class="easyui-numberbox"#}
-{#                           data-options="min:0, fit: true"/></td>#}
-{#            </tr>#}
-{#                <th>件数</th>#}
-{#                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"#}
-{#                           data-options="min:0, fit: true"/></td>#}
-{#                <th>起始序号</th>#}
-{#                <td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox"#}
-{#                           data-options="min:0, fit: true"/></td>#}
+            {#            <tr>#}
+            {#                <th>包容量</th>#}
+            {#                <td><input id="createBox-packageCapacity" name="packageCapacity" class="easyui-numberbox"#}
+            {#                           data-options="min:0, fit: true"/></td>#}
+            {#            </tr>#}
+            {#                <th>件数</th>#}
+            {#                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"#}
+            {#                           data-options="min:0, fit: true"/></td>#}
+            {#                <th>起始序号</th>#}
+            {#                <td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox"#}
+            {#                           data-options="min:0, fit: true"/></td>#}
         </table>
     </form>
 </div>
@@ -520,7 +520,8 @@
             <tr>
                 <td colspan="2"><input id="reportBox-selectedThing" name="selectedThing"/></td>
             </tr>
-        </table>u
+        </table>
+        u
     </form>
 </div>
 <div id="reportBoxDlgButtons">
@@ -553,7 +554,7 @@
 <!-- 封箱入库-管理员验证 -->
 <div id="putBoxValidateDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
      data-options="closed:true, buttons:'#putBoxValidateDlgButtons', modal:true">
-    <form id="putBoxValidateForm" method="POST" novalidate  style="width: 260px;margin: auto">
+    <form id="putBoxValidateForm" method="POST" novalidate style="width: 260px;margin: auto">
         <input type="hidden" id="putBoxValidate-boxNumber"/>
         <table width="260px">
             <tr>
@@ -575,11 +576,10 @@
 </div>
 
 
-
 <!-- 作业管理-打印标签 -->
 <div id="jobManagementLabelling" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
      data-options="closed:true, buttons:'#jobManagementLabellingButtons', modal:true">
-    <form id="jobManagementLabellingForm" method="POST" novalidate  style="width: 260px;margin: auto">
+    <form id="jobManagementLabellingForm" method="POST" novalidate style="width: 260px;margin: auto">
         <input type="hidden" id="jobManagementLabelling-boxNumber"/>
         <table width="260px">
             <tr>
@@ -594,7 +594,8 @@
     </form>
 </div>
 <div id="jobManagementLabellingButtons">
-    <a href="javascript:void(0)" id="jobManagementLabellingButtonSave" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
+    <a href="javascript:void(0)" id="jobManagementLabellingButtonSave" class="easyui-linkbutton c6 ly_doputBoxValidate"
+       iconCls="icon-ok"
        onclick="jobManagementLabelling" style="width:90px">确定</a>
     <a href="javascript:void(0)" id="jobManagementLabellingCancel" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#jobManagementLabelling').dialog('close')" style="width:90px">取消</a>
@@ -604,7 +605,7 @@
 <!-- 打印清单-管理员认真 -->
 <div id="printTheList" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
      data-options="closed:true, buttons:'#printTheListButtons', modal:true">
-    <form id="printTheListForm" method="POST" novalidate  style="width: 260px;margin: auto">
+    <form id="printTheListForm" method="POST" novalidate style="width: 260px;margin: auto">
         <input type="hidden" id="printTheList-boxNumber"/>
         <table width="260px">
             <tr>
@@ -620,7 +621,7 @@
 </div>
 <div id="printTheListButtons">
     <a href="javascript:void(0)" id="printSave" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
-        style="width:90px" onclick="clickPrints()">确定</a>
+       style="width:90px" onclick="clickPrints()">确定</a>
     <a href="javascript:void(0)" id="printCancel" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#printTheList').dialog('close')" style="width:90px">取消</a>
 </div>
@@ -739,8 +740,8 @@
 <div id="sealingBagDlg" class="easyui-dialog" style="width:600px;height:500px;padding:10px 20px"
      data-options="closed:true, buttons:'#sealingBagDlgDlgButtons', modal:true">
     <div class="FormTitle">作业信息</div>
-    <form id="sealingBagDlgForm" method="POST" novalidate>
-        <input type="text" id="sealingBagDlg-qrCode" placeholder="请扫描二维码信息" style="margin-bottom: 20px;outline: none;border-radius: 5px;border-color:#E0ECFF"/>
+    <input id="sealingBagDlg-qrCode"  onkeypress="sealingBagDlgKey()"  style="height: 28px;outline: none;border-color:#95B8E7;border-radius: 7px" placeholder="请使用扫描枪扫描二维码" />
+    <form id="sealingBagDlgForm" method="POST" novalidate style="margin-top: 20px;">
         <table width="545px">
             <tr height="300px">
                 <td colspan="2">
@@ -754,7 +755,7 @@
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick=""
        style="width:90px">创建</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
-       onclick="javascript:$('#createWorkDlg').dialog('close')" style="width:90px">取消</a>
+       onclick="javascript:$('#sealingBagDlg').dialog('close')" style="width:90px">取消</a>
 </div>
 <div id="sealingBag-thingsGrid-ToolBar" style="padding:5px 0;display:none;">
     <label for="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>
@@ -834,7 +835,7 @@
 </div>
 <div id="quickMarkButtons">
     <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6 ly_dooutBoxValidate" iconCls="icon-ok"
-        style="width:90px" onclick="outBoxValidate()">确定</a>
+       style="width:90px" onclick="outBoxValidate()">确定</a>
 
     <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#quickMarkDlg').dialog('close')" style="width:90px">取消</a>
