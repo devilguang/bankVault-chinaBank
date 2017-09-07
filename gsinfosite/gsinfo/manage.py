@@ -1740,7 +1740,7 @@ def getCloseOverThing(request):
         box = gsBox.objects.get(boxNumber=boxNumber)
         works = gsWork.objects.filter(box=box)
         thing_set = gsThing.objects.filter(work__in=works)
-        things =gsStatus.objects.filter(thing__in=thing_set, status=1, close_status=1)
+        things =gsStatus.objects.filter(thing__in=thing_set, status=1, close_status=1,incase_status=0)
         n = things.count()
         start = (page - 1) * pageSize
         end = n if (page * pageSize > n) else page * pageSize
@@ -1779,8 +1779,44 @@ def getCaseNumber(request):
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 
-def generateCaseTicket(request):
-    pass
+
+def confirmInputCase(request):
+    boxNumber = request.POST.get('boxNumber', '')
+    caseNumber = request.POST.get('caseNumber', '')
+    serialNumber2= request.POST.get('serialNumber2', '')
+    serialNumber2_list = serialNumber2.split(';')[0:-1]
+    try:
+        case = gsCase.objects.create(caseNumber=caseNumber,status=0)
+        thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list)
+        thing_set.update(case=case)
+        gsStatus.objects.filter(thing__in=thing_set).update(incase_status=1)
+
+        createCaseTicket(boxNumber=boxNumber,
+                         caseNumber=caseNumber,
+                         serialNumber2_list=serialNumber2_list)
+
+    except Exception as e:
+        ret = {
+            'success': False
+        }
+    else:
+        ret = {
+            'success':True
+        }
+    ret_json = json.dumps(ret)
+    return HttpResponse(ret_json)
+
+
+
+#
+#
+#
+# def generateCaseTicket(request):
+#
+#     caseNumber = request.POST.get('caseNumber', '')
+#
+#
+#
 
 
 
