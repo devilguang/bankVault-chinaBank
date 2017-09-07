@@ -25,82 +25,82 @@
             $('#serialNumber').focus();
         });
 
-{#        $(document).keydown(function (event) {#}
-{#            var keyCode = event.keyCode;#}
-{#            if (keyCode == "13") {#}
-{#                var value = $('#serialNumber').textbox('getValue');#}
-{#                // 解析条码内容#}
-{#                var idx = value.lastIndexOf('-');#}
-{#                var serialNumber = value.substring(0, idx);#}
-{#                var boxNumber = value.substring(idx + 1);#}
-{#                // 选中对应箱号#}
-{#                var node = $('#workSpaceTree').tree('find', boxNumber);#}
-{#                $('#workSpaceTree').tree('select', node.target);#}
-{#                // 选中对应实物#}
-{#                idx = serialNumber.lastIndexOf('-');#}
-{#                var seq = serialNumber.substring(idx + 1);#}
-{#                var options = $('#workGrid' + boxNumber).datagrid('options');#}
-{#                var pageNumber = Math.ceil((seq - node.attributes.startSeq + 1) / options.pageSize);#}
-{#                /*if (pageNumber != options.pageNumber){#}
-{#                 $('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){#}
-{#                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');#}
-{#                 var i = 0;#}
-{#                 var n = rows.length;#}
-{#                 for(; i<n; ++i){#}
-{#                 if (rows[i].serialNumber == serialNumber){#}
-{#                 break;#}
-{#                 }#}
-{#                 }#}
-{#                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);#}
-{#                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
-{#                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);#}
-{##}
-{#                 dbClickRow(rowIdx, rows[i]);#}
-{##}
-{#                 $('#serialNumber').textbox('setValue', '');#}
-{#                 //$('#serialNumber').focus();#}
-{#                 }});#}
-{#                 }#}
-{#                 else{#}
-{#                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');#}
-{#                 var i = 0;#}
-{#                 var n = rows.length;#}
-{#                 for(; i<n; ++i){#}
-{#                 if (rows[i].serialNumber == serialNumber){#}
-{#                 break;#}
-{#                 }#}
-{#                 }#}
-{#                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);#}
-{#                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
-{#                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);#}
-{##}
-{#                 dbClickRow(rowIdx, rows[i]);#}
-{##}
-{#                 $('#serialNumber').textbox('setValue', '');#}
-{#                 //$('#serialNumber').focus();#}
-{#                 }*/#}
-{#                $('#workGrid' + boxNumber).datagrid('gotoPage', {#}
-{#                    page: pageNumber, callback: function (page) {#}
-{#                        var rows = $('#workGrid' + boxNumber).datagrid('getRows');#}
-{#                        var i = 0;#}
-{#                        var n = rows.length;#}
-{#                        for (; i < n; ++i) {#}
-{#                            if (rows[i].serialNumber == serialNumber) {#}
-{#                                break;#}
-{#                            }#}
-{#                        }#}
-{#                        var rowIdx = $('#workGrid' + boxNumber).datagrid('getRowIndex', rows[i]);#}
-{#                        //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
-{#                        $('#workGrid' + boxNumber).datagrid('selectRow', rowIdx);#}
-{##}
-{#                        dbClickRow(rowIdx, rows[i]);#}
-{##}
-{#                        $('#serialNumber').textbox('setValue', '');#}
-{#                        //$('#serialNumber').focus();#}
-{#                    }#}
-{#                });#}
-{#            }#}
-{#        });#}
+        {#        $(document).keydown(function (event) {#}
+        {#            var keyCode = event.keyCode;#}
+        {#            if (keyCode == "13") {#}
+        {#                var value = $('#serialNumber').textbox('getValue');#}
+        {#                // 解析条码内容#}
+        {#                var idx = value.lastIndexOf('-');#}
+        {#                var serialNumber = value.substring(0, idx);#}
+        {#                var boxNumber = value.substring(idx + 1);#}
+        {#                // 选中对应箱号#}
+        {#                var node = $('#workSpaceTree').tree('find', boxNumber);#}
+        {#                $('#workSpaceTree').tree('select', node.target);#}
+        {#                // 选中对应实物#}
+        {#                idx = serialNumber.lastIndexOf('-');#}
+        {#                var seq = serialNumber.substring(idx + 1);#}
+        {#                var options = $('#workGrid' + boxNumber).datagrid('options');#}
+        {#                var pageNumber = Math.ceil((seq - node.attributes.startSeq + 1) / options.pageSize);#}
+        {#                /*if (pageNumber != options.pageNumber){#}
+        {#                 $('#workGrid'+boxNumber).datagrid('gotoPage', {page:pageNumber, callback:function(page){#}
+        {#                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');#}
+        {#                 var i = 0;#}
+        {#                 var n = rows.length;#}
+        {#                 for(; i<n; ++i){#}
+        {#                 if (rows[i].serialNumber == serialNumber){#}
+        {#                 break;#}
+        {#                 }#}
+        {#                 }#}
+        {#                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);#}
+        {#                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
+        {#                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);#}
+        {##}
+        {#                 dbClickRow(rowIdx, rows[i]);#}
+        {##}
+        {#                 $('#serialNumber').textbox('setValue', '');#}
+        {#                 //$('#serialNumber').focus();#}
+        {#                 }});#}
+        {#                 }#}
+        {#                 else{#}
+        {#                 var rows = $('#workGrid'+boxNumber).datagrid('getRows');#}
+        {#                 var i = 0;#}
+        {#                 var n = rows.length;#}
+        {#                 for(; i<n; ++i){#}
+        {#                 if (rows[i].serialNumber == serialNumber){#}
+        {#                 break;#}
+        {#                 }#}
+        {#                 }#}
+        {#                 var rowIdx = $('#workGrid'+boxNumber).datagrid('getRowIndex', rows[i]);#}
+        {#                 //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
+        {#                 $('#workGrid'+boxNumber).datagrid('selectRow', rowIdx);#}
+        {##}
+        {#                 dbClickRow(rowIdx, rows[i]);#}
+        {##}
+        {#                 $('#serialNumber').textbox('setValue', '');#}
+        {#                 //$('#serialNumber').focus();#}
+        {#                 }*/#}
+        {#                $('#workGrid' + boxNumber).datagrid('gotoPage', {#}
+        {#                    page: pageNumber, callback: function (page) {#}
+        {#                        var rows = $('#workGrid' + boxNumber).datagrid('getRows');#}
+        {#                        var i = 0;#}
+        {#                        var n = rows.length;#}
+        {#                        for (; i < n; ++i) {#}
+        {#                            if (rows[i].serialNumber == serialNumber) {#}
+        {#                                break;#}
+        {#                            }#}
+        {#                        }#}
+        {#                        var rowIdx = $('#workGrid' + boxNumber).datagrid('getRowIndex', rows[i]);#}
+        {#                        //$('#workGrid'+boxNumber).datagrid('scrollTo', rowIdx);#}
+        {#                        $('#workGrid' + boxNumber).datagrid('selectRow', rowIdx);#}
+        {##}
+        {#                        dbClickRow(rowIdx, rows[i]);#}
+        {##}
+        {#                        $('#serialNumber').textbox('setValue', '');#}
+        {#                        //$('#serialNumber').focus();#}
+        {#                    }#}
+        {#                });#}
+        {#            }#}
+        {#        });#}
     </script>
 
     <script type="text/javascript">
@@ -601,7 +601,6 @@
        onclick="javascript:$('#jobManagementLabelling').dialog('close')" style="width:90px">取消</a>
 </div>
 
-
 <!-- 打印清单-管理员认真 -->
 <div id="printTheList" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
      data-options="closed:true, buttons:'#printTheListButtons', modal:true">
@@ -740,7 +739,8 @@
 <div id="sealingBagDlg" class="easyui-dialog" style="width:600px;height:500px;padding:10px 20px"
      data-options="closed:true, buttons:'#sealingBagDlgDlgButtons', modal:true">
     <div class="FormTitle">作业信息</div>
-    <input id="sealingBagDlg-qrCode"  onkeypress="sealingBagDlgKey()"  style="height: 28px;outline: none;border-color:#95B8E7;border-radius: 7px" placeholder="请使用扫描枪扫描二维码" />
+    <input id="sealingBagDlg-qrCode" onkeypress="sealingBagDlgKey()"
+           style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px" placeholder="请使用扫描枪扫描二维码"/>
     <form id="sealingBagDlgForm" method="POST" novalidate style="margin-top: 20px;">
         <table width="545px">
             <tr height="300px">
@@ -751,15 +751,57 @@
         </table>
     </form>
 </div>
-<div id="sealingBagDlgDlgButtons">
-    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick=""
+{#<div id="sealingBagDlgDlgButtons">#}
+{#    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick=""#}
+{#       style="width:90px">创建</a>#}
+{#    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"#}
+{#       onclick="javascript:$('#sealingBagDlg').dialog('close')" style="width:90px">取消</a>#}
+{#</div>#}
+{#<div id="sealingBag-thingsGrid-ToolBar" style="padding:5px 0;display:none;">#}
+{#    <label for="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>#}
+{#    <input id="sealingBag-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>#}
+{#</div>#}
+
+{#添加盒的对话框#}
+<div id="addJobBoxDlg" class="easyui-dialog" style="width:700px;height:550px;padding:10px 20px"
+     data-options="closed:true, buttons:'#addJobBoxDlgButtons', modal:true">
+    <div class="FormTitle">作业信息</div>
+    <div style="display: flex;justify-content: space-between">
+        <div id="addJobBoxDlgwrap" style="width:49%">
+            <form id="addJobBoxDlgLeftForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
+                <input id="addJobBoxDlg-qrCode" onkeypress=""
+                       style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px;"
+                       placeholder="请使用扫描枪扫描二维码"/>
+                <table style="width: 300px;margin-top: 10px">
+                    <tr height="330px;">
+                        <td colspan="2" style="width: 300px;">
+                            <table id="addJobBoxLeft-thingsGrid" style="width: 300px;"></table>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div style="width:49%">
+            <form id="addJobBoxDlgRightForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
+                <div style=""><span>盒号：</span><input type="text" id="addJobBoxDlgBoxNumber"
+                                                     style="height: 28px;border-radius: 7px;outline: none;border: 1px solid #95B8E7;">
+                </div>
+                <table style="width: 300px;margin-top: 10px">
+                    <tr height="330px;width: 300px;">
+                        <td colspan="2" style="width: 300px;">
+                            <table id="addJobBoxRight-thingsGrid" style="width: 300px;"></table>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="addJobBoxDlgButtons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok"
        style="width:90px">创建</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
-       onclick="javascript:$('#sealingBagDlg').dialog('close')" style="width:90px">取消</a>
-</div>
-<div id="sealingBag-thingsGrid-ToolBar" style="padding:5px 0;display:none;">
-    <label for="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>
-    <input id="sealingBag-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>
+       onclick="javascript:$('#addJobBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
 
 <!-- 编辑作业对话框 -->
