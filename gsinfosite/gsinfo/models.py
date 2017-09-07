@@ -305,6 +305,10 @@ class gsWork(models.Model):
     class Meta:
         ordering = ['workSeq', 'createDateTime']
 
+class gsCase(models.Model):
+    caseNumber = models.CharField(max_length=255, unique=True, null=False)  # 货发二代系统提供的盒号
+    status = models.BooleanField(default=False)  # 是否封盒: False:未完成 True:完成
+
 
 # 实物索引表
 class gsThing(models.Model):
@@ -317,13 +321,7 @@ class gsThing(models.Model):
     box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
     subBox = models.ForeignKey(gsSubBox,null=True)
     work = models.ForeignKey(gsWork,null=True)
-
-class gsCase(models.Model):
-    caseNumber = models.CharField(max_length=255,unique=True,null=False)  # 货发二代系统提供的盒号
-    status = models.BooleanField(default=False)  # 是否封盒: False:未完成 True:完成
-    box = models.ForeignKey(gsBox)  # 箱体, 参照gsBox表"id"列
-    subBox = models.ForeignKey(gsSubBox,null=True)
-    work = models.ForeignKey(gsWork)
+    case = models.ForeignKey(gsCase,null=True)
 
 # 状态表
 class gsStatus(models.Model):
@@ -357,7 +355,6 @@ class gsStatus(models.Model):
     photographingUpdateDateTime = models.DateTimeField(null=True)  # 环节4数据审核记录最近一次修改时间
 
     thing = models.ForeignKey(gsThing)
-    case = models.ForeignKey(gsCase,null=True)
 
 #
 # # 作业与实物关系表

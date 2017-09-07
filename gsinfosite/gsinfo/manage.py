@@ -1715,10 +1715,56 @@ def closeThing(request):
     img.resize((256, 256))
     # img.show()
     img.save(filePath)
-    
+
     ret = {
         'file_path':filePath
     }
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
+
+def manageCase(request):
+    boxNumber = request.POST.get('boxNumber', '')
+    # productType = request.POST.get('productType', '')
+    # className = request.POST.get('className', '')
+    # wareHouse = request.POST.get('wareHouse', '')  # 发行库
+    pageSize = int(request.POST.get('rows', ''))
+    page = int(request.POST.get('page', ''))
+    ret = {}
+    # ------------获取以封袋的实物------------
+    box = gsBox.objects.get(boxNumber=boxNumber)
+    works = gsWork.objects.filter(box=box)
+    thing_set = gsThing.objects.filter(work__in=works)
+    things =gsStatus.objects.filter(thing__in=thing_set, status=1, close_status=1)
+
+    n = things.count()
+    start = (page - 1) * pageSize
+    end = n if (page * pageSize > n) else page * pageSize
+    ret['total_left'] = n
+    ret['rows_left'] = []
+    for th in things[start:end]:
+        r = {}
+        r['serialNumber2'] = th.thing.serialNumber2
+        # subClassName_code = th.thing.subClassName
+        # subClassName_obj = gsProperty.objects.get(grandpaType=productType,parentType=className,code=subClassName_code)
+        # subClassName_type = subClassName_obj.type
+        # r['subClassName'] = subClassName_type
+        # r['productType'] = productType
+        # r['className'] = className
+        # r['wareHouse'] = wareHouse
+        ret['rows'].append(r)
+
+    # ------------请求盒号------------
+    # 请求盒号
+    caseNumber = '456' + str(shortuuid.ShortUUID().random(length=5))
+    # 数据库记录
+    gsCase.objects.create(caseNumber=caseNumber, status=0)
+    ret['caseNumber'] = caseNumber
+
+    # ------------获取已封袋要入盒的实物------------
+
+
+
+    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
+    return HttpResponse(ret_json)
+
 
