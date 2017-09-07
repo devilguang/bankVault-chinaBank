@@ -52,13 +52,13 @@ function boxManage() {
         '<div style="display:inline;margin-right:15px;">' +
         '<label for="boxSearchParameter-subClassName" style="margin-right:5px;">明细品名</label>' +
         '<input id="boxSearchParameter-subClassName" class="easyui-combobox" name="subClassName" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\',"/></div>' +
-        '</form><a href="javascript:void(0)" class="easyui-linkbutton" onclick="boxSearch()" style="width:60px;margin-right:10px;">查询</a>' +
-        '<a href="javascript:void(0)" class="easyui-linkbutton" onclick="boxSearchReset()" style="width:60px;margin-right:10px;">重置</a>' +
+        '</form><a href="javascript:void(0)" class="easyui-linkbutton" onclick="boxSearch()" style="width:45px;margin-right:10px;">查询</a>' +
+        '<a href="javascript:void(0)" class="easyui-linkbutton" onclick="boxSearchReset()" style="width:45px;margin-right:10px;">重置</a>' +
         '</div>' +
         '<div data-options="region:\'center\'">' +
         '<table id="workGridBoxManage" class="easyui-datagrid" data-options="url:\'getBox/\', queryParams: {status: 0}, toolbar:\'#workGridToolBarBoxManage\', onClickRow:ClickRow, singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th field="boxNumber" align="center" width="7%">箱号</th>' +
         '<th field="productType" align="center">实物类型</th>' +
-        '<th field="className" align="center">品名</th><th field="subClassName" align="center">明细品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+        '<th field="className" align="center">品名</th><th field="subClassName" align="center">明细品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addTheJobBox()">添加盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-box2');
     initPagination();
 }
@@ -73,14 +73,24 @@ function boxOperationFormatter(value, row, index) {
     }
 }
 function sealingBagDlgKey() {
-
     if (event.keyCode == 13) {
-        $("#sealingBagDlg-qrCode").val();
-         var row = $('#workGridBoxManage').datagrid('getSelected');
-         console.log(row)
+        var serialNumber = $("#sealingBagDlg-qrCode").val();
+        var row = $('#workGridBoxManage').datagrid('getSelected');
         $.ajax({
-            type:'post',
-            url:''
+            type: 'post',
+            url: 'closeThing/',
+            data: {
+                serialNumber: serialNumber,
+                boxNumber: row.boxNumber
+            }, success: function (data) {
+                var data = JSON.parse(data)
+                if (data.success) {
+                    var file_path = data.file_path
+                    $("#sealingBagDlgForm").datagrid('reload')
+                } else {
+                    $.messager.alert('提示', data.message)
+                }
+            }
         })
     }
 }
@@ -89,7 +99,6 @@ function sealingBag() {
     $("#sealingBagDlg").dialog('open').dialog('center').dialog('setTitle', '封袋实物');
     $('#sealingBagDlgForm').form('clear');
     var row = $('#workGridBoxManage').datagrid('getSelected');
-
     if (row) {
         $('#sealingBag-thingsGrid').datagrid({
             url: 'getCloseThing/',
@@ -113,55 +122,6 @@ function sealingBag() {
             pageSize: 20,
             fitColumns: true,
             rownumbers: true,
-            // toolbar: '#sealingBag-thingsGrid-ToolBar',
-            onCheck: function (index, row) {
-                var content = $('#createWork-selectedThing').textbox('getValue');
-                var reg = new RegExp(row.serialNumber + ';', 'g');
-                if (!reg.test(content)) {
-                    content = content + row.serialNumber + ';';
-                    $('#createWork-selectedThing').textbox('setValue', content);
-                    var n = Number($('#createWork-selectedThingCount').text()) + 1;
-                    $('#createWork-selectedThingCount').text(n);
-                }
-            },
-            onUncheck: function (index, row) {
-                var content = $('#createWork-selectedThing').textbox('getValue');
-                var target = row.serialNumber + ';';
-                var reg = new RegExp(target, 'g');
-                content = content.replace(reg, '');
-                $('#createWork-selectedThing').textbox('setValue', content);
-                var n = Number($('#createWork-selectedThingCount').text()) - 1;
-                $('#createWork-selectedThingCount').text(n);
-            },
-            onCheckAll: function (rows) {
-                var content = $('#createWork-selectedThing').textbox('getValue');
-
-                var n = Number($('#createWork-selectedThingCount').text());
-                for (var r in rows) {
-                    var reg = new RegExp(rows[r].serialNumber + ';', 'g');
-                    if (!reg.test(content)) {
-                        content = content + rows[r].serialNumber + ';';
-                        n = n + 1;
-                    }
-                }
-                $('#createWork-selectedThingCount').text(n);
-
-                $('#createWork-selectedThing').textbox('setValue', content);
-            },
-            onUncheckAll: function (rows) {
-                var content = $('#createWork-selectedThing').textbox('getValue');
-
-                var n = Number($('#createWork-selectedThingCount').text());
-                for (var r in rows) {
-                    var reg = new RegExp(rows[r].serialNumber + ';', 'g');
-                    if (reg.test(content)) {
-                        content = content.replace(reg, '');
-                        n = n - 1;
-                    }
-                }
-                $('#createWork-selectedThingCount').text(n);
-                $('#createWork-selectedThing').textbox('setValue', content);
-            },
         }).datagrid('getPager').pagination({
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
@@ -174,6 +134,51 @@ function sealingBag() {
         });
     }
 }
+
+//点击添加盒的方法
+function addTheJobBox() {
+    $("#addJobBoxDlg").dialog('open').dialog('center').dialog('setTitle', '添加盒');
+    $('#addJobBoxDlgLeftForm').form('clear');
+    $('#addJobBoxDlgRightForm').form('clear');
+    var row = $('#workGridBoxManage').datagrid('getSelected');
+    $("#addJobBoxLeft-thingsGrid").datagrid({
+        url: '',
+        queryParams: {},
+        columns: [[
+            {field: 'serialNumber', title: '实物编号', align: 'center'},
+        ]],
+        pagination: true,
+        fit: true,
+        pageSize: 20,
+        fitColumns: true,
+        rownumbers: true,
+    }).datagrid('getPager').pagination({
+        layout: ['prev', 'sep', 'links', 'sep', 'next'],
+        displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
+    });
+
+    $("#addJobBoxRight-thingsGrid").datagrid({
+        url: '',
+        queryParams: {},
+        columns: [[
+            {field: 'serialNumber', title: '实物编号', align: 'center'},
+        ]],
+        pagination: true,
+        fit: true,
+        pageSize: 20,
+        fitColumns: true,
+        rownumbers: true,
+    }).datagrid('getPager').pagination({
+        layout: ['prev', 'sep', 'links', 'sep', 'next'],
+        displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
+    });
+    $("#addJobBoxDlgLeftForm").children().find(".panel").css("width", "300px");
+    $("#addJobBoxDlgLeftForm").children().find(".datagrid-wrap").css("width", "300px");
+    $("#addJobBoxDlgRightForm").children().find(".panel").css("width", "300px");
+    $("#addJobBoxDlgRightForm").children().find(".datagrid-wrap").css("width", "300px");
+}
+
+
 //点击新建的方法
 function openCreateBoxDlg() {
     $('#createBoxDlg').dialog('open').dialog('center').dialog('setTitle', '新建实物');
@@ -839,10 +844,8 @@ function boxSearch() {
 
     if (productType == '' && className == '' && subClassName == '') {
         $.messager.alert('提示', '请至少选择一项查询条件!');
-
         return;
     }
-
     $('#workGridBoxManage').datagrid({
         queryParams: {
             productType: productType,
@@ -1414,7 +1417,7 @@ function thingOperationFormatter(value, row, index) {
 
 function workManage() {
     var title = '作业管理';
-    var c = '<div class="easyui-layout" data-options="fit: true"><div data-options="region:\'north\'" height="10%"><form id="workSearchParameter" style="display:inline-block;margin-top:12px;"><div style="display:inline;margin-left:10px;margin-right:15px;"><label for="workSearchParameterproductType" style="margin-right:5px">实物类型</label><input id="workSearchParameterproductType" class="easyui-combobox" name="productType" data-options="valueField: \'id\', textField: \'text\', url: \'getProductType/\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var url = \'getClassName/\'+rec.id; $(\'#workSearchParameterclassName\').combobox(\'reload\', url); $(\'#workSearchParameterclassName\').combobox(\'clear\'); $(\'#workSearchParametersubClassName\').combobox(\'clear\');},"/></div><div style="display:inline;margin-right:15px;"><label for="workSearchParameterclassName" style="margin-right:5px;">品名</label><input id="workSearchParameterclassName" class="easyui-combobox" name="className" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var typeCode = $(\'#workSearchParameterproductType\').combobox(\'getValue\'); var url = \'getSubClassName/\'+typeCode+\'&\'+rec.id; $(\'#workSearchParametersubClassName\').combobox(\'reload\', url);},"/></div><div style="display:inline;margin-right:15px;"><label for="workSearchParametersubClassName" style="margin-right:5px;">明细品名</label><input id="workSearchParametersubClassName" class="easyui-combobox" name="subClassName" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\',"/></div></form><a href="javascript:void(0)" class="easyui-linkbutton" onclick="workSearch()" style="width:60px;margin-right:10px;">查询</a><a href="javascript:void(0)" class="easyui-linkbutton" onclick="workSearchReset()" style="width:60px;margin-right:10px;">重置</a></div><div data-options="region:\'center\'"><table id="workGridWorkManage" class="easyui-datagrid" data-options="url:\'getWork/\', queryParams: {status: 0}, toolbar: \'#workGridToolBarWorkManage\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20,"><thead><tr><th field="workName" align="center">作业名称</th><th field="amount" align="center" >件数</th><th field="createDateTime" align="center" formatter="dateTimeFormatter">创建时间</th><th field="completePercent" align="center" formatter="completePercentFormatter">进度</th><th field="completeDateTime" align="center" formatter="dateTimeFormatter">完成时间</th><th field="operation" formatter="workOperationFormatter" align="center">操作</th></tr></thead></table></div></div><div id="workGridToolBarWorkManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridWorkManage\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function initPagination(){$(\'#workGridWorkManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+    var c = '<div class="easyui-layout" data-options="fit: true"><div data-options="region:\'north\'" height="10%"><form id="workSearchParameter" style="display:inline-block;margin-top:12px;"><div style="display:inline;margin-left:10px;margin-right:15px;"><label for="workSearchParameterproductType" style="margin-right:5px">实物类型</label><input id="workSearchParameterproductType" class="easyui-combobox" name="productType" data-options="valueField: \'id\', textField: \'text\', url: \'getProductType/\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var url = \'getClassName/\'+rec.id; $(\'#workSearchParameterclassName\').combobox(\'reload\', url); $(\'#workSearchParameterclassName\').combobox(\'clear\'); $(\'#workSearchParametersubClassName\').combobox(\'clear\');},"/></div><div style="display:inline;margin-right:15px;"><label for="workSearchParameterclassName" style="margin-right:5px;">品名</label><input id="workSearchParameterclassName" class="easyui-combobox" name="className" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var typeCode = $(\'#workSearchParameterproductType\').combobox(\'getValue\'); var url = \'getSubClassName/\'+typeCode+\'&\'+rec.id; $(\'#workSearchParametersubClassName\').combobox(\'reload\', url);},"/></div><div style="display:inline;margin-right:15px;"><label for="workSearchParametersubClassName" style="margin-right:5px;">明细品名</label><input id="workSearchParametersubClassName" class="easyui-combobox" name="subClassName" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\',"/></div></form><a href="javascript:void(0)" class="easyui-linkbutton" onclick="workSearch()" style="width:45px;margin-right:10px;">查询</a><a href="javascript:void(0)" class="easyui-linkbutton" onclick="workSearchReset()" style="width:45px;margin-right:10px;">重置</a></div><div data-options="region:\'center\'"><table id="workGridWorkManage" class="easyui-datagrid" data-options="url:\'getWork/\', queryParams: {status: 0}, toolbar: \'#workGridToolBarWorkManage\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20,"><thead><tr><th field="workName" align="center">作业名称</th><th field="amount" align="center" >件数</th><th field="createDateTime" align="center" formatter="dateTimeFormatter">创建时间</th><th field="completePercent" align="center" formatter="completePercentFormatter">进度</th><th field="completeDateTime" align="center" formatter="dateTimeFormatter">完成时间</th><th field="operation" formatter="workOperationFormatter" align="center">操作</th></tr></thead></table></div></div><div id="workGridToolBarWorkManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridWorkManage\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function initPagination(){$(\'#workGridWorkManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-work');
     initPagination();
 }
@@ -1944,7 +1947,6 @@ function archivedBoxSearchReset() {
     initPagination();								// 设定翻页插件
     $('#workGridArchivedBoxManage').datagrid('reload');		// 重载数据
 }
-
 
 function userManage() {
     var title = '用户管理';
