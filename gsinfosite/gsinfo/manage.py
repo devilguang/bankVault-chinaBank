@@ -66,10 +66,10 @@ def createBox(request):
 
         img = qrcode.make(data=serialNumber)
         pic_name = serialNumber + '.png'
-        box_dir = os.path.join(settings.TAG_DATA_PATH, str(boxNumber))
+        box_dir = os.path.join(settings.TAG_DATA_PATH,'serialNumber',str(boxNumber))
         if not os.path.exists(box_dir):
-            os.makedirs(box_dir)
-        filePath = os.path.join(settings.TAG_DATA_PATH,str(boxNumber),pic_name)
+            os.makedirs(box_dir)  # mkdir
+        filePath = os.path.join(box_dir,pic_name)
         img.resize((256, 256))
         # img.show()
         img.save(filePath)
@@ -1655,7 +1655,9 @@ def print_auth(request):
 
 def getCloseThing(request):
     boxNumber = request.POST.get('boxNumber', '')
-    # productType = request.POST.get('productType', '')
+    productType = request.POST.get('productType', '')
+    className = request.POST.get('className', '')
+    wareHouse = request.POST.get('wareHouse', '')  # 发行库
     pageSize = int(request.POST.get('rows', ''))
     page = int(request.POST.get('page', ''))
 
@@ -1679,8 +1681,13 @@ def getCloseThing(request):
     for th in things[start:end]:
         r = {}
         r['serialNumber'] = th.thing.serialNumber
-        r['subClassName'] = th.thing.subClassName
-        # r['productType'] = productType
+        subClassName_code = th.thing.subClassName
+        subClassName_obj = gsProperty.objects.get(grandpaType=productType,parentType=className,code=subClassName_code)
+        subClassName_type = subClassName_obj.type
+        r['subClassName'] = subClassName_type
+        r['productType'] = productType
+        r['className'] = className
+        r['wareHouse'] = wareHouse
         ret['rows'].append(r)
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
@@ -1690,14 +1697,28 @@ def getCloseThing(request):
 def closeThing(request):
     serialNumber = request.POST.get('serialNumber', '')
     # productType = request.POST.get('productType', '')
+    boxNumber = request.POST.get('boxNumber', '')
 
     thing = gsThing.objects.get(serialNumber=serialNumber)
-    status_thing = gsStatus.objects.filter(thing=thing, status=1)
-    status_thing.close_status = True
+    gsStatus.objects.filter(thing=thing, status=1).update(close_status=True)
 
     # 请求获取实物编号及编号二维码
     serialNumber2 = '123' + str(shortuuid.ShortUUID().random(length=5))
-    thing.serialNumber2 = serialNumber2
+    gsThing.objects.filter(serialNumber=serialNumber).update(serialNumber2=serialNumber2)
 
-
+    img = qrcode.make(data=serialNumber2)
+    pic_name = serialNumber + '.png'
+    box_dir = os.path.join(settings.TAG_DATA_PATH, 'serialNumber2', str(boxNumber))
+    if not os.path.exists(box_dir):
+        os.makedirs(box_dir)
+    filePath = os.path.join(box_dir,pic_name)
+    img.resize((256, 256))
+    # img.show()
+    img.save(filePath)
+    
+    ret = {
+        'file_path':filePath
+    }
+    ret_json = json.dumps(ret)
+    return HttpResponse(ret_json)
 
