@@ -389,43 +389,6 @@ class gsDing(models.Model):
     grossWeight = models.FloatField(null=True)  # 毛重
 
     pureWeight = models.FloatField(null=True)  # 净重
-
-    # # -----------------------------------------------------------
-    # measureTime = models.TimeField(null=True)  # 测量时间
-    # measureDate = models.DateField(null=True)  # 测量日期
-    # Au = models.CharField(max_length=255, null=True)  # 金
-    # Ag = models.CharField(max_length=255, null=True)  # 银
-    # Cu = models.CharField(max_length=255, null=True)  # 铜
-    # Pt = models.CharField(max_length=255, null=True)  # 铂
-    # Pd = models.CharField(max_length=255, null=True)  # 钯
-    # Zn = models.CharField(max_length=255, null=True)  # 锌
-    # Ni = models.CharField(max_length=255, null=True)  # 镍
-    # Cd = models.CharField(max_length=255, null=True)  # 镉
-    # Co = models.CharField(max_length=255, null=True)  # 钴
-    # Ru = models.CharField(max_length=255, null=True)  # 钌
-    # Ir = models.CharField(max_length=255, null=True)  # 铱
-    # Rh = models.CharField(max_length=255, null=True)  # 铑
-    # In = models.CharField(max_length=255, null=True)  # 铟
-    # Pb = models.CharField(max_length=255, null=True)  # 铅
-    # Fe = models.CharField(max_length=255, null=True)  # 铁
-    # Os = models.CharField(max_length=255, null=True)  # 锇
-    # W = models.CharField(max_length=255, null=True)  # 钨
-    # Others = models.CharField(max_length=255, null=True)  # 其他
-    # testUnit = models.CharField(max_length=255, null=True)  # 送检单位
-    # testPerson = models.CharField(max_length=255, null=True)  # 检测人员
-    # # 序号
-    # # 生产厂家
-    # # 样品编号
-    # sampleName = models.CharField(max_length=255, null=True)  # 样品名称
-    # # 重量
-    # reportQuality = models.CharField(max_length=255, null=True)  # 申报成色
-    # testResult = models.CharField(max_length=255, null=True)  # 检测结果
-    # remarks = models.CharField(max_length=255, null=True)  # 备注
-    # # 检测依据
-    # # 检测单位地址
-    # # 联系电话
-    # # 检测单位
-    # testRequire = models.CharField(max_length=255, null=True)  # 测试要求
     # # -----------------------------------------------------------
 
 

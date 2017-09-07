@@ -1698,31 +1698,37 @@ def closeThing(request):
     serialNumber = request.POST.get('serialNumber', '')
     # productType = request.POST.get('productType', '')
     boxNumber = request.POST.get('boxNumber', '')
+    try:
+        thing = gsThing.objects.get(serialNumber=serialNumber)
+        gsStatus.objects.filter(thing=thing, status=1).update(close_status=True)
 
-    thing = gsThing.objects.get(serialNumber=serialNumber)
-    gsStatus.objects.filter(thing=thing, status=1).update(close_status=True)
+        # 请求获取实物编号及编号二维码
+        serialNumber2 = '123' + str(shortuuid.ShortUUID().random(length=5))
+        gsThing.objects.filter(serialNumber=serialNumber).update(serialNumber2=serialNumber2)
 
-    # 请求获取实物编号及编号二维码
-    serialNumber2 = '123' + str(shortuuid.ShortUUID().random(length=5))
-    gsThing.objects.filter(serialNumber=serialNumber).update(serialNumber2=serialNumber2)
+        img = qrcode.make(data=serialNumber2)
+        pic_name = serialNumber + '.png'
+        box_dir = os.path.join(settings.TAG_DATA_PATH, 'serialNumber2', str(boxNumber))
+        if not os.path.exists(box_dir):
+            os.makedirs(box_dir)
+        filePath = os.path.join(box_dir,pic_name)
+        img.resize((256, 256))
+        # img.show()
+        img.save(filePath)
 
-    img = qrcode.make(data=serialNumber2)
-    pic_name = serialNumber + '.png'
-    box_dir = os.path.join(settings.TAG_DATA_PATH, 'serialNumber2', str(boxNumber))
-    if not os.path.exists(box_dir):
-        os.makedirs(box_dir)
-    filePath = os.path.join(box_dir,pic_name)
-    img.resize((256, 256))
-    # img.show()
-    img.save(filePath)
-
-    ret = {
-        'file_path':filePath
-    }
+        ret = {
+            'success': True,
+            'file_path':filePath
+        }
+    except Exception as e:
+        ret = {
+            'success': False,
+            'message': u'请求实物编号失败！'
+        }
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 
-def manageCase(request):
+def getCloseOverThing(request):
     boxNumber = request.POST.get('boxNumber', '')
     # productType = request.POST.get('productType', '')
     # className = request.POST.get('className', '')
@@ -1730,41 +1736,67 @@ def manageCase(request):
     pageSize = int(request.POST.get('rows', ''))
     page = int(request.POST.get('page', ''))
     ret = {}
-    # ------------获取以封袋的实物------------
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    works = gsWork.objects.filter(box=box)
-    thing_set = gsThing.objects.filter(work__in=works)
-    things =gsStatus.objects.filter(thing__in=thing_set, status=1, close_status=1)
-
-    n = things.count()
-    start = (page - 1) * pageSize
-    end = n if (page * pageSize > n) else page * pageSize
-    ret['total_left'] = n
-    ret['rows_left'] = []
-    for th in things[start:end]:
-        r = {}
-        r['serialNumber2'] = th.thing.serialNumber2
-        # subClassName_code = th.thing.subClassName
-        # subClassName_obj = gsProperty.objects.get(grandpaType=productType,parentType=className,code=subClassName_code)
-        # subClassName_type = subClassName_obj.type
-        # r['subClassName'] = subClassName_type
-        # r['productType'] = productType
-        # r['className'] = className
-        # r['wareHouse'] = wareHouse
-        ret['rows'].append(r)
-
-    # ------------请求盒号------------
-    # 请求盒号
-    caseNumber = '456' + str(shortuuid.ShortUUID().random(length=5))
-    # 数据库记录
-    gsCase.objects.create(caseNumber=caseNumber, status=0)
-    ret['caseNumber'] = caseNumber
-
-    # ------------获取已封袋要入盒的实物------------
-
-
+    try:
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        works = gsWork.objects.filter(box=box)
+        thing_set = gsThing.objects.filter(work__in=works)
+        things =gsStatus.objects.filter(thing__in=thing_set, status=1, close_status=1)
+        n = things.count()
+        start = (page - 1) * pageSize
+        end = n if (page * pageSize > n) else page * pageSize
+        ret['total'] = n
+        ret['rows'] = []
+        for th in things[start:end]:
+            r = {}
+            r['serialNumber2'] = th.thing.serialNumber2
+            # subClassName_code = th.thing.subClassName
+            # subClassName_obj = gsProperty.objects.get(grandpaType=productType,parentType=className,code=subClassName_code)
+            # subClassName_type = subClassName_obj.type
+            # r['subClassName'] = subClassName_type
+            # r['productType'] = productType
+            # r['className'] = className
+            # r['wareHouse'] = wareHouse
+            ret['rows'].append(r)
+    except Exception as e:
+        ret['success'] = False
+        ret['message'] = u'获取数据失败！'
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
+
     return HttpResponse(ret_json)
+
+def getCaseNumber(request):
+    # serialNumber2 = request.POST.get('serialNumber2', '')
+
+    # 请求盒号及盒号二维码
+    caseNumber = '456' + str(shortuuid.ShortUUID().random(length=5))
+    # 数据库记录
+    # gsCase.objects.create(caseNumber=caseNumber,status=0)
+
+    ret = {
+        'caseNumber':caseNumber
+    }
+    ret_json = json.dumps(ret)
+    return HttpResponse(ret_json)
+
+def generateCaseTicket(request):
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
