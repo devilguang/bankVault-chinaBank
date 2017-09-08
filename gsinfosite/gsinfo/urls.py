@@ -103,6 +103,12 @@ urlpatterns = [
     url(r'^manage/print_auth/$', manage.print_auth, name='print_auth'),
     url(r'^manage/getCloseThing/$', manage.getCloseThing, name='getCloseThing'),
     url(r'^manage/closeThing/$', manage.closeThing, name='closeThing'),
+    url(r'^manage/getCloseOverThing/$', manage.getCloseOverThing, name='getCloseOverThing'),
+    url(r'^manage/getCaseNumber/$', manage.getCaseNumber, name='getCaseNumber'),
+    url(r'^manage/confirmInputCase/$', manage.confirmInputCase, name='confirmInputCase'),
+
+    url(r'^manage/text/$', manage.text, name='text'),
+
 
     url(r'^checking/$', checking.checking, name='checking'),
     url(r'^checking/getProductType/$', views.getProductType, name='getProductType'),

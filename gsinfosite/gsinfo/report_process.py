@@ -1427,6 +1427,173 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
     wb.save(boxInfoFilePath)
     return boxInfoFileName
 
+'''
+>>> import openpyxl
+>>> wb = openpyxl.Workbook()
+>>> sheet = wb.active
+>>> sheet['A1'] = 'Tall row'
+>>> sheet['B2'] = 'Wide column'
+>>> sheet.row_dimensions[1].height = 70
+>>> sheet.column_dimensions['B'].width = 20
+>>> wb.save('dimensions.xlsx')
+'''
+# --------------------------------------装盒票--------------------------------------
+def createCaseTicket(**kwargs):
+    boxNumber = kwargs['boxNumber']
+    caseNumber = kwargs['caseNumber']
+    serialNumber2_list = kwargs['serialNumber2_list']
+
+    box = gsBox.objects.get(boxNumber=boxNumber)
+    case = gsCase.objects.get(caseNumber=caseNumber)
+    thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list,case=case)
+    global boxDir
+    boxDir = os.path.join(boxRootDir, str(boxNumber))
+    if not os.path.exists(boxDir):
+        os.mkdir(boxDir)  # 转移至创建作业时, 生成相应的目录
+
+    # 实线边框样式
+    border = Border(left=Side(border_style='thin', color='FF000000'),
+                    right=Side(border_style='thin', color='FF000000'),
+                    top=Side(border_style='thin', color='FF000000'),
+                    bottom=Side(border_style='thin', color='FF000000'),
+                    outline=Side(border_style='thin', color='FF000000'),
+                    vertical=Side(border_style='thin', color='FF000000'),
+                    horizontal=Side(border_style='thin', color='FF000000')
+                    )
+
+    box = gsBox.objects.get(boxNumber=boxNumber)
+    productTypeCode = box.productType
+    productType = gsProperty.objects.get(project='实物类型', code=productTypeCode).type
+    classNameCode = box.className
+    className = gsProperty.objects.get(project='品名',code=classNameCode,parentProject='实物类型',parentType=productType).type
+
+    table = load_workbook(os.path.join(templateRootDir, u'装盒票.xlsx'))
+    sheet = table.worksheets[0]
+    h1 = sheet.row_dimensions[1].height
+    h2 = sheet.row_dimensions[2].height
+    h3 = sheet.row_dimensions[3].height
+    h4 = sheet.row_dimensions[4].height
+    unit = sheet.row_dimensions[5].height
+    h_last = sheet.row_dimensions[16].height
+    h = h1 + h2 + h3 + h4+h_last
+    standard_h = h + 11 * unit  # 10个+1个小计
+    real_h = h
+    name_count=1
+    row_count=1
+    caseTicketPath_list = []
+
+    if productType == u'金银锭类':
+        things = gsDing.objects.filter(thing__in=thing_set)
+    elif productType == u'金银币章类':
+        things = gsBiZhang.objects.filter(thing__in=thing_set)
+    for i,th in enumerate(things):
+        # font = Font(name=u'仿宋', size=9)
+        # alignment = Alignment(horizontal='center', vertical='center')
+        # 写表头
+        sheet['A{0}'.format(2)] = u'箱号:' + str(boxNumber)
+        date = datetime.datetime.now()
+        year = date.year
+        month = date.month
+        day = date.day
+        sheet['P{0}'.format(2)] = u'{0}年{1}月{2}日'.format(year, month, day)
+
+        rowStartIdx = 5
+        # 写表
+        # 序号
+        sheet.cell(row=rowStartIdx, column=1).value = i +1
+        # 品名
+        sheet.cell(row=rowStartIdx, column=2).value = className
+        # 明细品名
+        sheet.cell(row=rowStartIdx, column=3).value = th.thing.subClassName
+        # 编号
+        sheet.cell(row=rowStartIdx, column=4).value = th.thing.serialNumber2
+        # 名称* （打*表示该属性四类共有）
+        sheet.cell(row=rowStartIdx, column=5).value = th.detailedName
+        # 型制类型
+        try:
+            sheet.cell(row=rowStartIdx, column=6).value = th.typeName
+        except:
+            sheet.cell(row=rowStartIdx, column=6).value = ''
+
+        # 时代*
+        sheet.cell(row=rowStartIdx, column=7).value = th.peroid
+        # 制作地
+        try:
+            sheet.cell(row=rowStartIdx, column=8).value = th.producePlace
+        except:
+            sheet.cell(row=rowStartIdx, column=8).value = ''
+        # 制作人
+        try:
+            sheet.cell(row=rowStartIdx, column=9).value = th.producer
+        except:
+            sheet.cell(row=rowStartIdx, column=9).value = ''
+        # 性质
+        try:
+            sheet.cell(row=rowStartIdx, column=10).value = ''
+        except:
+            sheet.cell(row=rowStartIdx, column=10).value = ''
+        # 品相*
+        sheet.cell(row=rowStartIdx, column=11).value = th.quality
+        # 币值
+        try:
+            sheet.cell(row=rowStartIdx, column=12).value = th.value
+        except:
+            sheet.cell(row=rowStartIdx, column=12).value = ''
+        # 铭文
+        try:
+            sheet.cell(row=rowStartIdx, column=13).value = th.carveName
+        except:
+            sheet.cell(row=rowStartIdx, column=13).value = ''
+        # 毛重
+        sheet.cell(row=rowStartIdx, column=14).value = th.grossWeight
+        # 原标注成色
+        sheet.cell(row=rowStartIdx, column=15).value = th.originalQuantity
+        # 检测成色
+        sheet.cell(row=rowStartIdx, column=16).value = th.detectedQuantity
+        # 净重
+        if (th.grossWeight is not None and th.detectedQuantity is not None):
+            sheet.cell(row=rowStartIdx, column=17).value = float('%0.2f' % (th.grossWeight * th.detectedQuantity / 100))
+
+        # 长度
+        try:
+            sheet.cell(row=rowStartIdx, column=18).value = th.length
+        except:
+            sheet.cell(row=rowStartIdx, column=18).value = ''
+        # 宽度
+        try:
+            sheet.cell(row=rowStartIdx, column=19).value = th.width
+        except:
+            sheet.cell(row=rowStartIdx, column=19).value = ''
+        # 高度
+        try:
+            sheet.cell(row=rowStartIdx, column=20).value = th.width
+        except:
+            sheet.cell(row=rowStartIdx, column=20).value = th.thick
+        # 直径
+        try:
+            sheet.cell(row=rowStartIdx, column=21).value = th.diameter
+        except:
+            sheet.cell(row=rowStartIdx, column=21).value = ''
+        # 评价等级
+        sheet.cell(row=rowStartIdx, column=22).value = th.level
+        # sheet.cell(row=rowStartIdx, column=22).font = font
+        # ws.cell(row=rowStartIdx, column=22).alignment = alignment
+
+        h_some = sheet.row_dimensions[rowStartIdx].height
+        real_h =  h_some +(10-row_count)*unit
+        if standard_h -h < unit:
+            caseTicketName = u'{0}-{1}.xlsx'.format(caseNumber,str(name_count))
+            caseTicketPath = os.path.join(boxDir, caseTicketName)
+            caseTicketPath_list.append()
+            table.save()
+            name_count +=1
+            rowStartIdx = 5
+            real_h = h
+        else:
+            rowStartIdx +=1
+            row_count +=1
+    return caseTicketPath_list
+
 
 def outputDing(r, s, manager, productType, className, subClassName, wareHouse, date, reportWordDir):
     wb = load_workbook(os.path.join(templateRootDir, u'金银锭类信息档案.xlsx'))

@@ -356,16 +356,6 @@ class gsStatus(models.Model):
 
     thing = models.ForeignKey(gsThing)
 
-#
-# # 作业与实物关系表
-# class gsWorkThing(models.Model):
-#     thing = models.ForeignKey(gsThing)  # 实物, 参照gsThing表"id"列
-#     work = models.ForeignKey(gsWork)  # 作业, 参照gsWork表"id"列
-#     status = models.ForeignKey(gsStatus)  # 实物对应的清点查验状态, 参照gsStatus表"id"列
-#
-#     class Meta:
-#         unique_together = (('thing', 'work'))
-
 
 # 实物属性表
 # 金银锭类    
@@ -374,23 +364,20 @@ class gsDing(models.Model):
     detailedName = models.CharField(max_length=1024, blank=True)  # 名称
     typeName = models.CharField(max_length=512, blank=True)  # 型制类型
     peroid = models.CharField(max_length=255, blank=True)  # 时代
-    producerPlace = models.CharField(max_length=512, blank=True)  # 制作地/制作人
+    # producerPlace = models.CharField(max_length=512, blank=True)  # 制作地/制作人
+    producer = models.CharField(max_length=512, blank=True)  # 制作人
+    producePlace = models.CharField(max_length=512, blank=True)  # 制作地
     carveName = models.CharField(max_length=512, blank=True)  # 铭文
     remark = models.TextField(default='')  # 备注
     quality = models.CharField(max_length=255, blank=True)  # 品相
     level = models.CharField(max_length=255, blank=True)  # 评价等级
     originalQuantity = models.FloatField(null=True)  # 原标注成色
-
     detectedQuantity = models.FloatField(null=True)  # 频谱检测成色
-
     length = models.FloatField(null=True)  # 长度
     width = models.FloatField(null=True)  # 宽度
     height = models.FloatField(null=True)  # 高度
     grossWeight = models.FloatField(null=True)  # 毛重
-
     pureWeight = models.FloatField(null=True)  # 净重
-    # # -----------------------------------------------------------
-
 
 # 金银币章类
 class gsBiZhang(models.Model):
@@ -399,15 +386,15 @@ class gsBiZhang(models.Model):
     detailedName = models.CharField(max_length=1024, blank=True)  # 名称
     versionName = models.CharField(max_length=1024, blank=True)  # 版别
     peroid = models.CharField(max_length=255, blank=True)  # 时代
-    producerPlace = models.CharField(max_length=512, blank=True)  # 制作地/制作人
+    # producerPlace = models.CharField(max_length=512, blank=True)  # 制作地/制作人
+    producer = models.CharField(max_length=512, blank=True)  # 制作人
+    producePlace = models.CharField(max_length=512, blank=True)  # 制作地
     value = models.CharField(max_length=512, blank=True)  # 币值
     remark = models.TextField(default='')  # 备注
     quality = models.CharField(max_length=255, blank=True)  # 品相
     level = models.CharField(max_length=255, blank=True)  # 评价等级
     originalQuantity = models.FloatField(null=True)  # 原标注成色
-
     detectedQuantity = models.FloatField(null=True)  # 检测成色
-
     diameter = models.FloatField(null=True)  # 直径
     thick = models.FloatField(null=True)  # 厚度
     grossWeight = models.FloatField(null=True)  # 毛重
@@ -421,7 +408,9 @@ class gsYinYuan(models.Model):
     detailedName = models.CharField(max_length=1024, blank=True)  # 名称
     versionName = models.CharField(max_length=1024, blank=True)  # 版别
     peroid = models.CharField(max_length=255, blank=True)  # 时代
-    producerPlace = models.CharField(max_length=512, blank=True)  # 制作地/制作人
+    # producerPlace = models.CharField(max_length=512, blank=True)  # 制作地/制作人
+    producer = models.CharField(max_length=512, blank=True)  # 制作人
+    producePlace = models.CharField(max_length=512, blank=True)  # 制作地
     value = models.CharField(max_length=512, blank=True)  # 币值
     marginShape = models.CharField(max_length=512, blank=True)  # 边齿
     remark = models.TextField(default='')  # 备注
