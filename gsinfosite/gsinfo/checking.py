@@ -134,7 +134,8 @@ def updateCheckingInfo(request):
     detailedName = request.POST.get('detailedName', '')
     typeName = request.POST.get('typeName', '')
     peroid = request.POST.get('peroid', '')
-    producerPlace = request.POST.get('producerPlace', '')
+    producer = request.POST.get('producer', '')
+    producePlace = request.POST.get('producePlace', '')
     carveName = request.POST.get('carveName', '')
     originalQuantity = request.POST.get('originalQuantity', '')
     versionName = request.POST.get('versionName', '')
@@ -174,7 +175,8 @@ def updateCheckingInfo(request):
             gsDing.objects.filter(thing=thing).update(detailedName=detailedName,
                                                       typeName=typeName,
                                                       peroid=peroid,
-                                                      producerPlace=producerPlace,
+                                                      producer=producer,
+                                                      producePlace = producePlace,
                                                       carveName=carveName,
                                                       originalQuantity=originalQuantity,
                                                       quality=quality,
@@ -183,14 +185,16 @@ def updateCheckingInfo(request):
         elif productType == u'金银币章类':
             gsBiZhang.objects.filter(thing=thing).update(detailedName=detailedName,
                                                          peroid=peroid,
-                                                         producerPlace=producerPlace,
+                                                         producer=producer,
+                                                         producePlace=producePlace,
                                                          originalQuantity=originalQuantity,
                                                          quality=quality,
                                                          level=level,
                                                          versionName=versionName,
                                                          remark=remark)
         elif productType == u'银元类':
-            gsYinYuan.objects.filter(thing=thing).update(producerPlace=producerPlace,
+            gsYinYuan.objects.filter(thing=thing).update(producer=producer,
+                                                         producePlace = producePlace,
                                                          quality=quality,
                                                          level=level,
                                                          versionName=versionName,
@@ -253,7 +257,8 @@ def getThingData(request):
         ret['detailedName'] = thing.detailedName
         ret['typeName'] = thing.typeName
         ret['peroid'] = thing.peroid
-        ret['producerPlace'] = thing.producerPlace
+        ret['producer'] = thing.producer
+        ret['producePlace'] = thing.producePlace
         ret['carveName'] = thing.carveName
         ret['remark'] = thing.remark
         ret['quality'] = thing.quality
@@ -271,7 +276,8 @@ def getThingData(request):
         ret['detailedName'] = thing.detailedName
         ret['versionName'] = thing.versionName
         ret['peroid'] = thing.peroid
-        ret['producerPlace'] = thing.producerPlace
+        ret['producer'] = thing.producer
+        ret['producePlace'] = thing.producePlace
         ret['value'] = thing.value
         ret['remark'] = thing.remark
         ret['quality'] = thing.quality
@@ -288,7 +294,8 @@ def getThingData(request):
         ret['detailedName'] = thing.detailedName
         ret['versionName'] = thing.versionName
         ret['peroid'] = thing.peroid
-        ret['producerPlace'] = thing.producerPlace
+        ret['producer'] = thing.producer
+        ret['producePlace'] = thing.producePlace
         ret['value'] = thing.value
         ret['marginShape'] = thing.marginShape
         ret['remark'] = thing.remark
@@ -330,7 +337,8 @@ def updateThingData(request):
     detailedName = request.POST.get('detailedName', '')
     typeName = request.POST.get('typeName', '')
     peroid = request.POST.get('peroid', '')
-    producerPlace = request.POST.get('producerPlace', '')
+    producer = request.POST.get('producer', '')
+    producePlace = request.POST.get('producePlace', '')
     carveName = request.POST.get('carveName', '')
     originalQuantity = request.POST.get('originalQuantity', '')
     detectedQuantity = request.POST.get('detectedQuantity', '')
@@ -381,7 +389,8 @@ def updateThingData(request):
         if productType == u'金银锭类':
             gsDing.objects.filter(thing=thing).update(detailedName=detailedName,
                                                       typeName=typeName, peroid=peroid,
-                                                     producerPlace=producerPlace,
+                                                      producer=producer,
+                                                      producePlace=producePlace,
                                                      carveName=carveName,
                                                      originalQuantity=originalQuantity,
                                                      quality=quality, level=level,
@@ -392,7 +401,8 @@ def updateThingData(request):
         elif productType == u'金银币章类':
             gsBiZhang.objects.filter(thing=thing).update(detailedName=detailedName,
                                                          peroid=peroid,
-                                                        producerPlace=producerPlace,
+                                                         producer=producer,
+                                                         producePlace=producePlace,
                                                         originalQuantity=originalQuantity,
                                                         quality=quality, level=level,
                                                         versionName=versionName, remark=remark,
@@ -402,7 +412,8 @@ def updateThingData(request):
         elif productType == u'银元类':
             gsYinYuan.objects.filter(thing=thing).update(marginShape=marginShape,
                                                          peroid=peroid,
-                                                        producerPlace=producerPlace,
+                                                         producer=producer,
+                                                         producePlace=producePlace,
                                                         quality=quality, level=level,
                                                         versionName=versionName, value=value,
                                                         remark=remark,

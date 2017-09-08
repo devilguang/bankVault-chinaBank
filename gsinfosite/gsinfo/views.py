@@ -301,7 +301,8 @@ def getThingInfo(request):
         ret['detailedName'] = t.detailedName
         ret['typeName'] = t.typeName
         ret['peroid'] = t.peroid
-        ret['producerPlace'] = t.producerPlace
+        ret['producer'] = t.producer
+        ret['producePlace'] = t.producePlace
         ret['carveName'] = t.carveName
         ret['remark'] = t.remark
         ret['quality'] = t.quality
@@ -320,7 +321,8 @@ def getThingInfo(request):
         ret['detailedName'] = t.detailedName
         ret['versionName'] = t.versionName
         ret['peroid'] = t.peroid
-        ret['producerPlace'] = t.producerPlace
+        ret['producer'] = t.producer
+        ret['producePlace'] = t.producePlace
         ret['value'] = t.value
         ret['remark'] = t.remark
         ret['quality'] = t.quality
@@ -339,7 +341,8 @@ def getThingInfo(request):
         ret['detailedName'] = t.detailedName
         ret['versionName'] = t.versionName
         ret['peroid'] = t.peroid
-        ret['producerPlace'] = t.producerPlace
+        ret['producer'] = t.producer
+        ret['producePlace'] = t.producePlace
         ret['value'] = t.value
         ret['marginShape'] = t.marginShape
         ret['remark'] = t.remark
@@ -583,7 +586,8 @@ def exploreThing(request, boxNumber, serialNumber):
         context['detailedName'] = work_thing.detailedName
         context['typeName'] = work_thing.typeName
         context['peroid'] = work_thing.peroid
-        context['producerPlace'] = work_thing.producerPlace
+        context['producer'] = work_thing.producer
+        context['producePlace'] = work_thing.producePlace
         context['carveName'] = work_thing.carveName
         context['remark'] = work_thing.remark
         context['quality'] = work_thing.quality
@@ -603,7 +607,8 @@ def exploreThing(request, boxNumber, serialNumber):
         context['detailedName'] = work_thing.detailedName
         context['versionName'] = work_thing.versionName
         context['peroid'] = work_thing.peroid
-        context['producerPlace'] = work_thing.producerPlace
+        context['producer'] = work_thing.producer
+        context['producePlace'] = work_thing.producePlace
         context['value'] = work_thing.value
         context['remark'] = work_thing.remark
         context['quality'] = work_thing.quality
@@ -622,7 +627,8 @@ def exploreThing(request, boxNumber, serialNumber):
         context['detailedName'] = work_thing.detailedName
         context['versionName'] = work_thing.versionName
         context['peroid'] = work_thing.peroid
-        context['producerPlace'] = work_thing.producerPlace
+        context['producer'] = work_thing.producer
+        context['producePlace'] = work_thing.producePlace
         context['value'] = work_thing.value
         context['marginShape'] = work_thing.marginShape
         context['remark'] = work_thing.remark
