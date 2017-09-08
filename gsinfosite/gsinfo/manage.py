@@ -1809,8 +1809,6 @@ def confirmInputCase(request):
 
 
 
-
-
 def text(request):
     ret={}
     ee = gsThing.objects.get(serialNumber='F4hJrUswL5')
