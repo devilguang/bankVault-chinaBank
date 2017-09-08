@@ -40,11 +40,12 @@ function loadDataProcess(node, data) {
     }
 }
 function changeInputValue(idName, getIdName, productKey) {
-    //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producerPlace 铭文：carveName
+    //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
+    // debugger
     var value = $("#" + idName).val();
     var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
-    var getIdName = document.getElementById(getIdName);
-    getIdName.innerHTML = '';
+    // var getIdName = document.getElementById(getIdName);
+    // getIdName.innerHTML = '';
     $.ajax({
         type: 'post',
         url: 'checkInfo/',
@@ -143,8 +144,8 @@ function initBatchUpdateInfoDlg(row) {
 
     if (row.productType == '金银工艺品类') {
         $('#batch-typeName').attr({'style': 'display:none'});
-        $('#batch-producerPlace').attr({'style': 'display:none'});
-        $('#batch-producerPeople').attr({'style': 'display:none'});
+        $('#batch-producePlace').attr({'style': 'display:none'});
+        $('#batch-producer').attr({'style': 'display:none'});
         $('#batch-carveName').attr({'style': 'display:none'});
         $('#batch-versionName').attr({'style': 'display:none'});
         $('#batch-value').attr({'style': 'display:none'});
@@ -163,8 +164,8 @@ function unInitBatchUpdateInfoDlg() {
     $('#batch-detailedName').attr({'style': ''});
     $('#batch-peroid').attr({'style': ''});
     $('#batch-originalQuantity').attr({'style': ''});
-    $('#batch-producerPlace').attr({'style': ''});
-    $('#batch-producerPeople').attr({'style': ''});
+    $('#batch-producePlace').attr({'style': ''});
+    $('#batch-producer').attr({'style': ''});
     $('#batch-marginShape').attr({'style': ''});
     $('#batch-typeName').attr({'style': ''});
     $('#batch-carveName').attr({'style': ''});
@@ -244,8 +245,8 @@ function initUpdateInfoDlg(row) {
             $('#UpdateInfo-detailedName').textbox('readonly', true);
             $('#UpdateInfo-peroid').textbox('readonly', true);
             $('#UpdateInfo-originalQuantity').textbox('readonly', true);
-            $('#UpdateInfo-producerPlace').textbox('readonly', true);
-            $('#UpdateInfo-producerPeople').textbox('readonly', true);
+            $('#UpdateInfo-producePlace').textbox('readonly', true);
+            $('#UpdateInfo-producer').textbox('readonly', true);
         }
     }
     if (row.productType == '银元类') {
@@ -259,15 +260,15 @@ function initUpdateInfoDlg(row) {
         if (row.status == 1) {
             $('#UpdateInfo-versionName').textbox('readonly', true);
             $('#UpdateInfo-value').textbox('readonly', true);
-            $('#UpdateInfo-producerPlace').textbox('readonly', true);
-            $('#UpdateInfo-producerPeople').textbox('readonly', true);
+            $('#UpdateInfo-producePlace').textbox('readonly', true);
+            $('#UpdateInfo-producer').textbox('readonly', true);
         }
     }
 
     if (row.productType == '金银工艺品类') {
         $('#typeName').attr({'style': 'display:none'});
-        $('#producerPlace').attr({'style': 'display:none'});
-        $('#producerPeople').attr({'style': 'display:none'});
+        $('#producePlace').attr({'style': 'display:none'});
+        $('#producer').attr({'style': 'display:none'});
         $('#carveName').attr({'style': 'display:none'});
         $('#versionName').attr({'style': 'display:none'});
         $('#value').attr({'style': 'display:none'});
@@ -289,8 +290,8 @@ function initUpdateInfoDlg(row) {
             $('#UpdateInfo-detailedName').textbox('readonly', true);
             $('#UpdateInfo-peroid').textbox('readonly', true);
             $('#UpdateInfo-originalQuantity').textbox('readonly', true);
-            $('#UpdateInfo-producerPlace').textbox('readonly', true);
-            $('#UpdateInfo-producerPeople').textbox('readonly', true);
+            $('#UpdateInfo-producePlace').textbox('readonly', true);
+            $('#UpdateInfo-producer').textbox('readonly', true);
             $('#UpdateInfo-typeName').textbox('readonly', true);
             $('#UpdateInfo-carveName').textbox('readonly', true);
         }
@@ -303,7 +304,7 @@ function unInitUpdateInfoDlg() {
     $('#detailedName').attr({'style': ''});
     $('#peroid').attr({'style': ''});
     $('#originalQuantity').attr({'style': ''});
-    $('#producerPlace').attr({'style': ''});
+    $('#producePlace').attr({'style': ''});
     $('#marginShape').attr({'style': ''});
     $('#typeName').attr({'style': ''});
     $('#carveName').attr({'style': ''});
@@ -312,8 +313,8 @@ function unInitUpdateInfoDlg() {
     $('#UpdateInfo-detailedName').textbox('readonly', false);
     $('#UpdateInfo-peroid').textbox('readonly', false);
     $('#UpdateInfo-originalQuantity').textbox('readonly', false);
-    $('#UpdateInfo-producerPlace').textbox('readonly', false);
-    $('#UpdateInfo-producerPeople').textbox('readonly', false);
+    $('#UpdateInfo-producePlace').textbox('readonly', false);
+    $('#UpdateInfo-producer').textbox('readonly', false);
     $('#UpdateInfo-marginShape').textbox('readonly', false);
     $('#UpdateInfo-typeName').textbox('readonly', false);
     $('#UpdateInfo-carveName').textbox('readonly', false);
@@ -359,7 +360,8 @@ function updateInfo(index, row) {
                     detailedName: data.detailedName,
                     peroid: data.peroid,
                     originalQuantity: data.originalQuantity,
-                    producerPlace: data.producerPlace,
+                    producePlace: data.producePlace,
+                    producer: data.producer,
                     typeName: data.typeName,
                     carveName: data.carveName,
                     quality: data.quality,
@@ -379,7 +381,8 @@ function updateInfo(index, row) {
                     detailedName: data.detailedName,
                     peroid: data.peroid,
                     originalQuantity: data.originalQuantity,
-                    producerPlace: data.producerPlace,
+                    producePlace: data.producePlace,
+                    producer: data.producer,
                     quality: data.quality,
                     level: data.level,
                     remark: data.remark,
@@ -395,7 +398,8 @@ function updateInfo(index, row) {
                     boxNumber: row.boxNumber,
                     versionName: data.versionName,
                     value: data.value,
-                    producerPlace: data.producerPlace,
+                    producePlace: data.producePlace,
+                    producer: data.producer,
                     quality: data.quality,
                     level: data.level,
                     remark: data.remark,
@@ -447,7 +451,8 @@ function updateInfo(index, row) {
                         detailedName: data.detailedName,
                         peroid: data.peroid,
                         originalQuantity: data.originalQuantity,
-                        producerPlace: data.producerPlace,
+                        producePlace: data.producePlace,
+                        producer: data.producer,
                         typeName: data.typeName,
                         carveName: data.carveName,
                         quality: data.quality,
@@ -467,7 +472,8 @@ function updateInfo(index, row) {
                         detailedName: data.detailedName,
                         peroid: data.peroid,
                         originalQuantity: data.originalQuantity,
-                        producerPlace: data.producerPlace,
+                        producePlace: data.producePlace,
+                        producer: data.producer,
                         quality: data.quality,
                         level: data.level,
                         remark: data.remark,
@@ -483,7 +489,8 @@ function updateInfo(index, row) {
                         boxNumber: row.boxNumber,
                         versionName: data.versionName,
                         value: data.value,
-                        producerPlace: data.producerPlace,
+                        producePlace: data.producePlace,
+                        producer: data.producer,
                         quality: data.quality,
                         level: data.level,
                         remark: data.remark,
@@ -533,14 +540,14 @@ function editUpdateInfo() {
         $('#UpdateInfo-detailedName').textbox('readonly', false);
         $('#UpdateInfo-peroid').textbox('readonly', false);
         $('#UpdateInfo-originalQuantity').textbox('readonly', false);
-        $('#UpdateInfo-producerPlace').textbox('readonly', false);
-        $('#UpdateInfo-producerPeople').textbox('readonly', false);
+        $('#UpdateInfo-producePlace').textbox('readonly', false);
+        $('#UpdateInfo-producer').textbox('readonly', false);
     }
     if (productType == '银元类') {
         $('#UpdateInfo-versionName').textbox('readonly', false);
         $('#UpdateInfo-value').textbox('readonly', false);
-        $('#UpdateInfo-producerPlace').textbox('readonly', false);
-        $('#UpdateInfo-producerPeople').textbox('readonly', false);
+        $('#UpdateInfo-producePlace').textbox('readonly', false);
+        $('#UpdateInfo-producer').textbox('readonly', false);
     }
 
     if (productType == '金银工艺品类') {
@@ -552,8 +559,8 @@ function editUpdateInfo() {
         $('#UpdateInfo-detailedName').textbox('readonly', false);
         $('#UpdateInfo-peroid').textbox('readonly', false);
         $('#UpdateInfo-originalQuantity').textbox('readonly', false);
-        $('#UpdateInfo-producerPlace').textbox('readonly', false);
-        $('#UpdateInfo-producerPeople').textbox('readonly', false);
+        $('#UpdateInfo-producePlace').textbox('readonly', false);
+        $('#UpdateInfo-producer').textbox('readonly', false);
         $('#UpdateInfo-typeName').textbox('readonly', false);
         $('#UpdateInfo-carveName').textbox('readonly', false);
     }

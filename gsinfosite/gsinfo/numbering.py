@@ -35,7 +35,8 @@ def getNumberingInfo(request):
         ret['detailedName'] = thing.detailedName
         ret['peroid'] = thing.peroid
         ret['originalQuantity'] = thing.originalQuantity
-        ret['producerPlace'] = thing.producerPlace
+        producer = request.POST.get('producer', '')
+        producePlace = request.POST.get('producePlace', '')
         ret['typeName'] = thing.typeName
         ret['carveName'] = thing.carveName
         ret['remark'] = thing.remark
@@ -47,7 +48,8 @@ def getNumberingInfo(request):
         ret['detailedName'] = thing.detailedName
         ret['peroid'] = thing.peroid
         ret['originalQuantity'] = thing.originalQuantity
-        ret['producerPlace'] = thing.producerPlace
+        producer = request.POST.get('producer', '')
+        producePlace = request.POST.get('producePlace', '')
         ret['remark'] = thing.remark
         ret['quality'] = thing.quality
         ret['level'] = thing.level
@@ -55,7 +57,8 @@ def getNumberingInfo(request):
         thing = gsYinYuan.objects.get(box=box, serialNumber=serialNumber)
         ret['versionName'] = thing.versionName
         ret['value'] = thing.value
-        ret['producerPlace'] = thing.producerPlace
+        producer = request.POST.get('producer', '')
+        producePlace = request.POST.get('producePlace', '')
         ret['remark'] = thing.remark
         ret['quality'] = thing.quality
         ret['level'] = thing.level
@@ -83,7 +86,8 @@ def updateNumberingInfo(request):
     detailedName = request.POST.get('detailedName', '')
     typeName = request.POST.get('typeName', '')
     peroid = request.POST.get('peroid', '')
-    producerPlace = request.POST.get('producerPlace', '')
+    producer = request.POST.get('producer', '')
+    producePlace = request.POST.get('producePlace', '')
     carveName = request.POST.get('carveName', '')
     originalQuantity = request.POST.get('originalQuantity', '')
     versionName = request.POST.get('versionName', '')
@@ -125,7 +129,8 @@ def updateNumberingInfo(request):
             gsDing.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
                                                       typeName=typeName,
                                                       peroid=peroid,
-                                                      producerPlace=producerPlace,
+                                                      producer=producer,
+                                                      producePlace=producePlace,
                                                       carveName=carveName,
                                                       originalQuantity=originalQuantity,
                                                       quality=quality,
@@ -134,7 +139,8 @@ def updateNumberingInfo(request):
         elif productType == u'金银币章类':
             gsBiZhang.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
                                                                  peroid=peroid,
-                                                                 producerPlace=producerPlace,
+                                                                 producer=producer,
+                                                                 producePlace=producePlace,
                                                                  originalQuantity=originalQuantity,
                                                                  quality=quality,
                                                                  level=level,
@@ -142,7 +148,8 @@ def updateNumberingInfo(request):
                                                                  versionName=versionName,
                                                                  remark=remark)
         elif productType == u'银元类':
-            gsYinYuan.objects.filter(thing__in=thing_set).update(producerPlace=producerPlace,
+            gsYinYuan.objects.filter(thing__in=thing_set).update(producer=producer,
+                                                         producePlace=producePlace,
                                                          quality=quality,
                                                          level=level,
                                                          versionName=versionName,
