@@ -72,6 +72,9 @@ function boxOperationFormatter(value, row, index) {
         return '<div style="float:left" min-width: 498px;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;"></a></div>';
     }
 }
+
+
+//封袋功能里面的扫描二维码
 function sealingBagDlgKey() {
     if (event.keyCode == 13) {
         var serialNumber = $("#sealingBagDlg-qrCode").val();
@@ -83,9 +86,9 @@ function sealingBagDlgKey() {
                 serialNumber: serialNumber,
                 boxNumber: row.boxNumber
             }, success: function (data) {
-                var data = JSON.parse(data)
+                var data = JSON.parse(data);
                 if (data.success) {
-                    var file_path = data.file_path
+                    var file_path = data.file_path;
                     $("#sealingBagDlgForm").datagrid('reload')
                 } else {
                     $.messager.alert('提示', data.message)
@@ -96,10 +99,10 @@ function sealingBagDlgKey() {
 }
 //点击封袋的方法
 function sealingBag() {
-    $("#sealingBagDlg").dialog('open').dialog('center').dialog('setTitle', '封袋实物');
-    $('#sealingBagDlgForm').form('clear');
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (row) {
+        $("#sealingBagDlg").dialog('open').dialog('center').dialog('setTitle', '封袋实物');
+        $('#sealingBagDlgForm').form('clear');
         $('#sealingBag-thingsGrid').datagrid({
             url: 'getCloseThing/',
             queryParams: {
@@ -127,7 +130,7 @@ function sealingBag() {
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
     } else {
-        $.messager.confirm('提示', '未选择记录! 请先选择一条实物记录！', function (r) {
+        $.messager.confirm('提示', '未选择记录! 请先选择一条记录！', function (r) {
             if (r) {
                 $("#sealingBagDlg").dialog('close')
             }
@@ -137,72 +140,104 @@ function sealingBag() {
 
 //点击添加盒的方法
 function addTheJobBox() {
-    $("#addJobBoxDlg").dialog('open').dialog('center').dialog('setTitle', '添加盒');
-    $('#addJobBoxDlgLeftForm').form('clear');
-    $('#addJobBoxDlgRightForm').form('clear');
     var row = $('#workGridBoxManage').datagrid('getSelected');
-    $("#addJobBoxLeft-thingsGrid").datagrid({
-        url: '',
-        queryParams: {},
-        columns: [[
-            {field: 'serialNumber', title: '实物编号', align: 'center'},
-        ]],
-        pagination: true,
-        fit: true,
-        pageSize: 20,
-        fitColumns: true,
-        rownumbers: true,
-    }).datagrid('getPager').pagination({
-        layout: ['prev', 'sep', 'links', 'sep', 'next'],
-        displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
-    });
+    if (row) {
+        $("#addJobBoxDlg").dialog('open').dialog('center').dialog('setTitle', '添加盒');
+        $('#addJobBoxDlgLeftForm').form('clear');
+        $('#addJobBoxDlgRightForm').form('clear');
+        $("#addJobBoxLeft-thingsGrid").datagrid({
+            url: 'getCloseOverThing/',
+            queryParams: {boxNumber: row.boxNumber},
+            columns: [[
+                {field: 'serialNumber', title: '实物编号', align: 'center'},
+            ]],
+            pagination: true,
+            fit: true,
+            pageSize: 20,
+            fitColumns: true,
+            rownumbers: true,
+        }).datagrid('getPager').pagination({
+            layout: ['prev', 'sep', 'links', 'sep', 'next'],
+            displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
+        });
 
-    $("#addJobBoxRight-thingsGrid").datagrid({
-        url: '',
-        queryParams: {},
-        columns: [[
-            {field: 'serialNumber', title: '实物编号', align: 'center'},
-        ]],
-        pagination: true,
-        fit: true,
-        pageSize: 20,
-        fitColumns: true,
-        rownumbers: true,
-    }).datagrid('getPager').pagination({
-        layout: ['prev', 'sep', 'links', 'sep', 'next'],
-        displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
-    });
-    $("#addJobBoxDlgLeftForm").children().find(".panel").css("width", "300px");
-    $("#addJobBoxDlgLeftForm").children().find(".datagrid-wrap").css("width", "300px");
-    $("#addJobBoxDlgRightForm").children().find(".panel").css("width", "300px");
-    $("#addJobBoxDlgRightForm").children().find(".datagrid-wrap").css("width", "300px");
+        $("#addJobBoxRight-thingsGrid").datagrid({
+            url: '',
+            queryParams: {},
+            columns: [[
+                {field: 'serialNumber', title: '实物编号', align: 'center'},
+            ]],
+            pagination: true,
+            fit: true,
+            pageSize: 20,
+            fitColumns: true,
+            rownumbers: true,
+        }).datagrid('getPager').pagination({
+            layout: ['prev', 'sep', 'links', 'sep', 'next'],
+            displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
+        });
+        $("#addJobBoxDlgLeftForm").children().find(".panel").css("width", "300px");
+        $("#addJobBoxDlgLeftForm").children().find(".datagrid-wrap").css("width", "300px");
+        $("#addJobBoxDlgRightForm").children().find(".panel").css("width", "300px");
+        $("#addJobBoxDlgRightForm").children().find(".datagrid-wrap").css("width", "300px");
+    } else{
+        $.messager.confirm('提示', '未选择记录! 请先选择一条记录！', function (r) {
+            if (r) {
+                $("#addJobBoxDlg").dialog('close')
+            }
+        });
+    }
 }
-
+//添加盒子功能里面的扫描二维码
+function addJobBoxDlg() {
+    if (event.keyCode == 13) {
+        var row = $('#workGridBoxManage').datagrid('getSelected');
+        var serialNumber = $("#addJobBoxDlg-qrCode").val();
+        $.ajax({
+            type: 'post',
+            url: 'closeThing/',
+            data: {
+                serialNumber: serialNumber,
+                boxNumber: row.boxNumber
+            }, success: function (data) {
+                var data = JSON.parse(data);
+                if (data.success) {
+                    var file_path = data.file_path;
+                    $("#addJobBoxDlgLeftForm").datagrid('reload')
+                } else {
+                    $.messager.alert('提示', data.message)
+                }
+            }
+        })
+    }
+}
 
 //点击新建的方法
 function openCreateBoxDlg() {
     $('#createBoxDlg').dialog('open').dialog('center').dialog('setTitle', '新建实物');
     $('#createBoxForm').form('clear');
-    $('#createBox-boxNumber').siblings().find('.textbox-text').focus(function () {
-        var productType = $("#createBox-productType").siblings().find('.textbox-value').val()
-        var wareHouse = $("#createBox-wareHosue").siblings().find('.textbox-value').val()
-        var className = $("#createBox-className").siblings().find('.textbox-value').val()
-        var subClassName = $("#createBox-subClassName").siblings().find('.textbox-value').val()
-        $.ajax({
-            type: 'get',
-            url: 'getStartSequence/',
-            data: {
-                codes: productType + '&' + wareHouse + '&' + className + '&' + subClassName
-            }, success: function (data) {
-                var data = JSON.parse(data)
-                $('#createBox-startSeq').siblings().find('.textbox-text').val(data.maxSeq)
-            }
-        })
-    })
+    //    注释的是新建功能中之前有起始序列号的，现在删除了这个，所以就不要下面的方法
+    // $('#createBox-boxNumber').siblings().find('.textbox-text').focus(function () {
+    //     var productType = $("#createBox-productType").siblings().find('.textbox-value').val()
+    //     var wareHouse = $("#createBox-wareHosue").siblings().find('.textbox-value').val()
+    //     var className = $("#createBox-className").siblings().find('.textbox-value').val()
+    //     var subClassName = $("#createBox-subClassName").siblings().find('.textbox-value').val()
+    //     $.ajax({
+    //         type: 'get',
+    //         url: 'getStartSequence/',
+    //         data: {
+    //             codes: productType + '&' + wareHouse + '&' + className + '&' + subClassName
+    //         }, success: function (data) {
+    //             var data = JSON.parse(data)
+    //             console.log(data)
+    //             $('#createBox-startSeq').siblings().find('.textbox-text').val(data.maxSeq)
+    //         }
+    //     })
+    // })
 }
+
 function createBox() {
     $('#createBoxDlg').dialog('close');        		// 关闭对话框
-
     $('#createBoxForm').form({
         url: 'createBox/',
         queryParams: {
@@ -234,7 +269,6 @@ function createBox() {
             }
         }
     });
-
     $('#createBoxForm').submit();
 }
 
@@ -257,10 +291,8 @@ function openAllotBoxDlg() {             // 打开实物拆箱
      }*/
     $('#allotBoxDlg').dialog('open').dialog('center').dialog('setTitle', '实物拆箱');
     $('#allotBoxForm').form('clear');
-
     $('#allotBox-boxNumber').val(row.boxNumber);
     $('#info-allotBoxNumber').text(row.boxNumber);
-
     $('#allotBox-thingsGrid').datagrid({
         url: 'allotBox/',
         queryParams: {boxNumber: row.boxNumber, productType: row.productType, fromSubBox: '1'},
@@ -384,6 +416,7 @@ function openAllotBoxDlg() {             // 打开实物拆箱
     });
     $('#allotBox-selectedThingCount').text(0);
 }
+
 function allotBox() {
     var boxNumber = $('#allotBox-boxNumber').val();
     //var grossWeight = $("#grossWeight").val();
@@ -533,6 +566,7 @@ function openMergeBoxDlg() {             // 打开实物子箱并箱
         editable: false,
     });
 }
+
 function mergeBox() {
     var boxNumber = $('#mergeBox-boxNumber').val();
     var selectedThings = $('#mergeBox-selectedThing').textbox('getValue');
@@ -575,6 +609,7 @@ function mergeBox() {
         },
     });
 }
+
 function openReportBoxDlg() {             // 打开实物箱体列表
     return
     $('#reportBoxDlg').dialog('open').dialog('center').dialog('setTitle', '实物箱体列表');
@@ -633,6 +668,7 @@ function openReportBoxDlg() {             // 打开实物箱体列表
         editable: false,
     });
 }
+
 function reportBox() {
     var row = $('#reportBox-thingsGrid').datagrid('getSelections');
     var map = {};
@@ -872,6 +908,7 @@ function boxSearchReset() {
     initPagination();								// 设定翻页插件
     $('#workGridBoxManage').datagrid('reload');		// 重载数据
 }
+
 function openCreateWorkDlg(boxNumber) {
     $('#createWorkDlg').dialog('open').dialog('center').dialog('setTitle', '创建作业');
     $('#createWorkForm').form('clear');
@@ -917,7 +954,6 @@ function openCreateWorkDlg(boxNumber) {
         },
         onCheckAll: function (rows) {
             var content = $('#createWork-selectedThing').textbox('getValue');
-
             var n = Number($('#createWork-selectedThingCount').text());
             for (var r in rows) {
                 var reg = new RegExp(rows[r].serialNumber + ';', 'g');
@@ -978,9 +1014,8 @@ function openCreateWorkDlg(boxNumber) {
     $('#createWork-selectedThing').textbox({
         fit: true,
         multiline: true,
-        editable: false,
+        editable: false
     });
-
     generateWorkName();
     $('#createWork-selectedThingCount').text(0);
 }
@@ -991,21 +1026,18 @@ function generateWorkName() {
         data: {boxNumber: boxNumber},
         type: 'GET',
         async: false,
-        dataType: 'json',
+        dataType: 'json'
     });
     var data = eval('(' + result.responseText + ')')
-
     $('#createWork-workName').textbox('setValue', data.workName);
 }
 function generateContentForWork() {
     var amount = $('#createWork-amount').numberbox('getValue');
     var boxNumber = $('#createWork-boxNumber').val();
-
     if (0 == amount) {
         $('#createWork-selectedThing').textbox('reset');
         return;
     }
-
     $.ajax({
         url: 'generateContentForWork/',
         data: {boxNumber: boxNumber, amount: amount},
@@ -1014,10 +1046,8 @@ function generateContentForWork() {
         dataType: 'json',
         success: function (result) {
             rows = result.data
-
             var content = $('#createWork-selectedThing').textbox('getValue');
             var n = Number($('#createWork-selectedThingCount').text());
-
             for (var r in rows) {
                 var reg = new RegExp(rows[r].serialNumber + ';', 'g');
                 if (!reg.test(content)) {
@@ -1026,12 +1056,10 @@ function generateContentForWork() {
                 }
             }
             $('#createWork-selectedThingCount').text(n);
-
             $('#createWork-selectedThing').textbox('setValue', content);
-        },
+        }
     });
 }
-
 
 //打印身份认证
 function printsConfirm() {
@@ -1083,15 +1111,12 @@ function clickPrints(index, number, clickType) {
             if (data.success) { //成功登陆
                 $('#printTheList').dialog('close')
                 if (clickType == 0) {
-                    console.log(0)
                     printPackingList(number, index)
                 }
                 if (clickType == 1) {
-                    console.log(1)
                     packingListIsDetailed(number, index)
                 }
                 if (clickType == 2) {
-                    console.log(2)
                     printInformationFile(index, number)
                 }
             } else {

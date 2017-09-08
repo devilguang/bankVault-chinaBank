@@ -771,7 +771,7 @@
             <form id="addJobBoxDlgLeftForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
                 <input id="addJobBoxDlg-qrCode" onkeypress=""
                        style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px;"
-                       placeholder="请使用扫描枪扫描二维码"/>
+                       placeholder="请使用扫描枪扫描二维码" onkeypress="addJobBoxDlg()"/>
                 <table style="width: 300px;margin-top: 10px">
                     <tr height="330px;">
                         <td colspan="2" style="width: 300px;">
@@ -799,7 +799,7 @@
 </div>
 <div id="addJobBoxDlgButtons">
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok"
-       style="width:90px">创建</a>
+       style="width:90px">确定</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#addJobBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
@@ -936,7 +936,6 @@
                 <th>称测(件)</th>
                 <th>拍照(件)</th>
             </tr>
-
             <tr>
                 <td style="text-align:center"><span id="detailedCompleteInfoCheckingCompleteAmount"></span></td>
                 <td style="text-align:center"><span id="detailedCompleteInfoNumberingCompleteAmount"></span></td>
