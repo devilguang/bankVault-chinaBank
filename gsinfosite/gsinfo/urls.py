@@ -104,6 +104,9 @@ urlpatterns = [
     url(r'^manage/getCloseThing/$', manage.getCloseThing, name='getCloseThing'),
     url(r'^manage/closeThing/$', manage.closeThing, name='closeThing'),
 
+    url(r'^manage/text/$', manage.text, name='text'),
+
+
     url(r'^checking/$', checking.checking, name='checking'),
     url(r'^checking/getProductType/$', views.getProductType, name='getProductType'),
     url(r'^checking/getClassName/(?P<code>\d+)$', views.getClassName, name='getClassName'),

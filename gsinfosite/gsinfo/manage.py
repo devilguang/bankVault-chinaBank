@@ -1808,15 +1808,28 @@ def confirmInputCase(request):
 
 
 
-#
-#
-#
-# def generateCaseTicket(request):
-#
-#     caseNumber = request.POST.get('caseNumber', '')
-#
-#
-#
+
+
+
+def text(request):
+    ret={}
+    ee = gsThing.objects.get(serialNumber='F4hJrUswL5')
+    a = gsThing._meta.get_fields()
+    vv = ee.id in a
+    ww =ee.tt in a
+    b = gsThing._meta.get_fields(include_parents = True, include_hidden = True)
+    c = gsThing._meta.get_fields(include_parents=False, include_hidden=False)
+    d = gsThing._meta.get_fields(include_parents=False, include_hidden=True)
+    # th = gsThing.objects.filter(serialNumber='F4hJrUswL5').__getattribute__()
+    # dd = th.getattr('aa','')
+    # ss = th.aa.exists()
+    # xx = th.aa
+
+    ret_json = json.dumps(ret)
+    return HttpResponse(ret_json)
+
+
+
 
 
 
