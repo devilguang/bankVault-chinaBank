@@ -74,31 +74,7 @@ function boxOperationFormatter(value, row, index) {
 }
 
 
-//封袋功能里面的扫描二维码
-function sealingBagDlgKey() {
-    debugger
-    if (event.keyCode == 13) {
-        var serialNumber = $("#sealingBagDlg-qrCode").val();
-        var row = $('#workGridBoxManage').datagrid('getSelected');
-        $.ajax({
-            type: 'post',
-            url: 'closeThing/',
-            data: {
-                serialNumber: serialNumber,
-                boxNumber: row.boxNumber
-            }, success: function (data) {
-                var data = JSON.parse(data);
-                if (data.success) {
-                    var file_path = data.file_path;
-                    $("#sealingBagDlgForm").datagrid('reload')
-                } else {
-                    $.messager.alert('提示', data.message)
-                }
-            }
-        })
-    }
-}
-//点击封袋的方法
+//点击封袋的方法  封袋功能里面的扫描二维码
 function sealingBag() {
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (row) {
@@ -130,6 +106,29 @@ function sealingBag() {
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
+        $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function () {
+            if (event.keyCode == 13) {
+                var serialNumber = $("#sealingBagDlg-qrCode").val();
+                var row = $('#workGridBoxManage').datagrid('getSelected');
+                $.ajax({
+                    type: 'post',
+                    url: 'closeThing/',
+                    data: {
+                        serialNumber: serialNumber,
+                        boxNumber: row.boxNumber
+                    }, success: function (data) {
+                        var data = JSON.parse(data);
+                        if (data.success) {
+                            var file_path = data.file_path;
+                            // $("#sealingBagDlgForm").datagrid('reload')
+                            $('#workGridBoxManage').datagrid('reload');		// 重载数据
+                        } else {
+                            $.messager.alert('提示', data.message)
+                        }
+                    }
+                })
+            }
+        })
     } else {
         $.messager.confirm('提示', '未选择记录! 请先选择一条记录！', function (r) {
             if (r) {
@@ -181,7 +180,7 @@ function addTheJobBox() {
         $("#addJobBoxDlgLeftForm").children().find(".datagrid-wrap").css("width", "300px");
         $("#addJobBoxDlgRightForm").children().find(".panel").css("width", "300px");
         $("#addJobBoxDlgRightForm").children().find(".datagrid-wrap").css("width", "300px");
-    } else{
+    } else {
         $.messager.confirm('提示', '未选择记录! 请先选择一条记录！', function (r) {
             if (r) {
                 $("#addJobBoxDlg").dialog('close')

@@ -41,11 +41,8 @@ function loadDataProcess(node, data) {
 }
 function changeInputValue(idName, getIdName, productKey) {
     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
-    // debugger
     var value = $("#" + idName).val();
     var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
-    // var getIdName = document.getElementById(getIdName);
-    // getIdName.innerHTML = '';
     $.ajax({
         type: 'post',
         url: 'checkInfo/',
@@ -58,11 +55,13 @@ function changeInputValue(idName, getIdName, productKey) {
             if (mes.success) {
                 var vArray = mes.message;
                 for (var i = 0; i < vArray.length; i++) {
-                    var option = document.createElement('option');
-                    option.value = vArray[i];
-                    getIdName.appendChild(option)
+                    var optionList = document.createElement('option');
+                    optionList.value = vArray[i];
+                    getIdName.appendChild(optionList)
+                   $('#workGrid' + node.id).datagrid('reload');
                 }
             } else {
+
                 return
             }
         }
@@ -597,9 +596,7 @@ function saveUpdateInfo() {
                     showType: 'slide'
                 });
                 var node = $('#workSpaceTree').tree('getSelected');
-
                 $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
-
             }
         }
     });
