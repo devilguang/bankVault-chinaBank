@@ -43,6 +43,7 @@ function changeInputValue(idName, getIdName, productKey) {
     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
     var value = $("#" + idName).val();
     var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
+    debugger
     $.ajax({
         type: 'post',
         url: 'checkInfo/',
