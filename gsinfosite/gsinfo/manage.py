@@ -1038,41 +1038,41 @@ def startOrStopWork(request):
                 # 作业所属实物均清点查验完毕
                 try:
                     numberingLatest = status_set.latest('numberingUpdateDateTime')  # 取最近的/最新的一个对象，注意是一个对象
+                    dateTime1 = numberingLatest.numberingUpdateDateTime
                 except Exception as e:
                     dateTime1 = None
                 else:
-                    dateTime1 = numberingLatest.numberingUpdateDateTime
                     t.append(dateTime1)
                 try:
                     analyzingLatest = status_set.latest('analyzingUpdateDateTime')
+                    dateTime2 = analyzingLatest.analyzingUpdateDateTime
                 except Exception as e:
                     dateTime2 = None
                 else:
-                    dateTime2 = analyzingLatest.analyzingUpdateDateTime
                     t.append(dateTime2)
 
                 try:
                     measuringLatest = status_set.latest('measuringUpdateDateTime')
+                    dateTime3 = measuringLatest.measuringUpdateDateTime
                 except Exception as e:
                     dateTime3 = None
                 else:
-                    dateTime3 = measuringLatest.measuringUpdateDateTime
                     t.append(dateTime3)
 
                 try:
                     checkingLatest = status_set.latest('checkingUpdateDateTime')
+                    dateTime4 = checkingLatest.checkingUpdateDateTime
                 except Exception as e:
                     dateTime4 = None
                 else:
-                    dateTime4 = checkingLatest.checkingUpdateDateTime
                     t.append(dateTime4)
 
                 try:
                     photographingLatest = status_set.latest('photographingUpdateDateTime')
+                    dateTime5 = photographingLatest.photographingUpdateDateTime
                 except Exception as e:
                     dateTime5 = None
                 else:
-                    dateTime5 = photographingLatest.photographingUpdateDateTime
                     t.append(dateTime5)
 
                 def getTimeStemp(t):
@@ -1084,7 +1084,9 @@ def startOrStopWork(request):
                     workCompleteDateTime = t[max_index]
                 else:
                     workCompleteDateTime = None
-                    work.update(completeDateTime=workCompleteDateTime)
+
+                work.completeDateTime=workCompleteDateTime  #(completeDateTime=workCompleteDateTime)
+                work.save(update_fields=['completeDateTime'])
     except Exception as e:
         ret = {
             'success': False,
@@ -1678,7 +1680,6 @@ def getCloseThing(request):
     ret = {}
     ret['total'] = n
     ret['rows'] = []
-    ret['boxNumber'] = boxNumber
     for th in things[start:end]:
         r = {}
         r['serialNumber'] = th.thing.serialNumber
@@ -1689,6 +1690,7 @@ def getCloseThing(request):
         r['productType'] = productType
         r['className'] = className
         r['wareHouse'] = wareHouse
+        r['boxNumber'] = boxNumber
         ret['rows'].append(r)
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
@@ -1729,6 +1731,9 @@ def closeThing(request):
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 
+
+# 盒管理操作
+# 1、首先获取能入盒的实物
 def getCloseOverThing(request):
     boxNumber = request.POST.get('boxNumber', '')
     # productType = request.POST.get('productType', '')
@@ -1779,7 +1784,6 @@ def getCaseNumber(request):
     }
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
-
 
 def confirmInputCase(request):
     boxNumber = request.POST.get('boxNumber', '')
