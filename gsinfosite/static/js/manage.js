@@ -106,7 +106,7 @@ function sealingBag() {
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
-        $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function () {
+        $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
             if (event.keyCode == 13) {
                 var serialNumber = $("#sealingBagDlg-qrCode").val();
                 var row = $('#workGridBoxManage').datagrid('getSelected');
@@ -120,8 +120,23 @@ function sealingBag() {
                         var data = JSON.parse(data);
                         if (data.success) {
                             var file_path = data.file_path;
-                            // $("#sealingBagDlgForm").datagrid('reload')
-                            $('#workGridBoxManage').datagrid('reload');		// 重载数据
+                            document.getElementById("sealingBagDlg-qrCode").value = "";
+                            $("#sealingBagDlg-qrCode").siblings().children().eq(0).val(" ")
+                            $("#sealingBagDlg-qrCode").siblings().children().eq(1).val(" ")
+                            $.ajax({
+                                type:"post",
+                                url:'print_service/',
+                                data:{
+                                    file_path:file_path
+                                },success:function(data){
+                                    var data = JSON.parse(data);
+                                    if(data.success){
+                                        $.messager.alert('提示', '封袋实物成功')
+                                    }else{
+                                        $.messager.alert('提示', '封袋实物失败')
+                                    }
+                                }
+                            });
                         } else {
                             $.messager.alert('提示', data.message)
                         }
