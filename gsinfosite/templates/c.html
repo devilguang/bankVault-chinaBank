@@ -16,7 +16,7 @@
                 <input id="BatchUpdateInfo-boxNumber" name="boxNumber" class="easyui-textbox"
                        data-options="readonly:true, editable:false">
             </div>
-             <div class="FormItem">
+            <div class="FormItem">
                 <label for="BatchUpdateInfo-wareHouse">发行库</label>
                 <input id="BatchUpdateInfo-wareHouse" name="wareHouse" class="easyui-textbox"
                        data-options="readonly:true, editable:false">
@@ -47,9 +47,13 @@
                 <label for="BatchUpdateInfo-peroid">时代</label>
                 <input id="BatchUpdateInfo-peroid" name="peroid" class="easyui-textbox">
             </div>
-            <div class="FormItem" id="batch-producerPlace">
-                <label for="BatchUpdateInfo-producerPlace">制作地人</label>
-                <input id="BatchUpdateInfo-producerPlace" name="producerPlace" class="easyui-textbox">
+            <div class="FormItem" id="batch-producePlace">
+                <label for="BatchUpdateInfo-producePlace">制作地</label>
+                <input id="BatchUpdateInfo-producePlace" name="producePlace" class="easyui-textbox">
+            </div>
+            <div class="FormItem" id="batch-producer">
+                <label for="BatchUpdateInfo-producer">制作人</label>
+                <input id="BatchUpdateInfo-producer" name="producer" class="easyui-textbox">
             </div>
             <div class="FormItem" id="batch-carveName">
                 <label for="BatchUpdateInfo-carveName">铭文</label>
@@ -111,10 +115,10 @@
                 <input id="UpdateInfo-boxNumber" name="boxNumber" class="easyui-textbox"
                        data-options="readonly:true, editable:false">
             </div>
-             <div class="FormItem">
+            <div class="FormItem">
                 <label for="UpdateInfo-wareHouse">发行库</label>
                 <input id="UpdateInfo-wareHouse" name="wareHouse" class="easyui-textbox"
-                data-options="readonly:true, editable:false">
+                       data-options="readonly:true, editable:false">
             </div>
             <div class="FormItem">
                 <label for="UpdateInfo-productType">实物类型</label>
@@ -130,62 +134,81 @@
 
             <div class="FormItem">
                 <label for="UpdateInfo-subClassName">明细品名</label>
-                <input id="UpdateInfo-subClassName" name="subClassName" class="easyui-textbox"
-                       >
+                <input id="UpdateInfo-subClassName" name="subClassName" class="easyui-textbox">
             </div>
-            <div class="FormItem" id="detailedName" >
+            <div class="FormItem" id="detailedName">
                 <label for="UpdateInfo-detailedName">名称</label>
                 {#<input id="UpdateInfo-detailedName" name="detailedName" class="easyui-textbox">#}
-                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
-                    <input list="UpdateInfo-detailedName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="detailedName" id="physical_detailedName" onkeyup="changeInputValue('physical_detailedName','UpdateInfo-detailedName','detailedName')"/>
-                    <datalist id="UpdateInfo-detailedName">
-
-                    </datalist>
-                </span>
+                {#                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">#}
+                <input id="UpdateInfo-detailedName" name="detailedName" class="easyui-textbox">
+                {#                    <input list="UpdateInfo-detailedName"#}
+                {#                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="detailedName" id="physical_detailedName" onkeyup="changeInputValue('physical_detailedName','UpdateInfo-detailedName','detailedName')"/>#}
+                {#                    <datalist id="UpdateInfo-detailedName">#}
+                {#                    </datalist>#}
+                {#                </span>#}
             </div>
             <div class="FormItem" id="typeName">
                 <label for="UpdateInfo-typeName">型制类型</label>
-                {# <input id="UpdateInfo-typeName" name="typeName" class="easyui-textbox">#}
-                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
-                    <input list="UpdateInfo-typeName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="typeName" id="physical_typeName" onkeyup="changeInputValue('physical_typeName','UpdateInfo-typeName','typeName')"/>
-                    <datalist id="UpdateInfo-typeName">
-
-                    </datalist>
-                </span>
+                <input id="UpdateInfo-typeName" name="typeName" class="easyui-textbox">
+                {#                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">#}
+                {#                    #}
+                {#                    <input list="UpdateInfo-typeName"#}
+                {#                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="typeName" id="physical_typeName" onkeyup="changeInputValue('physical_typeName','UpdateInfo-typeName','typeName')"/>#}
+                {#                    <datalist id="UpdateInfo-typeName">#}
+                {##}
+                {#                    </datalist>#}
+                {#                </span>#}
             </div>
             <div class="FormItem" id="peroid">
                 <label for="UpdateInfo-peroid">时代</label>
-                {# <input id="UpdateInfo-peroid" name="peroid" class="easyui-textbox">#}
-                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
-                    <input list="UpdateInfo-peroid" style="border: none;margin-left: 3px;width: 295px;outline: none;" name="peroid" id="physical_peroid" onkeyup="changeInputValue('physical_typeName','UpdateInfo-peroid','peroid')"/>
-                    <datalist id="UpdateInfo-peroid">
-
-                    </datalist>
-                </span>
+                 <input id="UpdateInfo-peroid" name="peroid" class="easyui-textbox">
+{#                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">#}
+{#                    <input list="UpdateInfo-peroid" style="border: none;margin-left: 3px;width: 295px;outline: none;"#}
+{#                           name="peroid" id="physical_peroid"#}
+{#                           onkeyup="changeInputValue('physical_typeName','UpdateInfo-peroid','peroid')"/>#}
+{#                    <datalist id="UpdateInfo-peroid">#}
+{##}
+{#                    </datalist>#}
+{#                </span>#}
             </div>
-            <div class="FormItem" id="producerPlace">
-                <label for="UpdateInfo-producerPlace">制作地人</label>
-                {# <input id="UpdateInfo-producerPlace" name="producerPlace" class="easyui-textbox">#}
-                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
-                    <input list="UpdateInfo-producerPlace"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="producerPlace" id="physical_producerPlace" onkeyup="changeInputValue('physical_producerPlace','UpdateInfo-producerPlace','producerPlace')"/>
-                    <datalist id="UpdateInfo-producerPlace">
-
-                    </datalist>
-                </span>
+            <div class="FormItem" id="producePlace">
+                <label for="UpdateInfo-producePlace">制作地</label>
+                 <input id="UpdateInfo-producePlace" name="producePlace" class="easyui-textbox" data-options="readonly:true, editable:false">
+{#                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">#}
+{#                    <input list="UpdateInfo-producePlace"#}
+{#                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="producePlace"#}
+{#                           id="physical_producePlace"#}
+{#                           onkeyup="changeInputValue('physical_producePlace','UpdateInfo-producePlace','producePlace')"/>#}
+{#                    <datalist id="UpdateInfo-producePlace">#}
+{##}
+{#                    </datalist>#}
+{#                </span>#}
+            </div>
+            <div class="FormItem" id="producer">
+                <label for="UpdateInfo-producer">制作人</label>
+                 <input id="UpdateInfo-producer" name="producer" class="easyui-textbox">
+{#                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">#}
+{#                    <input list="UpdateInfo-producer"#}
+{#                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="producer"#}
+{#                           id="physical_producer"#}
+{#                           onkeyup="changeInputValue('physical_producer','UpdateInfo-producer','producer')"/>#}
+{#                    <datalist id="UpdateInfo-producer">#}
+{##}
+{#                    </datalist>#}
+{#                </span>#}
             </div>
             <div class="FormItem" id="carveName">
                 <label for="UpdateInfo-carveName">铭文</label>
-                {# <input id="UpdateInfo-carveName" name="carveName" class="easyui-textbox">#}
-                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
-                    <input list="UpdateInfo-carveName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="carveName" id="physical_carveName" onkeyup="changeInputValue('physical_carveName','UpdateInfo-carveName','carveName')"/>
-                    <datalist id="UpdateInfo-carveName">
-
-                    </datalist>
-                </span>
+                 <input id="UpdateInfo-carveName" name="carveName" class="easyui-textbox">
+{#                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">#}
+{#                    <input list="UpdateInfo-carveName"#}
+{#                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="carveName"#}
+{#                           id="physical_carveName"#}
+{#                           onkeyup="changeInputValue('physical_carveName','UpdateInfo-carveName','carveName')"/>#}
+{#                    <datalist id="UpdateInfo-carveName">#}
+{##}
+{#                    </datalist>#}
+{#                </span>#}
             </div>
             <div class="FormItem" id="originalQuantity">
                 <label for="UpdateInfo-originalQuantity">原标注成色(%)</label>
