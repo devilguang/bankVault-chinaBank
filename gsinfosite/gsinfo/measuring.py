@@ -21,26 +21,27 @@ def getMeasuringInfo(request):
     productType = request.GET.get('productType', '')
 
     box = gsBox.objects.get(boxNumber=boxNumber)
+    thing = gsThing.objects.get(serialNumber=serialNumber,box=box)
 
     ret = {}
     if (0 == cmp(productType, u'金银锭类')):
-        thing = gsDing.objects.get(box=box, serialNumber=serialNumber)
+        thing = gsDing.objects.get(thing=thing)
         ret['grossWeight'] = thing.grossWeight
         ret['length'] = thing.length
         ret['width'] = thing.width
         ret['height'] = thing.height
     elif (0 == cmp(productType, u'金银币章类')):
-        thing = gsBiZhang.objects.get(box=box, serialNumber=serialNumber)
+        thing = gsBiZhang.objects.get(thing=thing)
         ret['grossWeight'] = thing.grossWeight
         ret['diameter'] = thing.diameter
         ret['thick'] = thing.thick
     elif (0 == cmp(productType, u'银元类')):
-        thing = gsYinYuan.objects.get(box=box, serialNumber=serialNumber)
+        thing = gsYinYuan.objects.get(thing=thing)
         ret['grossWeight'] = thing.grossWeight
         ret['diameter'] = thing.diameter
         ret['thick'] = thing.thick
     elif (0 == cmp(productType, u'金银工艺品类')):
-        thing = gsGongYiPin.objects.get(box=box, serialNumber=serialNumber)
+        thing = gsGongYiPin.objects.get(thing=thing)
         ret['grossWeight'] = thing.grossWeight
         ret['length'] = thing.length
         ret['width'] = thing.width

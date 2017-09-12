@@ -191,7 +191,6 @@ function saveBatchUpdateInfo() {
     var id = tab[0].id;
     var node = $('#workSpaceTree').tree('find', id);
     var workSeq = node.attributes.workSeq;
-
     $('#BatchUpdateInfoForm').form({
         url: url,
         queryParams: {
