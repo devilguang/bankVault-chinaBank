@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import sys
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-from PyQt5.QtWidgets import QApplication, QMessageBox,QMainWindow,QDialog
-from PyQt5.QtGui import QPixmap,QIcon
-from PyQt5.QtCore import pyqtSignal, QObject,QSize,QTimer
+from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QDialog
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import pyqtSignal, QObject, QSize, QTimer
 import login
 import requests
 import settings
@@ -23,7 +24,7 @@ from ctypes import wintypes
 import upload_tip
 
 
-class LoginWidget(QDialog,login.Ui_Form):
+class LoginWidget(QDialog, login.Ui_Form):
     def __init__(self, parent=None):
         super(LoginWidget, self).__init__(parent)
         self.setupUi(self)
@@ -31,7 +32,6 @@ class LoginWidget(QDialog,login.Ui_Form):
         self.settingButton.clicked.connect(self.settingDialog)
         self.okButton.clicked.connect(self.login)
         self.show()
-
 
     def login(self):
         reload(settings)
@@ -46,11 +46,11 @@ class LoginWidget(QDialog,login.Ui_Form):
                         csrftoken = res.cookies['csrftoken']
                         data = {
                             'csrfmiddlewaretoken': csrftoken,
-                            'nickName':nickName,
-                            'passWord':passWord,
-                            'workRole':'photographing'
+                            'nickName': nickName,
+                            'passWord': passWord,
+                            'workRole': 'photographing'
                         }
-                        resp = self.client.post(url,data=data)
+                        resp = self.client.post(url, data=data)
                         txt = json.loads(resp.text)
                         success = txt['success']
                         if success:
@@ -74,8 +74,10 @@ class LoginWidget(QDialog,login.Ui_Form):
         newForm.show()
         newForm.exec_()
 
+
 class exitSetForm(QObject):
     closeApp = pyqtSignal()
+
 
 class setinfoDil(QDialog, setinfo.Ui_setdialog):
     def __init__(self, parent=None):
@@ -92,7 +94,7 @@ class setinfoDil(QDialog, setinfo.Ui_setdialog):
 
     def confirmInfo(self):
         new_ele = []
-        with open('settings.py','r') as f:
+        with open('settings.py', 'r') as f:
             ele_list = f.readlines()
             for ele in ele_list:
                 if 'SERVERHOST' in ele:
@@ -111,7 +113,7 @@ class setinfoDil(QDialog, setinfo.Ui_setdialog):
                     new_ele.append(ele)
         with open('settings.py', 'w') as f:
             f.truncate()
-        with open('settings.py','a') as f:
+        with open('settings.py', 'a') as f:
             for i in new_ele:
                 f.write(i)
         self.exitSet.closeApp.emit()
@@ -133,15 +135,16 @@ class tdcodeDil(QDialog, tdcode.Ui_code_Dialog):
         sNumber = self.lineEdit.text()
         if sNumber:
             # 检测serialNumber是否可用
-            url = r'http://{0}:{1}/gsinfo/photographing/searchThingInfo/'.format(settings.SERVERHOST, settings.SERVERPORT)
+            url = r'http://{0}:{1}/gsinfo/photographing/searchThingInfo/'.format(settings.SERVERHOST,
+                                                                                 settings.SERVERPORT)
             cookies = self.client.cookies
             csrftoken = cookies['csrftoken']
             data = {
-                'csrfmiddlewaretoken':csrftoken,
+                'csrfmiddlewaretoken': csrftoken,
                 'serialNumber': str(sNumber),
                 'processId': '6',
             }
-            resp = self.client.post(url, data=data,cookies=cookies)
+            resp = self.client.post(url, data=data, cookies=cookies)
             txt = json.loads(resp.text)
             self.success = txt['success']
             if self.success:
@@ -154,11 +157,12 @@ class tdcodeDil(QDialog, tdcode.Ui_code_Dialog):
             self.code_label.setText("<font color=red>请扫描二维码！</font>")
 
     # 修改窗体自身的X关闭按钮，只要重载closeEvent方法即可
-    def closeEvent(self,event):
+    def closeEvent(self, event):
         self.isvis = False
         self.timer.stop()  # close timer
         print('timer stoped!')
         self.close()
+
 
 class uploadTip(QDialog, upload_tip.Ui_Dialog):
     def __init__(self, client=None):
@@ -166,8 +170,9 @@ class uploadTip(QDialog, upload_tip.Ui_Dialog):
         self.setupUi(self)
         self.show()
 
-class Window(QMainWindow,photo.Ui_Form):
-    def __init__(self,client=None):
+
+class Window(QMainWindow, photo.Ui_Form):
+    def __init__(self, client=None):
         super(Window, self).__init__()
         self.setupUi(self)
 
@@ -209,26 +214,24 @@ class Window(QMainWindow,photo.Ui_Form):
         self.naem_list['K'] = self.name11
         self.naem_list['L'] = self.name12
 
-
     def codeDil(self):
         if not self.codeForm.isvis:
             self.codeForm.show()
             self.codeForm.isvis = self.codeForm.isVisible()
 
-            self.codeForm.timer.setInterval(3000)
+            self.codeForm.timer.setInterval(1000)
             self.codeForm.timer.start()
             self.codeForm.timer.timeout.connect(self.findPoto)
 
             self.showMinimized()
             self.codeForm.exec_()
 
-
     def findPoto(self):
         # 首先判断相机目录是否存在
         if not os.path.exists(self.upload_dir):
             os.mkdir(self.upload_dir)
         serial_num = self.codeForm.SerialNumber
-        print '--',serial_num
+        print '--', serial_num
         if serial_num:
             photoList = os.listdir(self.photo_dir)
             photo_len = len(photoList)
@@ -237,30 +240,31 @@ class Window(QMainWindow,photo.Ui_Form):
                 picName = photoList[0]
                 picPath = os.path.join(self.photo_dir, picName)
 
-                image = Image.open(picPath)
-                imgNew = image.resize((256, 256))
-                draw = ImageDraw.Draw(imgNew)
-
                 upload_len = len(os.listdir(self.upload_dir))
                 char = chr(ord('A') + upload_len)
                 newSerial = serial_num + '-' + char
 
+                # 添加水印
+                # image = Image.open(picPath)
+                # imgNew = image.resize((256, 256))
+                # draw = ImageDraw.Draw(imgNew)
                 # 指定要使用的字体和大小；/Library/Fonts/是macOS字体目录；Linux的字体目录是/usr/share/fonts/
-                font = ImageFont.truetype('arial.ttf',16)  # 第二个参数表示字符大小
-                width, height = font.getsize(newSerial)
-                x = int((256 - width) / 2)
-                y = 256 - height - 12
-                draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
+                # font = ImageFont.truetype('arial.ttf', 16)  # 第二个参数表示字符大小
+                # width, height = font.getsize(newSerial)
+                # x = int((256 - width) / 2)
+                # y = 256 - height - 12
+                # draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
                 ab_filePath = os.path.join(self.upload_dir, '{0}.jpg'.format(newSerial))
-                imgNew.save(ab_filePath)
-                os.remove(picPath)
+                # imgNew.save(ab_filePath)
+                os.rename(picPath,ab_filePath)
+                # os.remove(picPath)
                 file_name = newSerial + '.jpg'
                 pic_num = len(os.listdir(self.upload_dir))
-                shang,yushu = divmod(pic_num,3)
+                shang, yushu = divmod(pic_num, 3)
                 if yushu > 0:
-                    self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402*(shang+1)))
+                    self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402 * (shang + 1)))
 
-                for k,v,in self.img_list.items():
+                for k, v, in self.img_list.items():
                     if char == k:
                         self.pixmap = QPixmap(ab_filePath)
                         self.img_list[k].setPixmap(self.pixmap)
@@ -270,6 +274,7 @@ class Window(QMainWindow,photo.Ui_Form):
                 for file in photoList:
                     p = os.path.join(self.photo_dir, file)
                     os.remove(p)
+
     def delPic(self):
         pic_name_list = os.listdir(self.upload_dir)
         pic_num = len(pic_name_list)
@@ -288,13 +293,19 @@ class Window(QMainWindow,photo.Ui_Form):
                 self.showMinimized()
 
         pic_num = len(os.listdir(self.upload_dir))
-        shang,yushu = divmod(pic_num,3)
+        shang, yushu = divmod(pic_num, 3)
         if yushu > 0:
-            self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402*(shang+1)))
+            self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402 * (shang + 1)))
         elif shang > 0 and yushu == 0:
             self.scrollAreaWidgetContents.setMinimumSize(QSize(1079, 402 * shang))
 
     def uploadPic(self):
+        geom = self.geometry()
+        x = geom.left()
+        y = geom.top()
+        w = geom.width()
+        h = geom.height()
+
         if self.codeForm.isvis:
             serial_num = self.codeForm.SerialNumber
             box_Sub = self.codeForm.boxOrSubBox
@@ -302,28 +313,23 @@ class Window(QMainWindow,photo.Ui_Form):
             if len(pic_name_list) > 0:
                 self.tipDlg = uploadTip(self)
                 self.tipDlg.label.setText("正在上传中...")
+                self.tipDlg.setGeometry(x + w * 0.5, y + h * 0.5, 100, 160)
                 all_img = {}
                 for pic_name in pic_name_list:
                     file_path = os.path.join(self.upload_dir, pic_name)
-                    se_char = pic_name.split('.')[0]
-                    char = se_char.split('-')[-1]
-                    for k, v, in self.img_list.items():
-                        if char == k:
-                            self.pixmap = QPixmap('')
-                            self.img_list[k].setPixmap(self.pixmap)
-                            self.naem_list[k].setText('')
                     with open(file_path, 'rb') as f:
                         f1 = base64.b64encode(f.read())
                         all_img[pic_name] = f1
                 imgs = json.dumps(all_img)
-                url = r'http://{0}:{1}/gsinfo/photographing/updatePhotographingInfo/'.format(settings.SERVERHOST, settings.SERVERPORT)
+                url = r'http://{0}:{1}/gsinfo/photographing/updatePhotographingInfo/'.format(settings.SERVERHOST,
+                                                                                             settings.SERVERPORT)
                 cookies = self.client.cookies
                 csrftoken = cookies['csrftoken']
                 data = {
                     'csrfmiddlewaretoken': csrftoken,
                     'serialNumber': str(serial_num),
                     'boxNumber': box_Sub,
-                    'pic_path':imgs
+                    'pic_path': imgs
                 }
                 resp = self.client.post(url, data=data, cookies=cookies)
                 if resp.status_code == 200:
@@ -338,30 +344,34 @@ class Window(QMainWindow,photo.Ui_Form):
                         self.codeForm.lineEdit.setText('')
                         self.codeForm.SerialNumber = self.codeForm.lineEdit.text()
                         self.tipDlg.close()
-                        geom = self.geometry()
-                        x = geom.left()
-                        y =geom.top()
-                        w = geom.width()
-                        h = geom.height()
-                        print geom.left(),geom.right(),geom.width(),geom.height(),geom.top()
-                        messagebox = TimerMessageBox(3)
-                        messagebox.setGeometry(x+w*0.5,y+h*0.5,100,160)
+
+                        # print geom.left(),geom.right(),geom.width(),geom.height(),geom.top()
+                        messagebox = TimerMessageBox(2)
+                        messagebox.setGeometry(x + w * 0.5, y + h * 0.5, 100, 160)
                         messagebox.exec_()
                         self.showMinimized()
+
+                        for pic_name in pic_name_list:
+                            se_char = pic_name.split('.')[0]
+                            char = se_char.split('-')[-1]
+                            for k, v, in self.img_list.items():
+                                if char == k:
+                                    self.pixmap = QPixmap('')
+                                    self.img_list[k].setPixmap(self.pixmap)
+                                    self.naem_list[k].setText('')
                     else:
                         self.tipDlg.close()
                         QMessageBox.critical(self, "警告：", self.tr("     上传失败!       "))
             else:
-                QMessageBox.critical(self, "提示：",self.tr("     暂无图片上传!       "))
+                QMessageBox.critical(self, "提示：", self.tr("     暂无图片上传!       "))
 
-
-    def mouseDoubleClickEvent(self,event):
+    def mouseDoubleClickEvent(self, event):
         self.showMinimized()
 
-
-    def closeEvent(self,event):
+    def closeEvent(self, event):
         self.codeForm.close()
         self.close()
+
 
 class TimerMessageBox(QMessageBox):
     def __init__(self, timeout=None):
@@ -385,35 +395,6 @@ class TimerMessageBox(QMessageBox):
         self.timer.stop()
         event.accept()
 
-
-# class CustomMessageBox(QMessageBox):
-#
-#     def __init__(self, *__args):
-#         QMessageBox.__init__(self)
-#         self.timeout = 0
-#         self.autoclose = False
-#         self.currentTime = 0
-#
-#     def showEvent(self, QShowEvent):
-#         self.currentTime = 0
-#         if self.autoclose:
-#             self.startTimer(1000)
-#
-#     def timerEvent(self, *args, **kwargs):
-#         self.currentTime += 1
-#         if self.currentTime >= self.timeout:
-#             self.done(0)
-#
-#     @staticmethod
-#     def showWithTimeout(timeoutSeconds, message, title, icon=QMessageBox.Information, buttons=QMessageBox.Ok):
-#         w = CustomMessageBox()
-#         w.autoclose = True
-#         w.timeout = timeoutSeconds
-#         w.setText(message)
-#         w.setWindowTitle(title)
-#         w.setIcon(icon)
-#         w.setStandardButtons(buttons)
-#         w.exec_()
 if __name__ == "__main__":
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
     app = QApplication(sys.argv)
@@ -426,5 +407,3 @@ if __name__ == "__main__":
         window.show()
 
         sys.exit(app.exec_())
-
-

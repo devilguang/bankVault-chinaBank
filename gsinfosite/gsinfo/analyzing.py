@@ -29,9 +29,7 @@ def updateAnalyzingInfo(request):
         log.log(user=request.user, operationType=u'业务操作', content=u'频谱分析信息更新')
         # 检测作业是否可用
         thing = gsThing.objects.get(serialNumber=serialNumber)
-        thing_status = gsStatus.objects.filter(thing=thing)
-        thing_obj = thing_status[0]
-        if thing_obj.status == 0:
+        if thing.work.status == 0:
             # 作业不可用
             raise ValueError, u'作业不可用！请联系实物分发岗位进行分发！'
 

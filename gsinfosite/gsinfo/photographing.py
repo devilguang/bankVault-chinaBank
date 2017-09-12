@@ -74,25 +74,13 @@ def updatePhotographingInfo(request):
             with open(save_path,'wb') as f:
                 f.write(img)
 
-        if '-' in boxOrSubBox:
-            boxNumber = int(boxOrSubBox.split('-')[0])
-            subBoxNumber = int(boxOrSubBox.split('-')[1])
-        else:
-            boxNumber = int(boxOrSubBox)
-            subBoxNumber = ''
-
-
         user = request.user
         operator = gsUser.objects.get(user=user).nickName
-
-        box = gsBox.objects.get(boxNumber=boxNumber)
 
         try:
             # 检测作业是否可用
             thing = gsThing.objects.get(serialNumber=serialNumber)
-            thing_status = gsStatus.objects.filter(thing=thing)
-            thing_obj = thing_status[0]
-            if thing_obj.status == 0:
+            if thing.work.status == 0:
                 # 作业不可用
                 raise ValueError, u'作业不可用！请联系实物分发岗位进行分发，并刷新页面！'
 
