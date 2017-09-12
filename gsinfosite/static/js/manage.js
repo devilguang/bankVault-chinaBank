@@ -76,6 +76,7 @@ function boxOperationFormatter(value, row, index) {
 
 //封袋功能里面的扫描二维码
 function sealingBagDlgKey() {
+    debugger
     if (event.keyCode == 13) {
         var serialNumber = $("#sealingBagDlg-qrCode").val();
         var row = $('#workGridBoxManage').datagrid('getSelected');
@@ -101,7 +102,7 @@ function sealingBagDlgKey() {
 function sealingBag() {
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (row) {
-        $("#sealingBagDlg").dialog('open').dialog('center').dialog('setTitle', '封袋实物');
+        $("#sealingBagDlg").dialog('open').dialog('center').dialog('setTitle', '封袋操作');
         $('#sealingBagDlgForm').form('clear');
         $('#sealingBag-thingsGrid').datagrid({
             url: 'getCloseThing/',

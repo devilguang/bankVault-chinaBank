@@ -738,10 +738,14 @@
 <!--封袋作业的对话框 -->
 <div id="sealingBagDlg" class="easyui-dialog" style="width:600px;height:500px;padding:10px 20px"
      data-options="closed:true, buttons:'#sealingBagDlgDlgButtons', modal:true">
-    <div class="FormTitle">作业信息</div>
-    <input id="sealingBagDlg-qrCode" onkeypress="sealingBagDlgKey()"
-           style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px" placeholder="请使用扫描枪扫描二维码"/>
-    <form id="sealingBagDlgForm" method="POST" novalidate style="margin-top: 20px;">
+    <div class="FormTitle">实物信息</div>
+    <div  class="search" style="margin-bottom: 10px;">
+		<label for="serialNumber">实物编号</label>
+		<input id="sealingBagDlg-qrCode" class="easyui-textbox" data-options="height:28, prompt:'请使用扫描枪扫描二维码'" onkeypress="sealingBagDlgKey()"></input>
+    </div>
+{#    <input id="" onkeypress="sealingBagDlgKey()"#}
+{#           style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px" placeholder="请使用扫描枪扫描二维码"/>#}
+    <form id="sealingBagDlgForm" method="POST" novalidate >
         <table width="545px">
             <tr height="300px">
                 <td colspan="2">

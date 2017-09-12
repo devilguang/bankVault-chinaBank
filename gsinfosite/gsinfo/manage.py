@@ -1678,6 +1678,7 @@ def getCloseThing(request):
     ret = {}
     ret['total'] = n
     ret['rows'] = []
+    ret['boxNumber'] = boxNumber
     for th in things[start:end]:
         r = {}
         r['serialNumber'] = th.thing.serialNumber
