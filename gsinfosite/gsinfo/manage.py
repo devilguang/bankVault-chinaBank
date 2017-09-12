@@ -1771,6 +1771,7 @@ def getCloseOverThing(request):
 
     return HttpResponse(ret_json)
 
+# 获取盒号及其二维码
 def getCaseNumber(request):
     # serialNumber2 = request.POST.get('serialNumber2', '')
 
