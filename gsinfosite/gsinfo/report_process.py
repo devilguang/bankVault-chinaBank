@@ -8,6 +8,11 @@ from gsinfosite import settings
 import time
 from math import ceil
 import zipfile
+from openpyxl.utils.units import (
+    DEFAULT_ROW_HEIGHT,
+    DEFAULT_COLUMN_WIDTH
+)
+from openpyxl.utils.units import points_to_pixels
 
 templateRootDir = settings.DATA_DIRS['template_dir']
 boxRootDir = settings.DATA_DIRS['box_dir']
@@ -1468,15 +1473,43 @@ def createCaseTicket(**kwargs):
     className = gsProperty.objects.get(project='品名',code=classNameCode,parentProject='实物类型',parentType=productType).type
 
     table = load_workbook(os.path.join(templateRootDir, u'装盒票.xlsx'))
+    default_height = points_to_pixels(DEFAULT_ROW_HEIGHT)
     sheet = table.worksheets[0]
-    h1 = sheet.row_dimensions[1].height
-    h2 = sheet.row_dimensions[2].height
-    h3 = sheet.row_dimensions[3].height
-    h4 = sheet.row_dimensions[4].height
-    unit = sheet.row_dimensions[5].height
-    h_last = sheet.row_dimensions[16].height
+    # default_height=20,而只有高度大于默认值的单元格sheet.row_dimensions[n].height才不返回None
+
+    if not sheet.row_dimensions[1].height:
+        sheet.row_dimensions[1].height = 14.25
+        h1 = sheet.row_dimensions[1].height
+    else:
+        h1 = sheet.row_dimensions[1].height
+    if not sheet.row_dimensions[2].height:
+        sheet.row_dimensions[2].height = 14.25
+        h2 = sheet.row_dimensions[2].height
+    else:
+        h2 = sheet.row_dimensions[1].height
+    if not sheet.row_dimensions[3].height:
+        sheet.row_dimensions[3].height = 14.25
+        h3 = sheet.row_dimensions[3].height
+    else:
+        h3 = sheet.row_dimensions[3].height
+    if not sheet.row_dimensions[4].height:
+        sheet.row_dimensions[4].height = 14.25
+        h4 = sheet.row_dimensions[4].height
+    else:
+        h4 = sheet.row_dimensions[4].height
+    if not sheet.row_dimensions[5].height:
+        sheet.row_dimensions[5].height = 14.25
+        unit = sheet.row_dimensions[5].height
+    else:
+        unit = sheet.row_dimensions[5].height
+# 14.25
+    if not sheet.row_dimensions[16].height:
+        sheet.row_dimensions[16].height = 14.25
+        h_last = sheet.row_dimensions[16].height
+    else:
+        h_last = sheet.row_dimensions[16].height
     h = h1 + h2 + h3 + h4+h_last
-    standard_h = h + 11 * unit  # 10个+1个小计
+    print_area = h + 24 * unit
     real_h = h
     name_count=1
     row_count=1
@@ -1579,19 +1612,29 @@ def createCaseTicket(**kwargs):
         # sheet.cell(row=rowStartIdx, column=22).font = font
         # ws.cell(row=rowStartIdx, column=22).alignment = alignment
 
-        h_some = sheet.row_dimensions[rowStartIdx].height
-        real_h =  h_some +(10-row_count)*unit
-        if standard_h -h < unit:
+        if not sheet.row_dimensions[rowStartIdx].height:
+            sheet.row_dimensions[rowStartIdx].height = 14.25
+            h_some = sheet.row_dimensions[rowStartIdx].height
+        else:
+            h_some = sheet.row_dimensions[rowStartIdx].height
+        real_h = real_h + h_some +(11-row_count)*unit
+        aa = print_area -real_h
+        if print_area -real_h < unit:
             caseTicketName = u'{0}-{1}.xlsx'.format(caseNumber,str(name_count))
             caseTicketPath = os.path.join(boxDir, caseTicketName)
-            caseTicketPath_list.append()
-            table.save()
+            caseTicketPath_list.append(caseTicketPath)
+            table.save(caseTicketPath)
             name_count +=1
             rowStartIdx = 5
             real_h = h
         else:
             rowStartIdx +=1
             row_count +=1
+
+    caseTicketName = u'{0}-{1}.xlsx'.format(caseNumber, str(name_count))
+    caseTicketPath = os.path.join(boxDir, caseTicketName)
+    caseTicketPath_list.append(caseTicketPath)
+    table.save(caseTicketPath)
     return caseTicketPath_list
 
 

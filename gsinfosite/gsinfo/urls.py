@@ -106,7 +106,7 @@ urlpatterns = [
     url(r'^manage/getCloseOverThing/$', manage.getCloseOverThing, name='getCloseOverThing'),
     url(r'^manage/getCaseNumber/$', manage.getCaseNumber, name='getCaseNumber'),
     url(r'^manage/confirmInputCase/$', manage.confirmInputCase, name='confirmInputCase'),
-
+    url(r'^manage/print_pic/$', manage.print_pic, name='print_pic'),
     url(r'^manage/text/$', manage.text, name='text'),
 
 

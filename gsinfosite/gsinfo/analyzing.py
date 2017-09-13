@@ -48,6 +48,7 @@ def updateAnalyzingInfo(request):
         status = thing_obj.numberingStatus and thing_obj.analyzingStatus and thing_obj.measuringStatus and \
                  thing_obj.photographingStatus and thing_obj.checkingStatus
         thing_status.update(status=status)
+
     except Exception as e:
         ret = {}
         ret['success'] = False

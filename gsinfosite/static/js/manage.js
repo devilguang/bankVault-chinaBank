@@ -174,7 +174,7 @@ function addTheJobBox() {
             url: 'getCloseOverThing/',
             queryParams: {boxNumber: row.boxNumber},
             columns: [[
-                {field: 'serialNumber', title: '实物编号', align: 'center'},
+                {field: 'serialNumber2', title: '实物编号', align: 'center'},
             ]],
             pagination: true,
             fit: true,
