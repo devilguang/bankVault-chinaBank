@@ -141,7 +141,7 @@ function sealingBag() {
         });
     }
 }
-function printingSealingBag (file_path) {
+function printingSealingBag(file_path) {
     $.ajax({
         type: "post",
         url: 'print_service/',
@@ -158,7 +158,7 @@ function printingSealingBag (file_path) {
             }
             var timer = setTimeout(function () {
                 $("#sealingBagDlg").dialog('close')
-            },3000)
+            }, 3000)
         }
     });
 }
@@ -170,6 +170,7 @@ function addTheJobBox() {
         $("#addJobBoxDlg").dialog('open').dialog('center').dialog('setTitle', '添加盒');
         $('#addJobBoxDlgLeftForm').form('clear');
         $('#addJobBoxDlgRightForm').form('clear');
+        getBoxNumberDlg(row)
         $("#addJobBoxLeft-thingsGrid").datagrid({
             url: 'getCloseOverThing/',
             queryParams: {boxNumber: row.boxNumber},
@@ -185,7 +186,6 @@ function addTheJobBox() {
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
-
         $("#addJobBoxRight-thingsGrid").datagrid({
             url: '',
             queryParams: {},
@@ -201,6 +201,7 @@ function addTheJobBox() {
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
+        addJobBoxDlg();
         $("#addJobBoxDlgLeftForm").children().find(".panel").css("width", "300px");
         $("#addJobBoxDlgLeftForm").children().find(".datagrid-wrap").css("width", "300px");
         $("#addJobBoxDlgRightForm").children().find(".panel").css("width", "300px");
@@ -215,26 +216,49 @@ function addTheJobBox() {
 }
 //添加盒子功能里面的扫描二维码
 function addJobBoxDlg() {
-    if (event.keyCode == 13) {
-        var row = $('#workGridBoxManage').datagrid('getSelected');
-        var serialNumber = $("#addJobBoxDlg-qrCode").val();
-        $.ajax({
-            type: 'post',
-            url: 'closeThing/',
-            data: {
-                serialNumber: serialNumber,
-                boxNumber: row.boxNumber
-            }, success: function (data) {
-                var data = JSON.parse(data);
-                if (data.success) {
-                    var file_path = data.file_path;
-                    $("#addJobBoxDlgLeftForm").datagrid('reload')
-                } else {
-                    $.messager.alert('提示', data.message)
+    $("#addJobBoxDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
+        if (event.keyCode == 13) {
+            var row = $('#workGridBoxManage').datagrid('getSelected');
+            var serialNumber = $("#addJobBoxDlg-qrCode").val();
+            $.ajax({
+                type: 'post',
+                url: 'closeThing/',
+                data: {
+                    serialNumber: serialNumber,
+                    boxNumber: row.boxNumber
+                }, success: function (data) {
+                    var data = JSON.parse(data);
+                    if (data.success) {
+                        var file_path = data.file_path;
+                        $("#addJobBoxDlgLeftForm").datagrid('reload');
+                    } else {
+                        $.messager.alert('提示', data.message)
+                    }
                 }
-            }
-        })
-    }
+            })
+        }
+    });
+}
+//添加盒子功能中获取到盒号的方法
+function getBoxNumberDlg(row) {
+    $.ajax({
+        type: 'post',
+        url: 'getCaseNumber/',
+        data: {
+            amount:row.amount,
+            boxNumber:row.boxNumber,
+            className:row.className,
+            haveSubBox:row.haveSubBox,
+            productType:row.productType,
+            subClassName:row.subClassName,
+            wareHouse:row.wareHouse
+        }, success: function (data) {
+            var data = JSON.parse(data);
+             document.getElementById("addJobBoxDlgBoxNumber").value = data.caseNumber;
+             $("#addJobBoxDlgBoxNumber").siblings().children().eq(0).val(data.caseNumber);
+             $("#addJobBoxDlgBoxNumber").siblings().children().eq(1).val(data.caseNumber);
+        }
+    });
 }
 
 //点击新建的方法
