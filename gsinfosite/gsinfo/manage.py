@@ -1904,6 +1904,23 @@ def enterEvent(request):
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 
+def cancleInput(request):
+    serialNumber2 = request.POST.get('serialNumber2', '')
+
+    serialNumber2_list = serialNumber2.split(';')[0:-1]
+    try:
+        thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list)
+        gsStatus.objects.filter(thing__in=thing_set).update(incase_status=0)
+        ret = {
+            'success': True,
+        }
+    except Exception as e:
+        ret = {
+            'success': False
+        }
+    ret_json = json.dumps(ret)
+    return HttpResponse(ret_json)
+
 def confirmInputCase(request):
     boxNumber = request.POST.get('boxNumber', '')
     caseNumber = request.POST.get('caseNumber', '')

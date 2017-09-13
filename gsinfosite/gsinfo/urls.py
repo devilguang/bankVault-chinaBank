@@ -108,6 +108,7 @@ urlpatterns = [
     url(r'^manage/confirmInputCase/$', manage.confirmInputCase, name='confirmInputCase'),
     url(r'^manage/print_pic/$', manage.print_pic, name='print_pic'),
     url(r'^manage/enterEvent/$', manage.enterEvent, name='enterEvent'),
+    url(r'^manage/cancleInput/$', manage.cancleInput, name='cancleInput'),
     url(r'^manage/text/$', manage.text, name='text'),
 
     url(r'^checking/$', checking.checking, name='checking'),
