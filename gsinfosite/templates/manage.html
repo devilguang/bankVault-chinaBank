@@ -739,13 +739,14 @@
 <div id="sealingBagDlg" class="easyui-dialog" style="width:600px;height:500px;padding:10px 20px"
      data-options="closed:true, buttons:'#sealingBagDlgDlgButtons', modal:true">
     <div class="FormTitle">实物信息</div>
-    <div  class="search"  style="margin-bottom: 10px;">
-		<label for="serialNumber">实物编号</label>
-		<a href="javascript:void(0)"><input id="sealingBagDlg-qrCode" class="easyui-textbox" data-options="height:28, prompt:'请使用扫描枪扫描二维码'" /></a>
+    <div class="search" style="margin-bottom: 10px;">
+        <label for="serialNumber">实物编号</label>
+        <a href="javascript:void(0)"><input id="sealingBagDlg-qrCode" class="easyui-textbox"
+                                            data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
     </div>
-{#    <input id="" onkeypress="sealingBagDlgKey()"#}
-{#           style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px" placeholder="请使用扫描枪扫描二维码"/>#}
-    <form id="sealingBagDlgForm" method="POST" novalidate >
+    {#    <input id="" onkeypress="sealingBagDlgKey()"#}
+    {#           style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px" placeholder="请使用扫描枪扫描二维码"/>#}
+    <form id="sealingBagDlgForm" method="POST" novalidate>
         <table width="545px">
             <tr height="300px">
                 <td colspan="2">
@@ -773,9 +774,14 @@
     <div style="display: flex;justify-content: space-between">
         <div id="addJobBoxDlgwrap" style="width:49%">
             <form id="addJobBoxDlgLeftForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
-                <input id="addJobBoxDlg-qrCode" onkeypress=""
-                       style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px;"
-                       placeholder="请使用扫描枪扫描二维码" onkeypress="addJobBoxDlg()"/>
+{#                <input id="addJobBoxDlg-qrCode"#}
+{#                       style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px;"#}
+{#                       placeholder="请使用扫描枪扫描二维码" onkeypress="addJobBoxDlg(event)"/>#}
+                <div class="search" style="margin-bottom: 10px;margin-right:55px ">
+                    <label for="serialNumber">实物编号</label>
+                    <a href="javascript:void(0)"><input id="addJobBoxDlg-qrCode" class="easyui-textbox"
+                          data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
+                </div>
                 <table style="width: 300px;margin-top: 10px">
                     <tr height="330px;">
                         <td colspan="2" style="width: 300px;">
@@ -787,8 +793,13 @@
         </div>
         <div style="width:49%">
             <form id="addJobBoxDlgRightForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
-                <div style=""><span>盒号：</span><input type="text" id="addJobBoxDlgBoxNumber"
-                                                     style="height: 28px;border-radius: 7px;outline: none;border: 1px solid #95B8E7;">
+{#                <div style=""><span>盒号：</span><input type="text" id="addJobBoxDlgBoxNumber"#}
+{#                                                     style="height: 28px;border-radius: 7px;outline: none;border: 1px solid #95B8E7;">#}
+{#                </div>#}
+                 <div class="search" style="margin-bottom: 10px;margin-right:55px ">
+                    <label for="serialNumber">盒号</label>
+                    <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" class="easyui-textbox"
+                          data-options="height:28, prompt:''"/></a>
                 </div>
                 <table style="width: 300px;margin-top: 10px">
                     <tr height="330px;width: 300px;">
