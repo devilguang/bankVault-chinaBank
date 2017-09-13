@@ -13,6 +13,9 @@ from openpyxl.utils.units import (
     DEFAULT_COLUMN_WIDTH
 )
 from openpyxl.utils.units import points_to_pixels
+import re
+import math
+from decimal import *
 
 templateRootDir = settings.DATA_DIRS['template_dir']
 boxRootDir = settings.DATA_DIRS['box_dir']
@@ -1442,13 +1445,30 @@ def createBoxInfoDetailedVersion(boxNumber,subBoxNumber, date):
 >>> sheet.column_dimensions['B'].width = 20
 >>> wb.save('dimensions.xlsx')
 '''
+def getRows(value_list):
+    # 判断value中的每一个值是中文还是英文
+    zhPattern = re.compile(u'[\u4e00-\u9fa5]')
+    row_list = []
+    for value in value_list:
+        vs,n = value
+        all_len = 0
+        for v in unicode(str(vs), "utf-8"):
+            match = zhPattern.search(v)
+            if match:
+                all_len += 2
+            else:
+                all_len += 1
+        row_num = int(math.ceil(float(all_len)/float(n)))
+        row_list.append(row_num)
+    max_row = max(row_list)
+    return max_row
+
 # --------------------------------------装盒票--------------------------------------
 def createCaseTicket(**kwargs):
     boxNumber = kwargs['boxNumber']
     caseNumber = kwargs['caseNumber']
     serialNumber2_list = kwargs['serialNumber2_list']
 
-    box = gsBox.objects.get(boxNumber=boxNumber)
     case = gsCase.objects.get(caseNumber=caseNumber)
     thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list,case=case)
     global boxDir
@@ -1473,169 +1493,269 @@ def createCaseTicket(**kwargs):
     className = gsProperty.objects.get(project='品名',code=classNameCode,parentProject='实物类型',parentType=productType).type
 
     table = load_workbook(os.path.join(templateRootDir, u'装盒票.xlsx'))
-    default_height = points_to_pixels(DEFAULT_ROW_HEIGHT)
+    # default_height = points_to_pixels(DEFAULT_ROW_HEIGHT)
     sheet = table.worksheets[0]
     # default_height=20,而只有高度大于默认值的单元格sheet.row_dimensions[n].height才不返回None
 
     if not sheet.row_dimensions[1].height:
-        sheet.row_dimensions[1].height = 14.25
+        sheet.row_dimensions[1].height = 12
         h1 = sheet.row_dimensions[1].height
     else:
         h1 = sheet.row_dimensions[1].height
     if not sheet.row_dimensions[2].height:
-        sheet.row_dimensions[2].height = 14.25
+        sheet.row_dimensions[2].height = 12
         h2 = sheet.row_dimensions[2].height
     else:
         h2 = sheet.row_dimensions[1].height
     if not sheet.row_dimensions[3].height:
-        sheet.row_dimensions[3].height = 14.25
+        sheet.row_dimensions[3].height = 12
         h3 = sheet.row_dimensions[3].height
     else:
         h3 = sheet.row_dimensions[3].height
     if not sheet.row_dimensions[4].height:
-        sheet.row_dimensions[4].height = 14.25
+        sheet.row_dimensions[4].height = 12
         h4 = sheet.row_dimensions[4].height
     else:
         h4 = sheet.row_dimensions[4].height
-    if not sheet.row_dimensions[5].height:
-        sheet.row_dimensions[5].height = 14.25
-        unit = sheet.row_dimensions[5].height
-    else:
-        unit = sheet.row_dimensions[5].height
-# 14.25
     if not sheet.row_dimensions[16].height:
-        sheet.row_dimensions[16].height = 14.25
+        sheet.row_dimensions[16].height = 12
         h_last = sheet.row_dimensions[16].height
     else:
         h_last = sheet.row_dimensions[16].height
+
+    unit = 12
     h = h1 + h2 + h3 + h4+h_last
-    print_area = h + 24 * unit
-    real_h = h
+    print_area = 32 * 14.25
     name_count=1
     row_count=1
     caseTicketPath_list = []
+    row_height_list = []
+    rowStartIdx = 5
+
+    # font = Font(name=u'仿宋', size=10)
+    # alignment = Alignment(horizontal='center', vertical='center')
 
     if productType == u'金银锭类':
         things = gsDing.objects.filter(thing__in=thing_set)
     elif productType == u'金银币章类':
         things = gsBiZhang.objects.filter(thing__in=thing_set)
+    elif productType == u'银元类':
+        things = gsYinYuan.objects.filter(thing__in=thing_set)
+    elif productType == u'金银工艺品类':
+        things = gsGongYiPin.objects.filter(thing__in=thing_set)
     for i,th in enumerate(things):
-        # font = Font(name=u'仿宋', size=9)
-        # alignment = Alignment(horizontal='center', vertical='center')
         # 写表头
+        value_list = []
         sheet['A{0}'.format(2)] = u'箱号:' + str(boxNumber)
         date = datetime.datetime.now()
         year = date.year
         month = date.month
         day = date.day
         sheet['P{0}'.format(2)] = u'{0}年{1}月{2}日'.format(year, month, day)
-
-        rowStartIdx = 5
         # 写表
         # 序号
-        sheet.cell(row=rowStartIdx, column=1).value = i +1
+        row1 = i +1
+        sheet.cell(row=rowStartIdx, column=1).value = row1
+        value_list.append((row1,2))
         # 品名
-        sheet.cell(row=rowStartIdx, column=2).value = className
+        row2= className
+        sheet.cell(row=rowStartIdx, column=2).value = row2
+        value_list.append((row2,6))
         # 明细品名
-        sheet.cell(row=rowStartIdx, column=3).value = th.thing.subClassName
+        subClassName_code = th.thing.subClassName
+
+        subClassName = gsProperty.objects.get(project='明细品名', code=subClassName_code, parentProject='品名',
+                                           parentType=className,grandpaProject='实物类型',grandpaType=productType).type
+        row3 =subClassName
+        sheet.cell(row=rowStartIdx, column=3).value =row3
+        value_list.append((row3,6))
+
         # 编号
-        sheet.cell(row=rowStartIdx, column=4).value = th.thing.serialNumber2
+        row4 =th.thing.serialNumber2
+        sheet.cell(row=rowStartIdx, column=4).value = row4
+        value_list.append((row4,8))
         # 名称* （打*表示该属性四类共有）
-        sheet.cell(row=rowStartIdx, column=5).value = th.detailedName
+        row5 =th.detailedName
+        sheet.cell(row=rowStartIdx, column=5).value = row5
+        value_list.append((row5,4))
         # 型制类型
         try:
-            sheet.cell(row=rowStartIdx, column=6).value = th.typeName
+            row6 =th.typeName
+            sheet.cell(row=rowStartIdx, column=6).value = row6
         except:
-            sheet.cell(row=rowStartIdx, column=6).value = ''
-
+            row6 =''
+            sheet.cell(row=rowStartIdx, column=6).value = row6
+        value_list.append((row6,4))
         # 时代*
-        sheet.cell(row=rowStartIdx, column=7).value = th.peroid
+        row7=th.peroid
+        sheet.cell(row=rowStartIdx, column=7).value = row7
+        value_list.append((row7, 4))
         # 制作地
         try:
-            sheet.cell(row=rowStartIdx, column=8).value = th.producePlace
+            row8=th.producePlace
+            sheet.cell(row=rowStartIdx, column=8).value = row8
         except:
-            sheet.cell(row=rowStartIdx, column=8).value = ''
+            row8 =''
+            sheet.cell(row=rowStartIdx, column=8).value = row8
+        value_list.append((row8, 6))
         # 制作人
         try:
-            sheet.cell(row=rowStartIdx, column=9).value = th.producer
+            row9=th.producer
+            sheet.cell(row=rowStartIdx, column=9).value = row9
         except:
-            sheet.cell(row=rowStartIdx, column=9).value = ''
+            row9=''
+            sheet.cell(row=rowStartIdx, column=9).value = row9
+        value_list.append((row9, 6))
         # 性质
         try:
+            row10=''
             sheet.cell(row=rowStartIdx, column=10).value = ''
         except:
+            row10=''
             sheet.cell(row=rowStartIdx, column=10).value = ''
+        value_list.append((row10, 4))
         # 品相*
-        sheet.cell(row=rowStartIdx, column=11).value = th.quality
+        row11=th.quality
+        sheet.cell(row=rowStartIdx, column=11).value = row11
+        value_list.append((row11, 4))
         # 币值
         try:
-            sheet.cell(row=rowStartIdx, column=12).value = th.value
+            row12=th.value
+            sheet.cell(row=rowStartIdx, column=12).value = row12
         except:
-            sheet.cell(row=rowStartIdx, column=12).value = ''
+            row12=''
+            sheet.cell(row=rowStartIdx, column=12).value = row12
+        value_list.append((row12, 4))
         # 铭文
         try:
-            sheet.cell(row=rowStartIdx, column=13).value = th.carveName
+            row13=th.carveName
+            sheet.cell(row=rowStartIdx, column=13).value = row13
         except:
-            sheet.cell(row=rowStartIdx, column=13).value = ''
+            row13=''
+            sheet.cell(row=rowStartIdx, column=13).value = row13
+        value_list.append((row13, 4))
         # 毛重
-        sheet.cell(row=rowStartIdx, column=14).value = th.grossWeight
+        row14 = '%.2f' % th.grossWeight
+        value_len = len(row14)
+        if value_len > 6:
+            sheet.cell(row=rowStartIdx, column=14).value = row14
+        else:
+            sheet.cell(row=rowStartIdx, column=14).value =Decimal(row14).quantize(Decimal('0.00'))
         # 原标注成色
-        sheet.cell(row=rowStartIdx, column=15).value = th.originalQuantity
+        row15 ='%.2f' % th.originalQuantity
+        value_len = len(row15)
+        if value_len > 6:
+            sheet.cell(row=rowStartIdx, column=15).value = row15
+        else:
+            sheet.cell(row=rowStartIdx, column=15).value = Decimal(row15).quantize(Decimal('0.00'))
+
         # 检测成色
-        sheet.cell(row=rowStartIdx, column=16).value = th.detectedQuantity
+        row16 = '%.2f' % th.detectedQuantity
+        value_len = len(row16)
+        if value_len > 6:
+            sheet.cell(row=rowStartIdx, column=16).value = row16
+        else:
+            sheet.cell(row=rowStartIdx, column=16).value = Decimal(row16).quantize(Decimal('0.00'))
+
         # 净重
         if (th.grossWeight is not None and th.detectedQuantity is not None):
-            sheet.cell(row=rowStartIdx, column=17).value = float('%0.2f' % (th.grossWeight * th.detectedQuantity / 100))
+            row17 ='%0.2f' % (th.grossWeight * th.detectedQuantity / 100)
+            value_len = len(row17)
+            if value_len > 6:
+                sheet.cell(row=rowStartIdx, column=17).value =row17
+            else:
+                sheet.cell(row=rowStartIdx, column=17).value = Decimal(row17).quantize(Decimal('0.00'))
 
         # 长度
         try:
-            sheet.cell(row=rowStartIdx, column=18).value = th.length
+            row18 ='%.2f' % th.length
         except:
-            sheet.cell(row=rowStartIdx, column=18).value = ''
+            row18 = ''
+        value_len = len(row18)
+        if value_len > 6:
+            sheet.cell(row=rowStartIdx, column=18).value = row18
+        else:
+            if row18:
+                sheet.cell(row=rowStartIdx, column=18).value = Decimal(row18).quantize(Decimal('0.00'))
+            else:
+                sheet.cell(row=rowStartIdx, column=18).value =row18
         # 宽度
         try:
-            sheet.cell(row=rowStartIdx, column=19).value = th.width
+            row19 ='%.2f' % th.width
         except:
-            sheet.cell(row=rowStartIdx, column=19).value = ''
-        # 高度
+            row19 = ''
+        value_len = len(row19)
+        if value_len > 6:
+            sheet.cell(row=rowStartIdx, column=19).value = row19
+        else:
+            if row19:
+                sheet.cell(row=rowStartIdx, column=19).value = Decimal(row19).quantize(Decimal('0.00'))
+            else:
+                sheet.cell(row=rowStartIdx, column=19).value =row19
+
+                # 高度
         try:
-            sheet.cell(row=rowStartIdx, column=20).value = th.width
+            row20 = '%.2f' % th.height
         except:
-            sheet.cell(row=rowStartIdx, column=20).value = th.thick
+            row20 ='%.2f' % th.thick
+        value_len = len(row20)
+        if value_len > 6:
+            sheet.cell(row=rowStartIdx, column=20).value = row20
+        else:
+            sheet.cell(row=rowStartIdx, column=20).value = Decimal(row20).quantize(Decimal('0.00'))
+
         # 直径
         try:
-            sheet.cell(row=rowStartIdx, column=21).value = th.diameter
+            row21 = '%.2f' % th.diameter
         except:
-            sheet.cell(row=rowStartIdx, column=21).value = ''
+            row21=''
+        value_len = len(row21)
+        if value_len > 6:
+            sheet.cell(row=rowStartIdx, column=21).value = row21
+        else:
+            if row21:
+                sheet.cell(row=rowStartIdx, column=21).value =Decimal(row21).quantize(Decimal('0.00'))
+            else:
+                sheet.cell(row=rowStartIdx, column=21).value = row21
         # 评价等级
         sheet.cell(row=rowStartIdx, column=22).value = th.level
-        # sheet.cell(row=rowStartIdx, column=22).font = font
-        # ws.cell(row=rowStartIdx, column=22).alignment = alignment
 
-        if not sheet.row_dimensions[rowStartIdx].height:
-            sheet.row_dimensions[rowStartIdx].height = 14.25
-            h_some = sheet.row_dimensions[rowStartIdx].height
-        else:
-            h_some = sheet.row_dimensions[rowStartIdx].height
-        real_h = real_h + h_some +(11-row_count)*unit
-        aa = print_area -real_h
-        if print_area -real_h < unit:
+        max_row = getRows(value_list)
+        sheet.row_dimensions[rowStartIdx].height = 12*max_row
+        h_some = sheet.row_dimensions[rowStartIdx].height
+        row_height_list.append(h_some)
+        row_height_len = len(row_height_list)
+        sum_row_height = sum(row_height_list)
+        real_h = h + sum_row_height + (11-row_height_len)*unit
+        other_area = print_area - real_h
+        if other_area< unit:
+            # 写小计
             caseTicketName = u'{0}-{1}.xlsx'.format(caseNumber,str(name_count))
             caseTicketPath = os.path.join(boxDir, caseTicketName)
             caseTicketPath_list.append(caseTicketPath)
             table.save(caseTicketPath)
-            name_count +=1
+            name_count += 1
             rowStartIdx = 5
-            real_h = h
+            row_height_list = []
         else:
             rowStartIdx +=1
             row_count +=1
+    # 写合计
 
+    sheet.insert_rows(15, 1, above=False, copy_style=True, fill_formulae=False)
+    sheet['A{0}'.format(16)] = u'合计'
+
+    sub_area1 = sheet['A{0}:V{1}'.format(3, 16)]
+    for cs in sub_area1:
+        for cell in cs:
+            cell.border = border
+    sheet.row_dimensions[17].height = 24
     caseTicketName = u'{0}-{1}.xlsx'.format(caseNumber, str(name_count))
     caseTicketPath = os.path.join(boxDir, caseTicketName)
     caseTicketPath_list.append(caseTicketPath)
     table.save(caseTicketPath)
-    return caseTicketPath_list
+    all_file_path = '|'.join(caseTicketPath_list)
+    return all_file_path
 
 
 def outputDing(r, s, manager, productType, className, subClassName, wareHouse, date, reportWordDir):

@@ -198,11 +198,11 @@ def checkInfo(request):
     if productType == u'金银锭类':
         things = gsDing.objects.values_list(key,flat=True)
     elif productType == u'金银币章类':
-        things = gsDing.objects.values_list(key, flat=True)
+        things = gsBiZhang.objects.values_list(key, flat=True)
     elif productType == u'银元类':
-        things = gsDing.objects.values_list(key, flat=True)
+        things = gsYinYuan.objects.values_list(key, flat=True)
     elif productType == u'金银工艺品类':
-        things = gsDing.objects.values_list(key, flat=True)
+        things = gsGongYiPin.objects.values_list(key, flat=True)
 
     historyInfo = {}
     for thing in things:

@@ -1878,9 +1878,10 @@ def getCaseNumber(request):
     return HttpResponse(ret_json)
 
 def confirmInputCase(request):
-    boxNumber = 1 # request.POST.get('boxNumber', '')
-    caseNumber = '456Wuyh2' # request.POST.get('caseNumber', '')
-    serialNumber2= '123bJw3D;123SnGu2;123DPKek;' # request.POST.get('serialNumber2', '')
+    boxNumber = request.POST.get('boxNumber', '')
+    caseNumber = request.POST.get('caseNumber', '')
+    serialNumber2= request.POST.get('serialNumber2', '')
+
     serialNumber2_list = serialNumber2.split(';')[0:-1]
     try:
         case = gsCase.objects.create(caseNumber=caseNumber,status=0)
@@ -1888,7 +1889,7 @@ def confirmInputCase(request):
         thing_set.update(case=case)
         gsStatus.objects.filter(thing__in=thing_set).update(incase_status=1)
 
-        createCaseTicket(boxNumber=boxNumber,
+        file_path = createCaseTicket(boxNumber=boxNumber,
                          caseNumber=caseNumber,
                          serialNumber2_list=serialNumber2_list)
 
@@ -1898,7 +1899,8 @@ def confirmInputCase(request):
         }
     else:
         ret = {
-            'success':True
+            'success':True,
+            'file_path':file_path
         }
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
