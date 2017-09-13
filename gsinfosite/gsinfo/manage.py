@@ -1689,7 +1689,7 @@ def print_pic(request):
         hDC.StartPage()
 
         dib = ImageWin.Dib(bmp)
-        scaled_width, scaled_height = [int(3*i) for i in bmp.size]  # 对原始图片放大n倍
+        scaled_width, scaled_height = [int(4*i) for i in bmp.size]  # 对原始图片放大n倍
         x1 = int((printer_size[0] - scaled_width) / 4)
         y1 = int((printer_size[1] - scaled_height) / 4)
         x2 = x1 + scaled_width
@@ -1864,31 +1864,59 @@ def getCloseOverThing(request):
 
 # 获取盒号及其二维码
 def getCaseNumber(request):
-    # serialNumber2 = request.POST.get('serialNumber2', '')
+    boxNumber = request.POST.get('boxNumber', '')
 
     # 请求盒号及盒号二维码
     caseNumber = '456' + str(shortuuid.ShortUUID().random(length=5))
     # 数据库记录
     # gsCase.objects.create(caseNumber=caseNumber,status=0)
 
+    # 生成二维码
+    img = qrcode.make(data=caseNumber)
+    box_dir = os.path.join(settings.TAG_DATA_PATH, 'case', str(boxNumber))
+    if not os.path.exists(box_dir):
+        os.makedirs(box_dir)  # mkdir
+    filePath = os.path.join(box_dir, '{0}.png'.format(caseNumber))
+    img.resize((256, 256))
+    img.save(filePath)
+
     ret = {
-        'caseNumber':caseNumber
+        'caseNumber':caseNumber,
+        'file_path':filePath
+
     }
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 
+def enterEvent(request):
+    serialNumber2 = request.POST.get('serialNumber2', '')
+    try:
+        thing = gsThing.objects.get(serialNumber2=serialNumber2)
+        gsStatus.objects.filter(thing=thing).update(incase_status=1)
+        ret = {
+            'success': True,
+            'serialNumber2':serialNumber2
+        }
+    except Exception as e:
+        ret = {
+            'success': False
+        }
+    ret_json = json.dumps(ret)
+    return HttpResponse(ret_json)
+
 def confirmInputCase(request):
-    boxNumber = 1 # request.POST.get('boxNumber', '')
-    caseNumber = '456Wuyh2' # request.POST.get('caseNumber', '')
-    serialNumber2= '123bJw3D;123SnGu2;123DPKek;' # request.POST.get('serialNumber2', '')
+    boxNumber = request.POST.get('boxNumber', '')
+    caseNumber = request.POST.get('caseNumber', '')
+    serialNumber2= request.POST.get('serialNumber2', '')
+
     serialNumber2_list = serialNumber2.split(';')[0:-1]
     try:
-        case = gsCase.objects.create(caseNumber=caseNumber,status=0)
+        case = gsCase.objects.create(caseNumber=caseNumber,status=1)
         thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list)
         thing_set.update(case=case)
-        gsStatus.objects.filter(thing__in=thing_set).update(incase_status=1)
+        # gsStatus.objects.filter(thing__in=thing_set).update(incase_status=1)
 
-        createCaseTicket(boxNumber=boxNumber,
+        file_path = createCaseTicket(boxNumber=boxNumber,
                          caseNumber=caseNumber,
                          serialNumber2_list=serialNumber2_list)
 
@@ -1898,13 +1926,11 @@ def confirmInputCase(request):
         }
     else:
         ret = {
-            'success':True
+            'success':True,
+            'file_path':file_path
         }
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
-
-
-
 
 def text(request):
     ret={}
