@@ -73,7 +73,6 @@ function boxOperationFormatter(value, row, index) {
     }
 }
 
-
 //点击封袋的方法  封袋功能里面的扫描二维码
 function sealingBag() {
     var row = $('#workGridBoxManage').datagrid('getSelected');
@@ -118,6 +117,7 @@ function sealingBag() {
                         boxNumber: row.boxNumber
                     }, success: function (data) {
                         var data = JSON.parse(data);
+
                         if (data.success) {
                             var file_path = data.file_path;
                             document.getElementById("sealingBagDlg-qrCode").value = "";
@@ -187,19 +187,16 @@ function addTheJobBox() {
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
         $("#addJobBoxRight-thingsGrid").datagrid({
-            url: '',
-            queryParams: {},
+            url: 'enterEvent/',
+            queryParams: {
+                serialNumber2:serialNumber2
+            },
             columns: [[
-                {field: 'serialNumber', title: '实物编号', align: 'center'},
+                {field: 'serialNumber2', title: '实物编号', align: 'center'},
             ]],
-            pagination: true,
             fit: true,
-            pageSize: 20,
             fitColumns: true,
             rownumbers: true,
-        }).datagrid('getPager').pagination({
-            layout: ['prev', 'sep', 'links', 'sep', 'next'],
-            displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
         addJobBoxDlg();
         $("#addJobBoxDlgLeftForm").children().find(".panel").css("width", "300px");
@@ -214,28 +211,35 @@ function addTheJobBox() {
         });
     }
 }
+var serialNumber2;
 //添加盒子功能里面的扫描二维码
 function addJobBoxDlg() {
     $("#addJobBoxDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
+        var a = 0
         if (event.keyCode == 13) {
             var row = $('#workGridBoxManage').datagrid('getSelected');
             var serialNumber = $("#addJobBoxDlg-qrCode").val();
-            $.ajax({
-                type: 'post',
-                url: 'closeThing/',
-                data: {
-                    serialNumber: serialNumber,
-                    boxNumber: row.boxNumber
-                }, success: function (data) {
-                    var data = JSON.parse(data);
-                    if (data.success) {
-                        var file_path = data.file_path;
-                        $("#addJobBoxDlgLeftForm").datagrid('reload');
-                    } else {
-                        $.messager.alert('提示', data.message)
-                    }
-                }
-            })
+            serialNumber2 = serialNumber
+            // $.ajax({
+            //     type: 'post',
+            //     url: 'closeThing/',
+            //     data: {
+            //         serialNumber: serialNumber,
+            //         boxNumber: row.boxNumber
+                // }, success: function (data) {
+                //     var data = JSON.parse(data);
+                    // if (data.success) {
+                        a++;
+                        // var file_path = data.file_path;
+                        var tdList = document.getElementById("addJobBoxLeft-thingsGrid")
+                        var tr = document.createElement('tr');
+                        tr.innerHTML += '<td>a</td>+<td>serialNumber</td>';
+                        tdList.appendChild(tr);
+                        // $("#addJobBoxDlgLeftForm").datagrid('reload');
+
+                    // }
+                // }
+            // })
         }
     });
 }
@@ -255,8 +259,6 @@ function getBoxNumberDlg(row) {
         }, success: function (data) {
             var data = JSON.parse(data);
              document.getElementById("addJobBoxDlgBoxNumber").value = data.caseNumber;
-             $("#addJobBoxDlgBoxNumber").siblings().children().eq(0).val(data.caseNumber);
-             $("#addJobBoxDlgBoxNumber").siblings().children().eq(1).val(data.caseNumber);
         }
     });
 }
