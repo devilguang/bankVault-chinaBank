@@ -18,10 +18,8 @@ def updateAnalyzingInfo(request):
     productType = request.POST.get('productType', '')
     operator = request.POST.get('operator', '')
     detectedQuantity = request.POST.get('detectedQuantity', '')
-    dtstr = request.POST.get('datetime', '')
 
     detectedQuantity = float(detectedQuantity[:-1])
-    dt = datetime.strptime(dtstr, '%Y/%m/%d %H:%M:%S')
 
     box = gsBox.objects.get(boxNumber=boxNumber)
 
@@ -42,12 +40,14 @@ def updateAnalyzingInfo(request):
         elif (0 == cmp(productType, u'金银工艺品类')):
             ts = gsGongYiPin.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
 
-        gsStatus.objects.filter(thing=thing).update(analyzingStatus=True,analyzingOperator=operator,analyzingUpdateDateTime=dt)
+        now = datetime.datetime.now()
+        gsStatus.objects.filter(thing=thing).update(analyzingStatus=True,analyzingOperator=operator,analyzingUpdateDateTime=now)
         thing_status = gsStatus.objects.filter(thing=thing)
         thing_obj = thing_status[0]
         status = thing_obj.numberingStatus and thing_obj.analyzingStatus and thing_obj.measuringStatus and \
                  thing_obj.photographingStatus and thing_obj.checkingStatus
-        thing_status.update(status=status)
+        if status:
+            thing_status.update(status=status, completeTime=now)
 
     except Exception as e:
         ret = {}

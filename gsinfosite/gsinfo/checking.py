@@ -213,7 +213,8 @@ def updateCheckingInfo(request):
         thing_status = status_set[0]
         status = thing_status.numberingStatus and thing_status.analyzingStatus and thing_status.measuringStatus and \
                  thing_status.photographingStatus and thing_status.checkingStatus
-        status_set.update(status=status)
+        if status:
+            status_set.update(status=status, completeTime=now)
     except Exception as e:
         ret['success'] = False
         ret['message'] = str(boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'

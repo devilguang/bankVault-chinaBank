@@ -171,7 +171,8 @@ def updateNumberingInfo(request):
             status_set = gsStatus.objects.filter(thing=thing_set[0])
             s = status_set[0]
             status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus and s.checkingStatus
-            status_set.update(status=status)
+            if status:
+                status_set.update(status=status,completeTime=now)
     except Exception as e:
         ret['success'] = False
         ret['message'] = str(boxNumber) + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else str(
