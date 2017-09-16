@@ -1579,12 +1579,20 @@ function workManage() {
 function finalSummary(){
     var title = '日终小结';
     var c = '<div class="easyui-layout">' +
-        '<input id="nowNewData" type="text" class="easyui-datebox" required="true" currentText="Today">' +
-        '<a id="" href="#" class="easyui-linkbutton">统计表</a>'+ '<a id="" href="#" class="easyui-linkbutton">统计表</a>'
+        '<div style="margin: 50px 0 30px 50px"><input id="nowNewData" type="text"  class="easyui-datebox" required="true" currentText="Today"></div>' +
+        '<a id="statisticalTable" href="#"  style="width: 100px;display: block;margin: 0px 0 20px 50px" class="easyui-linkbutton" onclick="finalSummaryTable()">统计表</a>'+
+        '<a id="" href="#" style="width: 100px;display: block;margin: 0px 0 20px 50px" class="easyui-linkbutton">统计表</a>';
         '</div>';
     addTab(title, c, 'icon-brief');
     // initPagination();
 }
+//日终小结对话框
+function finalSummaryTable(){
+    
+    $("#finalSummaryDlg").dialog('open').dialog('center').dialog('setTitle', '日终小结');
+    $("#finalSummaryDlgTable").form('clear');
+}
+
 function completePercentFormatter(value, row, index) {
     return '<a href="javascript:void(0)" onclick="openDetailedCompleteInfo(' + index + ')" style="text-decoration:none;color:blue;">' + value + '%</a>';
 }
@@ -1902,12 +1910,10 @@ function generateTag(index) {
     //         }
     //     },
     // });
-
-
 }
 function jobManagementLabelling(index) {
-    var user = $("#jobManagementLabelling-user").val()
-    var password = $("#jobManagementLabelling-passWord").val()
+    var user = $("#jobManagementLabelling-user").val();
+    var password = $("#jobManagementLabelling-passWord").val();
     if (user == "" || password == "") {
         $.messager.alert('提示', '用户或密码不能为空');
         return;
@@ -1920,7 +1926,7 @@ function jobManagementLabelling(index) {
             password: password
         }, success: function (data) {
             var data = JSON.parse(data)
-            $('#jobManagementLabelling').dialog('close')
+            $('#jobManagementLabelling').dialog('close');
             if (data.success) {
                 $('#workGridWorkManage').datagrid('selectRow', index);
                 var row = $('#workGridWorkManage').datagrid('getSelected');
@@ -1931,22 +1937,20 @@ function jobManagementLabelling(index) {
                         boxNumber: row.boxNumber + "-" + row.subBoxNumber,
                         workSeq: row.workSeq
                     }, success: function (data) {
-                        var data = JSON.parse(data)
-                        var file_path = data.file_path
+                        var data = JSON.parse(data);
+                        var file_path = data.file_path;
                         $.ajax({
                             type: 'post',
                             url: 'print_service/',
                             data: {
                                 file_path: file_path
                             }, success: function (data) {
-                                var data = JSON.parse(data)
+                                var data = JSON.parse(data);
                                 $.messager.alert('提示', data.message);
                             }
                         })
-
                     }
                 })
-
             } else {
                 $.messager.alert('提示', data.message);
             }

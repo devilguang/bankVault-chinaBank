@@ -29,6 +29,17 @@
         #addJobBoxRight-thingsGrid tr td:nth-child(3) {
             width: 180px;
         }
+
+        #finalSummaryDlgTable td {
+            border: 1px dashed #cccccc;
+        }
+        #finalSummaryDlgTable tr td:nth-child(1) {
+            text-align: center;
+        }
+        #finalSummaryDlgTable .finalSummaryTitle{
+            background:#E0ECFF;
+        }
+
     </style>
     <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js' %}"></script>
@@ -313,7 +324,7 @@
                         <img src="{% static 'img/report.png' %}"></img>
                         <a href="javascript:void(0);" onclick="searchWork()"><span>全文检索</span></a>
                     </li>
-                     <li>
+                    <li>
                         <img src="{% static 'img/nodule.png' %}"></img>
                         <a href="javascript:void(0);" onclick="finalSummary()"><span>日终小结</span></a>
                     </li>
@@ -371,7 +382,7 @@
     <form id="createBoxForm" method="POST" novalidate style="margin-top: 30px">
         <table>
             <tr>
-                <th>实物类型</th>
+                <th>类别</th>
                 <td>
                     <input id="createBox-productType" name="productType" class="easyui-combobox" data-options="
 							valueField: 'id',
@@ -401,7 +412,7 @@
             </tr>
 
             <tr>
-                <th>品名</th>
+                <th>品种</th>
                 <td>
                     <input id="createBox-className" name="className" class="easyui-combobox" data-options="
 							valueField: 'id',
@@ -416,7 +427,7 @@
 							},"/>
                 </td>
 
-                <th>明细品名</th>
+                <th>品名</th>
                 <td>
                     <input id="createBox-subClassName" name="subClassName" class="easyui-combobox" data-options="
 							valueField: 'id',
@@ -437,16 +448,18 @@
                 <td><input id="createBox-amount" name="amount" class="easyui-numberbox"
                            data-options="min:0, fit: true"/></td>
             </tr>
-                        <tr>
-                            <th>操作类型</th>
-                            <td>
-                                <select id="createBox-oprateType" class="easyui-combobox" name="oprateType" width="139px;" data-options="panelHeight: 'auto',">
-                                    <option value="1">逐一查验</option>
-                                    <option value="2">同质同类查验</option>
-                                    <option value="3">大存量查验</option>
-                                </select>
-                            </td>
-                        </tr>
+            <tr>
+                <th>操作类型</th>
+                <td>
+                    <input id="createBox-oprateType" name="oprateType" class="easyui-combobox" data-options="
+							valueField: 'id',
+							textField: 'text',
+							url: '/',
+							editable: false,
+							panelHeight: 'auto',
+							fit: true,"/>
+                </td>
+            </tr>
             {#                <th>件数</th>#}
             {#                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"#}
             {#                           data-options="min:0, fit: true"/></td>#}
@@ -577,6 +590,7 @@
     <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#weightBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
+
 
 <!-- 封箱入库-管理员验证 -->
 <div id="putBoxValidateDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
@@ -794,6 +808,183 @@
 {#    <input id="sealingBag-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>#}
 {#</div>#}
 
+
+{#日终小结的对话框#}
+<div id="finalSummaryDlg" class="easyui-dialog" title="日终小结" style="width:900px;height:500px;"
+     data-options="closed:true, buttons:'#finalSummaryButtons', modal:true">
+    <form id="finalSummaryDlgTable" method="POST" novalidate style="width: 300px;margin:30px 0 0 20px ">
+        <table data-option="fitColumns:true,striped:true," style="border:1px solid #95b8e7;width: 850px;" >
+            <tr class="finalSummaryTitle" width="5%">
+                <th></th>
+                <th colspan="4">金银锭类</th>
+                <th colspan="4">金银币章类</th>
+                <th colspan="4">银元类</th>
+                <th colspan="4">金银工艺品类</th>
+            </tr>
+            <tr>
+                <td style="padding: 15px;"></td>
+                <td>最大值</td>
+                <td>最小值</td>
+                <td>平均值</td>
+                <td>偏离度</td>
+                <td>最大值</td>
+                <td>最小值</td>
+                <td>平均值</td>
+                <td>偏离度</td>
+                <td>最大值</td>
+                <td>最小值</td>
+                <td>平均值</td>
+                <td>偏离度</td>
+                <td>最大值</td>
+                <td>最小值</td>
+                <td>平均值</td>
+                <td>偏离度</td>
+            </tr>
+            <tr class="finalSummaryTitle">
+                <td>成色</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr >
+                <td>直径</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="finalSummaryTitle">
+                <td>长度</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr >
+                <td>宽度</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="finalSummaryTitle">
+                <td>高度</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>毛重</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="finalSummaryTitle">
+                <td>净重</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </form>
+
+</div>
+<div id="finalSummaryButtons">
+    <a href="javascript:void(0)" id="finalSummarySave" class="easyui-linkbutton c6 ly_doputBoxValidate"
+       iconCls="icon-ok"
+       onclick="" style="width:90px">确定</a>
+    <a href="javascript:void(0)" id="finalSummaryCancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#finalSummaryDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
 {#添加盒的对话框#}
 <div id="addJobBoxDlg" class="easyui-dialog" style="width:700px;height:550px;padding:10px 20px"
      data-options="closed:true, buttons:'#addJobBoxDlgButtons', modal:true">
@@ -844,6 +1035,7 @@
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#addJobBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
+
 
 {#添加盒身份验证对话框#}
 <div id="addBoxAuthenticationDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
