@@ -58,6 +58,8 @@ urlpatterns = [
     url(r'^manage/getWareHouse/$', views.getWareHouse, name='getWareHouse'),
     url(r'^manage/getClassName/(?P<code>\d+)$', views.getClassName, name='getClassName'),
     url(r'^manage/getSubClassName/(?P<code>\d+&\d+)$', views.getSubClassName, name='getSubClassName'),
+    url(r'^manage/getOprateType/$', views.getOprateType, name='getOprateType'),
+
     # url(r'^manage/getStartSequence/$', manage.getStartSequence, name='getStartSequence'),
     url(r'^manage/getBox/$', manage.getBox, name='getBox'),
     url(r'^manage/getThing/$', manage.getThing, name='getThing'),
@@ -111,6 +113,8 @@ urlpatterns = [
     url(r'^manage/print_pic/$', manage.print_pic, name='print_pic'),
     url(r'^manage/enterEvent/$', manage.enterEvent, name='enterEvent'),
     url(r'^manage/cancleInput/$', manage.cancleInput, name='cancleInput'),
+
+
 
     url(r'^checking/$', checking.checking, name='checking'),
     url(r'^checking/getProductType/$', views.getProductType, name='getProductType'),

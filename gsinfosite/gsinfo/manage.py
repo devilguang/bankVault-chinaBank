@@ -652,22 +652,24 @@ def getBox(request):
     status = int(request.POST.get('status', ''))  # 1: 已入库 0: 未入库
 
     if status == 0:
-        bs = gsBox.objects.filter(status=0)
+        box_qs = gsBox.objects.filter(status=0)
     else:
-        bs = gsBox.objects.filter(status=1)
-        subBox = gsSubBox.objects.filter(isValid=1, status=1).values('box_id')
-        for sb in subBox:
-            box = gsBox.objects.filter(id=sb.values()[0])
-            bs = bs | box  # QuerySet用 | 或 chain求并集
+        box_qs = gsBox.objects.filter(status=1)
 
-    # 按查询条件进行筛选
-    if productType:
-        bs = bs.filter(productType=productType)
-    if className:
-        bs = bs.filter(className=className)
-    if subClassName:
-        bs = bs.filter(subClassName=subClassName)
-    n = bs.count()
+    if productType or className or subClassName:
+        selectBox = []
+        for box in box_qs:
+            prop = box.property
+            code = prop.code
+            parentCode = prop.parentCode
+            grandpaCode=prop.grandpaCode
+            aa = '-'.join([grandpaCode,parentCode,code])
+            bb = '-'.join([productType,className,subClassName])
+            if bb in aa:
+                selectBox.append(box)
+    else:
+        selectBox = list(box_qs)
+    n = len(selectBox)
 
     pageSize = int(pageSize)
     page = int(page)
@@ -677,46 +679,18 @@ def getBox(request):
     ret = {}
     ret['total'] = n
     ret['rows'] = []
-    for b in bs[start:end]:
+    for box in selectBox[start:end]:
         r = {}
-        r['boxNumber'] = b.boxNumber
-        box = gsBox.objects.get(boxNumber=b.boxNumber)
-        subBoxList = gsSubBox.objects.filter(box=box, isValid=True).values_list('subBoxNumber', flat=True)
-        if subBoxList:
-            r['haveSubBox'] = '1'  # 有子箱
-            r2 = {}
-            for i in subBoxList:
-                subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(i))
-                if status == 0 and subBox.status == 0:
-                    thingCount = gsThing.objects.filter(box=box, subBox=subBox).count()
-                    r2[i] = thingCount
-                if status == 1 and subBox.status == 1:
-                    thingCount = gsThing.objects.filter(box=box, subBox=subBox).count()
-                    r2[i] = thingCount
-            r['subBoxDict'] = r2
-        else:
-            r['haveSubBox'] = '0'  # 无子箱
-
-        productType = gsProperty.objects.get(project='实物类型', code=b.productType)
-        r['productType'] = productType.type
-
-        className = gsProperty.objects.get(project='品名', code=b.className, parentProject=productType.project,
-                                           parentType=productType.type)
-        r['className'] = className.type
-
-        subClassName = gsProperty.objects.get(project='明细品名', code=b.subClassName, parentProject=className.project,
-                                              parentType=className.type, grandpaProject=productType.project,
-                                              grandpaType=productType.type)
-        r['subClassName'] = subClassName.type
-
-        wareHouse = gsProperty.objects.get(project='发行库', code=b.wareHouse)
+        prop = box.property
+        r['boxNumber'] = box.boxNumber
+        r['productType'] = prop.grandpaType
+        r['className'] = prop.parentType
+        r['subClassName'] = prop.type
+        wareHouse = gsProperty.objects.get(project='发行库', code=box.wareHouse)
         r['wareHouse'] = wareHouse.type
-
-        r['amount'] = b.amount
+        r['amount'] = box.amount
         ret['rows'].append(r)
-
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-
     return HttpResponse(ret_json)
 
 
@@ -791,23 +765,15 @@ def getThing(request):
 
 
 def generateWorkName(request):
-    boxOrSubBox = request.GET.get('boxNumber', '')
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
+    boxNumber = request.GET.get('boxNumber', '')
 
-    box = gsBox.objects.get(boxNumber=int(boxNumber))
+    box = gsBox.objects.get(boxNumber=boxNumber)
     ws = gsWork.objects.filter(box=box).order_by('-workSeq').first()
     if ws:
         workSeq = ws.workSeq + 1
     else:
         workSeq = 1
-
-    now = datetime.datetime.now()
-    workName = u'{0}年{1}月{2}日{3}号箱作业{4}'.format(now.year, now.month, now.day, boxOrSubBox, workSeq)
+    workName = u'{0}号箱作业{1}'.format(boxNumber, workSeq)
     ret = {
         'workName': workName,
     }

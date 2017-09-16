@@ -213,7 +213,7 @@ class gsProperty(models.Model):
 # 箱体实物表
 class gsBox(models.Model):
     boxNumber = models.CharField(verbose_name='货发二代系统提供的箱号',max_length=255,unique=True)
-    wareHouse = models.CharField(verbose_name='发行库', max_length=255, unique=True)
+    wareHouse = models.CharField(verbose_name='发行库', max_length=255)
     amount = models.PositiveIntegerField(verbose_name='件数',)
     grossWeight = models.FloatField(verbose_name='总毛重',null=True)
     status = models.BooleanField(verbose_name='封箱状态（False:未封箱; True：已封箱入库）',default=False)

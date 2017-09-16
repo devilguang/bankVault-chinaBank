@@ -714,6 +714,17 @@ def getSubClassName(request, code):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
+def getOprateType(request):
+    oprateType_qs = gsProperty.objects.filter(project='操作流程')
+    ret = []
+    for s in oprateType_qs:
+        r = {}
+        r['text'] = s.type
+        r['id'] = s.code
+        ret.append(r)
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
+
 
 
 class GeneralSearch(SearchView):
