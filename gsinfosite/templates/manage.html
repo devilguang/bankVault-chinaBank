@@ -414,11 +414,16 @@
                 <td><input id="createBox-amount" name="amount" class="easyui-numberbox"
                            data-options="min:0, fit: true"/></td>
             </tr>
-            {#            <tr>#}
-            {#                <th>包容量</th>#}
-            {#                <td><input id="createBox-packageCapacity" name="packageCapacity" class="easyui-numberbox"#}
-            {#                           data-options="min:0, fit: true"/></td>#}
-            {#            </tr>#}
+                        <tr>
+                            <th>操作类型</th>
+                            <td>
+                                <select id="createBox-oprateType" class="easyui-combobox" name="oprateType" width="139px;" data-options="panelHeight: 'auto',">
+                                    <option value="1">逐一查验</option>
+                                    <option value="2">同质同类查验</option>
+                                    <option value="3">大存量查验</option>
+                                </select>
+                            </td>
+                        </tr>
             {#                <th>件数</th>#}
             {#                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"#}
             {#                           data-options="min:0, fit: true"/></td>#}

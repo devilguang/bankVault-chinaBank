@@ -21,6 +21,7 @@ from PIL import Image, ImageWin
 import shortuuid
 from gsinfosite import settings
 from django.db.models import Q
+from webServiceAPI import *
 
 
 @login_required
@@ -36,35 +37,27 @@ def createBox(request):
     wareHouse = request.POST.get('wareHouse', '')  # 发行库
     amount = int(request.POST.get('amount', ''))  # 件数
     grossWeight = request.POST.get('grossWeight', '')  # 毛重
+    oprateType = request.POST.get('oprateType', '')  # 操作类型
+
     if grossWeight:
         grossWeight = float(grossWeight)
     else:
         grossWeight = float(0)
 
-    # 从数据库中查最大箱号
-    maxBoxNumber_obj = gsBox.objects.all().order_by('-boxNumber').first()
-    if maxBoxNumber_obj:
-        boxNumber = maxBoxNumber_obj.boxNumber + 1
-    else:
-        boxNumber = 1
 
     # 向货发二代系统请求箱号和实物随机号
-    '''
-    要给货发二代系统的数据
-    box_number = int(request.POST.get('boxNumber', ''))  # 箱号
-    productType = request.POST.get('productType', '')  # 实物类型
-    className = request.POST.get('className', '')  # 品名
-    subClassName = request.POST.get('subClassName', '')  # 明细品名
-    wareHouse = request.POST.get('wareHouse', '')  # 发行库
-    amount = int(request.POST.get('amount', ''))  # 件数
-    '''
-    # 箱号由发行库代码，实物类别代码，品名代码，明细品名代码和箱序号五部分组成
-    # 二代系统并不保存此时生成的序号数据，那么他就不知道箱的顺序号
-    boxSeq = '-'.join([wareHouse, productType, className, subClassName, str(boxNumber)])
+    # '请求类型|发行库编号|类别|品种'
+    # code = '1|{0}|{1}|{2}'.format(wareHouse,productType,className)
+    # getNumberAPI(code)
+
+    boxNumber = '1-{0}-{1}-{2}-1'.format(wareHouse,productType,className)
+
+    # 请求件序号
+    # code = '3'
+    # getNumberAPI(code)
 
     thing_num_list = []
     for i in range(amount):
-        # serialNumber = str(uuid.uuid4())
         serialNumber = str(shortuuid.ShortUUID().random(length=10))
         thing_num_list.append(serialNumber)
 
@@ -75,14 +68,12 @@ def createBox(request):
             os.makedirs(box_dir)  # mkdir
         filePath = os.path.join(box_dir, pic_name)
         img.resize((256, 256))
-        # img.show()
         img.save(filePath)
 
     thing_num = '|'.join(thing_num_list)
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'新建{0}号箱实物'.format(boxNumber))
-
         gsBox.objects.createBox(boxNumber=boxNumber,
                                 productType=productType,
                                 className=className,
@@ -90,26 +81,14 @@ def createBox(request):
                                 wareHouse=wareHouse,
                                 amount=amount,
                                 grossWeight=grossWeight,
-                                boxSeq=boxSeq,
-                                thing_num=thing_num)
+                                thing_num=thing_num,
+                                oprateType=oprateType)
 
         # 构造对应的存储目录结构
         boxRootDir = settings.DATA_DIRS['box_dir']
         boxDir = os.path.join(boxRootDir, str(boxNumber))
         if not os.path.exists(boxDir):
             os.mkdir(boxDir)
-
-            # subBoxSeq = gsThing.objects.filter(box=box).first().subBoxSeq
-            # now = datetime.datetime.now()
-            # wareHouseCode = box.wareHouse
-            # wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
-            # wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(now.year, subBoxSeq, wareHouse.type))
-            # if (not os.path.exists(wordDir)):
-            #     os.mkdir(wordDir)
-            #
-            # photoDir = os.path.join(boxDir, u'{0}_{1}_{2}_photo'.format(now.year, subBoxSeq, wareHouse.type))
-            # if (not os.path.exists(photoDir)):
-            #     os.mkdir(photoDir)
 
     except Exception as e:
         ret = {

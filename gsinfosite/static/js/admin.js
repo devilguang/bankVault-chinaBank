@@ -41,7 +41,7 @@ function addTab(title, content, icon) {
 }
 
 function userManage() {
-    var title = '用户管理11';
+    var title = '用户管理';
     var c = '<table id="workGridUser" class="easyui-datagrid" data-options="url:\'getUser/\', toolbar:\'#workGridToolBarUser\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20, checkOnSelect:false, selectOnCheck:false"><thead><tr><th field="checkStatus" align="center" checkbox="true"></th><th field="nickName" align="center" width="20">用户名</th><th field="type" formatter="userTypeFormatter" align="center">用户类型</th><th field="operation" formatter="operationFormatter" align="center" width="60">操作</th></tr></thead></table><div id="workGridToolBarUser"><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="userAdd()">添加</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="userRemove()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridUser\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-user');
     initPagination();
