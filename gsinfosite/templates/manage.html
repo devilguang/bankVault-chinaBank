@@ -11,6 +11,25 @@
     <link rel="stylesheet" type="text/css" href="{% static 'js/jquery-easyui-1.4.5/demo/demo.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/manage.css' %}">
+    <style>
+        #addJobBoxRight-thingsGrid tr td {
+            border: 1px dashed #cccccc;
+        }
+
+        #addJobBoxRight-thingsGrid tr:nth-child(1) {
+            background: #f3f3f3;
+        }
+
+        #addJobBoxRight-thingsGrid tr td:nth-child(1) {
+            width: 25px;
+            background: #f3f3f3;
+            text-align: center;
+        }
+
+        #addJobBoxRight-thingsGrid tr td:nth-child(3) {
+            width: 180px;
+        }
+    </style>
     <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/jquery.easyui.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-easyui-1.4.5/datagrid-detailview.js' %}"></script>
@@ -294,6 +313,10 @@
                         <img src="{% static 'img/report.png' %}"></img>
                         <a href="javascript:void(0);" onclick="searchWork()"><span>全文检索</span></a>
                     </li>
+                     <li>
+                        <img src="{% static 'img/nodule.png' %}"></img>
+                        <a href="javascript:void(0);" onclick="finalSummary()"><span>日终小结</span></a>
+                    </li>
                 </ul>
             </div>
             <div title="信息查询">
@@ -507,7 +530,6 @@
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#mergeBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
-
 <!-- 新建实物箱体报表对话框 -->
 <div id="reportBoxDlg" class="easyui-dialog" style="width:600px;height:465px;padding:10px 20px"
      data-options="closed:true, buttons:'#reportBoxDlgButtons', modal:true">
@@ -779,13 +801,10 @@
     <div style="display: flex;justify-content: space-between">
         <div id="addJobBoxDlgwrap" style="width:49%">
             <form id="addJobBoxDlgLeftForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
-{#                <input id="addJobBoxDlg-qrCode"#}
-{#                       style="height: 28px;outline: none;border: 1px solid #95B8E7;border-radius: 7px;"#}
-{#                       placeholder="请使用扫描枪扫描二维码" onkeypress="addJobBoxDlg(event)"/>#}
                 <div class="search" style="margin-bottom: 10px;margin-right:55px ">
                     <label for="serialNumber">实物编号</label>
                     <a href="javascript:void(0)"><input id="addJobBoxDlg-qrCode" class="easyui-textbox"
-                          data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
+                                                        data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
                 </div>
                 <table style="width: 300px;margin-top: 10px">
                     <tr height="330px;">
@@ -796,33 +815,60 @@
                 </table>
             </form>
         </div>
-        <div style="width:49%">
+        <div style="width:49%;">
             <form id="addJobBoxDlgRightForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
-{#                <div style=""><span>盒号：</span><input type="text" id="addJobBoxDlgBoxNumber"#}
-{#                                                     style="height: 28px;border-radius: 7px;outline: none;border: 1px solid #95B8E7;">#}
-{#                </div>#}
-                 <div class="search" style="margin-bottom: 10px;margin-right:55px ">
+                <div class="search" style="margin-bottom: 10px;margin-right:55px;">
                     <label for="serialNumber">盒号</label>
-                    <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" class="easyui-textbox"
-                          data-options="height:28, prompt:''"/></a>
+                    <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" disabled="disabled"
+                                                        style="height: 26px;border:1px solid #95b8e7;border-radius: 5px"/></a>
                 </div>
-                <table style="width: 300px;margin-top: 10px">
-                    <tr height="330px;width: 300px;">
-                        <td colspan="2" style="width: 300px;">
-                            <table id="addJobBoxRight-thingsGrid" style="width: 300px;"></table>
-                        </td>
-                    </tr>
-                </table>
+                <div style="clear: both"></div>
+                <div style="width: 300px;height:331px;border:1px solid #000;box-sizing: border-box;">
+                    <table id="addJobBoxRight-thingsGrid"
+                           data-option="fitColumns:true,striped:true,"
+                           style="margin: 5px 0 0px 5px;border:1px solid #95b8e7">
+                        <tr class="addBoxTitle">
+                            <td></td>
+                            <td>实物编号</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
             </form>
         </div>
     </div>
 </div>
 <div id="addJobBoxDlgButtons">
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok"
-       style="width:90px">确定</a>
+       style="width:90px" onclick="authenticationAgain()">确定</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#addJobBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
+
+{#添加盒身份验证对话框#}
+<div id="addBoxAuthenticationDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
+     data-options="closed:true, buttons:'#addBoxAuthenticationDlgButtons', modal:true">
+    <form id="putBoxValidateForm" method="POST" novalidate style="width: 260px;margin: auto">
+        <input type="hidden" id="addBoxAuthentication-boxNumber"/>
+        <table width="260px">
+            <tr>
+                <th>用户名：</th>
+                <td><input id="addBoxUser" value=""/></td>
+            </tr>
+            <tr>
+                <th>密码：</th>
+                <td><input type="password" id="addBoxPassWord" value=""/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="addBoxAuthenticationDlgButtons">
+    <a href="javascript:void(0)" id="addBox_ensure" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
+       style="width:90px">确定</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#addBoxAuthenticationDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
 
 <!-- 编辑作业对话框 -->
 <div id="editWorkDlg" class="easyui-dialog" style="width:600px;height:580px;padding:10px 20px"

@@ -58,7 +58,7 @@ function boxManage() {
         '<div data-options="region:\'center\'">' +
         '<table id="workGridBoxManage" class="easyui-datagrid" data-options="url:\'getBox/\', queryParams: {status: 0}, toolbar:\'#workGridToolBarBoxManage\', onClickRow:ClickRow, singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th field="boxNumber" align="center" width="7%">箱号</th>' +
         '<th field="productType" align="center">实物类型</th>' +
-        '<th field="className" align="center">品名</th><th field="subClassName" align="center">明细品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addTheJobBox()">添加盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+        '<th field="className" align="center">品名</th><th field="subClassName" align="center">明细品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" style="display:none" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" style="display:none" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" style="display:none" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addTheJobBox()">添加盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-box2');
     initPagination();
 }
@@ -72,7 +72,6 @@ function boxOperationFormatter(value, row, index) {
         return '<div style="float:left" min-width: 498px;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;"></a></div>';
     }
 }
-
 
 //点击封袋的方法  封袋功能里面的扫描二维码
 function sealingBag() {
@@ -106,33 +105,7 @@ function sealingBag() {
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
-        $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
-            if (event.keyCode == 13) {
-                var serialNumber = $("#sealingBagDlg-qrCode").val();
-                var row = $('#workGridBoxManage').datagrid('getSelected');
-                $.ajax({
-                    type: 'post',
-                    url: 'closeThing/',
-                    data: {
-                        serialNumber: serialNumber,
-                        boxNumber: row.boxNumber
-                    }, success: function (data) {
-                        var data = JSON.parse(data);
-                        if (data.success) {
-                            var file_path = data.file_path;
-                            document.getElementById("sealingBagDlg-qrCode").value = "";
-                            $("#sealingBagDlg-qrCode").siblings().children().eq(0).val("");
-                            $("#sealingBagDlg-qrCode").siblings().children().eq(1).val("");
-                            $('#sealingBag-thingsGrid').datagrid('reload');
-                            printingSealingBag(file_path)
-
-                        } else {
-                            $.messager.alert('提示', data.message)
-                        }
-                    }
-                })
-            }
-        })
+        enterIncident();
     } else {
         $.messager.confirm('提示', '未选择记录! 请先选择一条记录！', function (r) {
             if (r) {
@@ -140,6 +113,34 @@ function sealingBag() {
             }
         });
     }
+}
+function enterIncident() {
+    $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
+        if (event.keyCode == 13) {
+            var serialNumber = $("#sealingBagDlg-qrCode").val();
+            var row = $('#workGridBoxManage').datagrid('getSelected');
+            $.ajax({
+                type: 'post',
+                url: 'closeThing/',
+                data: {
+                    serialNumber: serialNumber,
+                    boxNumber: row.boxNumber
+                }, success: function (data) {
+                    var data = JSON.parse(data);
+                    if (data.success) {
+                        var file_path = data.file_path;
+                        document.getElementById("sealingBagDlg-qrCode").value = "";
+                        $("#sealingBagDlg-qrCode").siblings().children().eq(0).val("");
+                        $("#sealingBagDlg-qrCode").siblings().children().eq(1).val("");
+                        $('#sealingBag-thingsGrid').datagrid('reload');
+                        printingSealingBag(file_path)
+                    } else {
+                        $.messager.alert('提示', data.message)
+                    }
+                }
+            })
+        }
+    })
 }
 function printingSealingBag(file_path) {
     $.ajax({
@@ -152,7 +153,6 @@ function printingSealingBag(file_path) {
             $('#sealingBag-thingsGrid').datagrid('reload');
             if (data.success) {
                 $.messager.alert('提示', '封袋实物成功')
-
             } else {
                 $.messager.alert('提示', '封袋实物失败')
             }
@@ -186,21 +186,7 @@ function addTheJobBox() {
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
-        $("#addJobBoxRight-thingsGrid").datagrid({
-            url: '',
-            queryParams: {},
-            columns: [[
-                {field: 'serialNumber', title: '实物编号', align: 'center'},
-            ]],
-            pagination: true,
-            fit: true,
-            pageSize: 20,
-            fitColumns: true,
-            rownumbers: true,
-        }).datagrid('getPager').pagination({
-            layout: ['prev', 'sep', 'links', 'sep', 'next'],
-            displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
-        });
+
         addJobBoxDlg();
         $("#addJobBoxDlgLeftForm").children().find(".panel").css("width", "300px");
         $("#addJobBoxDlgLeftForm").children().find(".datagrid-wrap").css("width", "300px");
@@ -215,6 +201,8 @@ function addTheJobBox() {
     }
 }
 //添加盒子功能里面的扫描二维码
+var a = 0;
+var serialNumber2Arr = [];
 function addJobBoxDlg() {
     $("#addJobBoxDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
         if (event.keyCode == 13) {
@@ -222,43 +210,134 @@ function addJobBoxDlg() {
             var serialNumber = $("#addJobBoxDlg-qrCode").val();
             $.ajax({
                 type: 'post',
-                url: 'closeThing/',
+                url: 'enterEvent/',
                 data: {
-                    serialNumber: serialNumber,
-                    boxNumber: row.boxNumber
+                    serialNumber2: serialNumber
                 }, success: function (data) {
                     var data = JSON.parse(data);
                     if (data.success) {
-                        var file_path = data.file_path;
-                        $("#addJobBoxDlgLeftForm").datagrid('reload');
-                    } else {
-                        $.messager.alert('提示', data.message)
+                        a++;
+                        var boxSerialNumber = data.serialNumber2
+                        $("<tr></tr>").html("<td>" + a + "</td><td>" + boxSerialNumber + "</td><td></td>").appendTo($("#addJobBoxRight-thingsGrid"));
+                        document.getElementById("addJobBoxDlg-qrCode").value = "";
+                        $("#addJobBoxDlg-qrCode").siblings().children().eq(0).val("");
+                        $("#addJobBoxDlg-qrCode").siblings().children().eq(1).val("");
+                        $("#addJobBoxLeft-thingsGrid").datagrid('reload');
                     }
+                    serialNumber2Arr.push($("#addJobBoxRight-thingsGrid>tbody").children().eq(a).children().eq(1).html())
+
                 }
             })
         }
     });
 }
+var addBox_file_path;
 //添加盒子功能中获取到盒号的方法
 function getBoxNumberDlg(row) {
     $.ajax({
         type: 'post',
         url: 'getCaseNumber/',
         data: {
-            amount:row.amount,
-            boxNumber:row.boxNumber,
-            className:row.className,
-            haveSubBox:row.haveSubBox,
-            productType:row.productType,
-            subClassName:row.subClassName,
-            wareHouse:row.wareHouse
+            amount: row.amount,
+            boxNumber: row.boxNumber,
+            className: row.className,
+            haveSubBox: row.haveSubBox,
+            productType: row.productType,
+            subClassName: row.subClassName,
+            wareHouse: row.wareHouse
         }, success: function (data) {
             var data = JSON.parse(data);
-             document.getElementById("addJobBoxDlgBoxNumber").value = data.caseNumber;
-             $("#addJobBoxDlgBoxNumber").siblings().children().eq(0).val(data.caseNumber);
-             $("#addJobBoxDlgBoxNumber").siblings().children().eq(1).val(data.caseNumber);
+            var addBox_file_path = data.file_path;
+            document.getElementById("addJobBoxDlgBoxNumber").value = data.caseNumber;
         }
     });
+}
+
+//添加盒的身份验证方法
+function authenticationAgain() {
+    if (a == 0) {
+        $.messager.alert("提示", "请先进行入盒操作！");
+        return;
+    }
+    $('#addBoxAuthenticationDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
+    $("#addBox_ensure").click(function () {
+        var user = $("#addBoxUser").val();
+        var password = $("#addBoxPassWord").val();
+        $.ajax({
+            type: 'post',
+            url: 'print_auth/',
+            data: {
+                user: user,
+                password: password
+            }, success: function (data) {
+                var data = JSON.parse(data);
+                if (data.success) {
+                    generateListing()
+                } else {
+                    $.messager.alert("提示", data.message + "！");
+                }
+            }
+        })
+    });
+}
+//添加盒功能中生成方法
+function generateListing() {
+    var serialNumber2 = serialNumber2Arr.join(";")
+    var caseNumber = $("#addJobBoxDlgBoxNumber").val();
+    var row = $('#workGridBoxManage').datagrid('getSelected');
+    debugger;
+    $.ajax({
+        type: 'post',
+        url: 'confirmInputCase/',
+        data: {
+            boxNumber: row.boxNumber,
+            caseNumber: caseNumber,
+            serialNumber2: serialNumber2 + ";"
+        }, success: function (data) {
+            var data = JSON.parse(data)
+            if (data.success) {
+                var file_path = data.file_path;
+                addBoxPrintReport(file_path);
+            } else {
+                $.messager.alert('提示', '装盒票生成失败！');
+            }
+        }
+    })
+}
+//添加盒功能中打印装盒票的方法
+function addBoxPrintReport(file_path) {
+    $.ajax({
+        type: "post",
+        url: 'print_service/',
+        data: {
+            file_path: file_path
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.success) {
+                addBoxtionPrinQCode()
+            } else {
+                $.messager.alert('提示', '打印装盒票失败！');
+            }
+        }
+    })
+}
+//添加盒中打印二维码的方法
+function addBoxtionPrinQCode() {
+    $.ajax({
+        type: "post",
+        url: 'print_pic/',
+        data: {
+            file_path: addBox_file_path
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.success) {
+                serialNumber2Arr = [];
+                $.messager.alert('提示', '打印装盒票和二维码成功！');
+            } else {
+                $.messager.alert('提示', '打印二维码失败！');
+            }
+        }
+    })
 }
 
 //点击新建的方法
@@ -1494,6 +1573,17 @@ function workManage() {
     var c = '<div class="easyui-layout" data-options="fit: true"><div data-options="region:\'north\'" height="10%"><form id="workSearchParameter" style="display:inline-block;margin-top:12px;"><div style="display:inline;margin-left:10px;margin-right:15px;"><label for="workSearchParameterproductType" style="margin-right:5px">实物类型</label><input id="workSearchParameterproductType" class="easyui-combobox" name="productType" data-options="valueField: \'id\', textField: \'text\', url: \'getProductType/\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var url = \'getClassName/\'+rec.id; $(\'#workSearchParameterclassName\').combobox(\'reload\', url); $(\'#workSearchParameterclassName\').combobox(\'clear\'); $(\'#workSearchParametersubClassName\').combobox(\'clear\');},"/></div><div style="display:inline;margin-right:15px;"><label for="workSearchParameterclassName" style="margin-right:5px;">品名</label><input id="workSearchParameterclassName" class="easyui-combobox" name="className" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var typeCode = $(\'#workSearchParameterproductType\').combobox(\'getValue\'); var url = \'getSubClassName/\'+typeCode+\'&\'+rec.id; $(\'#workSearchParametersubClassName\').combobox(\'reload\', url);},"/></div><div style="display:inline;margin-right:15px;"><label for="workSearchParametersubClassName" style="margin-right:5px;">明细品名</label><input id="workSearchParametersubClassName" class="easyui-combobox" name="subClassName" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\',"/></div></form><a href="javascript:void(0)" class="easyui-linkbutton" onclick="workSearch()" style="width:45px;margin-right:10px;">查询</a><a href="javascript:void(0)" class="easyui-linkbutton" onclick="workSearchReset()" style="width:45px;margin-right:10px;">重置</a></div><div data-options="region:\'center\'"><table id="workGridWorkManage" class="easyui-datagrid" data-options="url:\'getWork/\', queryParams: {status: 0}, toolbar: \'#workGridToolBarWorkManage\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20,"><thead><tr><th field="workName" align="center">作业名称</th><th field="amount" align="center" >件数</th><th field="createDateTime" align="center" formatter="dateTimeFormatter">创建时间</th><th field="completePercent" align="center" formatter="completePercentFormatter">进度</th><th field="completeDateTime" align="center" formatter="dateTimeFormatter">完成时间</th><th field="operation" formatter="workOperationFormatter" align="center">操作</th></tr></thead></table></div></div><div id="workGridToolBarWorkManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridWorkManage\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function initPagination(){$(\'#workGridWorkManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-work');
     initPagination();
+}
+
+//日终小结
+function finalSummary(){
+    var title = '日终小结';
+    var c = '<div class="easyui-layout">' +
+        '<input id="nowNewData" type="text" class="easyui-datebox" required="true" currentText="Today">' +
+        '<a id="" href="#" class="easyui-linkbutton">统计表</a>'+ '<a id="" href="#" class="easyui-linkbutton">统计表</a>'
+        '</div>';
+    addTab(title, c, 'icon-brief');
+    // initPagination();
 }
 function completePercentFormatter(value, row, index) {
     return '<a href="javascript:void(0)" onclick="openDetailedCompleteInfo(' + index + ')" style="text-decoration:none;color:blue;">' + value + '%</a>';
