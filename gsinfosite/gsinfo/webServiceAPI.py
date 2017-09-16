@@ -1,18 +1,4 @@
 # encoding=UTF-8
-from django.shortcuts import render
-from django.http.response import HttpResponse
-from django.core.urlresolvers import reverse
-from django.core.serializers.json import DjangoJSONEncoder
-from .models import *
-import json
-from .utils import dateTimeHandler
-from .report_process import *
-from django.contrib import auth
-from . import log
-from haystack.views import SearchView
-from haystack.query import SearchQuerySet
-from forms import advanceSearch
-import logging
 from suds.client import Client
 from gsinfosite.settings import WEBSERVERAPI
 

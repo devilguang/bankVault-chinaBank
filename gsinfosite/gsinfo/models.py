@@ -4,6 +4,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 import math
 import datetime
+import shortuuid
+from webServiceAPI import *
 
 
 # Create your models here.
@@ -88,25 +90,67 @@ class gsBoxManager(models.Manager):
         wareHouseCode = kwargs['wareHouse']
         amount = kwargs['amount']
         grossWeight = kwargs['grossWeight']
-        thing_num = kwargs['thing_num']
+        oprateType = kwargs['oprateType']
+
 
         # 生成一条Box记录
+        prop = gsProperty.objects.get(code=subClassName, parentCode=classNameCode,grandpaCode=productType)
         box, createdBox = super(models.Manager, self).get_or_create(boxNumber=boxNumber,
-                                                                    productType=productType,
-                                                                    className=classNameCode,
-                                                                    subClassName=subClassName,
                                                                     wareHouse=wareHouseCode,
                                                                     amount=amount,
                                                                     grossWeight=grossWeight,
-                                                                    boxSeq=boxSeq)
+                                                                    oprateType=oprateType,
+                                                                    property=prop)
+
+
+
+
 
         # 生成实物索引表, 依据实物类型, 在实物索引表生成相应的实物索引记录
-        thing_num_list = thing_num.split('|')
-        thingsList = []
-        for thing in thing_num_list:
-            thingsList.append(gsThing(serialNumber=thing,box=box,subClassName=subClassName))
-        gsThing.objects.bulk_create(thingsList)  # bulk_create批量数据入库，参数是list
-        return (box, createdBox)
+        if oprateType == '1':
+            # 请求件序号
+            # code = '3|{0}'.format(amount)
+            # thingSeq = getNumberAPI(code)
+            # thingSeq_list = thing_seq.split('|')
+            # --------------
+            thingSeq_list = []
+            for i in range(amount):
+                serialNumber = str(shortuuid.ShortUUID().random(length=10))
+                thingSeq_list.append(serialNumber)
+
+                # img = qrcode.make(data=serialNumber)
+                # pic_name = serialNumber + '.png'
+                # box_dir = os.path.join(settings.TAG_DATA_PATH, 'serialNumber', str(boxNumber))
+                # if not os.path.exists(box_dir):
+                #     os.makedirs(box_dir)  # mkdir
+                # filePath = os.path.join(box_dir, pic_name)
+                # img.resize((256, 256))
+                # img.save(filePath)
+            # --------------
+            thingsList = []
+            for thing in thingSeq_list:
+                thingsList.append(gsThing(serialNumber=thing, box=box, property=prop,amount=1))
+            gsThing.objects.bulk_create(thingsList)  # bulk_create批量数据入库，参数是list
+        elif oprateType == '2':
+            # 请求件序号
+            # code = '3|{0}'.format(1)
+            # thingSeq = getNumberAPI(code)
+            # --------------
+            serialNumber = str(shortuuid.ShortUUID().random(length=5))
+            # img = qrcode.make(data=serialNumber)
+            # pic_name = serialNumber + '.png'
+            # box_dir = os.path.join(settings.TAG_DATA_PATH, 'serialNumber', str(boxNumber))
+            # if not os.path.exists(box_dir):
+            #     os.makedirs(box_dir)  # mkdir
+            # filePath = os.path.join(box_dir, pic_name)
+            # img.resize((256, 256))
+            # img.save(filePath)
+            # --------------
+            gsThing.objects.create(gsThing(serialNumber=serialNumber, box=box, property=prop, amount=amount))
+        elif oprateType == '3':
+            pass
+
+
 
     def addToExistingBox(self, **kwargs):
         productType = kwargs['productType']
@@ -169,13 +213,14 @@ class gsProperty(models.Model):
 # 箱体实物表
 class gsBox(models.Model):
     boxNumber = models.CharField(verbose_name='货发二代系统提供的箱号',max_length=255,unique=True)
+    wareHouse = models.CharField(verbose_name='发行库', max_length=255, unique=True)
     amount = models.PositiveIntegerField(verbose_name='件数',)
     grossWeight = models.FloatField(verbose_name='总毛重',null=True)
     status = models.BooleanField(verbose_name='封箱状态（False:未封箱; True：已封箱入库）',default=False)
     oprateType = models.BooleanField(verbose_name='操作类型', default=False) # 1、逐一查验，2、同质同类查验、3较大存量查验
     property = models.ForeignKey(gsProperty)
-    objects = gsBoxManager()
 
+    objects = gsBoxManager()
     class Meta:
         ordering = ['boxNumber']
 
@@ -320,7 +365,7 @@ class gsThing(models.Model):
     pureWeight = models.FloatField(verbose_name='纯重', null=True)
     originalQuantity = models.FloatField(verbose_name='原标注成色', null=True)
     detectedQuantity = models.FloatField(verbose_name='频谱检测成色', null=True)
-    amount = models.FloatField(verbose_name='件（枚）数', null=True)
+    amount = models.PositiveIntegerField(verbose_name='件（枚）数', null=True)
     length = models.FloatField(verbose_name='长度', null=True)
     width = models.FloatField(verbose_name='宽度', null=True)
     height = models.FloatField(verbose_name='高度', null=True)

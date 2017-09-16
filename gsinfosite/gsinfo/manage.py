@@ -21,6 +21,7 @@ from PIL import Image, ImageWin
 import shortuuid
 from gsinfosite import settings
 from django.db.models import Q
+import random
 from webServiceAPI import *
 
 @login_required
@@ -42,39 +43,12 @@ def createBox(request):
         grossWeight = float(grossWeight)
     else:
         grossWeight = float(0)
-    # 从数据库中查最大箱号
-    maxBoxNumber_obj = gsBox.objects.all().order_by('-boxNumber').first()
-    if maxBoxNumber_obj:
-        boxNumber = maxBoxNumber_obj.boxNumber + 1
-    else:
-        boxNumber = 1
-
     # 向货发二代系统请求箱号和实物随机号
     # '请求类型|发行库编号|类别|品种'
     # code = '1|{0}|{1}|{2}'.format(wareHouse,productType,className)
     # getNumberAPI(code)
-
-    boxNumber = '1-{0}-{1}-{2}-1'.format(wareHouse,productType,className)
-
-    # 请求件序号
-    # code = '3'
-    # getNumberAPI(code)
-
-    thing_num_list = []
-    for i in range(amount):
-        serialNumber = str(shortuuid.ShortUUID().random(length=10))
-        thing_num_list.append(serialNumber)
-
-        img = qrcode.make(data=serialNumber)
-        pic_name = serialNumber + '.png'
-        box_dir = os.path.join(settings.TAG_DATA_PATH, 'serialNumber', str(boxNumber))
-        if not os.path.exists(box_dir):
-            os.makedirs(box_dir)  # mkdir
-        filePath = os.path.join(box_dir, pic_name)
-        img.resize((256, 256))
-        img.save(filePath)
-
-    thing_num = '|'.join(thing_num_list)
+    seq = random.randint(1, 100)
+    boxNumber = '1-{0}-{1}-{2}-{3}'.format(wareHouse,productType,className,seq)
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'新建{0}号箱实物'.format(boxNumber))
@@ -85,27 +59,7 @@ def createBox(request):
                                 wareHouse=wareHouse,
                                 amount=amount,
                                 grossWeight=grossWeight,
-                                thing_num=thing_num,
                                 oprateType=oprateType)
-
-        # 构造对应的存储目录结构
-        boxRootDir = settings.DATA_DIRS['box_dir']
-        boxDir = os.path.join(boxRootDir, str(boxNumber))
-        if not os.path.exists(boxDir):
-            os.mkdir(boxDir)
-
-            # subBoxSeq = gsThing.objects.filter(box=box).first().subBoxSeq
-            # now = datetime.datetime.now()
-            # wareHouseCode = box.wareHouse
-            # wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
-            # wordDir = os.path.join(boxDir, u'{0}_{1}_{2}_word'.format(now.year, subBoxSeq, wareHouse.type))
-            # if (not os.path.exists(wordDir)):
-            #     os.mkdir(wordDir)
-            #
-            # photoDir = os.path.join(boxDir, u'{0}_{1}_{2}_photo'.format(now.year, subBoxSeq, wareHouse.type))
-            # if (not os.path.exists(photoDir)):
-            #     os.mkdir(photoDir)
-
     except Exception as e:
         ret = {
             "success": False,
@@ -360,23 +314,6 @@ def printSerialNumberQR(request):
     }
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
-
-
-# -----------------------------------------------
-# # 点击开箱出库弹出二维码
-# def getBoxQR(request):
-#     boxNumber = 4  # int(request.POST.get('boxNumber', ''))  # 父箱号
-#     subBoxNumber = 1  # request.POST.get('boxNumber', '')  # 子箱号
-#     ret={}
-#     if subBoxNumber == '':
-#         picName = u'{0}号箱标签.png'.format(boxNumber)
-#     else:
-#         picName = u'{0}-{1}号箱标签.png'.format(boxNumber, subBoxNumber)
-#
-#     tagRootDir = settings.DATA_DIRS['tag_dir']
-#     ret['picPath'] = os.path.join(tagRootDir, str(boxNumber),'boxQRpictures',picName)
-#     ret_json = json.dumps(ret, separators=(',', ':'))
-#     return HttpResponse(ret_json)
 
 # 封箱入库 和 开箱出库
 def boxInOutStore(request):

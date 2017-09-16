@@ -177,7 +177,7 @@ def getAllUser(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
-
+# 从所有用户中找出非sysadmin得用户
 # --------------------------------------------------------------------------
 def getWorkData(request, workSeq):
     pageSize = int(request.POST.get('rows', ''))
@@ -490,21 +490,6 @@ def searchThingInfo(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
-
-# --------------------------------------------------------------------------
-def getProductType(request):
-    types = gsProperty.objects.filter(project='实物类型')
-    ret = []
-    for t in types:
-        r = {}
-        r['text'] = t.type
-        r['id'] = t.code
-        ret.append(r)
-
-    ret_json = json.dumps(ret, separators=(',', ':'))
-
-    return HttpResponse(ret_json)
-
 # --------------------------------------------------------------------------
 def getWareHouse(request):
     types = gsProperty.objects.filter(project='发行库')
@@ -689,10 +674,22 @@ def exploreThing(request, boxNumber, serialNumber):
     context['isVerify'] = isVerify
     context['operator'] = operator
     return render(request, html, context=context)
+# --------------------------------------------------------------------------
+def getProductType(request):
+    types = gsProperty.objects.filter(project='类别')
+    ret = []
+    for t in types:
+        r = {}
+        r['text'] = t.type
+        r['id'] = t.code
+        ret.append(r)
+
+    ret_json = json.dumps(ret, separators=(',', ':'))
+
+    return HttpResponse(ret_json)
 
 def getClassName(request, code):
-    type = gsProperty.objects.filter(project='实物类型', code=code)[0]
-    classNames = gsProperty.objects.filter(project='品名', parentProject=type.project, parentType=type.type)
+    classNames = gsProperty.objects.filter(project='品种', parentCode=code)
     ret = []
     for c in classNames:
         r = {}
@@ -707,22 +704,14 @@ def getSubClassName(request, code):
     codes = code.split('&')
     typeCode = codes[0]
     classNameCode = codes[1]
-    type = gsProperty.objects.filter(project='实物类型', code=typeCode)[0]
-    className = \
-        gsProperty.objects.filter(project='品名', code=classNameCode, parentProject=type.project,
-                                  parentType=type.type)[0]
-    subClassNames = gsProperty.objects.filter(project='明细品名', parentProject=className.project,
-                                              parentType=className.type, grandpaProject=type.project,
-                                              grandpaType=type.type)
+    subClassNames = gsProperty.objects.filter(project='品名', parentCode=classNameCode,grandpaCode=typeCode)
     ret = []
     for s in subClassNames:
         r = {}
         r['text'] = s.type
         r['id'] = s.code
         ret.append(r)
-
     ret_json = json.dumps(ret, separators=(',', ':'))
-
     return HttpResponse(ret_json)
 
 
