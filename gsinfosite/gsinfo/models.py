@@ -354,6 +354,7 @@ class gsStatus(models.Model):
     photographingCreateDateTime = models.DateTimeField(default=datetime.datetime.now())  # 环节4数据审核记录生成时间
     photographingUpdateDateTime = models.DateTimeField(null=True)  # 环节4数据审核记录最近一次修改时间
 
+    completeTime = models.DateTimeField(null=True)  # 实物完成时间
     thing = models.ForeignKey(gsThing)
 
 

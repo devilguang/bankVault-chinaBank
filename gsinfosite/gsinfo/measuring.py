@@ -111,7 +111,8 @@ def updateMeasuringInfo(request):
         thing_status = thing_set[0]
         status = thing_status.numberingStatus and thing_status.analyzingStatus and thing_status.measuringStatus and \
                  thing_status.photographingStatus and thing_status.checkingStatus
-        thing_set.update(status=status)
+        if status:
+            thing_set.update(status=status, completeTime=now)
     except Exception as e:
         ret = {}
         ret['success'] = False

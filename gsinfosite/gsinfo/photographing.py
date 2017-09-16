@@ -91,7 +91,8 @@ def updatePhotographingInfo(request):
             thing_obj = thing_status[0]
             status = thing_obj.numberingStatus and thing_obj.analyzingStatus and thing_obj.measuringStatus and \
                      thing_obj.photographingStatus and thing_obj.checkingStatus
-            thing_status.update(status=status)
+            if status:
+                thing_status.update(status=status,completeTime=now)
         except Exception as e:
             ret['success'] = False
             ret['message'] = '图片上传失败！'
