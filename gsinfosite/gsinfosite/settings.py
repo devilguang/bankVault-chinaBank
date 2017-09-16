@@ -182,3 +182,5 @@ DATA_DIRS = {
     'template_dir': TEMPLATE_DATA_PATH,
     'imgs_path':IMGS_DATA_PATH,
 }
+
+WEBSERVERAPI = 'http://ip(待定):端口(待定)/ mimis/services/Entity?wsdl'

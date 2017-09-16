@@ -1,5 +1,6 @@
 # encoding=UTF-8
 from django.db.models.signals import post_migrate
+from property import *
 
 def batchInsert(sender, **kwargs):
     #print sender.name
@@ -13,8 +14,7 @@ def init_property():
     add_property(project='品名', type='杂金', code='1', parentProject='实物类型', parentType='金银锭类')
     add_property(project='品名', type='杂银', code='2', parentProject='实物类型', parentType='金银锭类')
 
-    add_property(project='明细品名', type='稀一锭', code='02', parentProject='品名', parentType='杂金', grandpaProject='实物类型',
-                 grandpaType='金银锭类')
+    add_property(project='明细品名', type='稀一锭', code='02', parentProject='品名', parentType='杂金', grandpaProject='实物类型',grandpaType='金银锭类')
     add_property(project='明细品名', type='稀三锭', code='08', parentProject='品名', parentType='杂金', grandpaProject='实物类型',
                  grandpaType='金银锭类')
     add_property(project='明细品名', type='混装', code='00', parentProject='品名', parentType='杂金', grandpaProject='实物类型',
@@ -34,7 +34,8 @@ def init_property():
     add_property(project='品名', type='杂银', code='2', parentProject='实物类型', parentType='金银币章类')
 
     add_property(project='明细品名', type='混装', code='00', parentProject='品名', parentType='杂金', grandpaProject='实物类型',
-                 grandpaType='金银锭类')
+                 grandpaType='金银锭类'
+                 )
     add_property(project='明细品名', type='稀一币', code='01', parentProject='品名', parentType='杂金', grandpaProject='实物类型',
                  grandpaType='金银币章类')
     add_property(project='明细品名', type='稀二币', code='04', parentProject='品名', parentType='杂金', grandpaProject='实物类型',
@@ -113,13 +114,12 @@ def init_property():
     add_property(project='明细品名', type='混装', code='00', parentProject='品名', parentType='杂银', grandpaProject='实物类型',
                  grandpaType='金银工艺品类')
 
-    add_property(project='发行库', type='湖北重点库', code='217')
-    add_property(project='发行库', type='北京重点库', code='201')
-    add_property(project='发行库', type='天津重点库', code='202')
-    add_property(project='发行库', type='河北重点库', code='203')
-
-
-
+    for dic in metaDate:
+        project = dic['project']
+        val = dic['val']
+        for type_code in val:
+            code,type = type_code
+            add_property(project=project, type=type, code=code)
 
 def add_property(project, type, code=None, parentProject='', parentType='', grandpaProject='', grandpaType=''):
     from gsinfo.models import gsProperty
