@@ -59,8 +59,6 @@ urlpatterns = [
     url(r'^manage/getClassName/(?P<code>\d+)$', views.getClassName, name='getClassName'),
     url(r'^manage/getSubClassName/(?P<code>\d+&\d+)$', views.getSubClassName, name='getSubClassName'),
     url(r'^manage/getOprateType/$', views.getOprateType, name='getOprateType'),
-
-    # url(r'^manage/getStartSequence/$', manage.getStartSequence, name='getStartSequence'),
     url(r'^manage/getBox/$', manage.getBox, name='getBox'),
     url(r'^manage/getThing/$', manage.getThing, name='getThing'),
     url(r'^manage/generateWorkName/$', manage.generateWorkName, name='generateWorkName'),
@@ -72,10 +70,7 @@ urlpatterns = [
     url(r'^manage/confirmMergeBox/$', manage.confirmMergeBox, name='confirmMergeBox'),
     url(r'^manage/getAllBox/$', manage.getAllBox, name='getAllBox'),
     url(r'^manage/processInfo$', manage.processInfo, name='processInfo'),
-    #url(r'^manage/printBoxInfo/$', views.printBoxInfo, name='printBoxInfo'),
     url(r'^manage/downloadBoxInfo/$', manage.downloadBoxInfo, name='downloadBoxInfo'),
-    #url(r'^manage/getBoxQR/$', views.getBoxQR, name='getBoxQR'),
-    # url(r'^manage/packageQR/$', manage.packageQR, name='packageQR'),
     url(r'^manage/addToExistingBox/$', manage.addToExistingBox, name='addToExistingBox'),
     url(r'^manage/deleteBox/$', manage.deleteBox, name='deleteBox'),
     url(r'^manage/createWork/$', manage.createWork, name='createWork'),
@@ -87,9 +82,8 @@ urlpatterns = [
     url(r'^manage/generateAbstract/$', manage.generateAbstract, name='generateAbstract'),
     url(r'^manage/generateArchives/$', manage.generateArchives, name='generateArchives'),
     url(r'^manage/generateBoxInfo/$', manage.generateBoxInfo, name='generateBoxInfo'),
-    url(r'^manage/weightBox/$', manage.weightBox, name='weightBox'),
     url(r'^manage/generateBoxInfoDetailedVersion/$', manage.generateBoxInfoDetailedVersion,name='generateBoxInfoDetailedVersion'),
-    url(r'^manage/exploreThing/(?P<boxNumber>\d+)/(?P<serialNumber>.*?)$', views.exploreThing,name='exploreThing'),
+    url(r'^manage/exploreThing/(?P<boxNumber>.*?)/(?P<serialNumber>.*?)$', views.exploreThing,name='exploreThing'),
     url(r'^manage/exploreBox/$', manage.exploreBox, name='exploreBox'),
     url(r'^manage/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
     url(r'^manage/boxInOutStore/$', manage.boxInOutStore, name='boxInOutStore'),
@@ -113,8 +107,6 @@ urlpatterns = [
     url(r'^manage/print_pic/$', manage.print_pic, name='print_pic'),
     url(r'^manage/enterEvent/$', manage.enterEvent, name='enterEvent'),
     url(r'^manage/cancleInput/$', manage.cancleInput, name='cancleInput'),
-
-
 
     url(r'^checking/$', checking.checking, name='checking'),
     url(r'^checking/getProductType/$', views.getProductType, name='getProductType'),
@@ -144,6 +136,7 @@ urlpatterns = [
     url(r'^numbering/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
     url(r'^numbering/checkInfo/$', numbering.checkInfo, name='checkInfo'),
     url(r'^numbering/getThingInfo/$', views.getThingInfo, name='getThingInfo'),
+    url(r'^manage/getReadyInfo/$', numbering.getReadyInfo, name='getReadyInfo'),
 
     url(r'^measuring/$', measuring.measuring, name='measuring'),
     url(r'^measuring/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),

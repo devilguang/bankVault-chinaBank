@@ -852,9 +852,10 @@ function ClickRow(index, row) {
         var boxMap = row.subBoxDict;
         var thhtml = "";
         var trhtml = "";
+        //onclick="openCreateWorkDlg(\'' + row.boxNumber + '-' + key + '\')" 这个是对子箱拆箱的时候添加点击创建作业的方法
         for (var key in boxMap) {
             thhtml += "<tr class='ly_hides' style='height: 25px;'><td><div class='datagrid-cell-rownumber'></div></td></tr>";
-            trhtml += '<tr class="ly_hides" style="height: 25px;"><td field="boxNumber"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-boxNumber">' + row.boxNumber + '-' + key + '</div></td><td field="productType"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-productType">' + row.productType + '</div></td><td field="className"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-className">' + row.className + '</div></td><td field="subClassName"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-subClassName">' + row.subClassName + '</div></td><td field="wareHouse"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-wareHouse">' + row.wareHouse + '</div></td><td field="amount"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-amount">' + boxMap[key] + '</div></td><td field="operation"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-operation"><div style="float:left"><a href="javascript:void(0);" onclick="openAddToExistingBoxDlg(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(1, \'' + row.boxNumber + '-' + key + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;">修改</a></div></div></td></tr>';
+            trhtml += '<tr class="ly_hides" style="height: 25px;"><td field="boxNumber"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-boxNumber">' + row.boxNumber + '-' + key + '</div></td><td field="productType"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-productType">' + row.productType + '</div></td><td field="className"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-className">' + row.className + '</div></td><td field="subClassName"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-subClassName">' + row.subClassName + '</div></td><td field="wareHouse"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-wareHouse">' + row.wareHouse + '</div></td><td field="amount"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-amount">' + boxMap[key] + '</div></td><td field="operation"><div style="text-align:center;height:auto;" class="datagrid-cell datagrid-cell-' + clss + '-operation"><div style="float:left"><a href="javascript:void(0);" onclick="openAddToExistingBoxDlg(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">并箱操作</a><a href="javascript:void(0);"  style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', \'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(1, \'' + row.boxNumber + '-' + key + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '-' + key + '\')" style="text-decoration:none;color:blue;">修改</a></div></div></td></tr>';
         }
         $("#" + selectids[0].id).after(thhtml);
         $("#" + selectids[1].id).after(trhtml);
@@ -863,6 +864,8 @@ function ClickRow(index, row) {
 //var row = $('#workGridBoxManage').datagrid('getSelected');
 //$("#datagrid-row-r1-2-"+rowIndex).after("<tr class='ly_hides' style='height: 25px;'><td field='boxNumber'><div style='text-align:center;height:auto;' class='datagrid-cell datagrid-cell-c1-boxNumber'>1</div></td><td field='productType'><div style='text-align:center;height:auto;' class='datagrid-cell datagrid-cell-c1-productType'>金银锭类</div></td><td field='className'><div style='text-align:center;height:auto;' class='datagrid-cell datagrid-cell-c1-className'>杂金</div></td><td field='subClassName'><div style='text-align:center;height:auto;' class='datagrid-cell datagrid-cell-c1-subClassName'>稀一锭</div></td><td field='wareHouse'><div style='text-align:center;height:auto;' class='datagrid-cell datagrid-cell-c1-wareHouse'>湖北重点库</div></td><td field='amount'><div style='text-align:center;height:auto;' class='datagrid-cell datagrid-cell-c1-amount'>100</div></td><td field='operation'><div style='text-align:center;height:auto;' class='datagrid-cell datagrid-cell-c1-operation'></div></td></tr>");
 }
+
+
 //设置箱子毛重
 function weightBox(boxNumber) {
     //$('#workGridBoxManage').datagrid('selectRow', index);
@@ -2118,7 +2121,7 @@ function archivedBoxSearchReset() {
 
 function userManage() {
     var title = '用户管理';
-    var c = '<table id="workGridUser" class="easyui-datagrid" data-options="url:\'getUser/\', toolbar:\'#workGridToolBarUser\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20, checkOnSelect:false, selectOnCheck:false"><thead><tr><th field="checkStatus" align="center" checkbox="true"></th><th field="nickName" align="center" width="20">用户名</th><th field="type" formatter="userTypeFormatter" align="center" width="20">用户类型</th><th field="operation" formatter="operationFormatter" align="center" width="60">操作</th</tr></thead></table><div id="workGridToolBarUser"><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="userAdd()">添加</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="userRemove()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridUser\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+    var c = '<table id="workGridUser" class="easyui-datagrid" data-options="url:\'getUser/\', toolbar:\'#workGridToolBarUser\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20, checkOnSelect:false, selectOnCheck:false"><thead><tr><th field="checkStatus" align="center" checkbox="true"></th><th field="userName" align="center" width="20">用户名</th><th field="type" formatter="userTypeFormatter" align="center" width="20">用户类型</th><th field="operation" formatter="operationFormatter" align="center" width="60">操作</th</tr></thead></table><div id="workGridToolBarUser"><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="userAdd()">添加</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="userRemove()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridUser\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-user');
     initPagination();
 }
@@ -2133,7 +2136,7 @@ function userTypeFormatter(value, row, index) {
     }
 }
 function operationFormatter(value, row, index) {
-    return '<div style="float:left"><a href="javascript:void(0);" onclick="updatePassword(\'' + row.nickName + '\')" style="text-decoration:none;color:blue">更改密码</a></div>'
+    return '<div style="float:left"><a href="javascript:void(0);" onclick="updatePassword(\'' + row.userName + '\')" style="text-decoration:none;color:blue">更改密码</a></div>'
 }
 
 function userAdd() {
@@ -2155,14 +2158,14 @@ function userRemove() {
 
     var userArray = new Array()
     for (var i = 0; i < n; ++i) {
-        userArray[i] = rows[i].nickName;
+        userArray[i] = rows[i].userName;
     }
 
     $.messager.confirm('提示', '是否确认删除所选用户?', function (r) {
         if (r) {
             $.ajax({
                 url: url,
-                data: {nickName: userArray, opType: opType},
+                data: {userName: userArray, opType: opType},
                 type: 'POST',
                 async: true,
                 dataType: 'json',
@@ -2221,11 +2224,11 @@ function saveUser() {
     $('#userForm').submit();
 }
 
-function updatePassword(nickName) {
+function updatePassword(userName) {
     $('#updatePasswordDlg').dialog('open').dialog('center').dialog('setTitle', '更改密码');
     $('#updatePasswordForm').form('clear');
     $('#updatePasswordForm').form('load', {
-        nickName: nickName,
+        userName: userName,
     });
     url = 'updatePassword/';
 }
@@ -2276,7 +2279,7 @@ function savePassword() {
 
 function authorityManage() {
     var title = '权限管理';
-    var c = '<table id="workGridAuthority" class="easyui-datagrid" data-options="url:\'getAuthority/\', toolbar:\'#workGridToolBarAuthority\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th align="center" rowspan="2" colspan="2" align="center">用户</th><th align="center" colspan="8">岗位权限&nbsp;&nbsp;(<img src="' + $('#okStatus').attr('value') + '">拥有权限</img>&nbsp;&nbsp;&nbsp;&nbsp;<img src="' + $('#noStatus').attr('value') + '">未拥有权限</img>)</th></tr><tr><th align="center" width="20" colspan="2">监控输出</th><th align="center" width="20" colspan="2">外观信息采集</th><th align="center" width="20" colspan="2">频谱分析</th><th align="center" width="20" colspan="2">测量称重</th><th align="center" width="20" colspan="2">图像采集</th></tr><tr><th field="nickName" align="center" width="10">用户名</th><th field="type" formatter="userTypeFormatter" align="center" width="10">用户类型</th><th field="monitoring" formatter="authorityStatusFormatter" align="center" width="10">状态</th><th field="monitoringAuthority" formatter="monitoringAuthorityFormatter" align="center" width="10">操作</th><th field="numbering" formatter="authorityStatusFormatter"  align="center" width="10">状态</th><th field="numberingAuthority" formatter="numberingAuthorityFormatter" align="center" width="10">操作</th><th field="analyzing" formatter="authorityStatusFormatter" align="center" width="10">状态</th><th field="analyzingAuthority" formatter="analyzingAuthorityFormatter" align="center" width="10">操作</th><th field="measuring" formatter="authorityStatusFormatter" align="center" width="10">状态</th><th field="measuringAuthority" formatter="measuringAuthorityFormatter" align="center" width="10">操作</th><th field="photographing" formatter="authorityStatusFormatter" align="center" width="10">状态</th><th field="photographingAuthority" formatter="photographingAuthorityFormatter" align="center" width="10">操作</th></tr></thead></table><div id="workGridToolBarAuthority"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridAuthority\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function initPagination(){$(\'#workGridAuthority\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+    var c = '<table id="workGridAuthority" class="easyui-datagrid" data-options="url:\'getAuthority/\', toolbar:\'#workGridToolBarAuthority\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th align="center" rowspan="2" colspan="2" align="center">用户</th><th align="center" colspan="8">岗位权限&nbsp;&nbsp;(<img src="' + $('#okStatus').attr('value') + '">拥有权限</img>&nbsp;&nbsp;&nbsp;&nbsp;<img src="' + $('#noStatus').attr('value') + '">未拥有权限</img>)</th></tr><tr><th align="center" width="20" colspan="2">监控输出</th><th align="center" width="20" colspan="2">外观信息采集</th><th align="center" width="20" colspan="2">频谱分析</th><th align="center" width="20" colspan="2">测量称重</th><th align="center" width="20" colspan="2">图像采集</th></tr><tr><th field="userName" align="center" width="10">用户名</th><th field="type" formatter="userTypeFormatter" align="center" width="10">用户类型</th><th field="monitoring" formatter="authorityStatusFormatter" align="center" width="10">状态</th><th field="monitoringAuthority" formatter="monitoringAuthorityFormatter" align="center" width="10">操作</th><th field="numbering" formatter="authorityStatusFormatter"  align="center" width="10">状态</th><th field="numberingAuthority" formatter="numberingAuthorityFormatter" align="center" width="10">操作</th><th field="analyzing" formatter="authorityStatusFormatter" align="center" width="10">状态</th><th field="analyzingAuthority" formatter="analyzingAuthorityFormatter" align="center" width="10">操作</th><th field="measuring" formatter="authorityStatusFormatter" align="center" width="10">状态</th><th field="measuringAuthority" formatter="measuringAuthorityFormatter" align="center" width="10">操作</th><th field="photographing" formatter="authorityStatusFormatter" align="center" width="10">状态</th><th field="photographingAuthority" formatter="photographingAuthorityFormatter" align="center" width="10">操作</th></tr></thead></table><div id="workGridToolBarAuthority"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridAuthority\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function initPagination(){$(\'#workGridAuthority\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-authority');
     initPagination();
 }
@@ -2293,10 +2296,10 @@ function monitoringAuthorityFormatter(value, row, index) {
         return '<span>-</span>';
     }
     if (row.monitoring) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'monitoring\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'monitoring\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'monitoring\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'monitoring\', \'grant\')">授权</a>';
     }
 }
 function numberingAuthorityFormatter(value, row, index) {
@@ -2304,10 +2307,10 @@ function numberingAuthorityFormatter(value, row, index) {
         return '<span>-</span>';
     }
     if (row.numbering) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'numbering\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'numbering\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'numbering\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'numbering\', \'grant\')">授权</a>';
     }
 }
 function analyzingAuthorityFormatter(value, row, index) {
@@ -2315,10 +2318,10 @@ function analyzingAuthorityFormatter(value, row, index) {
         return '<span>-</span>';
     }
     if (row.analyzing) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'analyzing\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'analyzing\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'analyzing\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'analyzing\', \'grant\')">授权</a>';
     }
 }
 function measuringAuthorityFormatter(value, row, index) {
@@ -2326,10 +2329,10 @@ function measuringAuthorityFormatter(value, row, index) {
         return '<span>-</span>';
     }
     if (row.measuring) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'measuring\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'measuring\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'measuring\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'measuring\', \'grant\')">授权</a>';
     }
 }
 function photographingAuthorityFormatter(value, row, index) {
@@ -2337,15 +2340,15 @@ function photographingAuthorityFormatter(value, row, index) {
         return '<span>-</span>';
     }
     if (row.photographing) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'photographing\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'photographing\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'photographing\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'photographing\', \'grant\')">授权</a>';
     }
 }
-function authorityProcess(nickName, authority, opType) {
+function authorityProcess(userName, authority, opType) {
     $.post('authorityProcess/',
-        {nickName: nickName, authority: authority, opType: opType},
+        {userName: userName, authority: authority, opType: opType},
         function (result, status) {
             if (result.success) {
                 $.messager.show({    // 显示成功信息

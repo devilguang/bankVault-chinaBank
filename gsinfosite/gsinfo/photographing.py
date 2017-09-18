@@ -11,8 +11,8 @@ from . import log
 
 @login_required  # 图像采集岗位
 def photographing(request):
-    nickName = gsUser.objects.get(user=request.user)
-    return render(request, 'p.html', context={'operator': nickName, })
+    userName = gsUser.objects.get(user=request.user)
+    return render(request, 'p.html', context={'operator': userName, })
 
 def getPictures(request):
     boxOrSubBox = request.GET.get('boxNumber', '')
@@ -75,7 +75,7 @@ def updatePhotographingInfo(request):
                 f.write(img)
 
         user = request.user
-        operator = gsUser.objects.get(user=user).nickName
+        operator = gsUser.objects.get(user=user).userName
 
         try:
             # 检测作业是否可用

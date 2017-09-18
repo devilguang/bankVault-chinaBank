@@ -9,7 +9,7 @@ import datetime
 # Create your models here.
 class gsUserManager(models.Manager):
     def createUser(self, **kwargs):
-        nickName = kwargs['nickName']
+        userName = kwargs['userName']
         type = kwargs['type']
         password = kwargs['password']
         organization = kwargs['organization']
@@ -25,7 +25,7 @@ class gsUserManager(models.Manager):
         # 先在auth_user表中创建用户，再在gsinfo_gsUser表中创建用户
         if user:
             gsUser.objects.get_or_create(user=user,
-                                         nickName=nickName,
+                                         userName=userName,
                                          organization=organization,
                                          department=department,
                                          type=type)
@@ -33,12 +33,12 @@ class gsUserManager(models.Manager):
             return
 
     def deleteUser(self, **kwargs):
-        nickName = kwargs['nickName']
-        # 删除用户名为nickName的作业, admin用户为系统默认用户,不能删除
-        # 注意：Django将根据nickName的值进行"级联"删除
-        if nickName != 'sysadmin':
+        userName = kwargs['userName']
+        # 删除用户名为userName的作业, admin用户为系统默认用户,不能删除
+        # 注意：Django将根据userName的值进行"级联"删除
+        if userName != 'sysadmin':
             try:
-                user = super(models.Manager, self).get(nickName=kwargs['nickName'])  # 用超级用户身份来删除
+                user = super(models.Manager, self).get(userName=kwargs['userName'])  # 用超级用户身份来删除
                 user.delete()
                 deletedUser = True
             except ObjectDoesNotExist:
@@ -52,7 +52,7 @@ class gsUserManager(models.Manager):
 class gsUser(models.Model):
     user = models.OneToOneField(User)  # OneToOneField(someModel) 可以理解为 ForeignKey(SomeModel, unique=True)
     type = models.PositiveIntegerField(verbose_name='用户类型（0:超级管理员 1:管理员 2:一般用户）')
-    nickName = models.CharField(verbose_name='用户名', max_length=255, unique=True)
+    userName = models.CharField(verbose_name='用户名', max_length=255, unique=True)
     organization = models.CharField(verbose_name='用户所在组织', max_length=255, null=True)
     department = models.CharField(verbose_name='用户所在部门', max_length=255, null=True)
     auth = models.BooleanField(verbose_name='授权管理岗位权限（True:拥有 False:未拥有）', default=False)
@@ -71,7 +71,7 @@ class gsUser(models.Model):
     objects = gsUserManager()
 
     def __unicode__(self):
-        return self.nickName
+        return self.userName
 
 
 # 针对CharField来说，''(空字符串)等价于NULL

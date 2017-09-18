@@ -140,7 +140,7 @@
                 if (r) {
                     $.post(
                         "{% url 'logout' %}",
-                        {nickName: user},
+                        {userName: user},
                         function (result) {
                             if (result.success) {
                                 // window.opener=null;
@@ -1215,8 +1215,8 @@
     <div class="FormTitle">用户信息</div>
     <form id="userForm" method="POST" novalidate>
         <div class="FormItem">
-            <label for="user-nickName">用户名称</label>
-            <input id="user-nickName" name="nickName" class="easyui-textbox">
+            <label for="user-userName">用户名称</label>
+            <input id="user-userName" name="userName" class="easyui-textbox">
         </div>
         <div class="FormItem">
             <label for="user-type">用户类型</label>
@@ -1247,8 +1247,8 @@
     <div class="FormTitle">更改密码</div>
     <form id="updatePasswordForm" method="POST" novalidate>
         <div class="FormItem">
-            <label for="updatePassword-nickName">用户名称</label>
-            <input id="updatePassword-nickName" name="nickName" class="easyui-textbox" data-options="readonly: true">
+            <label for="updatePassword-userName">用户名称</label>
+            <input id="updatePassword-userName" name="userName" class="easyui-textbox" data-options="readonly: true">
         </div>
         <div class="FormItem">
             <label for="updatePassword-password">新密码</label>

@@ -77,7 +77,7 @@ def add_property(project, type, code=None, parentProject='', parentType='', pare
 def init_authority():
     from gsinfo.models import gsUser
     # 添加系统默认管理员
-    gsUser.objects.createUser(nickName='sysadmin', password='123456', type=0, organization='system_default',
+    gsUser.objects.createUser(userName='sysadmin', password='123456', type=0, organization='system_default',
                               department='system_default')  # 'hbjy@396'
 
 

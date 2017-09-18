@@ -10,8 +10,8 @@ from . import log
 
 @login_required
 def checking(request):
-    nickName = gsUser.objects.get(user=request.user)
-    return render(request, 'c.html', context={'operator': nickName, })
+    userName = gsUser.objects.get(user=request.user)
+    return render(request, 'c.html', context={'operator': userName, })
 
 
 # ----------------------------------------------------

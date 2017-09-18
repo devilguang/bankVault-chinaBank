@@ -26,8 +26,8 @@ from webServiceAPI import *
 
 @login_required
 def manage(request):
-    nickName = gsUser.objects.get(user=request.user)
-    return render(request, 'manage.html', context={'operator': nickName, })
+    userName = gsUser.objects.get(user=request.user)
+    return render(request, 'manage.html', context={'operator': userName, })
 
 
 def createBox(request):
@@ -319,7 +319,7 @@ def printSerialNumberQR(request):
 def boxInOutStore(request):
     boxOrSubBox = request.POST.get('boxNumber', '')
     status = int(request.POST.get('status', ''))  # 1: 封箱入库 0: 提取出库
-    nickName = request.POST.get('user', '')  # 系统负责人用户名
+    userName = request.POST.get('user', '')  # 系统负责人用户名
     password = request.POST.get('password', '')  # 系统负责人密码
     txtQR = request.POST.get('txtQR', '')
 
@@ -332,7 +332,7 @@ def boxInOutStore(request):
 
     if status == 1:
         user = request.user
-        userName = gsUser.objects.get(user=user).nickName
+        userName = gsUser.objects.get(user=user).userName
 
         if '-' in boxOrSubBox:
             boxNumber = int(boxOrSubBox.split('-')[0])
@@ -362,7 +362,7 @@ def boxInOutStore(request):
                 }
             return ret
 
-        custom_user = gsUser.objects.filter(nickName=nickName)
+        custom_user = gsUser.objects.filter(userName=userName)
         if custom_user:
             custom_user = custom_user[0]
             if int(custom_user.type) == 0:
@@ -497,65 +497,6 @@ def boxInOutStore(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
-
-
-# def boxInOutStore(request):
-#     boxNumber = int(request.POST.get('boxNumber', ''))
-#     status = int(request.POST.get('status', ''))  # 1: 封箱入库 0: 提取出库
-#     try:
-#         box = gsBox.objects.get(boxNumber=boxNumber)
-#         if gsWork.objects.filter(box=box, status=1).exists():
-#             # 存在作业未收回, 不能封箱入库
-#             raise ValueError(u'{0}号箱存在作业未收回，不能封箱入库！请前往:业务管理->作业管理，收回作业！'.format(boxNumber))
-#
-#         gsBox.objects.filter(boxNumber=boxNumber).update(status=True if status != 0 else False)
-#     except Exception as e:
-#         ret = {
-#             "success": False,
-#             "message": '{0}号箱实物封箱入库失败！\r\n原因：{1}'.format(boxNumber,
-#                                                          e.message) if status != 0 else '{0}号箱实物开箱出库失败！\r\n原因：{1}'.format(
-#                 boxNumber, e.message)
-#         }
-#     else:
-#         ret = {
-#             'success': True,
-#             'message': '{0}号箱实物封箱入库成功!'.format(boxNumber) if status != 0 else '{0}号箱实物开箱出库成功'.format(boxNumber)
-#         }
-#
-#     ret_json = json.dumps(ret, separators=(',', ':'))
-#
-#     return HttpResponse(ret_json)
-# -----------------------------------------------
-# 修改毛重
-def weightBox(request):
-    boxOrSubBox = request.POST.get('boxNumber', '')
-    grossWeight = request.POST.get('weight', '')
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-
-    try:
-        if subBoxNumber == '':
-            gsBox.objects.filter(boxNumber=boxNumber).update(grossWeight=float(grossWeight))
-        else:
-            box = gsBox.objects.filter(boxNumber=boxNumber)
-            gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(grossWeight=float(grossWeight))
-    except Exception, e:
-        ret = {
-            "success": False,
-        }
-    else:
-        ret = {
-            'success': True,
-        }
-    ret_json = json.dumps(ret, separators=(',', ':'))
-    return HttpResponse(ret_json)
-
-
 # -----------------------------------------------
 # 原来的并箱操作
 def addToExistingBox(request):
@@ -655,20 +596,19 @@ def getBox(request):
         box_qs = gsBox.objects.filter(status=0)
     else:
         box_qs = gsBox.objects.filter(status=1)
+    selectBox = []
+    for box in box_qs:
+        prop = box.property
+        code = prop.code
+        parentCode = prop.parentCode
+        grandpaCode=prop.grandpaCode
+        code_match = [i for i in [grandpaCode, parentCode, code] if i]
+        code_query = [i for i in [productType,className,subClassName] if i]
+        str_match = '-'.join(code_match)
+        str_query = '-'.join(code_query)
+        if str_query in str_match:
+            selectBox.append(box)
 
-    if productType or className or subClassName:
-        selectBox = []
-        for box in box_qs:
-            prop = box.property
-            code = prop.code
-            parentCode = prop.parentCode
-            grandpaCode=prop.grandpaCode
-            aa = '-'.join([grandpaCode,parentCode,code])
-            bb = '-'.join([productType,className,subClassName])
-            if bb in aa:
-                selectBox.append(box)
-    else:
-        selectBox = list(box_qs)
     n = len(selectBox)
 
     pageSize = int(pageSize)
@@ -683,9 +623,14 @@ def getBox(request):
         r = {}
         prop = box.property
         r['boxNumber'] = box.boxNumber
-        r['productType'] = prop.grandpaType
-        r['className'] = prop.parentType
-        r['subClassName'] = prop.type
+        if prop.grandpaType:
+            r['productType'] = prop.grandpaType
+            r['className'] = prop.parentType
+            r['subClassName'] = prop.type
+        else:
+            r['productType'] = prop.parentType
+            r['className'] = prop.type
+            r['subClassName'] = '-'
         wareHouse = gsProperty.objects.get(project='发行库', code=box.wareHouse)
         r['wareHouse'] = wareHouse.type
         r['amount'] = box.amount
@@ -695,37 +640,17 @@ def getBox(request):
 
 
 def getThing(request):
-    boxOrSubBox = request.POST.get('boxNumber', '')
+    boxNumber = request.POST.get('boxNumber', '')
     pageSize = request.POST.get('rows', '')
     page = request.POST.get('page', '')
     isAllocated = request.POST.get('thingIsAllocated', '')
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-        returnBoxNumber = '{0}-{1}'.format(boxNumber, subBoxNumber)
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-        returnBoxNumber = boxNumber
-
     box = gsBox.objects.get(boxNumber=boxNumber)
-    if subBoxNumber == '':
-        if isAllocated == 'notAllocated':
-            ts = gsThing.objects.filter(box=box, isAllocate=False)
-        elif isAllocated == 'allocated':
-            ts = gsThing.objects.filter(box=box, isAllocate=True)
-        else:
-            ts = gsThing.objects.filter(box=box)
-    else:
-        subBox = gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber)
-        if isAllocated == 'notAllocated':
-
-            ts = gsThing.objects.filter(box=box, subBox=subBox, isAllocate=False)
-        elif isAllocated == 'allocated':
-            ts = gsThing.objects.filter(box=box, subBox=subBox, isAllocate=True)
-        else:
-            ts = gsThing.objects.filter(box=box, subBox=subBox)
+    if isAllocated == 'notAllocated':
+        ts = gsThing.objects.filter(box=box, isAllocate=False)
+    elif isAllocated == 'allocated':
+        ts = gsThing.objects.filter(box=box, isAllocate=True)
+    else:  # 这是什么情况触发！
+        ts = gsThing.objects.filter(box=box)
 
     ret = {}
     n = ts.count()
@@ -737,30 +662,21 @@ def getThing(request):
     end = n if (page * pageSize > n) else page * pageSize
 
     ret['rows'] = []
+    prop = box.property
+    productType = prop.grandpaType
+    className = prop.parentType
+    subClassName = prop.type
     for t in ts[start:end]:
         r = {}
         r['serialNumber'] = t.serialNumber
-        r['boxNumber'] = returnBoxNumber
-
-        productType = gsProperty.objects.get(project='实物类型', code=t.box.productType)
-        r['productType'] = productType.type
-
-        className = gsProperty.objects.get(project='品名', code=t.box.className, parentProject=productType.project,
-                                           parentType=productType.type)
-        r['className'] = className.type
-
-        subClassName = gsProperty.objects.get(project='明细品名', code=t.box.subClassName, parentProject=className.project,
-                                              parentType=className.type, grandpaProject=productType.project,
-                                              grandpaType=productType.type)
-        r['subClassName'] = subClassName.type
-
-        wareHouse = gsProperty.objects.get(project='发行库', code=t.box.wareHouse)
+        r['boxNumber'] = boxNumber
+        r['productType'] = productType
+        r['className'] = className
+        r['subClassName'] = subClassName
+        wareHouse = gsProperty.objects.get(project='发行库', code=box.wareHouse)
         r['wareHouse'] = wareHouse.type
-
         ret['rows'].append(r)
-
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-
     return HttpResponse(ret_json)
 
 
@@ -783,17 +699,16 @@ def generateWorkName(request):
 
 
 def generateContentForWork(request):
-    boxNumber = int(request.POST.get('boxNumber', ''))
+    boxNumber = request.POST.get('boxNumber', '')
     amount = request.POST.get('amount', '')
 
-    if 0 == cmp(amount, ''):
-        amount = 0
-    else:
+    if amount:
         amount = int(amount)
+    else:
+        amount = 0
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-    ts = gsThing.objects.filter(box=box, isAllocate=False)
-    specialSerialNumberList = ts.values_list('serialNumber', flat=True)
+    specialSerialNumberList = gsThing.objects.filter(box=box, isAllocate=False).values_list('serialNumber', flat=True)
 
     ret = {}
     ret['data'] = []
@@ -803,26 +718,21 @@ def generateContentForWork(request):
         ret['data'].append(r)
 
     ret_json = json.dumps(ret, separators=(',', ':'))
-
     return HttpResponse(ret_json)
 
 
 def createWork(request):
-    boxOrSubBox = request.POST.get('boxNumber', '')
+    boxNumber = request.POST.get('boxNumber', '')
     workName = request.POST.get('workName', '')
     selectedThings = request.POST.get('selectedThings', '')
-    operator = request.POST.get('operator', '')
     thingSet = selectedThings.split(';')[:-1]
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-
     try:
-        gsWork.objects.createWork(operator=operator, workName=workName, boxNumber=boxNumber, subBoxNumber=subBoxNumber,
+        user = request.user
+        log.log(user=user, operationType=u'业务操作', content=u'创建{0}'.format(workName))
+        user_obj = gsUser.objects.get(user=user)
+        gsWork.objects.createWork(user=user_obj,
+                                  workName=workName,
+                                  boxNumber=boxNumber,
                                   thingSet=thingSet)
     except Exception as e:
         ret = {
@@ -844,10 +754,9 @@ def deleteWork(request):
     boxNumber = request.POST.get('boxNumber', '')
     workSeq = request.POST.get('workSeq', '')
     workName = request.POST.get('workName', '')
-    subBoxNumber = request.POST.get('subBoxNumber', '')
 
     try:
-        gsWork.objects.deleteWork(boxNumber=boxNumber, workSeq=workSeq, subBoxNumber=subBoxNumber)
+        gsWork.objects.deleteWork(boxNumber=boxNumber, workSeq=workSeq)
     except Exception as e:
         ret = {
             'success': False,
@@ -872,22 +781,23 @@ def getWork(request):
     subClassName = request.POST.get('subClassName', '')
     status = int(request.POST.get('status', ''))  # 1: 已入库 0: 未入库
 
-    bs = gsBox.objects.filter(status=status)
-    ws = gsWork.objects.filter(box__in=bs)
-    # 按查询条件进行筛选
-    if productType != '':
-        bs = gsBox.objects.filter(productType=productType)
-    if className != '':
-        bs = bs.filter(className=className)
-    if subClassName != '':
-        bs = bs.filter(subClassName=subClassName)
+    box_qs = gsBox.objects.filter(status=status)
+    # 筛选符合条件的box
+    selectBox = []
+    for box in box_qs:
+        prop = box.property
+        code = prop.code
+        parentCode = prop.parentCode
+        grandpaCode = prop.grandpaCode
+        code_match = [i for i in [grandpaCode, parentCode, code] if i]
+        code_query = [i for i in [productType, className, subClassName] if i]
+        str_match = '-'.join(code_match)
+        str_query = '-'.join(code_query)
+        if str_query in str_match:
+            selectBox.append(box)
 
-    if productType != '' or subClassName != '' or subClassName != '':
-        specialBoxIdList = bs.values_list('id', flat=True)
-        ws = ws.filter(box__in=specialBoxIdList)
-
-    n = ws.count()
-
+    work_set = gsWork.objects.filter(box__in=selectBox)
+    n = work_set.count()
     pageSize = int(pageSize)
     page = int(page)
     start = (page - 1) * pageSize
@@ -896,25 +806,23 @@ def getWork(request):
     ret = {}
     ret['total'] = n
     ret['rows'] = []
-    for work in ws[start:end]:
+    for work in work_set[start:end]:
         r = {}
         r['id'] = work.id
         r['workName'] = work.workName
         r['workSeq'] = work.workSeq
         r['boxNumber'] = work.box.boxNumber
-        r['subBoxNumber'] = work.subBox.subBoxNumber if work.subBox else ''
         r['createDateTime'] = work.createDateTime
         r['completeDateTime'] = work.completeDateTime if work.completeDateTime is not None else ''
         r['status'] = work.status
         work_thing = gsThing.objects.filter(work=work)
-
         r['amount'] = work_thing.count()
         ss = gsStatus.objects.filter(thing__in=work_thing)
-        r['checkingCompleteAmount'] = ss.filter(checkingStatus=True).count()
-        r['numberingCompleteAmount'] = ss.filter(numberingStatus=True).count()
-        r['analyzingCompleteAmount'] = ss.filter(analyzingStatus=True).count()
-        r['measuringCompleteAmount'] = ss.filter(measuringStatus=True).count()
-        r['photographingCompleteAmount'] = ss.filter(photographingStatus=True).count()
+        # r['checkingCompleteAmount'] = ss.filter(checkingStatus=True).count()
+        # r['numberingCompleteAmount'] = ss.filter(numberingStatus=True).count()
+        # r['analyzingCompleteAmount'] = ss.filter(analyzingStatus=True).count()
+        # r['measuringCompleteAmount'] = ss.filter(measuringStatus=True).count()
+        # r['photographingCompleteAmount'] = ss.filter(photographingStatus=True).count()
 
         r['completePercent'] = float('%0.2f' % (ss.filter(status=True).count() * 100 / ss.count())) if (
             0 != ss.count()) else 0
@@ -927,7 +835,6 @@ def getWork(request):
 
 def startOrStopWork(request):
     boxNumber = request.POST.get('boxNumber', '')
-    subBoxNumber = request.POST.get('subBoxNumber', '')
     workSeq = request.POST.get('workSeq', '')
     workName = request.POST.get('workName', '')
     status = int(request.POST.get('status', ''))
@@ -935,14 +842,8 @@ def startOrStopWork(request):
     try:
         # status: 1:分发操作 0:收回操作
         box = gsBox.objects.get(boxNumber=boxNumber)
-        if subBoxNumber:
-            subBox = gsSubBox.objects.get(box=box, subBoxNumber=subBoxNumber)
-            work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
-            gsWork.objects.filter(workSeq=workSeq, box=box, subBox=subBox).update(status=status)
-        else:
-            work = gsWork.objects.get(box=box, workSeq=workSeq)
-            gsWork.objects.filter(workSeq=workSeq, box=box).update(status=status)
-
+        work = gsWork.objects.get(box=box, workSeq=workSeq)
+        gsWork.objects.filter(workSeq=workSeq, box=box).update(status=status)
         if status == 0:
             # 收回操作时, 检查作业是否完成. 若已完成, 则更新作业完成时间
             work_things = gsThing.objects.filter(work=work)
@@ -1106,17 +1007,10 @@ def generateArchives(request):
 
 def generateBoxInfo(request):
     if request.method == 'POST':
-        boxOrSubBox = request.POST.get('boxNumber', '')
+        boxNumber = request.POST.get('boxNumber', '')
         dateTime = request.POST.get('dateTime', '')
 
-        if '-' in boxOrSubBox:
-            boxNumber = boxOrSubBox.split('-')[0]
-            subBoxNumber = boxOrSubBox.split('-')[1]
-        else:
-            boxNumber = int(boxOrSubBox)
-            subBoxNumber = ''
-
-        boxInfoFileName = createBoxInfo(boxNumber, subBoxNumber, dateTime)
+        boxInfoFileName = createBoxInfo(boxNumber, dateTime)
         box_dir = os.path.join(settings.DATA_DIRS['box_dir'], str(boxNumber))
         file_path = os.path.join(box_dir, boxInfoFileName)
 
@@ -1190,40 +1084,22 @@ def generateBoxInfoDetailedVersion(request):
 
 
 def exploreBox(request):
-    boxOrSubBox = request.POST.get('boxNumber', '')
+    boxNumber = request.POST.get('boxNumber', '')
     pageSize = int(request.POST.get('rows', ''))
     page = int(request.POST.get('page', ''))
 
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-
     box = gsBox.objects.get(boxNumber=boxNumber)
+    prop = box.property
+    type = prop.type
+    parentType = prop.parentType
+    grandpaType = prop.grandpaType
 
-    productTypeCode = box.productType
-    classNameCode = box.className
-    subClassNameCode = box.subClassName
     wareHouseCode = box.wareHouse
+    wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode).type
 
-    productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
-    className = gsProperty.objects.get(project='品名', code=classNameCode, parentProject=productType.project,
-                                       parentType=productType.type)
-    subClassName = gsProperty.objects.get(project='明细品名', code=subClassNameCode, parentProject=className.project,
-                                          parentType=className.type, grandpaProject=productType.project,
-                                          grandpaType=productType.type)
-    wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
-
-    subBox = gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber)
-    work_set = gsWork.objects.filter(box=box, subBox=subBox)
+    work_set = gsWork.objects.filter(box=box)
     work_serialNumberList = gsThing.objects.filter(work__in=work_set).values_list('serialNumber', flat=True)
-
-    if subBoxNumber == '':
-        ts = gsThing.objects.filter(box=box)
-    else:
-        ts = gsThing.objects.filter(box=box, subBox=subBox)
+    ts = gsThing.objects.filter(box=box)
     n = ts.count()
 
     start = (page - 1) * pageSize
@@ -1237,25 +1113,24 @@ def exploreBox(request):
         serialNumber = t.serialNumber
         r['serialNumber'] = serialNumber
         r['boxNumber'] = boxNumber
-        if subBoxNumber != '':
-            r['subBoxNumber'] = subBoxNumber
+        if grandpaType:
+            r['productType'] = grandpaType
+            r['className'] = parentType
+            r['subClassName'] = type
         else:
-            r['subBoxNumber'] = '0'
-        r['productType'] = productType.type
-        r['className'] = className.type
-        r['subClassName'] = subClassName.type
-        r['wareHouse'] = wareHouse.type
-        if (serialNumber in work_serialNumberList):
+            r['productType'] = parentType
+            r['className'] = type
+            r['subClassName'] = '-'
+        r['wareHouse'] = wareHouse
+        if serialNumber in work_serialNumberList:
             r['workName'] = t.work.workName
             r['status'] = gsStatus.objects.get(thing=t).status
         else:
             r['workName'] = ''
             r['status'] = ''
-
         ret['rows'].append(r)
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-
     return HttpResponse(ret_json)
 
 
@@ -1360,40 +1235,22 @@ def restore(request):
 def getStatusData(request):
     pageSize = int(request.POST.get('rows', ''))
     page = int(request.POST.get('page', ''))
-    boxNumber = int(request.POST.get('boxNumber', ''))
+    boxNumber = request.POST.get('boxNumber', '')
     workSeq = request.POST.get('workSeq', '')
-    subBoxNumber = request.POST.get('subBoxNumber', '')
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-
-    productTypeCode = box.productType
-    classNameCode = box.className
-    subClassNameCode = box.subClassName
-
-    productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
-    className = gsProperty.objects.get(project='品名', code=classNameCode, parentProject=productType.project,
-                                       parentType=productType.type)
-    subClassName = gsProperty.objects.get(project='明细品名', code=subClassNameCode, parentProject=className.project,
-                                          parentType=className.type, grandpaProject=productType.project,
-                                          grandpaType=productType.type)
-
+    prop = box.property
+    type = prop.type
+    parentType = prop.parentType
+    grandpaType = prop.grandpaType
     workSeq = int(workSeq)
-
-    if subBoxNumber:
-        subBox = gsSubBox.objects.get(box=box, subBoxNumber=int(subBoxNumber))
-        work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
-    else:
-        work = gsWork.objects.get(box=box, workSeq=workSeq)
-
+    work = gsWork.objects.get(box=box, workSeq=workSeq)
     things = gsThing.objects.filter(work=work)
-
     thing_status_list = gsStatus.objects.filter(thing__in=things)
 
     n = thing_status_list.count()
-
     start = (page - 1) * pageSize
     end = n if (page * pageSize > n) else page * pageSize
-
     ret = {}
     ret['total'] = n
     ret['rows'] = []
@@ -1402,13 +1259,14 @@ def getStatusData(request):
         r = {}
         r['serialNumber'] = thing_status.thing.serialNumber
         r['boxNumber'] = boxNumber
-        if subBoxNumber != '':
-            r['subBoxNumber'] = subBoxNumber
+        if grandpaType:
+            r['productType'] = grandpaType
+            r['className'] = parentType
+            r['subClassName'] = type
         else:
-            r['subBoxNumber'] = '0'
-        r['productType'] = productType.type
-        r['className'] = className.type
-        r['subClassName'] = subClassName.type
+            r['productType'] = parentType
+            r['className'] = type
+            r['subClassName'] = '-'
 
         r['status1st'] = thing_status.numberingStatus
         if (thing_status.numberingStatus != 1):
@@ -1625,33 +1483,26 @@ def print_pic(request):
 
 
 def print_auth(request):
-    nickName = request.POST.get('user', '')  # 系统负责人用户名
+    userName = request.POST.get('user', '')  # 系统负责人用户名
     password = request.POST.get('password', '')  # 系统负责人密码
 
-    custom_user = gsUser.objects.filter(nickName=nickName)
+    custom_user = gsUser.objects.get(userName=userName,auth=1)
     if custom_user:
-        custom_user = custom_user[0]
-        if int(custom_user.type) == 0:
-            username = custom_user.user.username
-            user = auth.authenticate(username=username, password=password)
-            if user:  # 通过系统管理员授权后先打印二维码后封箱入库
-                ret = {
-                    "success": True,
-                }
-            else:
-                ret = {
-                    "success": False,
-                    "message": u'密码错误！'
-                }
+        username = custom_user.user.username
+        user = auth.authenticate(username=username, password=password)
+        if user:  # 通过系统管理员授权后先打印二维码后封箱入库
+            ret = {
+                "success": True,
+            }
         else:
             ret = {
                 "success": False,
-                "message": u'该用户无此权限！'
+                "message": u'密码错误！'
             }
     else:
         ret = {
             'success': False,
-            'message': u'用户名错误！'
+            'message': u'该用户无此权限！'
         }
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)

@@ -5,13 +5,12 @@ from .models import gsUser
 
 
 def log(user, operationType,content):
-    userID = user.id
-    userProfile = gsUser.objects.get(user=user)
-    userName = userProfile.nickName
-    organization =userProfile.organization
-    department = userProfile.department
+    user_obj = gsUser.objects.get(user=user)
+    userName = user_obj.userName
+    organization =user_obj.organization
+    department = user_obj.department
 
-    gsLog.objects.create(userID=userID,
+    gsLog.objects.create(user=user_obj,
                          userName=userName,
                          operationType=operationType,
                          content=content,

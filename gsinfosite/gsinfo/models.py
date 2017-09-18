@@ -11,7 +11,7 @@ from webServiceAPI import *
 # Create your models here.
 class gsUserManager(models.Manager):
     def createUser(self, **kwargs):
-        nickName = kwargs['nickName']
+        userName = kwargs['userName']
         type = kwargs['type']
         password = kwargs['password']
         organization = kwargs['organization']
@@ -27,7 +27,7 @@ class gsUserManager(models.Manager):
         # 先在auth_user表中创建用户，再在gsinfo_gsUser表中创建用户
         if user:
             gsUser.objects.get_or_create(user=user,
-                                         nickName=nickName,
+                                         userName=userName,
                                          organization=organization,
                                          department=department,
                                          type=type)
@@ -35,12 +35,12 @@ class gsUserManager(models.Manager):
             return
 
     def deleteUser(self, **kwargs):
-        nickName = kwargs['nickName']
-        # 删除用户名为nickName的作业, admin用户为系统默认用户,不能删除
-        # 注意：Django将根据nickName的值进行"级联"删除
-        if nickName != 'sysadmin':
+        userName = kwargs['userName']
+        # 删除用户名为userName的作业, admin用户为系统默认用户,不能删除
+        # 注意：Django将根据userName的值进行"级联"删除
+        if userName != 'sysadmin':
             try:
-                user = super(models.Manager, self).get(nickName=kwargs['nickName'])  # 用超级用户身份来删除
+                user = super(models.Manager, self).get(userName=kwargs['userName'])  # 用超级用户身份来删除
                 user.delete()
                 deletedUser = True
             except ObjectDoesNotExist:
@@ -52,9 +52,8 @@ class gsUserManager(models.Manager):
 
 
 class gsUser(models.Model):
-    user = models.OneToOneField(User)  # OneToOneField(someModel) 可以理解为 ForeignKey(SomeModel, unique=True)
     type = models.PositiveIntegerField(verbose_name='用户类型（0:超级管理员 1:管理员 2:一般用户）')
-    nickName = models.CharField(verbose_name='用户名',max_length=255, unique=True)
+    userName = models.CharField(verbose_name='用户名',max_length=255)
     organization = models.CharField(verbose_name='用户所在组织',max_length=255,null=True)
     department = models.CharField(verbose_name='用户所在部门',max_length=255,null=True)
     auth = models.BooleanField(verbose_name='授权管理岗位权限（True:拥有 False:未拥有）',default=False)
@@ -64,6 +63,8 @@ class gsUser(models.Model):
     measuring = models.BooleanField(verbose_name='测量称重岗位权限（True:拥有 False:未拥有）',default=False)
     checking = models.BooleanField(verbose_name='实物认定岗位权限（True:拥有 False:未拥有）',default=False)
     photographing = models.BooleanField(verbose_name='图像采集岗位权限（True:拥有 False:未拥有）',default=False)
+
+    user = models.OneToOneField(User)  # OneToOneField(someModel) 可以理解为 ForeignKey(SomeModel, unique=True)
     '''
     当我们对gsUser进行操作时，必然是通过gsUser.objects来进行的，gsUser.objects除了固有的方法（如：
     get、create、update、get_or_create等）外我们还定义的createUser和deleteUser，当我们调用：
@@ -73,7 +74,7 @@ class gsUser(models.Model):
     objects = gsUserManager()
 
     def __unicode__(self):
-        return self.nickName
+        return self.userName
 
 
 # 针对CharField来说，''(空字符串)等价于NULL
@@ -94,7 +95,10 @@ class gsBoxManager(models.Manager):
 
 
         # 生成一条Box记录
-        prop = gsProperty.objects.get(code=subClassName, parentCode=classNameCode,grandpaCode=productType)
+        if subClassName:
+            prop = gsProperty.objects.get(code=subClassName, parentCode=classNameCode,grandpaCode=productType)
+        else:
+            prop = gsProperty.objects.get(code=classNameCode, parentCode=productType)
         box, createdBox = super(models.Manager, self).get_or_create(boxNumber=boxNumber,
                                                                     wareHouse=wareHouseCode,
                                                                     amount=amount,
@@ -129,7 +133,7 @@ class gsBoxManager(models.Manager):
             # --------------
             thingsList = []
             for thing in thingSeq_list:
-                thingsList.append(gsThing(serialNumber=thing, box=box, property=prop,amount=1))
+                thingsList.append(gsThing(serialNumber=thing, box=box,amount=1))
             gsThing.objects.bulk_create(thingsList)  # bulk_create批量数据入库，参数是list
         elif oprateType == '2':
             # 请求件序号
@@ -228,91 +232,45 @@ class gsBox(models.Model):
 class gsWorkManager(models.Manager):
     # work的开始前提是在box已经存在的基础上
     def createWork(self, **kwargs):
-        subBoxNumber = kwargs['subBoxNumber']
-        box = gsBox.objects.get(boxNumber=kwargs['boxNumber'])
+        boxNumber = kwargs['boxNumber']
+        workName = kwargs['workName']
+        thingSet = kwargs['thingSet']
+        user = kwargs['user']
+
+        box = gsBox.objects.get(boxNumber=boxNumber)
         # 生成一条Work记录
-        if subBoxNumber == '':
-            ws = super(models.Manager, self).filter(box=box).order_by('-workSeq')
-            if ws.count() != 0:
-                workSeq = ws[0].workSeq + 1
-            else:
-                workSeq = 1
-            work, createdWork = super(models.Manager, self).get_or_create(workSeq=workSeq, box=box,
-                                                                          workName=kwargs['workName'],
-                                                                          manager=kwargs['operator'])
+        ws = super(models.Manager, self).filter(box=box).order_by('-workSeq')
+        if ws.count() != 0:
+            workSeq = ws[0].workSeq + 1
         else:
-            subBox = gsSubBox.objects.get(box=box,subBoxNumber=subBoxNumber)
-            ws = super(models.Manager, self).filter(box=box,subBox=subBox).order_by('-workSeq')
-            if ws.count() != 0:
-                workSeq = ws[0].workSeq + 1
-            else:
-                workSeq = 1
-            work, createdWork = super(models.Manager, self).get_or_create(workSeq=workSeq, box=box,
-                                                                          workName=kwargs['workName'],
-                                                                          manager=kwargs['operator'],
-                                                                          subBox=subBox)
+            workSeq = 1
+        work, createdStatus = super(models.Manager, self).get_or_create(workSeq=workSeq,box=box,workName=workName,user=user)
 
-        if createdWork:  # 该条记录为新增记录, 即为新创建作业
-            # 依据实物类型, 在实物属性表中生成对应的实物信息档案, 以及实物信息采集状态记录
-            productTypeCode = box.productType
-            ts = kwargs['thingSet']
-
-            if ('1' == productTypeCode):  # 金银锭类
-                info = gsDing
-                infoManager = gsDing.objects
-            elif ('2' == productTypeCode):  # 金银币章类
-                info = gsBiZhang
-                infoManager = gsBiZhang.objects
-            elif ('3' == productTypeCode):  # 银元类
-                info = gsYinYuan
-                infoManager = gsYinYuan.objects
-            elif ('4' == productTypeCode):  # 金银工艺品类
-                info = gsGongYiPin
-                infoManager = gsGongYiPin.objects
-
-            infosList = []
+        if createdStatus:
             statusList = []
-            for serialNumber in ts:
+            for serialNumber in thingSet:
                 thing = gsThing.objects.get(serialNumber=serialNumber)
-                # 生成一条实物信息档案记录
-                infosList.append(info(thing=thing))
                 # 生成一条实物信息采集状态记录
-                statusList.append(gsStatus(thing=thing))
-
-            infoManager.bulk_create(infosList)
+                statusList.append(gsStatus(thing=thing)) # status默认为False
             gsStatus.objects.bulk_create(statusList)
 
             # 更新实物的作业分配状态
-            gsThing.objects.filter(serialNumber__in=ts).update(isAllocate=True,work=work)
+            gsThing.objects.filter(serialNumber__in=thingSet).update(isAllocate=True,work=work)
 
-        return (work, createdWork)
 
     def deleteWork(self, **kwargs):
         # 删除序号为workSeq的作业
-        boxNumber = int(kwargs['boxNumber'])
+        boxNumber = kwargs['boxNumber']
         workSeq = kwargs['workSeq']
         try:
             box = gsBox.objects.get(boxNumber=boxNumber)
             work = super(models.Manager, self).get(box=box, workSeq=workSeq)
             # 删除实物信息档案记录和实物信息采集状态记录
-            productTypeCode = box.productType
             work_things = gsThing.objects.filter(work=work)
-
-            if ('1' == productTypeCode):  # 金银锭类
-                infoManager = gsDing.objects
-            elif ('2' == productTypeCode):  # 金银币章类
-                infoManager = gsBiZhang.objects
-            elif ('3' == productTypeCode):  # 银元类
-                infoManager = gsYinYuan.objects
-            elif ('4' == productTypeCode):  # 金银工艺品类
-                infoManager = gsGongYiPin.objects
-
             n = len(work_things)
             if n > 0:
-                infoManager.filter(thing__in=work_things).delete()
                 gsStatus.objects.filter(thing__in=work_things).delete()
                 work_things.update(isAllocate=False)
-
             work.delete()
             deletedWork = True
         except ObjectDoesNotExist:
@@ -328,9 +286,9 @@ class gsWork(models.Model):
     workName = models.CharField(max_length=512)  # 作业名称
     createDateTime = models.DateTimeField(default=datetime.datetime.now())  # 作业创建时间, 即实物建档时间
     completeDateTime = models.DateTimeField(null=True)  # 作业完成时间, 即最后一个实物信息采集审核完成时间
-    # manager = models.CharField(max_length=512)  # 实物分发岗位
     status = models.PositiveIntegerField(default=0)  # 状态代码: 0:未启用 1:已启用 2:已完成
     objects = gsWorkManager()
+    user = models.ForeignKey(gsUser)  # '作业创建用户'
 
     class Meta:
         ordering = ['workSeq', 'createDateTime']
@@ -347,18 +305,18 @@ class gsCase(models.Model):
 class gsThing(models.Model):
     serialNumber = models.CharField(verbose_name='实物序号',max_length=255,unique=True)
     serialNumber2 = models.CharField(verbose_name='实物编号',max_length=255,unique=True,null=True)
-    isAllocate = models.BooleanField(verbose_name='实物是否已分配',default=False)
-    historyNo = models.IntegerField(null=True)
+    isAllocate = models.BooleanField(verbose_name='是否被创建为作业',default=False)
+    # historyNo = models.IntegerField(null=True)
     # ------------------实物字段
     level = models.CharField(verbose_name='评价等级', max_length=255, blank=True)
     detailedName = models.CharField(verbose_name='名称',max_length=1024, blank=True)
     peroid = models.CharField(verbose_name='年代',max_length=255, blank=True)
     year = models.CharField(verbose_name='年份', max_length=255, blank=True)
     country = models.CharField(verbose_name='国别', max_length=512, blank=True)
-    biFaceAmount = models.CharField(verbose_name='面值', max_length=512, blank=True)
+    faceAmount = models.CharField(verbose_name='面值', max_length=512, blank=True)
     dingSecification = models.CharField(verbose_name='规格', max_length=512, blank=True)
     zhangType = models.CharField(verbose_name='性质', max_length=512, blank=True)
-    gongShape = models.CharField(verbose_name='器型（型制）', max_length=512, blank=True)
+    shape = models.CharField(verbose_name='工艺品类器型（型制）', max_length=512, blank=True)
     appearance = models.CharField(verbose_name='品相（完残程度）', max_length=255, blank=True)
     mark = models.CharField(verbose_name='铭文（文字信息）', max_length=512, blank=True)
     grossWeight = models.FloatField(verbose_name='毛重', null=True)
@@ -380,7 +338,6 @@ class gsThing(models.Model):
     box = models.ForeignKey(gsBox)
     work = models.ForeignKey(gsWork,null=True)
     case = models.ForeignKey(gsCase,null=True)
-    property = models.ForeignKey(gsProperty)
 
 # 状态表
 class gsStatus(models.Model):
@@ -417,10 +374,10 @@ class gsStatus(models.Model):
     thing = models.ForeignKey(gsThing)
 
 class gsLog(models.Model):
-    userID = models.PositiveIntegerField()  # 用户ID
     userName = models.CharField(max_length=255)  # 用户姓名
     organization = models.CharField(max_length=255,null=True)  # 组织
     department = models.CharField(max_length=255,null=True)  # 部门
     operationType = models.CharField(max_length=255)  # 操作类型
     content = models.CharField(max_length=256)  # 内容
     when = models.DateTimeField(default=datetime.datetime.now())  # 操作日期
+    user = models.ForeignKey(gsUser)  # 用户ID

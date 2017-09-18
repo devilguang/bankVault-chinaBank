@@ -247,14 +247,10 @@ def createBoxTable(boxList):
     return boxReportName
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-def createBoxInfo(boxNumber,subBoxNumber, date):
+def createBoxInfo(boxNumber, date):
     box = gsBox.objects.get(boxNumber=boxNumber)
-    if subBoxNumber == '':
-        thing_set = gsThing.objects.filter(box=box)
-    else:
-        subBox = gsSubBox.objects.get(box=box,subBoxNumber=int(subBoxNumber))
-        thing_set = gsThing.objects.filter(box=box,subBox=subBox)
 
+    thing_set = gsThing.objects.filter(box=box)
     global boxDir
     boxDir = os.path.join(boxRootDir, str(boxNumber))
     if not os.path.exists(boxDir):
@@ -276,10 +272,8 @@ def createBoxInfo(boxNumber,subBoxNumber, date):
     productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
     wareHouseCode = t.box.wareHouse
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
-    if subBoxNumber == '':
-        boxInfoFileName = u'{0}_{1}号箱_{2}_list.xlsx'.format(ds[2], boxNumber, wareHouse.type)
-    else:
-        boxInfoFileName = u'{0}_{1}-{2}号箱_{3}_list.xlsx'.format(ds[2], boxNumber,subBoxNumber, wareHouse.type)
+
+    boxInfoFileName = u'{0}_{1}号箱_{2}_list.xlsx'.format(ds[2], boxNumber, wareHouse.type)
     boxInfoFilePath = os.path.join(boxDir, boxInfoFileName)
 
     if productType.type == u'金银锭类':

@@ -11,8 +11,8 @@ from . import log
 
 @login_required  # 测量称重岗位
 def measuring(request):
-    nickName = gsUser.objects.get(user=request.user)
-    return render(request, 'me.html', context={'operator': nickName, })
+    userName = gsUser.objects.get(user=request.user)
+    return render(request, 'me.html', context={'operator': userName, })
 
 
 def getMeasuringInfo(request):

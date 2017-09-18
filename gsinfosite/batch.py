@@ -98,15 +98,15 @@ def add_property(project, type, code=None, parentProject='', parentType='', gran
 
 def init_authority():
     # 添加系统默认管理员
-    admin, flag = gsUser.objects.createUser(nickName='sysadmin', password='hbjy@396', type=0)
+    admin, flag = gsUser.objects.createUser(userName='sysadmin', password='hbjy@396', type=0)
     # 添加超级管理员
-    user, flag = gsUser.objects.createUser(nickName='李汉忠', password='123456', type=0)
+    user, flag = gsUser.objects.createUser(userName='李汉忠', password='123456', type=0)
     # 添加管理员
-    user, flag = gsUser.objects.createUser(nickName='凌伟', password='123456', type=1)
+    user, flag = gsUser.objects.createUser(userName='凌伟', password='123456', type=1)
     # 添加管理员
-    user, flag = gsUser.objects.createUser(nickName='岳华', password='123456', type=1)
+    user, flag = gsUser.objects.createUser(userName='岳华', password='123456', type=1)
     # 添加管理员
-    user = gsUser.objects.createUser(nickName='许青', password='123456', type=1)
+    user = gsUser.objects.createUser(userName='许青', password='123456', type=1)
 
 
 # Start execution here!

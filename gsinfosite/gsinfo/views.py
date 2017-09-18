@@ -19,17 +19,17 @@ def login(request):
     if req_method == 'GET':
         return render(request, 'login.html', context={})
     elif req_method == 'POST':
-        nickName = request.POST.get('nickName', '')  # 用户
+        userName = request.POST.get('userName', '')  # 用户
         workRole = request.POST.get('workRole', '')  # 岗位
         passWord = request.POST.get('passWord', '')  # 密码
-        if (nickName.isspace() or passWord.isspace()):
+        if (userName.isspace() or passWord.isspace()):
             ret = {
                 "success": False,
                 "message": u'用户名或密码不能为空！'
             }
         else:
             try:
-                custom_user = gsUser.objects.get(nickName=nickName)
+                custom_user = gsUser.objects.get(userName=userName)
                 username = custom_user.user.username
                 '''
                 authenticate()---认证给出的用户名和密码是否真实。它接受两个参数：username和password ，
@@ -168,9 +168,9 @@ def getAllUser(request):
     users = gsUser.objects.all()
     for u in users:
         r = {}
-        # if u.nickName == 'sysadmin':
+        # if u.userName == 'sysadmin':
         #     continue
-        r['text'] = u.nickName
+        r['text'] = u.userName
         r['id'] = u.user.id
         ret.append(r)
 
@@ -184,16 +184,10 @@ def getWorkData(request, workSeq):
     page = int(request.POST.get('page', ''))
     processId = int(request.POST.get('processId', ''))
     thingStatus = request.POST.get('thingStatus', '')
-    boxNumber = int(request.POST.get('boxNumber', ''))
-    subBoxNumber = request.POST.get('subBoxNumber', '')
+    boxNumber = request.POST.get('boxNumber', '')
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-    if subBoxNumber == '':
-        work = gsWork.objects.get(box=box, workSeq=workSeq)
-    else:
-        subBox = gsSubBox.objects.get(box=box,subBoxNumber=int(subBoxNumber))
-        work = gsWork.objects.get(box=box, workSeq=workSeq,subBox=subBox)
-
+    work = gsWork.objects.get(box=box, workSeq=workSeq)
     thing_set = gsThing.objects.filter(work=work)
 
     if thingStatus != '' and thingStatus != 'all':
@@ -224,26 +218,12 @@ def getWorkData(request, workSeq):
         elif 6 == processId:  # 图像采集环节
             status_set = gsStatus.objects.filter(thing__in=thing_set)
 
+    prop = box.property
+    type = prop.type
+    parentType = prop.parentType
+    grandpaType = prop.grandpaType
 
-    productTypeCode = box.productType
-    classNameCode = box.className
-    # subClassNameCode = box.subClassName
-    wareHouseCode = box.wareHouse
-
-    productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
-    className = gsProperty.objects.get(project='品名', code=classNameCode, parentProject=productType.project,
-                                       parentType=productType.type)
-    wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
-
-    # thing_list = ss.values_list('thing', flat=True)
-    # if productType.type == u'金银锭类':
-    #     ts = gsDing.objects.filter(thing__in=thing_list)
-    # elif productType.type == u'金银币章类':
-    #     ts = gsBiZhang.objects.filter(thing__in=thing_list)
-    # elif productType.type == u'银元类':
-    #     ts = gsYinYuan.objects.filter(thing__in=thing_list)
-    # elif productType.type == u'金银工艺品类':
-    #     ts = gsGongYiPin.objects.filter(thing__in=thing_list)
+    wareHouse = gsProperty.objects.get(project='发行库',code=box.wareHouse).type
 
     n = status_set.count()
     start = (page - 1) * pageSize
@@ -252,21 +232,22 @@ def getWorkData(request, workSeq):
     ret = {}
     ret['total'] = n
     ret['rows'] = []
+
+
     for status in status_set[start:end]:
         r = {}
         r['serialNumber'] = status.thing.serialNumber
-        r['productType'] = productType.type
-        if subBoxNumber == '':
-            r['boxNumber'] = boxNumber
+        r['boxNumber'] = boxNumber
+        r['wareHouse'] = wareHouse
+        if grandpaType:
+            r['productType'] = grandpaType
+            r['className'] = parentType
+            r['subClassName'] = type
         else:
-            r['boxNumber'] = str(boxNumber) + '-' + str(subBoxNumber)
-        r['className'] = className.type
-        subClassName_code = status.thing.subClassName
-        subClassName = gsProperty.objects.get(project='明细品名', code=subClassName_code, parentProject=className.project,
-                                              parentType=className.type, grandpaProject=productType.project,
-                                              grandpaType=productType.type)
-        r['subClassName'] = subClassName.type
-        r['wareHouse'] = wareHouse.type
+            r['productType'] = parentType
+            r['className'] = type
+            r['subClassName'] = '-'
+
         if (2 == processId):  # 外观信息采集环节
             r['status'] = status.numberingStatus
             r['operator'] = status.numberingOperator
@@ -291,131 +272,70 @@ def getWorkData(request, workSeq):
     return HttpResponse(ret_json)
 
 def getThingInfo(request):
-    productType = request.POST.get('productType', '')
+    subClassName = request.POST.get('subClassName', '')
     serialNumber = request.POST.get('serialNumber', '')
+
     thing = gsThing.objects.get(serialNumber=serialNumber)
     ret={}
-    ret['subClassName']=thing.subClassName
-    if productType == u'金银锭类':
-        t = gsDing.objects.get(thing=thing)
-        ret['detailedName'] = t.detailedName
-        ret['typeName'] = t.typeName
-        ret['peroid'] = t.peroid
-        ret['producer'] = t.producer
-        ret['producePlace'] = t.producePlace
-        ret['carveName'] = t.carveName
-        ret['remark'] = t.remark
-        ret['quality'] = t.quality
-        ret['level'] = t.level
-        ret['originalQuantity'] = t.originalQuantity
 
-        ret['detectedQuantity'] = t.detectedQuantity
-
-        ret['length'] = t.length
-        ret['width'] = t.width
-        ret['height'] = t.height
-        ret['grossWeight'] = t.grossWeight
-        ret['pureWeight'] = t.pureWeight
-    elif productType == u'金银币章类':
-        t = gsBiZhang.objects.get(thing=thing)
-        ret['detailedName'] = t.detailedName
-        ret['versionName'] = t.versionName
-        ret['peroid'] = t.peroid
-        ret['producer'] = t.producer
-        ret['producePlace'] = t.producePlace
-        ret['value'] = t.value
-        ret['remark'] = t.remark
-        ret['quality'] = t.quality
-        ret['level'] = t.level
-        ret['originalQuantity'] = t.originalQuantity
-
-        ret['detectedQuantity'] = t.detectedQuantity
-
-        ret['diameter'] = t.diameter
-        ret['thick'] = t.thick
-        ret['grossWeight'] = t.grossWeight
-        ret['pureWeight'] = t.pureWeight
-    elif productType == u'银元类':
-        t = gsYinYuan.objects.get(thing=thing)
-
-        ret['detailedName'] = t.detailedName
-        ret['versionName'] = t.versionName
-        ret['peroid'] = t.peroid
-        ret['producer'] = t.producer
-        ret['producePlace'] = t.producePlace
-        ret['value'] = t.value
-        ret['marginShape'] = t.marginShape
-        ret['remark'] = t.remark
-        ret['quality'] = t.quality
-        ret['level'] = t.level
-        ret['originalQuantity'] = t.originalQuantity
-
-        ret['detectedQuantity'] = t.detectedQuantity
-
-        ret['diameter'] = t.diameter
-        ret['thick'] = t.thick
-        ret['grossWeight'] = t.grossWeight
-        ret['pureWeight'] = t.pureWeight
-
-    elif productType == u'金银工艺品类':
-        t = gsGongYiPin.objects.get(thing=thing)
-        ret['detailedName'] = t.detailedName
-        ret['peroid'] = t.peroid
-        ret['remark'] = t.remark
-        ret['quality'] = t.quality
-        ret['level'] = t.level
-        ret['originalQuantity'] = t.originalQuantity
-
-        ret['detectedQuantity'] = t.detectedQuantity
-
-        ret['length'] = t.length
-        ret['width'] = t.width
-        ret['height'] = t.height
-        ret['grossWeight'] = t.grossWeight
-        ret['pureWeight'] = t.pureWeight
+    faceAmountList = ['币', '元', '辅', '钱', '外元','减元','色元','国内银元','外国银元']
+    dingList = ['锭']
+    shapeList = ['工']
+    zhangTypeList = ['章']
+    ret['detailedName'] = thing.detailedName
+    ret['level'] = thing.originalQuantity
+    ret['peroid'] = thing.peroid
+    ret['year'] = thing.year
+    ret['country'] = thing.country
+    ret['originalQuantity'] = thing.originalQuantity
+    ret['mark'] = thing.mark
+    if subClassName:
+        if subClassName in faceAmountList:
+            ret['faceAmount'] = thing.faceAmount
+        elif subClassName in dingList:
+            ret['dingSecification'] = thing.dingSecification
+            ret['shape'] = thing.shape
+        elif subClassName in shapeList:
+            ret['shape'] = thing.shape
+        elif subClassName in zhangTypeList:
+            ret['zhangType'] = thing.zhangType
+    else:
+        pass
+    ret['appearance'] = thing.appearance
+    ret['remark'] = thing.remark
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 # --------------------------------------------------------------------------
 def getWorkSpaceContent(request):
-    ws = gsWork.objects.filter(status=1)
+    work_set = gsWork.objects.filter(status=1)
     ret = []
-    for w in ws:
-        r = {}
-        productTypeCode = w.box.productType
-        if w.subBox:
-            subBoxNumber = w.subBox.subBoxNumber
+    for work in work_set:
+        prop = work.box.property
+        parentType = prop.parentType
+        grandpaType = prop.grandpaType
+        if grandpaType:
+            productType = grandpaType
         else:
-            subBoxNumber = ''
-        productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
+            productType=parentType
+        r = {}
         t = None
         for t in ret:
-            if t['text'] == productType.type:
+            if t['text'] == productType:
                 break
         else:  # 未存在对应实物类型，先初始化
             r['id'] = 0
-            r['text'] = productType.type
+            r['text'] = productType
             r['state'] = 'open'
-
-            '''if (0 == cmp(productType.type, u'金银锭类')):
-                icon = 'icon-ding'
-            elif (0 == cmp(productType.type, u'金银币章类')):
-                icon = 'icon-bizhang'
-            elif (0 == cmp(productType.type, u'银元类')):
-                icon = 'icon-yinyuan'
-            elif (0 == cmp(productType.type, u'金银工艺品类')):
-                icon = 'icon-gongyipin'   
-            r['iconCls'] = icon'''
-
             r['attributes'] = {'isWork': False}
             r['children'] = []
             ret.append(r)
             t = r
         # 已存在对应实物类型，可直接操作
         r = {}
-        r['id'] = w.id
-        r['text'] = w.workName
+        r['id'] = work.id
+        r['text'] = work.workName
         r['iconCls'] = 'icon-box'
-        r['attributes'] = {'isWork': True, 'boxNumber': w.box.boxNumber, 'workSeq': w.workSeq,'subBoxNumber':subBoxNumber}
+        r['attributes'] = {'isWork': True, 'boxNumber': work.box.boxNumber, 'workSeq': work.workSeq}
         t['children'].append(r)
 
     ret_json = json.dumps(ret, separators=(',', ':'))
@@ -504,50 +424,35 @@ def getWareHouse(request):
     return HttpResponse(ret_json)
 # --------------------------------------------------------------------------
 def exploreThing(request, boxNumber, serialNumber):
-    subBoxNumber = request.GET.get('subBoxNumber','')
-    if subBoxNumber == '0':
-        subBoxNumber = ''
-        boxOrSubBox = boxNumber
-    else:
-        boxOrSubBox = boxNumber + '-' + subBoxNumber
     isVerify = request.GET.get('isVerify', '')
     operator = request.GET.get('operator', '')
     # 检测是否是数据审核用, 以便显示相应的审核接口和修改接口
-    if (0 != cmp(isVerify, '')):
+    if isVerify != '':
         isVerify = True
-        # 最后在context中添加isVerify环境变量
-
     box = gsBox.objects.get(boxNumber=boxNumber)
     thing = gsThing.objects.get(serialNumber=serialNumber)
     work =thing.work
 
+    prop = box.property
+    type = prop.type
+    parentType = prop.parentType
+    grandpaType = prop.grandpaType
+
     context = {}
-    context['boxNumber'] = boxOrSubBox
-    if subBoxNumber == '':
-        context['subBoxNumber'] = '0'
-    else:
-        context['subBoxNumber'] = subBoxNumber
-
+    context['boxNumber'] = boxNumber
     context['serialNumber'] = serialNumber
-
-    productTypeCode = box.productType
-    productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
-    context['productType'] = productType.type
     wareHouseCode = box.wareHouse
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
     context['wareHouse'] = wareHouse.type
-    classNameCode = box.className
-    className = gsProperty.objects.get(project='品名', code=classNameCode, parentProject=productType.project,
-                                       parentType=productType.type)
-    context['className'] = className.type
-    subClassNameCode = box.subClassName
-    subClassName = gsProperty.objects.get(project='明细品名', code=subClassNameCode, parentProject=className.project,
-                                          parentType=className.type, grandpaProject=productType.project,
-                                          grandpaType=productType.type)
-    context['subClassName'] = subClassName.type
-
+    if grandpaType:
+        context['productType'] =grandpaType
+        context['className'] = parentType
+        context['subClassName'] = type
+    else:
+        context['productType'] = parentType
+        context['className'] = type
+        context['subClassName'] = '-'
     # 档案建立时间与档案修改时间
-    # s = gsStatus.objects.get(box=box, serialNumber=serialNumber)
     s = gsStatus.objects.get(thing=thing)
     lastUpdateDate = (s.numberingUpdateDateTime if (
         s.numberingUpdateDateTime is not None and s.analyzingUpdateDateTime is None) else s.analyzingUpdateDateTime) if (
@@ -561,88 +466,49 @@ def exploreThing(request, boxNumber, serialNumber):
     context['lastUpdateDate'] = dateTimeHandler(lastUpdateDate) if (lastUpdateDate is not None) else ''
 
     # 图像路径
-    picturePathPrefix = u'/static/photo/{0}/{1}/{2}'.format(boxOrSubBox, serialNumber,serialNumber)
+    picturePathPrefix = u'/static/photo/{0}/{1}/{2}'.format(boxNumber, serialNumber,serialNumber)
     context['A'] = u'{0}-A.jpg'.format(picturePathPrefix)
     context['B'] = u'{0}-B.jpg'.format(picturePathPrefix)
     context['C'] = u'{0}-C.jpg'.format(picturePathPrefix)
 
-    if (0 == cmp(productType.type, u'金银锭类')):
-        work_thing = gsDing.objects.get(thing=thing)
-        context['detailedName'] = work_thing.detailedName
-        context['typeName'] = work_thing.typeName
-        context['peroid'] = work_thing.peroid
-        context['producer'] = work_thing.producer
-        context['producePlace'] = work_thing.producePlace
-        context['carveName'] = work_thing.carveName
-        context['remark'] = work_thing.remark
-        context['quality'] = work_thing.quality
-        context['level'] = work_thing.level
-        context['originalQuantity'] = work_thing.originalQuantity if (work_thing.originalQuantity is not None) else ''
-        context['detectedQuantity'] = work_thing.detectedQuantity if (work_thing.detectedQuantity is not None) else ''
-        context['length'] = work_thing.length if (work_thing.length is not None) else ''
-        context['width'] = work_thing.width if (work_thing.width is not None) else ''
-        context['height'] = work_thing.height if (work_thing.height is not None) else ''
-        context['grossWeight'] = work_thing.grossWeight if (work_thing.grossWeight is not None) else ''
-        context['pureWeight'] = float('%0.2f' % ((work_thing.detectedQuantity * work_thing.grossWeight) / 100)) if (
-            work_thing.detectedQuantity is not None and work_thing.grossWeight is not None) else ''
+    faceAmountList = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元', '外国银元']
+    dingList = ['锭']
+    shapeList = ['工']
+    zhangTypeList = ['章']
 
-        html = 'ding.html'
-    elif (0 == cmp(productType.type, u'金银币章类')):
-        work_thing = gsBiZhang.objects.get(thing=thing)
-        context['detailedName'] = work_thing.detailedName
-        context['versionName'] = work_thing.versionName
-        context['peroid'] = work_thing.peroid
-        context['producer'] = work_thing.producer
-        context['producePlace'] = work_thing.producePlace
-        context['value'] = work_thing.value
-        context['remark'] = work_thing.remark
-        context['quality'] = work_thing.quality
-        context['level'] = work_thing.level
-        context['originalQuantity'] = work_thing.originalQuantity if (work_thing.originalQuantity is not None) else ''
-        context['detectedQuantity'] = work_thing.detectedQuantity if (work_thing.detectedQuantity is not None) else ''
-        context['diameter'] = work_thing.diameter if (work_thing.diameter is not None) else ''
-        context['thick'] = work_thing.thick if (work_thing.thick is not None) else ''
-        context['grossWeight'] = work_thing.grossWeight if (work_thing.grossWeight is not None) else ''
-        context['pureWeight'] = float('%0.2f' % ((work_thing.detectedQuantity * work_thing.grossWeight) / 100)) if (
-            work_thing.detectedQuantity is not None and work_thing.grossWeight is not None) else ''
-
-        html = 'bizhang.html'
-    elif (0 == cmp(productType.type, u'银元类')):
-        work_thing = gsYinYuan.objects.get(thing=thing)
-        context['detailedName'] = work_thing.detailedName
-        context['versionName'] = work_thing.versionName
-        context['peroid'] = work_thing.peroid
-        context['producer'] = work_thing.producer
-        context['producePlace'] = work_thing.producePlace
-        context['value'] = work_thing.value
-        context['marginShape'] = work_thing.marginShape
-        context['remark'] = work_thing.remark
-        context['quality'] = work_thing.quality
-        context['level'] = work_thing.level
-        context['originalQuantity'] = work_thing.originalQuantity if (work_thing.originalQuantity is not None) else ''
-        context['detectedQuantity'] = work_thing.detectedQuantity if (work_thing.detectedQuantity is not None) else ''
-        context['diameter'] = work_thing.diameter if (work_thing.diameter is not None) else ''
-        context['thick'] = work_thing.thick if (work_thing.thick is not None) else ''
-        context['grossWeight'] = work_thing.grossWeight if (work_thing.grossWeight is not None) else ''
-
-        html = 'yinyuan.html'
-    elif (0 == cmp(productType.type, u'金银工艺品类')):
-        work_thing = gsGongYiPin.objects.get(thing=thing)
-        context['detailedName'] = work_thing.detailedName
-        context['peroid'] = work_thing.peroid
-        context['remark'] = work_thing.remark
-        context['quality'] = work_thing.quality
-        context['level'] = work_thing.level
-        context['originalQuantity'] = work_thing.originalQuantity if (work_thing.originalQuantity is not None) else ''
-        context['detectedQuantity'] = work_thing.detectedQuantity if (work_thing.detectedQuantity is not None) else ''
-        context['length'] = work_thing.length if (work_thing.length is not None) else ''
-        context['width'] = work_thing.width if (work_thing.width is not None) else ''
-        context['height'] = work_thing.height if (work_thing.height is not None) else ''
-        context['grossWeight'] = work_thing.grossWeight if (work_thing.grossWeight is not None) else ''
-        context['pureWeight'] = float('%0.2f' % ((work_thing.detectedQuantity * work_thing.grossWeight) / 100)) if (
-            work_thing.detectedQuantity is not None and work_thing.grossWeight is not None) else ''
-
-        html = 'gongyipin.html'
+    subClassName = context['subClassName']
+    context['detailedName'] = thing.detailedName
+    context['level'] = thing.originalQuantity
+    context['peroid'] = thing.peroid
+    context['year'] = thing.year
+    context['country'] = thing.country
+    context['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
+    context['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
+    context['mark'] = thing.mark
+    context['length'] = thing.length if (thing.length is not None) else ''
+    context['width'] = thing.width if (thing.width is not None) else ''
+    context['height'] = thing.height if (thing.height is not None) else ''
+    context['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
+    context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if (
+        thing.detectedQuantity is not None and thing.grossWeight is not None) else ''
+    if subClassName:
+        if subClassName in faceAmountList:
+            context['faceAmount'] = thing.faceAmount
+            html = 'yinyuan.html'
+        elif subClassName in dingList:
+            context['dingSecification'] = thing.dingSecification
+            html = 'ding.html'
+            context['shape'] = thing.shape
+        elif subClassName in shapeList:
+            context['shape'] = thing.shape
+            html = 'gongyipin.html'
+        elif subClassName in zhangTypeList:
+            context['zhangType'] = thing.zhangType
+            html = 'bizhang.html'
+    else:
+        pass
+    context['appearance'] = thing.appearance
+    context['remark'] = thing.remark
 
     serialNumberSet = gsThing.objects.filter(work=work).values_list('serialNumber', flat=True)
     serialNumberList = list(serialNumberSet)
@@ -706,10 +572,16 @@ def getSubClassName(request, code):
     classNameCode = codes[1]
     subClassNames = gsProperty.objects.filter(project='品名', parentCode=classNameCode,grandpaCode=typeCode)
     ret = []
-    for s in subClassNames:
+    if subClassNames:
+        for s in subClassNames:
+            r = {}
+            r['text'] = s.type
+            r['id'] = s.code
+            ret.append(r)
+    else:
         r = {}
-        r['text'] = s.type
-        r['id'] = s.code
+        r['text'] = '-'
+        r['id'] = ''
         ret.append(r)
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)

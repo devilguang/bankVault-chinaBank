@@ -9,8 +9,8 @@ from . import log
 
 @login_required  # 频谱分析岗位
 def analyzing(request):
-    nickName = gsUser.objects.get(user=request.user)
-    return render(request, 'p.html', context={'operator': nickName, })
+    userName = gsUser.objects.get(user=request.user)
+    return render(request, 'p.html', context={'operator': userName, })
 
 def updateAnalyzingInfo(request):
     boxNumber = request.POST.get('boxNumber', '')

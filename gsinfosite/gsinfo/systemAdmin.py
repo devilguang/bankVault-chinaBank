@@ -17,9 +17,9 @@ import log
 @login_required
 def systemAdmin(request):
     custom_user = gsUser.objects.get(user=request.user)
-    nickName = custom_user.nickName
+    userName = custom_user.userName
     type = custom_user.type
-    return render(request, 'admin.html', context={'operator': nickName, 'type': type})
+    return render(request, 'admin.html', context={'operator': userName, 'type': type})
 
 
 # 对用户有两种操作：新建、删除
@@ -27,29 +27,29 @@ def userProcess(request):
     type = request.POST.get('type', '')  # 管理员还是一般用户：1--管理员，2--一般用户
     password = request.POST.get('password', '')
     opType = request.POST.get('opType', '')
-    nickName = request.POST.get('nickName', '')
+    userName = request.POST.get('userName', '')
     organization = request.POST.get('organization', '')  # 用户所在组织
     department = request.POST.get('department', '')
 
     ret = {}
 
     if opType == 'add':
-        if nickName and type and password:
+        if userName and type and password:
             type = int(type)
             try:
-                log.log(user=request.user, operationType=u'系统管理', content=u'添加用户{0}'.format(nickName))
-                gsUser.objects.createUser(nickName=nickName, type=type, password=password,organization=organization,department=department)
+                log.log(user=request.user, operationType=u'系统管理', content=u'添加用户{0}'.format(userName))
+                gsUser.objects.createUser(userName=userName, type=type, password=password,organization=organization,department=department)
             except Exception as e:
                 ret = {
                     "success": False,
-                    "message": u'用户{0}添加失败！\r\n原因：{1}'.format(nickName, e.message)
+                    "message": u'用户{0}添加失败！\r\n原因：{1}'.format(userName, e.message)
                 }
             else:
                 ret = {
                     'success': True,
-                    'message': u'用户{0}添加成功！'.format(nickName)
+                    'message': u'用户{0}添加成功！'.format(userName)
                 }
-        elif nickName == '':
+        elif userName == '':
             ret = {
                 'success': False,
                 "message": u'用户名不能为空！'
@@ -71,17 +71,17 @@ def userProcess(request):
                 "message": u'信息填写有误！！'
             }
     elif opType == 'remove':
-        nickNameList = request.POST.getlist('nickName[]')  # 可以一次删除多个用户
+        userNameList = request.POST.getlist('userName[]')  # 可以一次删除多个用户
         try:
-            for nickName in nickNameList:
-                if nickName == 'sysadmin':
+            for userName in userNameList:
+                if userName == 'sysadmin':
                     ret = {
                         "success": False,
                         "message": u'系统管理员不能被删除！'
                     }
                 else:
-                    log.log(user=request.user, operationType=u'系统管理', content=u'删除用户{0}'.format(nickName))
-                    gsUser.objects.deleteUser(nickName=nickName)
+                    log.log(user=request.user, operationType=u'系统管理', content=u'删除用户{0}'.format(userName))
+                    gsUser.objects.deleteUser(userName=userName)
                     ret = {
                         "success": True,
                         "message": u'用户删除成功！'
@@ -101,13 +101,13 @@ def updatePassword(request):
     if request.method == 'GET':
         return render(request, 'updatePassword.html', context={})
     elif request.method == 'POST':
-        nickName = request.POST.get('nickName', '')
+        userName = request.POST.get('userName', '')
         password = request.POST.get('passWord', '')
         oldPassword = request.POST.get('oldPassWord', '')
         fromLoc = request.POST.get('fromLoc', '')
 
         try:
-            custom_user = gsUser.objects.get(nickName=nickName)
+            custom_user = gsUser.objects.get(userName=userName)
 
             if fromLoc == 'login':
                 username = custom_user.user.username
@@ -115,7 +115,7 @@ def updatePassword(request):
                 if user is None:
                     ret = {
                         'success': False,
-                        'message': u'用户{0},旧密码错误，更改密码失败！'.format(nickName)
+                        'message': u'用户{0},旧密码错误，更改密码失败！'.format(userName)
                     }
                 else:
                     if password.isspace():
@@ -134,7 +134,7 @@ def updatePassword(request):
                     #         "message": u'新设密码由字母和数字组合！'
                     #     }
                     else:
-                        log.log(user=request.user, operationType=u'系统管理', content=u'修改用户{0}密码'.format(nickName))
+                        log.log(user=request.user, operationType=u'系统管理', content=u'修改用户{0}密码'.format(userName))
                         user.set_password(password)
                         user.save()
             elif fromLoc == 'admin':
@@ -154,19 +154,19 @@ def updatePassword(request):
                 #         "message": u'新设密码由字母和数字组合！'
                 #     }
                 else:
-                    log.log(user=request.user, operationType=u'系统管理', content=u'修改用户{0}密码'.format(nickName))
+                    log.log(user=request.user, operationType=u'系统管理', content=u'修改用户{0}密码'.format(userName))
                     # 从系统管理界面修改用户密码, 不需要对用户身份进行认证
                     custom_user.user.set_password(password)
                     custom_user.user.save()
         except Exception as e:
             ret = {
                 'success': False,
-                'message': u'用户{0}更改密码失败！\r\n原因：{1}'.format(nickName, e.message)
+                'message': u'用户{0}更改密码失败！\r\n原因：{1}'.format(userName, e.message)
             }
         else:
             ret = {
                 'success': True,
-                'message': u'用户{0}更改密码成功！'.format(nickName)
+                'message': u'用户{0}更改密码成功！'.format(userName)
             }
 
         ret_json = json.dumps(ret, separators=(',', ':'))
@@ -182,10 +182,10 @@ def getUser(request):
     ret['rows'] = []
     for u in users:
         r = {}
-        r['nickName'] = u.nickName
+        r['userName'] = u.userName
         r['type'] = u.type
         r['id'] = u.user.id
-        r['text'] = u.nickName
+        r['text'] = u.userName
         ret['rows'].append(r)
 
     ret_json = json.dumps(ret, separators=(',', ':'))
@@ -205,7 +205,7 @@ def getAuthority(request):
         r = {}
         if int(u.type) == 0:  # 0表示系统管理员
             continue
-        r['nickName'] = u.nickName
+        r['userName'] = u.userName
         r['type'] = u.type
 
         r['canBeManage'] = True if not isExistManager else False
@@ -225,7 +225,7 @@ def getAuthority(request):
 
 
 def authorityProcess(request):
-    nickName = request.POST.get('nickName', '')
+    userName = request.POST.get('userName', '')
     authority = request.POST.get('authority', '')
     opType = request.POST.get('opType', '')
 
@@ -235,81 +235,81 @@ def authorityProcess(request):
         try:
             if authority == 'auth':
                 jobName = u'现场负责人'
-                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName, type=1).update(auth=True)
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName, type=1).update(auth=True)
             elif authority == 'manage':
                 jobName = u'实物分发岗位'
-                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(manage=True)
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(manage=True)
             elif authority == 'checking':
                 jobName = u'实物认定'
-                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(checking=True)
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(checking=True)
             elif authority == 'numbering':
                 jobName = u'外观信息采集'
-                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(numbering=True)
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(numbering=True)
             elif authority == 'measuring':
                 jobName = u'测量称重'
-                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(measuring=True)
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(measuring=True)
             elif authority == 'analyzing':
                 jobName = u'频谱分析'
-                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(analyzing=True)
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(analyzing=True)
             elif authority == 'photographing':
                 jobName = u'图像采集'
-                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(photographing=True)
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(photographing=True)
         except Exception as e:
             ret = {
                 "success": False,
-                "message": u'向用户{0}授予{1}岗位权限失败！\r\n原因：{2}'.format(nickName, jobName, e.message)
+                "message": u'向用户{0}授予{1}岗位权限失败！\r\n原因：{2}'.format(userName, jobName, e.message)
             }
         else:
             ret = {
                 'success': True,
-                'message': u'向用户{0}授予{1}岗位权限成功！'.format(nickName, jobName)
+                'message': u'向用户{0}授予{1}岗位权限成功！'.format(userName, jobName)
             }
     elif opType == 'revoke':
         try:
             if authority == 'auth':
                 jobName = u'现场负责人'
-                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(auth=False)
+                log.log(user=request.user, operationType=u'系统管理', content=u'授予用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(auth=False)
             elif authority == 'manage':
                 jobName = u'实物分发岗位'
-                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(manage=False)
+                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(manage=False)
             elif (0 == cmp(authority, 'checking')):
                 jobName = u'实物认定'
-                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(checking=False)
+                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(checking=False)
             elif (0 == cmp(authority, 'numbering')):
                 jobName = u'外观信息采集'
-                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(numbering=False)
+                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(numbering=False)
             elif (0 == cmp(authority, 'measuring')):
                 jobName = u'测量称重'
-                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(measuring=False)
+                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(measuring=False)
             elif (0 == cmp(authority, 'analyzing')):
                 jobName = u'频谱分析'
-                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(analyzing=False)
+                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(analyzing=False)
             elif (0 == cmp(authority, 'photographing')):
                 jobName = u'图像采集'
-                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(nickName, jobName))
-                gsUser.objects.filter(nickName=nickName).update(photographing=False)
+                log.log(user=request.user, operationType=u'系统管理', content=u'收回用户{0}:{1}权限'.format(userName, jobName))
+                gsUser.objects.filter(userName=userName).update(photographing=False)
         except Exception as e:
             ret = {
                 "success": False,
-                "message": u'收回用户{0}, {1}岗位权限失败！\r\n原因：{2}'.format(nickName, jobName, e.message)
+                "message": u'收回用户{0}, {1}岗位权限失败！\r\n原因：{2}'.format(userName, jobName, e.message)
             }
         else:
             ret = {
                 'success': True,
-                'message': u'收回用户{0}, {1}岗位权限成功！'.format(nickName, jobName)
+                'message': u'收回用户{0}, {1}岗位权限成功！'.format(userName, jobName)
             }
 
     ret_json = json.dumps(ret, separators=(',', ':'))
@@ -632,9 +632,9 @@ def getUserName(request):
 
 
 def setSysAdmin(request):
-    nickName = request.POST.get('nickName', '')
-    oldNickName = gsUser.objects.get(user=request.user).nickName
-    manage = gsUser.objects.get(nickName=nickName).manage
+    userName = request.POST.get('userName', '')
+    olduserName = gsUser.objects.get(user=request.user).userName
+    manage = gsUser.objects.get(userName=userName).manage
     if manage == 1:
         ret = {
             "success": False,
@@ -642,10 +642,10 @@ def setSysAdmin(request):
         }
     else:
         try:
-            log.log(user=request.user, operationType=u'系统管理', content=u'将{0}的系统管理权限转移给{1}'.format(oldNickName,nickName))
-            gsUser.objects.filter(nickName=nickName).update(type=0)
-            gsUser.objects.filter(nickName=oldNickName).update(type=1)
-            #gsUser.objects.deleteUser(nickName=oldNickName)
+            log.log(user=request.user, operationType=u'系统管理', content=u'将{0}的系统管理权限转移给{1}'.format(olduserName,userName))
+            gsUser.objects.filter(userName=userName).update(type=0)
+            gsUser.objects.filter(userName=olduserName).update(type=1)
+            #gsUser.objects.deleteUser(userName=olduserName)
             auth.logout(request)
         except Exception as e:
             ret = {

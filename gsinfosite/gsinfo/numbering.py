@@ -13,8 +13,8 @@ from . import log
 
 @login_required  # 外观信息采集岗位
 def numbering(request):
-    nickName = gsUser.objects.get(user=request.user)
-    return render(request, 'n.html', context={'operator': nickName, })
+    userName = gsUser.objects.get(user=request.user)
+    return render(request, 'n.html', context={'operator': userName, })
 
 
 def getNumberingInfo(request):
@@ -75,6 +75,14 @@ def getNumberingInfo(request):
 
     return HttpResponse(ret_json)
 
+def getReadyInfo(request):
+    field = request.POST.get('field', '')
+    ret = {}
+    info = list(gsProperty.objects.filter(project=field).values_list('type',flat=True))
+    ret['count'] = len(info)
+    ret['info'] = info
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
 
 def updateNumberingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')

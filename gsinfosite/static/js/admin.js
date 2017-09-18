@@ -42,7 +42,7 @@ function addTab(title, content, icon) {
 
 function userManage() {
     var title = '用户管理';
-    var c = '<table id="workGridUser" class="easyui-datagrid" data-options="url:\'getUser/\', toolbar:\'#workGridToolBarUser\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20, checkOnSelect:false, selectOnCheck:false"><thead><tr><th field="checkStatus" align="center" checkbox="true"></th><th field="nickName" align="center" width="20">用户名</th><th field="type" formatter="userTypeFormatter" align="center">用户类型</th><th field="operation" formatter="operationFormatter" align="center" width="60">操作</th></tr></thead></table><div id="workGridToolBarUser"><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="userAdd()">添加</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="userRemove()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridUser\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+    var c = '<table id="workGridUser" class="easyui-datagrid" data-options="url:\'getUser/\', toolbar:\'#workGridToolBarUser\', singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20, checkOnSelect:false, selectOnCheck:false"><thead><tr><th field="checkStatus" align="center" checkbox="true"></th><th field="userName" align="center" width="20">用户名</th><th field="type" formatter="userTypeFormatter" align="center">用户类型</th><th field="operation" formatter="operationFormatter" align="center" width="60">操作</th></tr></thead></table><div id="workGridToolBarUser"><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="userAdd()">添加</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="userRemove()">删除</a></div><script type="text/javascript">function initPagination(){$(\'#workGridUser\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-user');
     initPagination();
 }
@@ -58,9 +58,9 @@ function userTypeFormatter(value, row, index) {
 }
 function operationFormatter(value, row, index) {
     if (row.type == 1) {
-        return '<div style="float:left"><a href="javascript:void(0);" onclick="updatePassword(\'' + row.nickName + '\')" style="text-decoration:none;color:blue">更改密码</a><a href="javascript:void(0);" onclick="transfer(\'' + row.nickName + '\')" style="text-decoration:none;color:blue;margin-left: 40px;">转为超级管理员</a></div>'
+        return '<div style="float:left"><a href="javascript:void(0);" onclick="updatePassword(\'' + row.userName + '\')" style="text-decoration:none;color:blue">更改密码</a><a href="javascript:void(0);" onclick="transfer(\'' + row.userName + '\')" style="text-decoration:none;color:blue;margin-left: 40px;">转为超级管理员</a></div>'
     } else {
-        return '<div style="float:left"><a href="javascript:void(0);" onclick="updatePassword(\'' + row.nickName + '\')" style="text-decoration:none;color:blue">更改密码</a></div>'
+        return '<div style="float:left"><a href="javascript:void(0);" onclick="updatePassword(\'' + row.userName + '\')" style="text-decoration:none;color:blue">更改密码</a></div>'
     }
 }
 
@@ -83,14 +83,14 @@ function userRemove() {
 
     var userArray = new Array()
     for (var i = 0; i < n; ++i) {
-        userArray[i] = rows[i].nickName;
+        userArray[i] = rows[i].userName;
     }
 
     $.messager.confirm('提示', '是否确认删除所选用户?', function (r) {
         if (r) {
             $.ajax({
                 url: url,
-                data: {nickName: userArray, opType: opType},
+                data: {userName: userArray, opType: opType},
                 type: 'POST',
                 async: true,
                 dataType: 'json',
@@ -153,7 +153,7 @@ function transfer(name) {
         if (r) {
             $.ajax({
                 url: 'setSysAdmin/',
-                data: {nickName: name},
+                data: {userName: name},
                 type: 'POST',
                 async: true,
                 dataType: 'json',
@@ -179,11 +179,11 @@ function transfer(name) {
         }
     });
 }
-function updatePassword(nickName) {
+function updatePassword(userName) {
     $('#updatePasswordDlg').dialog('open').dialog('center').dialog('setTitle', '更改密码');
     $('#updatePasswordForm').form('clear');
     $('#updatePasswordForm').form('load', {
-        nickName: nickName,
+        userName: userName,
     });
     url = 'updatePassword/';
 }
@@ -246,7 +246,7 @@ function authorityManage() {
         '<th align="center" colspan="2" width="40">图像采集</th><th align="center"  colspan="2" width="40">实物认定</th>' +
         '</tr>' +
         '<tr>' +
-        '<th field="nickName" align="center" width="40">用户名</th>' +
+        '<th field="userName" align="center" width="40">用户名</th>' +
         '<th field="type" formatter="userTypeFormatter" align="center" width="45">用户类型</th>' +
         '<th field="authAuthority" formatter="userOperationFormatter" align="center" width="75">操作</th>' +
 
@@ -283,10 +283,10 @@ function userOperationFormatter(value, row, index) {
     if (1 == row.type) {
         // 只有管理员用户，才能作为现场负责人
         if (row.auth) {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'auth\', \'revoke\')">取消现场负责人</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'auth\', \'revoke\')">取消现场负责人</a>';
         }else if (row.canBeManage) {
             // 未设置现场负责人, 具备成为现场负责人的可能
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'auth\', \'grant\')">设置现场负责人</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'auth\', \'grant\')">设置现场负责人</a>';
         }
         else {
             return '<span>-</span>';
@@ -303,17 +303,17 @@ function checkingAuthorityFormatter(value, row, index) {
         if(row.auth){
         return '<span>-</span>'
         }else if (row.checking) {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'checking\', \'revoke\')">取消</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'checking\', \'revoke\')">取消</a>';
         }
         else {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'checking\', \'grant\')">授权</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'checking\', \'grant\')">授权</a>';
         }
     }
     if (row.checking) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'checking\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'checking\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'checking\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'checking\', \'grant\')">授权</a>';
     }
 }
 function numberingAuthorityFormatter(value, row, index) {
@@ -322,16 +322,16 @@ function numberingAuthorityFormatter(value, row, index) {
         if(row.auth){
             return '<span>-</span>'
         }else if (row.numbering) {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'numbering\', \'revoke\')">取消</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'numbering\', \'revoke\')">取消</a>';
         }else {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'numbering\', \'grant\')">授权</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'numbering\', \'grant\')">授权</a>';
         }
     }
     if (row.numbering) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'numbering\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'numbering\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'numbering\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'numbering\', \'grant\')">授权</a>';
     }
 }
 function photographingAuthorityFormatter(value, row, index) {
@@ -340,17 +340,17 @@ function photographingAuthorityFormatter(value, row, index) {
          if(row.auth){
             return '<span>-</span>'
         }else if (row.photographing) {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'photographing\', \'revoke\')">取消</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'photographing\', \'revoke\')">取消</a>';
         }
         else {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'photographing\', \'grant\')">授权</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'photographing\', \'grant\')">授权</a>';
         }
     }
     if (row.photographing) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'photographing\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'photographing\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'photographing\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'photographing\', \'grant\')">授权</a>';
     }
 }
 function analyzingAuthorityFormatter(value, row, index) {
@@ -359,17 +359,17 @@ function analyzingAuthorityFormatter(value, row, index) {
          if(row.auth){
             return '<span>-</span>'
         }else if (row.analyzing) {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'analyzing\', \'revoke\')">取消</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'analyzing\', \'revoke\')">取消</a>';
         }
         else {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'analyzing\', \'grant\')">授权</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'analyzing\', \'grant\')">授权</a>';
         }
     }
     if (row.analyzing) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'analyzing\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'analyzing\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'analyzing\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'analyzing\', \'grant\')">授权</a>';
     }
 }
 function measuringAuthorityFormatter(value, row, index) {
@@ -378,17 +378,17 @@ function measuringAuthorityFormatter(value, row, index) {
         if(row.auth){
             return '<span>-</span>'
         }else if (row.measuring) {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'measuring\', \'revoke\')">取消</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'measuring\', \'revoke\')">取消</a>';
         }
         else {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'measuring\', \'grant\')">授权</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'measuring\', \'grant\')">授权</a>';
         }
     }
     if (row.measuring) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'measuring\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'measuring\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'measuring\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'measuring\', \'grant\')">授权</a>';
     }
 }
 function manageAuthorityFormatter(value, row, index) {
@@ -397,21 +397,21 @@ function manageAuthorityFormatter(value, row, index) {
          if(row.auth){
             return '<span>-</span>'
         }else if (row.manage) {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'manage\', \'revoke\')">取消</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'manage\', \'revoke\')">取消</a>';
         }else {
-            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'manage\', \'grant\')">授权</a>';
+            return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'manage\', \'grant\')">授权</a>';
         }
     }
     if (row.manage) {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'manage\', \'revoke\')">取消</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'manage\', \'revoke\')">取消</a>';
     }
     else {
-        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.nickName + '\', \'manage\', \'grant\')">授权</a>';
+        return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'manage\', \'grant\')">授权</a>';
     }
 }
-function authorityProcess(nickName, authority, opType) {
+function authorityProcess(userName, authority, opType) {
     $.post('authorityProcess/',
-        {nickName: nickName, authority: authority, opType: opType},
+        {userName: userName, authority: authority, opType: opType},
         function (result, status) {
             if (result.success) {
                 $.messager.show({    // 显示成功信息

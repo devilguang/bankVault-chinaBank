@@ -22,7 +22,7 @@
          });*/
 
         function login() {
-            user = $('#login-nickName').combobox('getText');
+            user = $('#login-userName').combobox('getText');
             pwd = $('#login-passWord').textbox('getValue');
             role = $('#login-workRole').combobox('getValue');
             validateUser();
@@ -35,7 +35,7 @@
             // 登录
             $.post(
                 '',
-                {nickName: user, passWord: pwd, workRole: role},
+                {userName: user, passWord: pwd, workRole: role},
                 function (result) {
                     console.log(result)
                     if (result.success) {
@@ -65,12 +65,12 @@
             }
         }
         function validateUser() {
-            user = $('#login-nickName').combobox('getText');
+            user = $('#login-userName').combobox('getText');
             if (user == '') {
-                $('#login-nickName-tip').attr('style', 'color:#ff0000');
+                $('#login-userName-tip').attr('style', 'color:#ff0000');
             }
             else {
-                $('#login-nickName-tip').attr('style', 'display:none;color:#ff0000');
+                $('#login-userName-tip').attr('style', 'display:none;color:#ff0000');
             }
         }
 
@@ -112,9 +112,9 @@
         <div style="margin:20px 0;"></div>
         <div class="easyui-panel" data-options="border:false" style="width:100%;margin-top:80px">
             <div style="margin-bottom:10px;padding-left:336px">
-                <label for="login-nickName"
+                <label for="login-userName"
                        style="display:inline-block;margin-right:10px;width:50px;font-size:16px;font-family:sans-serif">用&nbsp;&nbsp;&nbsp;&nbsp;户</label>
-                <input id="login-nickName" name="nickName" class="easyui-combobox"
+                <input id="login-userName" name="userName" class="easyui-combobox"
                        style="width:280px;height:40px;padding:12px" data-options="
 						prompt:'请选择',
 						valueField: 'id',
@@ -126,7 +126,7 @@
 						panelHeight: 'auto',
 						onChange: validateUser,
 					">
-                <label id="login-nickName-tip" style="display:none;color:#ff0000">用户不能为空！</label>
+                <label id="login-userName-tip" style="display:none;color:#ff0000">用户不能为空！</label>
             </div>
             <div style="margin-bottom:10px;padding-left:336px">
                 <label for="login-workRole"
