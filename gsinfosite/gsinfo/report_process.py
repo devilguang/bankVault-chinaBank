@@ -17,14 +17,6 @@ import re
 import math
 from decimal import *
 
-templateRootDir = settings.DATA_DIRS['template_dir']
-boxRootDir = settings.DATA_DIRS['box_dir']
-boxDir = boxRootDir
-boxPhotoDir = boxDir
-boxWordDir = boxDir
-workRootDir = settings.DATA_DIRS['work_dir']
-workDir = workRootDir
-
 
 def createArchivesFromWork(boxNumber,subBoxNumber, workSeq, dateTime):
     box = gsBox.objects.get(boxNumber=boxNumber)
@@ -246,8 +238,174 @@ def createBoxTable(boxList):
     wb.save(boxReportPath)
     return boxReportName
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def createBoxInfo(**kwargs):
+    boxNumber = kwargs['boxNumber']
 
-def createBoxInfo(boxNumber, date):
+    boxDir = os.path.join(settings.BOX_DATA_PATH, boxNumber)
+    if not os.path.exists(boxDir):
+        os.mkdir(boxDir)  # 转移至创建作业时, 生成相应的目录
+
+    # 实线边框样式
+    border = Border(left=Side(border_style='thin', color='FF000000'),
+                    right=Side(border_style='thin', color='FF000000'),
+                    top=Side(border_style='thin', color='FF000000'),
+                    bottom=Side(border_style='thin', color='FF000000'),
+                    outline=Side(border_style='thin', color='FF000000'),
+                    vertical=Side(border_style='thin', color='FF000000'),
+                    horizontal=Side(border_style='thin', color='FF000000')
+                    )
+
+    box = gsBox.objects.get(boxNumber=boxNumber)
+    thing_set = gsThing.objects.filter(box=box)
+    prop = box.property
+    type = prop.type
+    parentType = prop.parentType
+    grandpaType = prop.grandpaType
+    if grandpaType:
+        className = parentType
+        subClassName = type
+    else:
+        className = type
+        subClassName = '-'
+    table = load_workbook(os.path.join(settings.TEMPLATE_DATA_PATH, u'装箱清单.xls'))
+    # default_height = points_to_pixels(DEFAULT_ROW_HEIGHT)
+    sheet = table.worksheets[0]
+    # default_height=20,而只有高度大于默认值的单元格sheet.row_dimensions[n].height才不返回None
+
+    if not sheet.row_dimensions[1].height:
+        sheet.row_dimensions[1].height = 18
+        h1 = sheet.row_dimensions[1].height
+    else:
+        h1 = sheet.row_dimensions[1].height
+
+    if not sheet.row_dimensions[2].height:
+        sheet.row_dimensions[2].height = 18
+        h2 = sheet.row_dimensions[2].height
+    else:
+        h2 = sheet.row_dimensions[2].height
+    if not sheet.row_dimensions[35].height:
+        sheet.row_dimensions[35].height = 18
+        h_last = sheet.row_dimensions[35].height
+    else:
+        h_last = sheet.row_dimensions[35].height
+
+    unit = 18
+    h = h1 + h2 + h_last
+    print_area = 47 * 14.25
+    name_count=1
+    row_count=1
+    filePath_list = []
+    row_height_list = []
+    rowStartIdx = 4
+
+    # font = Font(name=u'仿宋', size=10)
+    # alignment = Alignment(horizontal='center', vertical='center')
+
+    for i,th in enumerate(thing_set):
+        # 写表头
+        value_list = []
+        sheet['A{0}'.format(2)] = u'箱号:' + boxNumber
+        date = datetime.datetime.now()
+        year = date.year
+        month = date.month
+        day = date.day
+        sheet['P{0}'.format(2)] = u'{0}年{1}月{2}日'.format(year, month, day)
+        # 写表
+        # 序号
+        row1 = th.serialNumber
+        sheet.cell(row=rowStartIdx, column=1).value = row1
+        value_list.append((row1,10))
+        # 盒号
+        row2 = th.case.caseNumber
+        sheet.cell(row=rowStartIdx, column=2).value = row2
+        value_list.append((row2,12))
+        # 品种
+        row3= className
+        sheet.cell(row=rowStartIdx, column=3).value = row3
+        value_list.append((row3,6))
+        # 品名
+        row4 =subClassName
+        sheet.cell(row=rowStartIdx, column=4).value =row4
+        value_list.append((row4,6))
+        # 等级
+        row5 =th.level
+        sheet.cell(row=rowStartIdx, column=5).value = row5
+        value_list.append((row5,6))
+        # 毛重
+        row6 = '%.2f' % th.grossWeight
+        value_len = len(row6)
+        if value_len > 9:
+            sheet.cell(row=rowStartIdx, column=6).value = row6
+        else:
+            sheet.cell(row=rowStartIdx, column=6).value =Decimal(row6).quantize(Decimal('0.00'))
+        # 检测成色
+        row7 = '%.2f' % th.detectedQuantity
+        value_len = len(row7)
+        if value_len >9:
+            sheet.cell(row=rowStartIdx, column=7).value = row7
+        else:
+            sheet.cell(row=rowStartIdx, column=7).value = Decimal(row7).quantize(Decimal('0.00'))
+        # 净重
+        row8 = '%.2f' % th.pureWeight
+        value_len = len(row8)
+        if value_len > 9:
+            sheet.cell(row=rowStartIdx, column=8).value =row8
+        else:
+            sheet.cell(row=rowStartIdx, column=8).value = Decimal(row8).quantize(Decimal('0.00'))
+        # 件（枚）数
+        row9 = th.amount
+        sheet.cell(row=rowStartIdx, column=9).value =row9
+        # 备注
+        row10 =th.remark
+        sheet.cell(row=rowStartIdx, column=10).value = row10
+        value_list.append((row10,10))
+        # ----------------------------
+        max_row = getRows(value_list)
+        sheet.row_dimensions[rowStartIdx].height = 12*max_row
+        h_some = 12*max_row
+        row_height_list.append(h_some)
+        row_height_len = len(row_height_list)
+        sum_row_height = sum(row_height_list)
+        real_h = h + sum_row_height + (31-row_height_len)*unit
+        other_area = print_area - real_h
+        if other_area< unit:
+            # 写小计
+            sheet['B{0}:E{1}'.format(rowStartIdx+1,rowStartIdx+1)] = '-'
+            sheet['F{0}'.format(rowStartIdx + 1)] =u'=SUM(F4:F{0})'.format(rowStartIdx)
+            sheet['G{0}'.format(rowStartIdx + 1)] =u'=SUM(G4:G{0})'.format(rowStartIdx)
+            sheet['H{0}'.format(rowStartIdx + 1)] =u'=SUM(H4:H{0})'.format(rowStartIdx)
+            sheet['I{0}'.format(rowStartIdx + 1)] =u'=SUM(I4:I{0})'.format(rowStartIdx)
+
+            # 保存
+            fileName = u'{0}-{1}.xlsx'.format(boxNumber,str(name_count))
+            filePath = os.path.join(boxDir, fileName)
+            filePath_list.append(filePath)
+            table.save(filePath)
+            name_count += 1
+            rowStartIdx = 4
+            row_height_list = []
+        else:
+            rowStartIdx +=1
+            row_count +=1
+    # 写合计
+    sheet.insert_rows(34, 1, above=False, copy_style=True, fill_formulae=False)
+    sheet['A{0}'.format(35)] = u'合计'
+    sub_area1 = sheet['A{0}:J{1}'.format(3, 35)]
+    for cs in sub_area1:
+        for cell in cs:
+            cell.border = border
+    sheet.row_dimensions[36].height = 28
+    # 保存
+    fileName = u'{0}-{1}.xlsx'.format(boxNumber, str(name_count))
+    filePath = os.path.join(boxDir, fileName)
+    filePath_list.append(filePath)
+    table.save(filePath)
+    all_file_path = '|'.join(filePath_list)
+    return all_file_path
+
+
+
+def createBoxInfo_old(boxNumber, date):
     box = gsBox.objects.get(boxNumber=boxNumber)
 
     thing_set = gsThing.objects.filter(box=box)

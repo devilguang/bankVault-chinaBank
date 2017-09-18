@@ -1008,20 +1008,16 @@ def generateArchives(request):
 def generateBoxInfo(request):
     if request.method == 'POST':
         boxNumber = request.POST.get('boxNumber', '')
-        dateTime = request.POST.get('dateTime', '')
 
-        boxInfoFileName = createBoxInfo(boxNumber, dateTime)
-        box_dir = os.path.join(settings.DATA_DIRS['box_dir'], str(boxNumber))
-        file_path = os.path.join(box_dir, boxInfoFileName)
+        file_str = createBoxInfo(boxNumber=boxNumber)
 
         # downloadURL = ''
         # downloadURL = downloadURL + u'<a href="generateBoxInfo/?boxNumber={0}&boxInfoFileName={1}" style="margin-right:20px">{2}</a>'.format(
         #     boxNumber, boxInfoFileName, boxInfoFileName)
-
         ret = {
             'success': True,
             # 'downloadURL': downloadURL,
-            'file_path': file_path,
+            'file_path': file_str,
         }
         log.log(user=request.user, operationType=u'业务操作', content=u'打印装箱清单')
         ret_json = json.dumps(ret, separators=(',', ':'))
