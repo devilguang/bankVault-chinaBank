@@ -507,28 +507,28 @@ function propertyRemove() {
 }
 function saveProperty() {
     var project = $('#property-project').combobox('getValue');
-    if (project == '实物类型') {
+    if (project == '类别') {
         var productType = $('#property-productType-productType').textbox('getValue');
         var productTypeCode = $('#property-productTypeCode').textbox('getValue');
         if (productType == '' || productTypeCode == '') {
             $.messager.alert({
                 title: '提示',
-                msg: '实物类型或实物编码不能为空！'
+                msg: '类别或实物编码不能为空！'
             });
         }
     }
-    else if (project == '品名') {
+    else if (project == '品类') {
         var productType = $('#property-className-productType').combobox('getValue');
         var className = $('#property-className-className').textbox('getValue');
         var classNameCode = $('#property-classNameCode').textbox('getValue');
         if (productType == '' || className == '' || classNameCode == '') {
             $.messager.alert({
                 title: '提示',
-                msg: '实物类型、品名名称或品名编码不能为空！'
+                msg: '类别、品名或品名编码不能为空！'
             });
         }
     }
-    else if (project == '明细品名') {
+    else if (project == '品名') {
         var productType = $('#property-subClassName-productType').combobox('getValue');
         var className = $('#property-subClassName-className').combobox('getValue');
         var subClassName = $('#property-subClassName-subClassName').textbox('getValue');
@@ -536,7 +536,7 @@ function saveProperty() {
         if (productType == '' || className == '' || subClassName == '' || subClassNameCode == '') {
             $.messager.alert({
                 title: '提示',
-                msg: '实物类型、品名名称、明细品名或明细品名编码不能为空！'
+                msg: '类别、品名名称、品名或品名编码不能为空！'
             });
         }
     }
@@ -595,20 +595,20 @@ function next() {
         $('#propertySave').attr('style', '');
         $('#cancel').attr('style', '');
 
-        if (project == '实物类型') {
+        if (project == '类别') {
             $('#productType').attr('style', '');
             $('#className').attr('style', 'display:none');
             $('#subClassName').attr('style', 'display:none');
             $('#wareHouse').attr('style', 'display:none');
         }
-        else if (project == '品名') {
+        else if (project == '品类') {
             $('#property-className-productType').combobox('reload');
             $('#productType').attr('style', 'display:none');
             $('#className').attr('style', '');
             $('#subClassName').attr('style', 'display:none');
             $('#wareHouse').attr('style', 'display:none');
         }
-        else if (project == '明细品名') {
+        else if (project == '品名') {
             $('#property-subClassName-productType').combobox('reload');
             $('#property-subClassName-className').combobox('reload');
             $('#productType').attr('style', 'display:none');
@@ -678,7 +678,7 @@ function backToWork(boxNumber) {
 
 function searchWork() {
     var title = '作业查询';
-    var c = '<div class="easyui-layout" data-options="fit:true"><div data-options="region:\'center\'"><table id="workGrid" class="easyui-datagrid" data-options="url:\'getWorkContent/\', border:false, rownumbers:true, fitcolumns:true, fit:true, pagination:true, pagsize:10"><thead><tr><th field="boxNumber" align="center" width="50">箱号</th><th field="productType" align="center" width="150">实物类型</th><th field="amount" align="center" width="150">数量</th><th field="archiveUrl" align="center" formatter="workBoxFormatter" width="430">资料</th></tr></thead></table></div></div><script type="text/javascript">$(function(){ $(\'#workGrid\').datagrid({ view: detailview, detailFormatter:function(index,row){ return \'<div style="padding:2px"><table class="ddv"></table></div>\';}, onExpandRow: function(index,row){ var ddv = $(this).datagrid(\'getRowDetail\',index).find(\'table.ddv\'); ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品名\',width:50,align:\'center\'},{field:\'subClassName\',title:\'明细品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:workThingFormatter}]],onResize:function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#workGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+    var c = '<div class="easyui-layout" data-options="fit:true"><div data-options="region:\'center\'"><table id="workGrid" class="easyui-datagrid" data-options="url:\'getWorkContent/\', border:false, rownumbers:true, fitcolumns:true, fit:true, pagination:true, pagsize:10"><thead><tr><th field="boxNumber" align="center" width="50">箱号</th><th field="productType" align="center" width="150">类别</th><th field="amount" align="center" width="150">数量</th><th field="archiveUrl" align="center" formatter="workBoxFormatter" width="430">资料</th></tr></thead></table></div></div><script type="text/javascript">$(function(){ $(\'#workGrid\').datagrid({ view: detailview, detailFormatter:function(index,row){ return \'<div style="padding:2px"><table class="ddv"></table></div>\';}, onExpandRow: function(index,row){ var ddv = $(this).datagrid(\'getRowDetail\',index).find(\'table.ddv\'); ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品类\',width:50,align:\'center\'},{field:\'subClassName\',title:\'品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:workThingFormatter}]],onResize:function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#workGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-archive');
     initPagination();
 }
