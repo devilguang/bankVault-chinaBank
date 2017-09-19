@@ -19,68 +19,50 @@ def numbering(request):
 
 def getNumberingInfo(request):
     serialNumber = request.GET.get('serialNumber', '')
-    boxOrSubBox = request.GET.get('boxNumber', '')
-    productType = request.GET.get('productType', '')
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-    else:
-        boxNumber = int(boxOrSubBox)
-
-    box = gsBox.objects.get(boxNumber=boxNumber)
 
     ret = {}
-    if (0 == cmp(productType, u'金银锭类')):
-        thing = gsDing.objects.get(box=box, serialNumber=serialNumber)
-        ret['detailedName'] = thing.detailedName
-        ret['peroid'] = thing.peroid
-        ret['originalQuantity'] = thing.originalQuantity
-        producer = request.POST.get('producer', '')
-        producePlace = request.POST.get('producePlace', '')
-        ret['typeName'] = thing.typeName
-        ret['carveName'] = thing.carveName
-        ret['remark'] = thing.remark
-        ret['quality'] = thing.quality
-        ret['level'] = thing.level
-    elif (0 == cmp(productType, u'金银币章类')):
-        thing = gsBiZhang.objects.get(box=box, serialNumber=serialNumber)
-        ret['versionName'] = thing.versionName
-        ret['detailedName'] = thing.detailedName
-        ret['peroid'] = thing.peroid
-        ret['originalQuantity'] = thing.originalQuantity
-        producer = request.POST.get('producer', '')
-        producePlace = request.POST.get('producePlace', '')
-        ret['remark'] = thing.remark
-        ret['quality'] = thing.quality
-        ret['level'] = thing.level
-    elif (0 == cmp(productType, u'银元类')):
-        thing = gsYinYuan.objects.get(box=box, serialNumber=serialNumber)
-        ret['versionName'] = thing.versionName
-        ret['value'] = thing.value
-        producer = request.POST.get('producer', '')
-        producePlace = request.POST.get('producePlace', '')
-        ret['remark'] = thing.remark
-        ret['quality'] = thing.quality
-        ret['level'] = thing.level
-    elif (0 == cmp(productType, u'金银工艺品类')):
-        thing = gsGongYiPin.objects.get(box=box, serialNumber=serialNumber)
-        ret['detailedName'] = thing.detailedName
-        ret['peroid'] = thing.peroid
-        ret['originalQuantity'] = thing.originalQuantity
-        ret['remark'] = thing.remark
-        ret['quality'] = thing.quality
-        ret['level'] = thing.level
+    thing = gsThing.objects.get(serialNumber=serialNumber)
+    ret['detailedName'] = thing.detailedName
+    ret['peroid'] = thing.peroid
+    ret['originalQuantity'] = thing.originalQuantity
+    ret['typeName'] = thing.typeName
+    ret['carveName'] = thing.carveName
+    ret['remark'] = thing.remark
+    ret['quality'] = thing.quality
+    ret['level'] = thing.level
 
+    level = models.CharField(verbose_name='评价等级', max_length=255, blank=True)
+    detailedName = models.CharField(verbose_name='名称', max_length=1024, blank=True)
+    peroid = models.CharField(verbose_name='年代', max_length=255, blank=True)
+    year = models.CharField(verbose_name='年份', max_length=255, blank=True)
+    country = models.CharField(verbose_name='国别', max_length=512, blank=True)
+    faceAmount = models.CharField(verbose_name='面值', max_length=512, blank=True)
+    dingSecification = models.CharField(verbose_name='规格', max_length=512, blank=True)
+    zhangType = models.CharField(verbose_name='性质', max_length=512, blank=True)
+    shape = models.CharField(verbose_name='工艺品类器型（型制）', max_length=512, blank=True)
+    appearance = models.CharField(verbose_name='品相（完残程度）', max_length=255, blank=True)
+    mark = models.CharField(verbose_name='铭文（文字信息）', max_length=512, blank=True)
+    grossWeight = models.FloatField(verbose_name='毛重', null=True)
+    pureWeight = models.FloatField(verbose_name='纯重', null=True)
+    originalQuantity = models.FloatField(verbose_name='原标注成色', null=True)
+    detectedQuantity = models.FloatField(verbose_name='频谱检测成色', null=True)
+    amount = models.PositiveIntegerField(verbose_name='件（枚）数', null=True)
+    length = models.FloatField(verbose_name='长度', null=True)
+    width = models.FloatField(verbose_name='宽度', null=True)
+    height = models.FloatField(verbose_name='高度', null=True)
     ret_json = json.dumps(ret, separators=(',', ':'))
-
     return HttpResponse(ret_json)
 
 def getReadyInfo(request):
     field = request.POST.get('field', '')
-    ret = {}
-    info = list(gsProperty.objects.filter(project=field).values_list('type',flat=True))
-    ret['count'] = len(info)
-    ret['info'] = info
+    ret = []
+    type_list = list(gsProperty.objects.filter(project=field).values_list('type',flat=True))
+    code_list = list(gsProperty.objects.filter(project=field).values_list('code', flat=True))
+    for type,code in zip(type_list,code_list):
+        detail = {}
+        detail['text'] = type
+        detail['id'] = code
+        ret.append(detail)
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
