@@ -218,7 +218,7 @@ def getWorkData(request, workSeq):
         elif 6 == processId:  # 图像采集环节
             status_set = gsStatus.objects.filter(thing__in=thing_set)
 
-    prop = box.property
+    prop = box.boxType
     type = prop.type
     parentType = prop.parentType
     grandpaType = prop.grandpaType
@@ -310,7 +310,7 @@ def getWorkSpaceContent(request):
     work_set = gsWork.objects.filter(status=1)
     ret = []
     for work in work_set:
-        prop = work.box.property
+        prop = work.box.boxType
         parentType = prop.parentType
         grandpaType = prop.grandpaType
         if grandpaType:
@@ -433,7 +433,7 @@ def exploreThing(request, boxNumber, serialNumber):
     thing = gsThing.objects.get(serialNumber=serialNumber)
     work =thing.work
 
-    prop = box.property
+    prop = box.boxType
     type = prop.type
     parentType = prop.parentType
     grandpaType = prop.grandpaType
@@ -587,7 +587,7 @@ def getSubClassName(request, code):
     return HttpResponse(ret_json)
 
 def getOprateType(request):
-    oprateType_qs = gsProperty.objects.filter(project='操作流程')
+    oprateType_qs = gsProperty.objects.filter(project='实物类型')
     ret = []
     for s in oprateType_qs:
         r = {}

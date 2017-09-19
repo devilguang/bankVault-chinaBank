@@ -14,15 +14,15 @@ tagDir = tagRootDir
 TempDir = tagDir
 
 
-def createQRCode(c):
+def createQRCode(data):
     '''
     :param c: 二维码图片标记
     :return: 
     '''
-    img = qrcode.make(c)
-    fileName = str(c) + '.png'
+    img = qrcode.make(data)
+    fileName = str(data) + '.png'
     filePath = os.path.join(tempDir, fileName)
-    img.resize((128, 128)).save(filePath)
+    img.resize((512, 512)).save(filePath)
     return filePath
 
 
