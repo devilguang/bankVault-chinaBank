@@ -131,7 +131,6 @@ function initBatchUpdateInfoDlg(row) {
         $('#batch-carveName').attr({'style': 'display:none'});
         $('#batch-marginShape').attr({'style': 'display:none'});
     }
-
     if (row.productType == '银元类') {
         $('#batch-detailedName').attr({'style': 'display:none'});
         $('#batch-typeName').attr({'style': 'display:none'});
@@ -230,6 +229,8 @@ function traverseArr(array, subClassName) {
 }
 
 
+
+//单个信息修改方法
 function initUpdateInfoDlg(row) {
     var subClassName = row.subClassName;
     var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元', '外国银元'];
