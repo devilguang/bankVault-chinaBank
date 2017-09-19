@@ -373,6 +373,14 @@ function returnFloat(value) {
         return value;
     }
 }
+
+function getReadyInfoInformation(){
+    console.log(123)
+    // $.ajax({
+    //
+    // })
+}
+
 function updateInfo(index, row) {
     initUpdateInfoDlg(row);
     //$.messager.alert('提示', boxNumber);
@@ -384,6 +392,7 @@ function updateInfo(index, row) {
             serialNumber: row.serialNumber
         }, success: function (data) {
             var data = JSON.parse(data);
+            console.log(data)
             $('#UpdateInfoForm').form('load', {
                 serialNumber: row.serialNumber,
                 productType: row.productType,

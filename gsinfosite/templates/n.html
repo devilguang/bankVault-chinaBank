@@ -106,7 +106,7 @@
     <div id="UpdateInfoDlg" class="easyui-dialog" style="width:500px;height:450px;padding:10px 20px"
          data-options="closed:true, buttons:'#UpdateInfoDlgButtons', modal:true, onClose:unInitUpdateInfoDlg">
         <div class="FormTitle">实物信息</div>
-        <form id="UpdateInfoForm" method="POST" novalidate>
+        <form id="UpdateInfoForm" method="get" novalidate>
             <div class="FormItem">
                 <label for="UpdateInfo-serialNumber">实物编号</label>
                 <input id="UpdateInfo-serialNumber" name="serialNumber" class="easyui-textbox"
@@ -144,7 +144,7 @@
             <div class="FormItem">
                 <label for="UpdateInfo-level">等级</label>
                 <input id="UpdateInfo-level" name="level" class="easyui-combobox"
-                       data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/', editable: false, panelHeight: 'auto',fit: true,">
+                       data-options="valueField:'lable',textField:'value',url:'getReadyInfo/?等级',editable: false, panelHeight: 'auto'" >
             </div>
 
             <div class="FormItem" id="detailedName">
@@ -162,39 +162,39 @@
             </div>
             <div class="FormItem" id="peroid">
                 <label for="UpdateInfo-peroid">年代</label>
-                    <input list="UpdateInfo-peroid" class="easyui-combobox" name="peroid" id="physical_peroid" data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/',editable:false,fit: true,"/>
+                    <input list="UpdateInfo-peroid" class="easyui-combobox" name="peroid" id="physical_peroid" data-options="editable:false,panelHeight: 'auto'"/>
             </div>
             <div class="FormItem">
                 <label for="UpdateInfo-year">年份</label>
                 <input id="UpdateInfo-year" name="year" class="easyui-combobox"
-                       data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/',editable:false,fit: true">
+                       data-options="editable:false,panelHeight: 'auto'">
             </div>
             <div class="FormItem">
                 <label for="UpdateInfo-country">国别</label>
                 <input id="UpdateInfo-country" name="country" class="easyui-combobox"
-                       data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/',editable:false,fit: true" >
+                       data-options="editable:false,panelHeight:'auto'" >
             </div>
             <div class="FormItem" id="faceAmount" style="display: none;">
                 <label for="UpdateInfo-faceAmount" >面值</label>
-                <input id="UpdateInfo-faceAmount" name="faceAmount" class="easyui-combobox" data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/', editable: false, panelHeight: 'auto',fit: true,">
+                <input id="UpdateInfo-faceAmount" name="faceAmount" class="easyui-combobox" data-options=" editable: false, panelHeight: 'auto'">
             </div>
             <div class="FormItem" id="dingSecification" style="display: none;">
                 <label for="UpdateInfo-dingSecification"  >规格</label>
-                <input id="UpdateInfo-dingSecification" name="dingSecification" class="easyui-combobox" data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/', editable: false, panelHeight: 'auto',fit: true,">
+                <input id="UpdateInfo-dingSecification" name="dingSecification" class="easyui-combobox" data-options="editable: false, panelHeight: 'auto'">
             </div>
             <div class="FormItem" id="zhangType"  style="display: none;">
                 <label for="UpdateInfo-zhangType">性质</label>
-                <input id="UpdateInfo-zhangType" name="zhangType" class="easyui-combobox" data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/', editable: false, panelHeight: 'auto',fit: true,">
+                <input id="UpdateInfo-zhangType" name="zhangType" class="easyui-combobox" data-options="editable: false, panelHeight: 'auto'">
             </div>
             <div class="FormItem" id="shape" style="display: none;">
                 <label for="UpdateInfo-shape">器型</label>
-                <input id="UpdateInfo-shape" name="shape" class="easyui-combobox"  data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/', editable: false, panelHeight: 'auto',fit: true,">
+                <input id="UpdateInfo-shape" name="shape" class="easyui-combobox"  data-options="editable: false, panelHeight: 'auto'">
             </div>
 
             <div class="FormItem">
                 <label for="UpdateInfo-quality">品相</label>
                 <input id="UpdateInfo-quality" name="quality" class="easyui-combobox"
-                       data-options="valueField: 'id', textField: 'text', url:'getReadyInfo/', editable: false, panelHeight: 'auto',">
+                       data-options="editable: false, panelHeight: 'auto',">
             </div>
             <div class="FormItem" id="carveName">
                 <label for="UpdateInfo-carveName">铭文</label>
@@ -213,6 +213,10 @@
                 <label for="UpdateInfo-originalQuantity">成色(%)</label>
                 <input id="UpdateInfo-originalQuantity" name="originalQuantity" class="easyui-numberbox"
                        data-options="precision:2, min:0, max:100">
+            </div>
+             <div class="FormItem">
+                <label for="UpdateInfo-remark">备注</label>
+                <input id="UpdateInfo-remark" name="remark" class="easyui-textbox" data-options="multiline:true">
             </div>
         </form>
     </div>
