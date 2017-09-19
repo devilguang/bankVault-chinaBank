@@ -54,38 +54,19 @@ def getMeasuringInfo(request):
 
 def updateMeasuringInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
-    boxOrSubBox = request.POST.get('boxNumber', '')
-    productType = request.POST.get('productType', '')
-    className = request.POST.get('className', '')
-    subClassName = request.POST.get('subClassName', '')
-    wareHouse = request.POST.get('wareHouse', '')
     grossWeight = float(request.POST.get('grossWeight', ''))
-    diameter = request.POST.get('diameter', '')
-    thick = request.POST.get('thick', '')
     length = request.POST.get('length', '')
     width = request.POST.get('width', '')
     height = request.POST.get('height', '')
     operator = request.POST.get('operator', '')
-
-    if diameter != '':
-        diameter = float(diameter)
-    if thick != '':
-        thick = float(thick)
     if length != '':
         length = float(length)
     if width != '':
         width = float(width)
     if height != '':
         height = float(height)
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = boxOrSubBox.split('-')[1]
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-
-    box = gsBox.objects.get(boxNumber=boxNumber)
+    if grossWeight != '':
+        grossWeight = float(grossWeight)
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'测量称重信息更新')
@@ -95,16 +76,8 @@ def updateMeasuringInfo(request):
             # 作业不可用
             raise ValueError, u'作业不可用！请联系实物分发岗位进行分发，并刷新页面！'
 
-        if productType == u'金银锭类':
-            gsDing.objects.filter(thing=thing).update(length=length, width=width, height=height,grossWeight=grossWeight)
-        elif productType == u'金银币章类':
-            gsBiZhang.objects.filter(thing=thing).update(diameter=diameter, thick=thick,grossWeight=grossWeight)
-        elif productType == u'银元类':
-            gsYinYuan.objects.filter(thing=thing).update(diameter=diameter, thick=thick,grossWeight=grossWeight)
-        elif productType == u'金银工艺品类':
-            gsGongYiPin.objects.filter(thing=thing).update(length=length, width=width,height=height,grossWeight=grossWeight)
+        gsThing.objects.filter(serialNumber=serialNumber).update(length=length, width=width, height=height,grossWeight=grossWeight)
 
-        # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
         now = datetime.datetime.now()
         gsStatus.objects.filter(thing=thing).update(measuringStatus=True,measuringOperator=operator,measuringUpdateDateTime=now)
         thing_set = gsStatus.objects.filter(thing=thing)
@@ -116,12 +89,11 @@ def updateMeasuringInfo(request):
     except Exception as e:
         ret = {}
         ret['success'] = False
-        ret['message'] = boxOrSubBox + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else boxOrSubBox + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
-        ret['message'] = ret['message'] + u'\r\n原因:' + e.message
+        ret['message'] = u'{0}实物信息更新失败！'.format(serialNumber)
     else:
         ret = {}
         ret['success'] = True
-        ret['message'] = boxOrSubBox + u'号箱作业更新成功！' if (0 == cmp(serialNumber, '')) else boxOrSubBox + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
+        ret['message'] = u'{0}实物信息更新成功！'.format(serialNumber)
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 

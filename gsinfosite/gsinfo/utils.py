@@ -13,17 +13,6 @@ def readFile(filePath, buf_size=262144):
             break
     f.close()
 
-def deleteDir(targetDir):
-    for root, dirs, files in os.walk(targetDir, False):
-        for file in files:
-            filePath = os.path.join(root, file)
-            os.remove(filePath)
-        for dir in dirs:
-            dirPath = os.path.join(root, dir)
-            if os.path.exists(dirPath):
-                os.rmdir(dirPath)
-    os.rmdir(root)
-    
 def dateTimeHandler(obj):
     if isinstance(obj, datetime.datetime):
         # UTC时区 转换至 Asian/ShangHai

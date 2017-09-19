@@ -4,8 +4,8 @@ from django.shortcuts import render
 from django.http.response import HttpResponse, StreamingHttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 import json
-from utils import readFile, dateTimeHandler, deleteDir
-from tag_process import *
+from utils import readFile, dateTimeHandler
+from tag_process import createQRCode
 from .report_process import *
 from gsinfosite import settings
 from django.contrib import auth
@@ -16,7 +16,6 @@ import MySQLdb
 import win32print
 import win32api
 import win32ui
-# import requests
 from PIL import Image, ImageWin
 import shortuuid
 from gsinfosite import settings
@@ -31,9 +30,9 @@ def manage(request):
 
 
 def createBox(request):
-    productType = request.POST.get('productType', '')  # 实物类型
-    className = request.POST.get('className', '')  # 品名
-    subClassName = request.POST.get('subClassName', '')  # 明细品名
+    productType = request.POST.get('productType', '')  # 类型
+    className = request.POST.get('className', '')  # 品类
+    subClassName = request.POST.get('subClassName', '')  # 品名
     wareHouse = request.POST.get('wareHouse', '')  # 发行库
     amount = int(request.POST.get('amount', ''))  # 件数
     grossWeight = request.POST.get('grossWeight', '')  # 毛重
@@ -43,12 +42,12 @@ def createBox(request):
         grossWeight = float(grossWeight)
     else:
         grossWeight = float(0)
-    # 向货发二代系统请求箱号和实物随机号
-    # '请求类型|发行库编号|类别|品种'
+    # 向货发二代系统请求箱号
     # code = '1|{0}|{1}|{2}'.format(wareHouse,productType,className)
-    # getNumberAPI(code)
+    # boxNumber = getNumberAPI(code)
+    # -----模拟
     seq = random.randint(1, 100)
-    boxNumber = '1-{0}-{1}-{2}-{3}'.format(wareHouse,productType,className,seq)
+    boxNumber = '1-{0}-{1}-{2}-{3}'.format(wareHouse, productType, className, seq)
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'新建{0}号箱实物'.format(boxNumber))
@@ -76,426 +75,43 @@ def createBox(request):
 
 
 # -----------------------------------------------
-# 拆箱操作
-def allotBox(request):
-    boxNumber = int(request.POST.get('boxNumber', ''))  # 箱号
-    fromSubBox = request.POST.get('fromSubBox', '')
-    pageSize = int(request.POST.get('rows', ''))
-    page = int(request.POST.get('page', ''))
-
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    subBox = gsSubBox.objects.filter(box=box, isValid=True)
-    if fromSubBox == '1' and not subBox:
-        thing_set = gsThing.objects.filter(box=box)
-    else:
-        subBox = gsSubBox.objects.get(box=box, subBoxNumber=fromSubBox)
-        thing_set = gsThing.objects.filter(box=box, subBox=subBox)
-    num = len(thing_set)
-    ret = {}
-    ret['total'] = num
-    ret['rows'] = []
-
-    start = (page - 1) * pageSize
-    end = num if (page * pageSize > num) else page * pageSize
-    sub_thing_set = thing_set[start:end]
-    for s in sub_thing_set:
-        r = {}
-        r['serialNumber'] = s.serialNumber
-        ret['rows'].append(r)
-
-    # 找出一个箱子所属的所有子箱
-    all_subBox = gsSubBox.objects.filter(box=box, isValid=True).values_list('subBoxNumber', flat=True)
-    ret['subBoxList'] = list(all_subBox)
-
-    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-    return HttpResponse(ret_json)
-
-
-# 确认拆箱操作
-def confirmAllotBox(request):
-    boxNumber = request.POST.get('boxNumber', '')
-    selectedThings = request.POST.get('selectedThings', '')
-    fromSubBox = int(request.POST.get('fromSubBox', ''))
-    toSubBox = int(request.POST.get('toSubBox', ''))
-
-    selected_serialNumber = selectedThings.split(';')[:-1]
-    box = gsBox.objects.get(boxNumber=boxNumber)
-
-    try:
-        log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱进行拆箱'.format(boxNumber))
-        if fromSubBox == 1 and toSubBox == 1 and not gsSubBox.objects.filter(box=box):
-            all_serialNumber = gsThing.objects.filter(box=box).values_list('serialNumber', flat=True)
-            all_serialNumber = list(all_serialNumber)
-            other_serialNumber = []
-            for serialNumber in all_serialNumber:
-                if serialNumber not in selected_serialNumber:
-                    other_serialNumber.append(serialNumber)
-
-            subBox1 = gsSubBox.objects.create(subBoxNumber=1, box=box, isValid=True)
-            subBox2 = gsSubBox.objects.create(subBoxNumber=2, box=box, isValid=True)
-            gsThing.objects.filter(box=box, serialNumber__in=other_serialNumber).update(subBox=subBox1)
-            gsThing.objects.filter(box=box, serialNumber__in=selected_serialNumber).update(subBox=subBox2)
-        elif fromSubBox == 1 and toSubBox == 1 and gsSubBox.objects.filter(box=box):
-            maxSubBoxNumber = gsSubBox.objects.filter(box=box).order_by('-subBoxNumber').first().subBoxNumber
-            subBox = gsSubBox.objects.create(subBoxNumber=maxSubBoxNumber + 1, box=box, isValid=True)
-            gsThing.objects.filter(box=box, serialNumber__in=selected_serialNumber).update(subBox=subBox)
-        else:
-            subBox = gsSubBox.objects.get(subBoxNumber=toSubBox, box=box, isValid=True)
-            gsThing.objects.filter(box=box, serialNumber__in=selected_serialNumber).update(subBox=subBox)
-    except Exception as e:
-        ret = {
-            "success": False,
-            "message": '{0}号箱拆箱失败！\r\n原因：{1}'.format(boxNumber, e.message)
-        }
-    else:
-        ret = {
-            'success': True,
-            'message': '{0}号箱拆箱成功!'.format(boxNumber)
-        }
-    ret_json = json.dumps(ret)
-
-    return HttpResponse(ret_json)
-
-
-# -----------------------------------------------
-# 并箱操作
-def mergeBox(request):
-    boxNumber = int(request.POST.get('boxNumber', ''))  # 箱号
-
-    ret = {}
-    box = gsBox.objects.get(boxNumber=boxNumber)
-
-    all_subBox = gsSubBox.objects.filter(box=box, isValid=True).values_list('subBoxNumber', flat=True)
-    allSubBox = list(all_subBox)
-    if allSubBox:
-        ret['subBoxList'] = allSubBox
-    else:
-        ret['subBoxList'] = []
-    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-    return HttpResponse(ret_json)
-
-
-# 确认并箱操作
-def confirmMergeBox(request):
-    boxNumber = int(request.POST.get('boxNumber', ''))  # 箱号
-    originSubBox = request.POST.get('originSubBox', '')
-    boxList = originSubBox.split(';')[:-1]
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    currentMaxNo = int(gsSubBox.objects.filter(box=box).order_by('-subBoxNumber').first().subBoxNumber)
-    try:
-        log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱的{1}子箱进行并箱'.format(boxNumber, boxList))
-        newSubBox = gsSubBox.objects.create(subBoxNumber=currentMaxNo + 1, box=box, isValid=True)  # 新建一个
-        for no in boxList:
-            oldSubBox_set = gsSubBox.objects.filter(box=box, subBoxNumber=no)
-            oldSubBox_set.update(isValid=False)  # 将之前的置为无效
-            oldSubBox = oldSubBox_set[0]
-            gsThing.objects.filter(box=box, subBox=oldSubBox).update(subBox=newSubBox, historyNo=oldSubBox.pk)
-
-    except Exception as e:
-        print e
-        ret = {
-            "success": False,
-            "message": '{0}号箱并箱失败！\r\n原因：{1}'.format(boxNumber, e.message)
-        }
-    else:
-        ret = {
-            'success': True,
-            'message': '{0}号箱并箱成功!'.format(boxNumber)
-        }
-    ret_json = json.dumps(ret)
-
-    return HttpResponse(ret_json)
-
-
-# -----------------------------------------------
-# 箱体信息报表打印
-# 1.获取所有箱子信息
-def getAllBox(request):
-    box_id = gsSubBox.objects.filter().values_list('box')
-    boxId = set(box_id)
-    ret = {}
-    ret['rows'] = []
-    for b in boxId:
-        b = gsBox.objects.get(id=b[0])  # 箱子中所有实物都已完成各步骤
-        r = {}
-        r['boxNumber'] = b.boxNumber
-        r['productType'] = gsProperty.objects.get(project=u'实物类型', code=b.productType).type
-        r['className'] = gsProperty.objects.get(project=u'品名', code=b.className, parentType=r['productType']).type
-        r['subClassName'] = gsProperty.objects.get(project=u'明细品名', code=b.subClassName, parentType=r['className'],
-                                                   grandpaType=r['productType']).type
-        r['wareHouse'] = gsProperty.objects.get(project=u'发行库', code=b.wareHouse).type
-        r['amount'] = b.amount
-        ret['rows'].append(r)
-
-    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-    return HttpResponse(ret_json)
-
-
-# 2.生成报表信息
-def processInfo(request):
-    map0 = request.GET.get('map', '')  # {'1':u'金银锭类','2':u'金银币章类'}
-    boxList = json.loads(map0)
-
-    ret = []
-    for boxNumber, productType in boxList.items():
-        boxNumber = int(boxNumber)
-        boxLevel = {}
-        boxLevel['subBox'] = []
-        box = gsBox.objects.get(boxNumber=boxNumber)
-        subBoxList = gsSubBox.objects.filter(box=box, isValid=True).values_list('subBoxNumber', flat=True)
-        for no in subBoxList:
-            subBox = {}
-            subBox['subBoxNo'] = no
-            subBox_set = gsSubBox.objects.filter(box=box, subBoxNumber=no)
-            things_num = gsThing.objects.filter(box=box, subBox=subBox_set).count()
-            subBox['amount'] = things_num
-            totalWeight = gsSubBox.objects.get(box=box, subBoxNumber=no).grossWeight
-            subBox['totalWeight'] = totalWeight
-            boxLevel['subBox'].append(subBox)
-
-        boxLevel['boxNumber'] = boxNumber
-
-        boxLevel['amount'] = box.amount
-        boxLevel['totalWeight'] = box.grossWeight
-        ret.append(boxLevel)
-
-    fileName = createBoxTable(boxList)
-    box_dir = os.path.join(settings.DATA_DIRS['box_dir'], u'箱体报表')
-    file_path = os.path.join(box_dir, fileName)
-
-    log.log(user=request.user, operationType=u'业务操作', content=u'箱体报表打印')
-    ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
-    return render(request, 'report.html', context={'ret': ret_json, 'file_path': file_path})
-
-
-def downloadBoxInfo(request):
-    fileName = request.GET.get('fileName', '')
-    log.log(user=request.user, operationType=u'业务操作', content=u'箱体报表下载')
-    box_dir = os.path.join(settings.DATA_DIRS['box_dir'], u'箱体报表')
-    filePath = os.path.join(box_dir, fileName)
-
-    response = StreamingHttpResponse(readFile(filePath))
-    response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename={0}'.format(fileName)
-
-    return response
-
-
-# -----------------------------------------------
-# 包号二维码打印
-def printSerialNumberQR(request):
-    boxOrSubBox = request.POST.get('boxNumber', '')
-    workSeq = request.POST.get('workSeq', '')
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-        box = gsBox.objects.get(boxNumber=boxNumber)
-        subBox = gsSubBox.objects.get(subBoxNumber=subBoxNumber)
-        work = gsWork.objects.filter(box=box, subBox=subBox, workSeq=workSeq)
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-        box = gsBox.objects.get(boxNumber=boxNumber)
-        work = gsWork.objects.filter(box=box, workSeq=workSeq)
-    log.log(user=request.user, operationType=u'业务操作', content=u'流水号二维码打印')
-
-    serialNumberSet = gsThing.objects.filter(work=work).values_list('serialNumber', flat=True)
-    serialNumberList = list(serialNumberSet)
-    tag_path = os.path.join(settings.TAG_DATA_PATH, str(boxNumber))
-    temp = []
-    for serialNumber in serialNumberList:
-        pic_path = os.path.join(tag_path, serialNumber)
-        temp.append(pic_path)
-    file_path = '|'.join(temp)
-    ret = {
-        'success': True,
-        'file_path': file_path
-    }
-    ret_json = json.dumps(ret, separators=(',', ':'))
-    return HttpResponse(ret_json)
-
 # 封箱入库 和 开箱出库
 def boxInOutStore(request):
-    boxOrSubBox = request.POST.get('boxNumber', '')
+    boxNumber = request.POST.get('boxNumber', '')
     status = int(request.POST.get('status', ''))  # 1: 封箱入库 0: 提取出库
-    userName = request.POST.get('user', '')  # 系统负责人用户名
-    password = request.POST.get('password', '')  # 系统负责人密码
-    txtQR = request.POST.get('txtQR', '')
-
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
 
     if status == 1:
-        user = request.user
-        userName = gsUser.objects.get(user=user).userName
-
-        if '-' in boxOrSubBox:
-            boxNumber = int(boxOrSubBox.split('-')[0])
-            subBoxNumber = int(boxOrSubBox.split('-')[1])
-        else:
-            boxNumber = int(boxOrSubBox)
-            subBoxNumber = ''
-
-        def printOrNot(printtimes, boxNumber, userName, subBoxNumber):
-            if int(printtimes) == 0:
-                log.log(user=request.user, operationType=u'业务操作', content=u'箱体二维码打印')
-                boxTag(boxNumber, userName, subBoxNumber)
-                if subBoxNumber == '':  # 原箱
-                    gsBox.objects.filter(boxNumber=boxNumber).update(scanTimes=0)
-                else:  # 子箱
-                    box = gsBox.objects.get(boxNumber=boxNumber)
-                    gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(
-                        scanTimes=0)
-                ret = {
-                    'success': True,
-                    'message': u'打印成功！'
-                }
-            else:
-                ret = {
-                    "success": False,
-                    "message": u'该箱体的二维码已被打印过一次！'
-                }
-            return ret
-
-        custom_user = gsUser.objects.filter(userName=userName)
-        if custom_user:
-            custom_user = custom_user[0]
-            if int(custom_user.type) == 0:
-                username = custom_user.user.username
-                user = auth.authenticate(username=username, password=password)
-                if user:  # 通过系统管理员授权后先打印二维码后封箱入库
-                    box = gsBox.objects.get(boxNumber=boxNumber)
-                    if subBoxNumber == '':  # 原箱
-                        printtimes = box.printTimes
-                        ret = printOrNot(printtimes, boxNumber, userName, subBoxNumber)
-                        gsBox.objects.filter(boxNumber=boxNumber).update(printTimes=printtimes + 1)
-
-                        try:
-                            if gsWork.objects.filter(box=box, status=1).exists():  # 存在作业未收回, 不能封箱入库
-                                raise ValueError(u'{0}号箱存在作业未收回，不能封箱入库！请前往:业务管理->作业管理，收回作业！'.format(boxNumber))
-                            gsBox.objects.filter(boxNumber=boxNumber).update(status=True)
-                            log.log(user=request.user, operationType=u'业务操作', content=u'封箱入库')
-                        except Exception as e:
-                            ret = {
-                                "success": False,
-                                "message": '{0}号箱实物封箱入库失败！\r\n原因：{1}'.format(boxNumber, e.message)
-                            }
-                        else:
-                            ret = {
-                                'success': True,
-                                'message': '{0}号箱实物封箱入库成功!'.format(boxNumber)
-                            }
-                    else:  # 子箱
-                        subBox = gsSubBox.objects.get(box=box, subBoxNumber=subBoxNumber)
-                        printtimes = subBox.printTimes
-                        ret = printOrNot(printtimes, boxNumber, userName, subBoxNumber)
-                        gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(printTimes=printtimes + 1)
-                        subBox = gsSubBox.objects.get(box=box, subBoxNumber=subBoxNumber)
-                        try:
-                            if gsWork.objects.filter(box=box, subBox=subBox, status=1).exists():  # 存在作业未收回, 不能封箱入库
-                                raise ValueError(u'{0}号箱存在作业未收回，不能封箱入库！请前往:业务管理->作业管理，收回作业！'.format(boxNumber))
-                            gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(status=True)
-                            if not gsSubBox.objects.filter(box=box, isValid=True, status=False).exists():
-                                gsBox.objects.filter(boxNumber=boxNumber).update(status=True)
-                            log.log(user=request.user, operationType=u'业务操作', content=u'封箱入库')
-                        except Exception as e:
-                            ret = {
-                                "success": False,
-                                "message": '{0}号箱实物封箱入库失败！\r\n原因：{1}'.format(boxNumber, e.message)
-                            }
-                        else:
-                            ret = {
-                                'success': True,
-                                'message': '{0}号箱实物封箱入库成功!'.format(boxNumber)
-                            }
-
-                else:
-                    ret = {
-                        "success": False,
-                        "message": u'密码错误！'
-                    }
-            else:
-                ret = {
-                    "success": False,
-                    "message": u'该用户无此权限！'
-                }
-        else:
-            ret = {
-                'success': False,
-                'message': u'用户名错误！'
-            }
-            # -----
-    elif status == 0:
         box = gsBox.objects.get(boxNumber=boxNumber)
-        if subBoxNumber == '':
-            trueQRtxt = box.txtQR
-            scanTimes = box.scanTimes
-        else:
-            subBox = gsSubBox.objects.get(box=box, subBoxNumber=subBoxNumber)
-            trueQRtxt = subBox.txtQR
-            scanTimes = subBox.scanTimes
-
-        if txtQR == trueQRtxt:
-            if scanTimes == 0:
-                if subBoxNumber == '':
-                    try:
-                        log.log(user=request.user, operationType=u'业务操作', content=u'开箱出库')
-                        gsBox.objects.filter(boxNumber=boxNumber).update(scanTimes=scanTimes + 1, printTimes=0,
-                                                                         status=False)
-                    except Exception as e:
-                        ret = {
-                            "success": False,
-                            "message": '{0}号箱实物封箱入库失败！\r\n原因：{1}'.format(boxNumber, e.message)
-                        }
-                    else:
-                        ret = {
-                            'success': True,
-                            'message': '{0}号箱实物封箱入库成功!'.format(boxNumber)
-                        }
-                else:
-                    try:
-                        log.log(user=request.user, operationType=u'业务操作', content=u'开箱出库')
-                        gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(scanTimes=scanTimes + 1,
-                                                                                           printTimes=0, status=False)
-
-                        if not gsSubBox.objects.filter(box=box, isValid=True, status=True).exists():
-                            gsBox.objects.filter(boxNumber=boxNumber).update(status=False)
-                    except Exception as e:
-                        ret = {
-                            "success": False,
-                            "message": '{0}号箱实物封箱入库失败！\r\n原因：{1}'.format(boxNumber, e.message)
-                        }
-                    else:
-                        ret = {
-                            'success': True,
-                            'message': '{0}号箱实物封箱入库成功!'.format(boxNumber)
-                        }
-            else:
-                if subBoxNumber == '':
-                    gsBox.objects.filter(boxNumber=boxNumber).update(scanTimes=scanTimes + 1)
-                else:
-                    gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(scanTimes=scanTimes + 1)
-                ret = {
-                    "success": False,
-                    "message": '开箱出库失败，已报警！'
-                }
-        else:
-            if subBoxNumber == '':
-                gsBox.objects.filter(boxNumber=boxNumber).update(scanTimes=scanTimes + 1)
-            else:
-                gsSubBox.objects.filter(box=box, subBoxNumber=subBoxNumber).update(scanTimes=scanTimes + 1)
+        try:
+            log.log(user=request.user, operationType=u'业务操作', content=u'封箱入库')
+            if gsWork.objects.filter(box=box, status=1).exists():  # 存在作业未收回, 不能封箱入库
+                raise ValueError(u'{0}号箱存在作业未收回，不能封箱入库！请前往:业务管理->作业管理，收回作业！'.format(boxNumber))
+            gsBox.objects.filter(boxNumber=boxNumber).update(status=True)
+        except Exception as e:
             ret = {
                 "success": False,
-                "message": '开箱出库失败，二维码信息有误！'
+                "message": '{0}号箱实物封箱入库失败！'.format(boxNumber)
             }
-
+        else:
+            ret = {
+                'success': True,
+                'message': '{0}号箱实物封箱入库成功!'.format(boxNumber)
+            }
+    elif status == 0:
+        try:
+            log.log(user=request.user, operationType=u'业务操作', content=u'开箱出库')
+            gsBox.objects.filter(boxNumber=boxNumber).update(status=False)
+        except Exception as e:
+            ret = {
+                "success": False,
+                "message": '{0}号箱实物封箱入库失败！'.format(boxNumber)
+            }
+        else:
+            ret = {
+                'success': True,
+                'message': '{0}号箱实物封箱入库成功!'.format(boxNumber)
+            }
     ret_json = json.dumps(ret, separators=(',', ':'))
-
     return HttpResponse(ret_json)
 # -----------------------------------------------
 # 原来的并箱操作
@@ -558,15 +174,13 @@ def addToExistingBox(request):
 
 
 def deleteBox(request):
-    boxNumber = int(request.POST.get('boxNumber', ''))
+    boxNumber = request.POST.get('boxNumber', '')
 
     try:
-        deletedBox = gsBox.objects.deleteBox(boxNumber=boxNumber)
-
-        boxRootDir = settings.DATA_DIRS['box_dir']
-        boxDir = os.path.join(boxRootDir, str(boxNumber))
-        if (os.path.exists(boxDir)):
-            deleteDir(boxDir)
+        gsBox.objects.deleteBox(boxNumber=boxNumber)
+        boxDir = os.path.join(settings.BOX_DATA_PATH, str(boxNumber))
+        if os.path.exists(boxDir):
+            shutil.rmtree(boxDir)
 
     except Exception as e:
         ret = {
@@ -598,7 +212,7 @@ def getBox(request):
         box_qs = gsBox.objects.filter(status=1)
     selectBox = []
     for box in box_qs:
-        prop = box.property
+        prop = box.boxType
         code = prop.code
         parentCode = prop.parentCode
         grandpaCode=prop.grandpaCode
@@ -621,7 +235,7 @@ def getBox(request):
     ret['rows'] = []
     for box in selectBox[start:end]:
         r = {}
-        prop = box.property
+        prop = box.boxType
         r['boxNumber'] = box.boxNumber
         if prop.grandpaType:
             r['productType'] = prop.grandpaType
@@ -634,6 +248,7 @@ def getBox(request):
         wareHouse = gsProperty.objects.get(project='发行库', code=box.wareHouse)
         r['wareHouse'] = wareHouse.type
         r['amount'] = box.amount
+        r['oprateType'] = box.oprateType.type
         ret['rows'].append(r)
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
     return HttpResponse(ret_json)
@@ -645,12 +260,22 @@ def getThing(request):
     page = request.POST.get('page', '')
     isAllocated = request.POST.get('thingIsAllocated', '')
     box = gsBox.objects.get(boxNumber=boxNumber)
+    oprateType_code = box.oprateType.code
     if isAllocated == 'notAllocated':
-        ts = gsThing.objects.filter(box=box, isAllocate=False)
+        if oprateType_code == '2':
+            ts = gsThing.objects.filter(box=box, isAllocate=False,amount=1)
+        else:
+            ts = gsThing.objects.filter(box=box, isAllocate=False)
     elif isAllocated == 'allocated':
-        ts = gsThing.objects.filter(box=box, isAllocate=True)
+        if oprateType_code == '2':
+            ts = gsThing.objects.filter(box=box, isAllocate=True,amount=1)
+        else:
+            ts = gsThing.objects.filter(box=box, isAllocate=True)
     else:  # 这是什么情况触发！
-        ts = gsThing.objects.filter(box=box)
+        if oprateType_code == '2':
+            ts = gsThing.objects.filter(box=box, amount=1)
+        else:
+            ts = gsThing.objects.filter(box=box)
 
     ret = {}
     n = ts.count()
@@ -662,10 +287,18 @@ def getThing(request):
     end = n if (page * pageSize > n) else page * pageSize
 
     ret['rows'] = []
-    prop = box.property
-    productType = prop.grandpaType
-    className = prop.parentType
-    subClassName = prop.type
+    boxType = box.boxType
+    grandpaType = boxType.grandpaType
+    parentType = boxType.parentType
+    type = boxType.type
+    if grandpaType:
+        productType = boxType.grandpaType
+        className = boxType.parentType
+        subClassName = boxType.type
+    else:
+        productType = boxType.parentType
+        className = boxType.type
+        subClassName = '-'
     for t in ts[start:end]:
         r = {}
         r['serialNumber'] = t.serialNumber
@@ -785,7 +418,7 @@ def getWork(request):
     # 筛选符合条件的box
     selectBox = []
     for box in box_qs:
-        prop = box.property
+        prop = box.boxType
         code = prop.code
         parentCode = prop.parentCode
         grandpaCode = prop.grandpaCode
@@ -1008,20 +641,16 @@ def generateArchives(request):
 def generateBoxInfo(request):
     if request.method == 'POST':
         boxNumber = request.POST.get('boxNumber', '')
-        dateTime = request.POST.get('dateTime', '')
 
-        boxInfoFileName = createBoxInfo(boxNumber, dateTime)
-        box_dir = os.path.join(settings.DATA_DIRS['box_dir'], str(boxNumber))
-        file_path = os.path.join(box_dir, boxInfoFileName)
+        file_str = createBoxInfo(boxNumber=boxNumber)
 
         # downloadURL = ''
         # downloadURL = downloadURL + u'<a href="generateBoxInfo/?boxNumber={0}&boxInfoFileName={1}" style="margin-right:20px">{2}</a>'.format(
         #     boxNumber, boxInfoFileName, boxInfoFileName)
-
         ret = {
             'success': True,
             # 'downloadURL': downloadURL,
-            'file_path': file_path,
+            'file_path': file_str,
         }
         log.log(user=request.user, operationType=u'业务操作', content=u'打印装箱清单')
         ret_json = json.dumps(ret, separators=(',', ':'))
@@ -1089,7 +718,7 @@ def exploreBox(request):
     page = int(request.POST.get('page', ''))
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-    prop = box.property
+    prop = box.boxType
     type = prop.type
     parentType = prop.parentType
     grandpaType = prop.grandpaType
@@ -1239,7 +868,7 @@ def getStatusData(request):
     workSeq = request.POST.get('workSeq', '')
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-    prop = box.property
+    prop = box.boxType
     type = prop.type
     parentType = prop.parentType
     grandpaType = prop.grandpaType
@@ -1316,8 +945,9 @@ def print_service(request):
 
     try:
         for file_path in file_path_list:
+            print file_path_list
             print win32print.GetDefaultPrinter()
-            # win32api.ShellExecute(0,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter (),".",0)
+            # win32api.ShellExecute(None,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter(),"\\",0)
     except Exception as e:
         ret = {
             'success': False,
@@ -1330,144 +960,19 @@ def print_service(request):
         }
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
-
-
 def print_pic(request):
-    # "Standard" win32 printer capability values:
-    #    HORZSIZE	        : width of full page in mm
-    #    VERTSIZE		    : height of full page in mm
-    #    HORZRES            : device units in width of printable area
-    #    VERTRES            : device units in height of printable area
-    #    PHYSICALWIDTH      : device units in full page width
-    #    PHYSICALHEIGHT     : device units in full page height
-    #    PHYSICALOFFSETX    : left device margin of unprintable area
-    #    PHYSICALOFFSETY    : top device margin of unprintable area
-    #    LOGPIXELSX         : device units per inch of horoz. axis (usually the DPI of the printer)
-    #    LOGPIXELSY         : device units per inch of vert. axis (usually the DPI of the printer)
+    workName = request.POST.get('workName', '')
     try:
-        print 'uuuu'
-    #     # HORZRES / VERTRES = printable area
-    #     HORZRES = 8
-    #     VERTRES = 10
-    #     # LOGPIXELS = dots per inch
-    #     LOGPIXELSX = 88
-    #     LOGPIXELSY = 90
-    #     # PHYSICALWIDTH/HEIGHT = total area
-    #     PHYSICALWIDTH = 110
-    #     PHYSICALHEIGHT = 111
-    #     # PHYSICALOFFSETX/Y = left / top margin
-    #     PHYSICALOFFSETX = 112
-    #     PHYSICALOFFSETY = 113
-    #
-    #     printer_name = win32print.GetDefaultPrinter()
-    #     file_name = r"G:/items/BullionCheckSys/gsinfosite/data/tag/serialNumber2/1/wufjTN4o2X.png"
-    #
-    #     # You can only write a Device-independent bitmap
-    #     #  directly to a Windows device context; therefore
-    #     #  we need (for ease) to use the Python Imaging
-    #     #  Library to manipulate the image.
-    #     #
-    #     # Create a device context from a named printer
-    #     #  and assess the printable size of the paper.
-    #
-    #     hDC = win32ui.CreateDC()
-    #     hDC.CreatePrinterDC(printer_name)
-    #     printable_area = hDC.GetDeviceCaps(HORZRES), hDC.GetDeviceCaps(VERTRES)
-    #     printer_size = hDC.GetDeviceCaps(PHYSICALWIDTH), hDC.GetDeviceCaps(PHYSICALHEIGHT)
-    #     printer_margins = hDC.GetDeviceCaps(PHYSICALOFFSETX), hDC.GetDeviceCaps(PHYSICALOFFSETY)
-    #
-    #     #
-    #     # Open the image, rotate it if it's wider than
-    #     #  it is high, and work out how much to multiply
-    #     #  each pixel by to get it as big as possible on
-    #     #  the page without distorting.
-    #     #
-    #     bmp = Image.open(file_name,mode="r")
-    #     if bmp.size[0] > bmp.size[1]:
-    #         bmp = bmp.rotate(90)
-    #
-    #     # ratios = [1.0 * printable_area[0] / bmp.size[0], 1.0 * printable_area[1] / bmp.size[1]]
-    #     # scale = min(ratios)
-    #
-    #     #
-    #     # Start the print job, and draw the bitmap to
-    #     #  the printer device at the scaled size.
-    #     #
-    #     hDC.StartDoc(file_name)
-    #     hDC.StartPage()
-    #
-    #     dib = ImageWin.Dib(bmp)
-    #     scaled_width, scaled_height = [int(4*i) for i in bmp.size]  # 对原始图片放大n倍
-    #     x1 = int((printer_size[0] - scaled_width) / 4)
-    #     y1 = int((printer_size[1] - scaled_height) / 4)
-    #     x2 = x1 + scaled_width
-    #     y2 = y1 + scaled_height
-    #     dib.draw(hDC.GetHandleOutput(), (x1, y1, x2, y2))
-    #
-    #     hDC.EndPage()
-    #     hDC.EndDoc()
-    #     hDC.DeleteDC()
-        # HORZRES / VERTRES = printable area
-        HORZRES = 8
-        VERTRES = 10
-        # LOGPIXELS = dots per inch
-        LOGPIXELSX = 88
-        LOGPIXELSY = 90
-        # PHYSICALWIDTH/HEIGHT = total area
-        PHYSICALWIDTH = 110
-        PHYSICALHEIGHT = 111
-        # PHYSICALOFFSETX/Y = left / top margin
-        PHYSICALOFFSETX = 112
-        PHYSICALOFFSETY = 113
-
-        printer_name = win32print.GetDefaultPrinter()
-        file_name = r"G:/items/BullionCheckSys/gsinfosite/data/tag/serialNumber2/1/wufjTN4o2X.png"
-
-        # You can only write a Device-independent bitmap
-        #  directly to a Windows device context; therefore
-        #  we need (for ease) to use the Python Imaging
-        #  Library to manipulate the image.
-        #
-        # Create a device context from a named printer
-        #  and assess the printable size of the paper.
-
-        hDC = win32ui.CreateDC()
-        hDC.CreatePrinterDC(printer_name)
-        printable_area = hDC.GetDeviceCaps(HORZRES), hDC.GetDeviceCaps(VERTRES)
-        printer_size = hDC.GetDeviceCaps(PHYSICALWIDTH), hDC.GetDeviceCaps(PHYSICALHEIGHT)
-        printer_margins = hDC.GetDeviceCaps(PHYSICALOFFSETX), hDC.GetDeviceCaps(PHYSICALOFFSETY)
-
-        #
-        # Open the image, rotate it if it's wider than
-        #  it is high, and work out how much to multiply
-        #  each pixel by to get it as big as possible on
-        #  the page without distorting.
-        #
-        bmp = Image.open(file_name, mode="r")
-        if bmp.size[0] > bmp.size[1]:
-            bmp = bmp.rotate(90)
-
-        # ratios = [1.0 * printable_area[0] / bmp.size[0], 1.0 * printable_area[1] / bmp.size[1]]
-        # scale = min(ratios)
-
-        #
-        # Start the print job, and draw the bitmap to
-        #  the printer device at the scaled size.
-        #
-        hDC.StartDoc(file_name)
-        hDC.StartPage()
-
-        dib = ImageWin.Dib(bmp)
-        scaled_width, scaled_height = [int(4 * i) for i in bmp.size]  # 对原始图片放大n倍
-        x1 = int((printer_size[0] - scaled_width) / 4)
-        y1 = int((printer_size[1] - scaled_height) / 4)
-        x2 = x1 + scaled_width
-        y2 = y1 + scaled_height
-        dib.draw(hDC.GetHandleOutput(), (x1, y1, x2, y2))
-
-        hDC.EndPage()
-        hDC.EndDoc()
-        hDC.DeleteDC()
+        work = gsWork.objects.get(workName=workName)
+        thing_set = gsThing.objects.filter(work=work)
+        for thing in thing_set:
+            serialNumber = thing.serialNumber
+            # 生成二维码图片
+            file_path = createQRCode(serialNumber)
+            # 开始打印
+            print_work(file_path)
+            # 删除打印成功的二维码图片
+            os.remove(file_path)
     except Exception as e:
         ret = {
             'success': False,
@@ -1481,14 +986,56 @@ def print_pic(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
+def print_work(file_path):
+    # HORZRES / VERTRES = printable area
+    HORZRES = 8
+    VERTRES = 10
+    # LOGPIXELS = dots per inch
+    LOGPIXELSX = 88
+    LOGPIXELSY = 90
+    # PHYSICALWIDTH/HEIGHT = total area
+    PHYSICALWIDTH = 110
+    PHYSICALHEIGHT = 111
+    # PHYSICALOFFSETX/Y = left / top margin
+    PHYSICALOFFSETX = 112
+    PHYSICALOFFSETY = 113
+
+    printer_name = win32print.GetDefaultPrinter()
+    # Create a device context from a named printer and assess the printable size of the paper.
+    hDC = win32ui.CreateDC()
+    hDC.CreatePrinterDC(printer_name)
+    printable_area = hDC.GetDeviceCaps(HORZRES), hDC.GetDeviceCaps(VERTRES)
+    printer_size = hDC.GetDeviceCaps(PHYSICALWIDTH), hDC.GetDeviceCaps(PHYSICALHEIGHT)
+    printer_margins = hDC.GetDeviceCaps(PHYSICALOFFSETX), hDC.GetDeviceCaps(PHYSICALOFFSETY)
+
+    bmp = Image.open(file_path, mode="r")
+
+    if bmp.size[0] > bmp.size[1]:
+        bmp = bmp.rotate(90)
+
+    # Start the print job, and draw the bitmap to the printer device at the scaled size.
+    hDC.StartDoc(file_path)
+    hDC.StartPage()
+
+    dib = ImageWin.Dib(bmp)
+    scaled_width, scaled_height = [int(4 * i) for i in bmp.size]  # 对原始图片放大n倍
+    x1 = int((printer_size[0] - scaled_width) / 4)
+    y1 = int((printer_size[1] - scaled_height) / 4)
+    x2 = x1 + scaled_width
+    y2 = y1 + scaled_height
+    dib.draw(hDC.GetHandleOutput(), (x1, y1, x2, y2))
+
+    hDC.EndPage()
+    hDC.EndDoc()
+    hDC.DeleteDC()
 
 def print_auth(request):
     userName = request.POST.get('user', '')  # 系统负责人用户名
     password = request.POST.get('password', '')  # 系统负责人密码
 
-    custom_user = gsUser.objects.get(userName=userName,auth=1)
+    custom_user = gsUser.objects.filter(userName=userName,auth=1)
     if custom_user:
-        username = custom_user.user.username
+        username = custom_user[0].user.username
         user = auth.authenticate(username=username, password=password)
         if user:  # 通过系统管理员授权后先打印二维码后封箱入库
             ret = {
@@ -1515,13 +1062,6 @@ def getCloseThing(request):
     wareHouse = request.POST.get('wareHouse', '')  # 发行库
     pageSize = int(request.POST.get('rows', ''))
     page = int(request.POST.get('page', ''))
-
-    # if '-' in boxOrSubBox:
-    #     boxNumber = int(boxOrSubBox.split('-')[0])
-    #     subBoxNumber = int(boxOrSubBox.split('-')[1])
-    # else:
-    #     boxNumber = int(boxOrSubBox)
-    #     subBoxNumber = ''
 
     box = gsBox.objects.get(boxNumber=boxNumber)
     works = gsWork.objects.filter(box=box)
