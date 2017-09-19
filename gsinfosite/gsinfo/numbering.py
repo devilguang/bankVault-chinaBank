@@ -20,41 +20,37 @@ def numbering(request):
 def getNumberingInfo(request):
     serialNumber = request.GET.get('serialNumber', '')
 
-    ret = {}
-    thing = gsThing.objects.get(serialNumber=serialNumber)
-    ret['detailedName'] = thing.detailedName
-    ret['peroid'] = thing.peroid
-    ret['originalQuantity'] = thing.originalQuantity
-    ret['typeName'] = thing.typeName
-    ret['carveName'] = thing.carveName
-    ret['remark'] = thing.remark
-    ret['quality'] = thing.quality
-    ret['level'] = thing.level
+    ret = []
+    field_list = {'level':'等级',
+                  'detailedName':'名称',
+                  'peroid': '年代',
+                  'year': '年份',
+                  'country': '国别',
+                  'faceAmount': '面值',
+                  'dingSecification': '规格',
+                  'zhangType': '性质',
+                  'shape': '名称',
+                  'appearance': '品相',
+                  'mark': '铭文',
+                  'originalQuantity': '成色',
+                  }
 
-    level = models.CharField(verbose_name='评价等级', max_length=255, blank=True)
-    detailedName = models.CharField(verbose_name='名称', max_length=1024, blank=True)
-    peroid = models.CharField(verbose_name='年代', max_length=255, blank=True)
-    year = models.CharField(verbose_name='年份', max_length=255, blank=True)
-    country = models.CharField(verbose_name='国别', max_length=512, blank=True)
-    faceAmount = models.CharField(verbose_name='面值', max_length=512, blank=True)
-    dingSecification = models.CharField(verbose_name='规格', max_length=512, blank=True)
-    zhangType = models.CharField(verbose_name='性质', max_length=512, blank=True)
+    prop_list =  ['level','detailedName','peroid','country','faceAmount','dingSecification','zhangType','shape',
+                  'appearance']
     shape = models.CharField(verbose_name='工艺品类器型（型制）', max_length=512, blank=True)
-    appearance = models.CharField(verbose_name='品相（完残程度）', max_length=255, blank=True)
-    mark = models.CharField(verbose_name='铭文（文字信息）', max_length=512, blank=True)
-    grossWeight = models.FloatField(verbose_name='毛重', null=True)
-    pureWeight = models.FloatField(verbose_name='纯重', null=True)
-    originalQuantity = models.FloatField(verbose_name='原标注成色', null=True)
-    detectedQuantity = models.FloatField(verbose_name='频谱检测成色', null=True)
-    amount = models.PositiveIntegerField(verbose_name='件（枚）数', null=True)
-    length = models.FloatField(verbose_name='长度', null=True)
-    width = models.FloatField(verbose_name='宽度', null=True)
-    height = models.FloatField(verbose_name='高度', null=True)
+
+    for field in field_list:
+        detail={}
+        thing = gsThing.objects.filter(serialNumber=serialNumber)
+        code = thing.values(field)
+        if field in prop_list:
+            gsProperty.objects.get(project=jj)
+
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
 def getReadyInfo(request):
-    field = request.POST.get('field', '')
+    field = request.Get.get('field', '')
     ret = []
     type_list = list(gsProperty.objects.filter(project=field).values_list('type',flat=True))
     code_list = list(gsProperty.objects.filter(project=field).values_list('code', flat=True))
@@ -68,50 +64,39 @@ def getReadyInfo(request):
 
 def updateNumberingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
-    boxOrSubBox = request.POST.get('boxNumber', '')
+    boxNumber = request.POST.get('boxNumber', '')
     productType = request.POST.get('productType', '')
     className = request.POST.get('className', '')
     subClassName = request.POST.get('subClassName', '')
     wareHouse = request.POST.get('wareHouse', '')
-    detailedName = request.POST.get('detailedName', '')
-    typeName = request.POST.get('typeName', '')
-    peroid = request.POST.get('peroid', '')
-    producer = request.POST.get('producer', '')
-    producePlace = request.POST.get('producePlace', '')
-    carveName = request.POST.get('carveName', '')
-    originalQuantity = request.POST.get('originalQuantity', '')
-    versionName = request.POST.get('versionName', '')
-    value = request.POST.get('value', '')
-    marginShape = request.POST.get('marginShape', '')
-    quality = request.POST.get('quality', '')
     level = request.POST.get('level', '')
+    detailedName = request.POST.get('detailedName', '')
+    peroid = request.POST.get('peroid', '')
+    year = request.POST.get('year', '')
+    country = request.POST.get('country', '')
+    faceAmount = request.POST.get('faceAmount', '')
+    dingSecification = request.POST.get('dingSecification', '')
+    zhangType = request.POST.get('zhangType', '')
+    shape = request.POST.get('shape', '')
+    appearance = request.POST.get('appearance', '')
+    mark = request.POST.get('mark', '')
+    originalQuantity = request.POST.get('originalQuantity', '')
     remark = request.POST.get('remark', '')
+
     operator = request.POST.get('operator', '')
     workSeq = request.POST.get('workSeq', '')  # 更新单件实物信息是workSeq不传值，设置缺省信息是传值
+
     if originalQuantity != '':
         originalQuantity = float(originalQuantity)
 
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-
     box = gsBox.objects.get(boxNumber=boxNumber)
-    if subBoxNumber == '':
-        if serialNumber == '' and workSeq != '':
-            work = gsWork.objects.get(box=box, workSeq=workSeq)
-            thing_set = gsThing.objects.filter(work=work)
-        elif serialNumber != '' and workSeq == '':
-            thing_set = gsThing.objects.filter(serialNumber=serialNumber)
-    else:
-        if serialNumber == '' and workSeq != '':
-            subBox = gsSubBox.objects.get(box=box, subBoxNumber=subBoxNumber)
-            work = gsWork.objects.get(box=box, workSeq=workSeq, subBox=subBox)
-            thing_set = gsThing.objects.filter(work=work)
-        elif serialNumber != '' and workSeq == '':
-            thing_set = gsThing.objects.filter(serialNumber=serialNumber)
+    
+    if serialNumber == '' and workSeq != '':
+        work = gsWork.objects.get(box=box, workSeq=workSeq)
+        thing_set = gsThing.objects.filter(work=work)
+    elif serialNumber != '' and workSeq == '':
+        thing_set = gsThing.objects.filter(serialNumber=serialNumber)
+
     ret = {}
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'实物外观信息更新')
