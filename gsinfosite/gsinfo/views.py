@@ -282,6 +282,7 @@ def getThingInfo(request):
     dingList = ['锭']
     shapeList = ['工']
     zhangTypeList = ['章']
+
     ret['detailedName'] = thing.detailedName
     ret['level'] = thing.originalQuantity
     ret['peroid'] = thing.peroid
