@@ -28,10 +28,10 @@ function delCookie(name) {
 
 function loadDataProcess(node, data) {
     // $.messager.alert('提示', 'ok');
-    var n = data.length
+    var n = data.length;
     for (var i = 0; i < n; ++i) {
-        var m = data[i].children.length
-        var works = data[i].children
+        var m = data[i].children.length;
+        var works = data[i].children;
         for (var j = 0; j < m; ++j) {
             // find a work node and then select it
             var node = $('#workSpaceTree').tree('find', works[j].id);
@@ -57,8 +57,8 @@ function changeInputValue(idName, getIdName, productKey) {
                 for (var i = 0; i < vArray.length; i++) {
                     var optionList = document.createElement('option');
                     optionList.value = vArray[i];
-                    getIdName.appendChild(optionList)
-                   $('#workGrid' + node.id).datagrid('reload');
+                    getIdName.appendChild(optionList);
+                    $('#workGrid' + node.id).datagrid('reload');
                 }
             } else {
 
@@ -83,7 +83,7 @@ function treeSelectHandler(node) {
      }*/
     var workSeq = node.attributes.workSeq;
     var boxNumber = node.attributes.boxNumber;
-    var c = '<table id="workGrid' + id + '" class="easyui-datagrid" data-options="url:\'getWorkData/' + workSeq + '\', queryParams:{processId: $(\'#processId\').val(), boxNumber: \'' + boxNumber + '\', subBoxNumber: \'' + subBoxNumber + '\', thingStatus: \'notComplete\'}, toolbar:\'#workGridToolBar' + id + '\', singleSelect:true, fitColumns:true, loaded:false, rownumbers:true, loadMsg:\'' + title + '作业数据正在载入，请稍后...\', onDblClickRow:dbClickRow, pagination:true, fit:true, pageSize:20,"><thead><tr><th field="boxNumber" align="center">箱号</th><th field="serialNumber" align="center">实物编号</th><th field="productType" align="center">类别</th><th field="className" align="center">品类</th><th field="subClassName" align="center">品名</th><th field="wareHouse" align="center">发行库</th><th field="status" formatter="statusFormatter" align="center">是否已更新</th><th field="operator" formatter="operatorFormatter" align="center">操作员</th><th field="lastUpdateTime" formatter="lastUpdateTimeFormatter" align="center">最新一次更新时间</th></tr></thead></table><div id="workGridToolBar' + id + '"><label for="workGrid' + id + 'StatusCombobox" style="margin-left:5px;margin-right:5px;">状态</label><input id="workGrid' + id + 'StatusCombobox" style="margin-right:20px;padding-top:5px;" /><a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="javascript:batchUpdateInfo(' + id + ')">信息缺省设置</a><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGrid' + id + '\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function dbClickRow(index, row){/*$.messager.alert(\'提示\', \'select\'+index);*/ updateInfo(index, row); } function initPagination(){$(\'#workGrid' + id + '\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});} function initToolbar(){ $(\'#workGrid' + id + 'StatusCombobox\').combobox({valueField: \'id\', textField: \'text\', editable: false, data: [{id: \'notComplete\', text: \'未完成\'}, {id: \'all\', text: \'全部\'}, {id: \'complete\', text: \'已完成\'}, ], panelHeight: \'auto\', \'onSelect\':function(record){ $(\'#workGrid' + id + '\').datagrid(\'options\').queryParams[\'thingStatus\'] = record.id; $(\'#workGrid' + id + '\').datagrid(\'reload\'); },}).combobox(\'setValue\', \'notComplete\'); }</script>';
+    var c = '<table id="workGrid' + id + '" class="easyui-datagrid" data-options="url:\'getWorkData/' + workSeq + '\', queryParams:{processId: $(\'#processId\').val(), boxNumber: \'' + boxNumber + '\', subBoxNumber: \'' + subBoxNumber + '\', thingStatus: \'notComplete\'}, toolbar:\'#workGridToolBar' + id + '\', singleSelect:true, fitColumns:true, loaded:false, rownumbers:true, loadMsg:\'' + title + '作业数据正在载入，请稍后...\', onDblClickRow:dbClickRow, pagination:true, fit:true, pageSize:20,"><thead><tr><th field="boxNumber" align="center">箱号</th><th field="serialNumber" align="center">实物流水号</th><th field="productType" align="center">类别</th><th field="className" align="center">品类</th><th field="subClassName" align="center">品名</th><th field="wareHouse" align="center">发行库</th><th field="status" formatter="statusFormatter" align="center">是否已更新</th><th field="operator" formatter="operatorFormatter" align="center">操作员</th><th field="lastUpdateTime" formatter="lastUpdateTimeFormatter" align="center">最新一次更新时间</th></tr></thead></table><div id="workGridToolBar' + id + '"><label for="workGrid' + id + 'StatusCombobox" style="margin-left:5px;margin-right:5px;">状态</label><input id="workGrid' + id + 'StatusCombobox" style="margin-right:20px;padding-top:5px;" /><a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="javascript:batchUpdateInfo(' + id + ')">信息缺省设置</a><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGrid' + id + '\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function dbClickRow(index, row){/*$.messager.alert(\'提示\', \'select\'+index);*/ updateInfo(index, row); } function initPagination(){$(\'#workGrid' + id + '\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});} function initToolbar(){ $(\'#workGrid' + id + 'StatusCombobox\').combobox({valueField: \'id\', textField: \'text\', editable: false, data: [{id: \'notComplete\', text: \'未完成\'}, {id: \'all\', text: \'全部\'}, {id: \'complete\', text: \'已完成\'}, ], panelHeight: \'auto\', \'onSelect\':function(record){ $(\'#workGrid' + id + '\').datagrid(\'options\').queryParams[\'thingStatus\'] = record.id; $(\'#workGrid' + id + '\').datagrid(\'reload\'); },}).combobox(\'setValue\', \'notComplete\'); }</script>';
     addTab(id, title, c);
     initPagination();
     initToolbar();
@@ -221,8 +221,45 @@ function saveBatchUpdateInfo() {
     });
     $('#BatchUpdateInfoForm').submit();
 }
+function traverseArr(array, subClassName) {
+    array.forEach(function (item, index) {
+        if (subClassName == item) {
+
+        }
+    })
+}
+
 
 function initUpdateInfoDlg(row) {
+    var subClassName = row.subClassName;
+    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元', '外国银元'];
+    var dianArr = ['锭'];
+    var gong = ['工'];
+    var zhang = ['章'];
+    subArr.forEach(function (item, index) {
+        if (subClassName == item) {
+            $("#shape").css("display", "block");
+            $("#dingSecification").css("display", "block");
+            $("#shape1").css("display", "block");
+            $("#zhangType").css("display", "block");
+        }
+    });
+    dianArr.forEach(function (item) {
+        if (subClassName == item) {
+            $("#shape1").css("display", "block"); //型制
+            $("#dingSecification").css("display", "block");//规格
+        }
+    });
+    gong.forEach(function (item) {
+        if (subClassName == item) {
+            $("#shape").css("display", "block"); //器型
+        }
+    });
+    zhang.forEach(function (item) {
+        if (subClassName == item) {
+            $("#zhangType").css("display", "block"); //器型
+        }
+    });
     if (row.status == 1) {
         $('#editBtn').attr('style', 'width:90px');
         $('#saveBtn').attr('style', 'width:90px; display:none;');
@@ -232,68 +269,69 @@ function initUpdateInfoDlg(row) {
         $('#editBtn').attr('style', 'width:90px; display:none;');
         $('#saveBtn').attr('style', 'width:90px');
     }
-    if (row.productType == '金银币章类') {
-        $('#typeName').attr({'style': 'display:none'});
-        $('#carveName').attr({'style': 'display:none'});
-        $('#marginShape').attr({'style': 'display:none'});
 
-        if (row.status == 1) {
-            $('#UpdateInfo-versionName').textbox('readonly', true);
-            $('#UpdateInfo-value').textbox('readonly', true);
-            $('#UpdateInfo-detailedName').textbox('readonly', true);
-            $('#UpdateInfo-peroid').textbox('readonly', true);
-            $('#UpdateInfo-originalQuantity').textbox('readonly', true);
-            $('#UpdateInfo-producePlace').textbox('readonly', true);
-            $('#UpdateInfo-producer').textbox('readonly', true);
-        }
-    }
-    if (row.productType == '银元类') {
-        $('#detailedName').attr({'style': 'display:none'});
-        $('#typeName').attr({'style': 'display:none'});
-        $('#peroid').attr({'style': 'display:none'});
-        $('#carveName').attr({'style': 'display:none'});
-        $('#originalQuantity').attr({'style': 'display:none'});
-        $('#marginShape').attr({'style': 'display:none'});
-
-        if (row.status == 1) {
-            $('#UpdateInfo-versionName').textbox('readonly', true);
-            $('#UpdateInfo-value').textbox('readonly', true);
-            $('#UpdateInfo-producePlace').textbox('readonly', true);
-            $('#UpdateInfo-producer').textbox('readonly', true);
-        }
-    }
-
-    if (row.productType == '金银工艺品类') {
-        $('#typeName').attr({'style': 'display:none'});
-        $('#producePlace').attr({'style': 'display:none'});
-        $('#producer').attr({'style': 'display:none'});
-        $('#carveName').attr({'style': 'display:none'});
-        $('#versionName').attr({'style': 'display:none'});
-        $('#value').attr({'style': 'display:none'});
-        $('#marginShape').attr({'style': 'display:none'});
-
-        if (row.status == 1) {
-            $('#UpdateInfo-detailedName').textbox('readonly', true);
-            $('#UpdateInfo-peroid').textbox('readonly', true);
-            $('#UpdateInfo-originalQuantity').textbox('readonly', true);
-        }
-    }
-
-    if (row.productType == '金银锭类') {
-        $('#versionName').attr({'style': 'display:none'});
-        $('#value').attr({'style': 'display:none'});
-        $('#marginShape').attr({'style': 'display:none'});
-
-        if (row.status == 1) {
-            $('#UpdateInfo-detailedName').textbox('readonly', true);
-            $('#UpdateInfo-peroid').textbox('readonly', true);
-            $('#UpdateInfo-originalQuantity').textbox('readonly', true);
-            $('#UpdateInfo-producePlace').textbox('readonly', true);
-            $('#UpdateInfo-producer').textbox('readonly', true);
-            $('#UpdateInfo-typeName').textbox('readonly', true);
-            $('#UpdateInfo-carveName').textbox('readonly', true);
-        }
-    }
+    // if (row.productType == '金银币章类') {
+    //     $('#typeName').attr({'style': 'display:none'});
+    //     $('#carveName').attr({'style': 'display:none'});
+    //     $('#marginShape').attr({'style': 'display:none'});
+    //
+    //     if (row.status == 1) {
+    //         $('#UpdateInfo-versionName').textbox('readonly', true);
+    //         $('#UpdateInfo-value').textbox('readonly', true);
+    //         $('#UpdateInfo-detailedName').textbox('readonly', true);
+    //         $('#UpdateInfo-peroid').textbox('readonly', true);
+    //         $('#UpdateInfo-originalQuantity').textbox('readonly', true);
+    //         $('#UpdateInfo-producePlace').textbox('readonly', true);
+    //         $('#UpdateInfo-producer').textbox('readonly', true);
+    //     }
+    // }
+    // if (row.productType == '银元类') {
+    //     $('#detailedName').attr({'style': 'display:none'});
+    //     $('#typeName').attr({'style': 'display:none'});
+    //     $('#peroid').attr({'style': 'display:none'});
+    //     $('#carveName').attr({'style': 'display:none'});
+    //     $('#originalQuantity').attr({'style': 'display:none'});
+    //     $('#marginShape').attr({'style': 'display:none'});
+    //
+    //     if (row.status == 1) {
+    //         $('#UpdateInfo-versionName').textbox('readonly', true);
+    //         $('#UpdateInfo-value').textbox('readonly', true);
+    //         $('#UpdateInfo-producePlace').textbox('readonly', true);
+    //         $('#UpdateInfo-producer').textbox('readonly', true);
+    //     }
+    // }
+    //
+    // if (row.productType == '金银工艺品类') {
+    //     $('#typeName').attr({'style': 'display:none'});
+    //     $('#producePlace').attr({'style': 'display:none'});
+    //     $('#producer').attr({'style': 'display:none'});
+    //     $('#carveName').attr({'style': 'display:none'});
+    //     $('#versionName').attr({'style': 'display:none'});
+    //     $('#value').attr({'style': 'display:none'});
+    //     $('#marginShape').attr({'style': 'display:none'});
+    //
+    //     if (row.status == 1) {
+    //         $('#UpdateInfo-detailedName').textbox('readonly', true);
+    //         $('#UpdateInfo-peroid').textbox('readonly', true);
+    //         $('#UpdateInfo-originalQuantity').textbox('readonly', true);
+    //     }
+    // }
+    //
+    // if (row.productType == '金银锭类') {
+    //     $('#versionName').attr({'style': 'display:none'});
+    //     $('#value').attr({'style': 'display:none'});
+    //     $('#marginShape').attr({'style': 'display:none'});
+    //
+    //     if (row.status == 1) {
+    //         $('#UpdateInfo-detailedName').textbox('readonly', true);
+    //         $('#UpdateInfo-peroid').textbox('readonly', true);
+    //         $('#UpdateInfo-originalQuantity').textbox('readonly', true);
+    //         $('#UpdateInfo-producePlace').textbox('readonly', true);
+    //         $('#UpdateInfo-producer').textbox('readonly', true);
+    //         $('#UpdateInfo-typeName').textbox('readonly', true);
+    //         $('#UpdateInfo-carveName').textbox('readonly', true);
+    //     }
+    // }
 
 }
 function unInitUpdateInfoDlg() {
@@ -343,11 +381,11 @@ function updateInfo(index, row) {
         url: 'getThingInfo/',
         type: 'post',
         data: {
-            productType: row.productType,
+            subClassName: row.subClassName,
             serialNumber: row.serialNumber
         }, success: function (data) {
-            var data = JSON.parse(data)
-            if (row.productType == "金银锭类") {
+            var data = JSON.parse(data);
+            if (row.subClassName == "金银锭类") {
                 $('#UpdateInfoForm').form('load', {
                     serialNumber: row.serialNumber,
                     productType: row.productType,
@@ -587,7 +625,7 @@ function saveUpdateInfo() {
                     msg: result.message
                 });
             } else {
-                $('#workGrid1').datagrid('reload')
+                $('#workGrid1').datagrid('reload');
                 $('#UpdateInfoDlg').dialog('close');        	 // 关闭对话框
                 $.messager.show({		// 显示成功信息
                     title: '提示',

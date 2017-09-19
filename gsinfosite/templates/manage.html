@@ -271,7 +271,7 @@
         }
     </style>
 
-    <title>现场负责人</title>
+    <title>实物分发岗位</title>
 </head>
 <body>
 <div class="easyui-layout" data-options="width:1022, height:755" style="margin: 0 auto;">
@@ -676,7 +676,7 @@
                 <th>箱号</th>
                 <td><span id="addToExistingBoxBoxNumber"></span></td>
 
-                <th>实物类型</th>
+                <th>类别</th>
                 <td><span id="addToExistingBoxProductType"></span></td>
             </tr>
 
@@ -695,10 +695,10 @@
             </tr>
 
             <tr>
-                <th>品名</th>
+                <th>品类</th>
                 <td><span id="addToExistingBoxClassName"></span></td>
 
-                <th>明细品名</th>
+                <th>品名</th>
                 <td><span id="addToExistingBoxSubClassName"></span></td>
             </tr>
 
@@ -1278,7 +1278,7 @@
                 <input id="property-project" name="project" class="easyui-combobox" data-options="
 						valueField: 'label',
 						textField: 'value',
-						data: [{label: '实物类型', value: '实物类型'},{label: '品名', value: '品名'},{label: '明细品名', value: '明细品名'},{label: '发行库', value: '发行库'}],
+						data: [{label: '类别', value: '类别'},{label: '品名', value: '品名'},{label: '品名', value: '品名'},{label: '发行库', value: '发行库'}],
 						editable: false,
 						panelHeight: 'auto',
 					">
@@ -1287,18 +1287,18 @@
         <div id="step2">
             <div id="productType">
                 <div class="FormItem">
-                    <label for="property-productType-productType">实物类型名称</label>
+                    <label for="property-productType-productType">类别名称</label>
                     <input id="property-productType-productType" name="productType-productType" class="easyui-textbox">
                 </div>
                 <div class="FormItem">
-                    <label for="property-productTypeCode">实物类型编码</label>
+                    <label for="property-productTypeCode">类别编码</label>
                     <input id="property-productTypeCode" name="productTypeCode" class="easyui-textbox">
                 </div>
             </div>
 
             <div id="className">
                 <div class="FormItem">
-                    <label for="property-className-productType">实物类型</label>
+                    <label for="property-className-productType">类别</label>
                     <input id="property-className-productType" name="className-productType" class="easyui-combobox"
                            data-options="
 							valueField: 'id',
@@ -1309,18 +1309,18 @@
 						">
                 </div>
                 <div class="FormItem">
-                    <label for="property-className-className">品名名称</label>
+                    <label for="property-className-className">品类</label>
                     <input id="property-className-className" name="className-className" class="easyui-textbox">
                 </div>
                 <div class="FormItem">
-                    <label for="property-classNameCode">品名编码</label>
+                    <label for="property-classNameCode">品类编码</label>
                     <input id="property-classNameCode" name="classNameCode" class="easyui-textbox">
                 </div>
             </div>
 
             <div id="subClassName">
                 <div class="FormItem">
-                    <label for="property-subClassName-productType">实物类型</label>
+                    <label for="property-subClassName-productType">类别</label>
                     <input id="property-subClassName-productType" name="subClassName-productType"
                            class="easyui-combobox" data-options="
 							valueField: 'id',
@@ -1336,7 +1336,7 @@
 						">
                 </div>
                 <div class="FormItem">
-                    <label for="property-subClassName-className">品名</label>
+                    <label for="property-subClassName-className">品类</label>
                     <input id="property-subClassName-className" name="subClassName-className" class="easyui-combobox"
                            data-options="
 							valueField: 'id',
@@ -1345,12 +1345,12 @@
 						">
                 </div>
                 <div class="FormItem">
-                    <label for="property-subClassName-subClassName">明细品名名称</label>
+                    <label for="property-subClassName-subClassName">品名名称</label>
                     <input id="property-subClassName-subClassName" name="subClassName-subClassName"
                            class="easyui-textbox">
                 </div>
                 <div class="FormItem">
-                    <label for="property-subClassNameCode">明细品名编码</label>
+                    <label for="property-subClassNameCode">品名编码</label>
                     <input id="property-subClassNameCode" name="subClassNameCode" class="easyui-textbox">
                 </div>
             </div>
