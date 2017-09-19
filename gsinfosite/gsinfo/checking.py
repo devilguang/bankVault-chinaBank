@@ -93,123 +93,46 @@ def getDurationCompleteThingAmount(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
-
-# def updateCheckingInfo(request):
-#     serialNumber = request.POST.get('serialNumber', '')
-#     operator = request.POST.get('operator', '')
-#
-#     try:
-#         # 检测作业是否可用
-#         thing = gsThing.objects.get(serialNumber=serialNumber)
-#         thing_status = gsStatus.objects.get(thing=thing)
-#         if thing_status.status == 0:
-#             # 作业不可用
-#             raise ValueError(u'作业不可用！请联系实物分发岗位进行分发，并刷新页面！')
-#
-#         # now = datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
-#         now = datetime.now()
-#         gsStatus.objects.filter(thing=thing).update(checkingStatus=True, checkingOperator=operator,
-#                                                                   checkingUpdateDateTime=now)
-#     except Exception as e:
-#         ret = {
-#             'success': False,
-#             'message': u'复核失败！\n原因: {0}'.format(e.message)
-#         }
-#     else:
-#         ret = {
-#             'success': True,
-#             'message': u'实物{0}复核通过！\n审核员: {1}'.format(serialNumber, operator)
-#         }
-#
-#     ret_json = json.dumps(ret, separators=(',', ':'))
-#
-#     return HttpResponse(ret_json)
-def updateCheckingInfo(request):
+def updateNumberingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
-    boxOrSubBox = request.POST.get('boxNumber', '')
-    productType = request.POST.get('productType', '')
-    className = request.POST.get('className', '')
-    subClassName = request.POST.get('subClassName', '')
-    wareHouse = request.POST.get('wareHouse', '')
-    detailedName = request.POST.get('detailedName', '')
-    typeName = request.POST.get('typeName', '')
-    peroid = request.POST.get('peroid', '')
-    producer = request.POST.get('producer', '')
-    producePlace = request.POST.get('producePlace', '')
-    carveName = request.POST.get('carveName', '')
-    originalQuantity = request.POST.get('originalQuantity', '')
-    versionName = request.POST.get('versionName', '')
-    value = request.POST.get('value', '')
-    marginShape = request.POST.get('marginShape', '')
-    quality = request.POST.get('quality', '')
+    # -----------------------------------------------
     level = request.POST.get('level', '')
+    detailedName = request.POST.get('detailedName', '')
+    peroid = request.POST.get('peroid', '')
+    year = request.POST.get('year', '')
+    country = request.POST.get('country', '')
+    faceAmount = request.POST.get('faceAmount', '')
+    dingSecification = request.POST.get('dingSecification', '')
+    zhangType = request.POST.get('zhangType', '')
+    shape = request.POST.get('shape', '')
+    appearance = request.POST.get('appearance', '')
+    mark = request.POST.get('mark', '')
+    originalQuantity = float(request.POST.get('originalQuantity'))
     remark = request.POST.get('remark', '')
+    # -----------------------------------------------
     operator = request.POST.get('operator', '')
 
-    if originalQuantity != '':
-        originalQuantity = float(originalQuantity)
+    thing_set = gsThing.objects.filter(serialNumber=serialNumber)
 
-    if '-' in boxOrSubBox:
-        boxNumber = int(boxOrSubBox.split('-')[0])
-        subBoxNumber = int(boxOrSubBox.split('-')[1])
-    else:
-        boxNumber = int(boxOrSubBox)
-        subBoxNumber = ''
-
-    thing = gsThing.objects.filter(serialNumber=serialNumber)
-    box = gsBox.objects.filter(boxNumber=boxNumber)
     ret = {}
-
-
-
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'实物认定信息更新')
-        new_subClassName_code = gsProperty.objects.get(type=subClassName, parentType=className,
-                                                       grandpaType=productType).code
-        old_subClassName_code = thing[0].subClassName
-        if new_subClassName_code != old_subClassName_code:
-            thing.update(subClassName=new_subClassName_code)
-            box.update(subClassName='00')
-
-        if productType == u'金银锭类':
-            gsDing.objects.filter(thing=thing).update(detailedName=detailedName,
-                                                      typeName=typeName,
-                                                      peroid=peroid,
-                                                      producer=producer,
-                                                      producePlace = producePlace,
-                                                      carveName=carveName,
-                                                      originalQuantity=originalQuantity,
-                                                      quality=quality,
-                                                      level=level,
-                                                      remark=remark)
-        elif productType == u'金银币章类':
-            gsBiZhang.objects.filter(thing=thing).update(detailedName=detailedName,
-                                                         peroid=peroid,
-                                                         producer=producer,
-                                                         producePlace=producePlace,
-                                                         originalQuantity=originalQuantity,
-                                                         quality=quality,
-                                                         level=level,
-                                                         versionName=versionName,
-                                                         remark=remark)
-        elif productType == u'银元类':
-            gsYinYuan.objects.filter(thing=thing).update(producer=producer,
-                                                         producePlace = producePlace,
-                                                         quality=quality,
-                                                         level=level,
-                                                         versionName=versionName,
-                                                         value=value,
-                                                         remark=remark)
-        elif productType == u'金银工艺品类':
-            gsGongYiPin.objects.filter(thing=thing).update(detailedName=detailedName,
-                                                           peroid=peroid,
-                                                           originalQuantity=originalQuantity,
-                                                           quality=quality,
-                                                           level=level,
-                                                           remark=remark)
+        thing_set.update(level=level,
+                         detailedName=detailedName,
+                         peroid=peroid,
+                         year=year,
+                         country=country,
+                         faceAmount=faceAmount,
+                         dingSecification=dingSecification,
+                         zhangType=zhangType,
+                         shape=shape,
+                         appearance=appearance,
+                         mark=mark,
+                         originalQuantity=originalQuantity,
+                         remark=remark,)
         now = datetime.datetime.now()
-        gsStatus.objects.filter(thing=thing).update(checkingStatus=True, checkingOperator=operator,checkingUpdateDateTime=now)
-        status_set = gsStatus.objects.filter(thing=thing)
+        gsStatus.objects.filter(thing=thing_set[0]).update(checkingStatus=True, checkingOperator=operator,checkingUpdateDateTime=now)
+        status_set = gsStatus.objects.filter(thing=thing_set[0])
         thing_status = status_set[0]
         status = thing_status.numberingStatus and thing_status.analyzingStatus and thing_status.measuringStatus and \
                  thing_status.photographingStatus and thing_status.checkingStatus
@@ -217,10 +140,10 @@ def updateCheckingInfo(request):
             status_set.update(status=status, completeTime=now)
     except Exception as e:
         ret['success'] = False
-        ret['message'] = str(boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
+        ret['message'] = serialNumber + u'实物信息更新失败！'
     else:
         ret['success'] = True
-        ret['message'] = str(boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
+        ret['message'] = serialNumber + u'实物信息更新成功！'
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 

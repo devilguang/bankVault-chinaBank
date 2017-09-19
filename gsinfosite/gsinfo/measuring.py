@@ -54,19 +54,13 @@ def getMeasuringInfo(request):
 
 def updateMeasuringInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
-    grossWeight = float(request.POST.get('grossWeight', ''))
+    # -------------------------------------
+    grossWeight = float(request.POST.get('grossWeight'))  # 无论什么类型什么操作，毛重总是有的
     length = request.POST.get('length', '')
     width = request.POST.get('width', '')
     height = request.POST.get('height', '')
+    # -------------------------------------
     operator = request.POST.get('operator', '')
-    if length != '':
-        length = float(length)
-    if width != '':
-        width = float(width)
-    if height != '':
-        height = float(height)
-    if grossWeight != '':
-        grossWeight = float(grossWeight)
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'测量称重信息更新')
@@ -76,7 +70,20 @@ def updateMeasuringInfo(request):
             # 作业不可用
             raise ValueError, u'作业不可用！请联系实物分发岗位进行分发，并刷新页面！'
 
-        gsThing.objects.filter(serialNumber=serialNumber).update(length=length, width=width, height=height,grossWeight=grossWeight)
+        update_fields = []
+        thing.grossWeight = float(grossWeight)
+        update_fields.append('grossWeight')
+        if length:
+            thing.length=float(length)
+            update_fields.append('length')
+        if width:
+            thing.width=float(width)
+            update_fields.append('width')
+        if height:
+            thing.height=float(height)
+            update_fields.append('height')
+
+        thing.save(update_fields=update_fields)
 
         now = datetime.datetime.now()
         gsStatus.objects.filter(thing=thing).update(measuringStatus=True,measuringOperator=operator,measuringUpdateDateTime=now)
