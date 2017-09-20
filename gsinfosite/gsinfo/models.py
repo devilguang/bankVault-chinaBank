@@ -92,6 +92,7 @@ class gsBoxManager(models.Manager):
         amount = kwargs['amount']
         grossWeight = kwargs['grossWeight']
         oprateType_code = kwargs['oprateType']
+        origBoxNumber = kwargs['origBoxNumber']
 
 
         # 生成一条Box记录
@@ -100,13 +101,15 @@ class gsBoxManager(models.Manager):
         else:
             boxType = gsProperty.objects.get(code=classNameCode, parentCode=productType)
 
+        origBox = gsOrigBox.objects.get(origBoxNumber=origBoxNumber)
         oprateType = gsProperty.objects.get(project='实物类型',code=oprateType_code)
         box, createdBox = super(models.Manager, self).get_or_create(boxNumber=boxNumber,
                                                                     wareHouse=wareHouseCode,
                                                                     amount=amount,
                                                                     grossWeight=grossWeight,
                                                                     oprateType=oprateType,
-                                                                    boxType=boxType)
+                                                                    boxType=boxType,
+                                                                    origBox=origBox)
         # 生成实物索引表, 依据实物类型, 在实物索引表生成相应的实物索引记录
         if oprateType_code == '1':
             # 请求件流水号
@@ -212,8 +215,8 @@ class gsProperty(models.Model):
 
 # 开箱操作记录原箱数据
 class gsOrigBox(models.Model):
-    OriBoxNumber = models.CharField(verbose_name='原箱号',max_length=255,unique=True)
-    amount = models.PositiveIntegerField(verbose_name='件数', null=True)
+    origBoxNumber = models.CharField(verbose_name='原箱号',max_length=255,unique=True)
+    thingAmount = models.PositiveIntegerField(verbose_name='件数', null=True)
     packageAmount = models.PositiveIntegerField(verbose_name='包数', null=True)
     grossWeight = models.FloatField(verbose_name='总毛重',null=True)
 
