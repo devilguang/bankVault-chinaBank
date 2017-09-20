@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 import datetime
 import operator
 from . import log
+from middleWare import postThing
 
 
 
@@ -15,7 +16,6 @@ from . import log
 def numbering(request):
     userName = gsUser.objects.get(user=request.user)
     return render(request, 'n.html', context={'operator': userName, })
-
 
 def getNumberingInfo(request):
     serialNumber = request.GET.get('serialNumber', '')
@@ -35,8 +35,7 @@ def getNumberingInfo(request):
                   'originalQuantity': '成色',
                   }
 
-    prop_list =  ['level','detailedName','peroid','country','faceAmount','dingSecification','zhangType','shape',
-                  'appearance']
+    prop_list = ['level','detailedName','peroid','country','faceAmount','dingSecification','zhangType','shape','appearance']
     shape = models.CharField(verbose_name='工艺品类器型（型制）', max_length=512, blank=True)
 
     for field in field_list:
@@ -169,6 +168,7 @@ def updateNumberingInfo(request):
             status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus and s.checkingStatus
             if status:
                 status_set.update(status=status,completeTime=now)
+                postThing(serialNumber)  # 向二系统推送数据
     except Exception as e:
         ret['success'] = False
         ret['message'] = serialNumber + u'实物信息更新失败！'

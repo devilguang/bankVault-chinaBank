@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 import datetime
 from . import log
+from middleWare import postThing
 
 
 @login_required  # 测量称重岗位
@@ -93,6 +94,7 @@ def updateMeasuringInfo(request):
                  thing_status.photographingStatus and thing_status.checkingStatus
         if status:
             thing_set.update(status=status, completeTime=now)
+            postThing(serialNumber)  # 向二系统推送数据
     except Exception as e:
         ret = {}
         ret['success'] = False

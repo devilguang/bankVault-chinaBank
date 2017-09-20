@@ -210,6 +210,13 @@ class gsProperty(models.Model):
     grandpaType = models.CharField(max_length=255, blank=True)  # 祖类型
     grandpaCode = models.CharField(max_length=255, blank=True)  # 祖代码
 
+# 开箱操作记录原箱数据
+class gsOrigBox(models.Model):
+    OriBoxNumber = models.CharField(verbose_name='原箱号',max_length=255,unique=True)
+    amount = models.PositiveIntegerField(verbose_name='件数', null=True)
+    packageAmount = models.PositiveIntegerField(verbose_name='包数', null=True)
+    grossWeight = models.FloatField(verbose_name='总毛重',null=True)
+
 # 箱体实物表
 class gsBox(models.Model):
     boxNumber = models.CharField(verbose_name='货发二代系统提供的箱号',max_length=255,unique=True)
@@ -217,9 +224,10 @@ class gsBox(models.Model):
     amount = models.PositiveIntegerField(verbose_name='件数',)
     grossWeight = models.FloatField(verbose_name='总毛重',null=True)
     status = models.BooleanField(verbose_name='封箱状态（False:未封箱; True：已封箱入库）',default=False)
+    BoxPostStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4)
     oprateType = models.ForeignKey(gsProperty,related_name='oprateType')
     boxType = models.ForeignKey(gsProperty,related_name='boxType')
-
+    origBox = models.ForeignKey(gsOrigBox)
     objects = gsBoxManager()
     class Meta:
         ordering = ['boxNumber']
@@ -296,6 +304,7 @@ class gsCase(models.Model):
     closeCheckPerson = models.CharField(verbose_name='封装复核人', max_length=255, unique=True, null=False)
     closeTime = models.DateTimeField(verbose_name='封装时间',default=datetime.datetime.now())
     status = models.BooleanField(verbose_name='是否封盒(False:未封盒 True:已封盒)',default=False)
+    CasPoestStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4)
     box = models.ForeignKey(gsBox)
 
 # 实物索引表
@@ -324,14 +333,10 @@ class gsThing(models.Model):
     length = models.FloatField(verbose_name='长度', null=True)
     width = models.FloatField(verbose_name='宽度', null=True)
     height = models.FloatField(verbose_name='高度', null=True)
-    # +++这几个字段是货发二代系统不需要的，清点系统的是否还需要？
-    # producer = models.CharField(verbose_name='制作人',max_length=512, blank=True)
-    # producePlace = models.CharField(verbose_name='制作地',max_length=512, blank=True)
-    # versionName = models.CharField(verbose_name='版别',max_length=1024, blank=True)
-    # marginShape = models.CharField(verbose_name='边齿',max_length=512, blank=True)
-    # +++
     remark = models.TextField(verbose_name='备注', default='')
     # ------------------
+    thingPostStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4)
+    photoPostStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4)
     box = models.ForeignKey(gsBox)
     work = models.ForeignKey(gsWork,null=True)
     case = models.ForeignKey(gsCase,null=True)

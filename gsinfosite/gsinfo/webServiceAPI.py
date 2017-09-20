@@ -9,7 +9,6 @@ def getNumberAPI(code):
     number = client.service.getStringReturnCode(code)
     return number
 
-
 # 金银实物清点件接口
 def postThingDataAPI(code):
     client = Client(WEBSERVERAPI, cache=None)

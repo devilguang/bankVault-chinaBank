@@ -6,36 +6,65 @@ import win32api
 import win32ui
 import win32print
 import win32con
-#!/usr/bin/python3
-
 from openpyxl import Workbook,load_workbook
 from openpyxl.styles import Alignment, Font, Border, Side
 import time
-border = Border(left=Side(border_style='thin', color='FF000000'),
-                    right=Side(border_style='thin', color='FF000000'),
-                    top=Side(border_style='thin', color='FF000000'),
-                    bottom=Side(border_style='thin', color='FF000000'),
-                    outline=Side(border_style='thin', color='FF000000'),
-                    vertical=Side(border_style='thin', color='FF000000'),
-                    horizontal=Side(border_style='thin', color='FF000000')
-                    )
-template_path = u'G:\\items\\BullionCheckSys\\gsinfosite\\data\\template\\装箱清单.xlsx'
-book = load_workbook(template_path)
-sheet = book.worksheets[0]
-# book = Workbook()
-# sheet = book.active
 
-sheet['A1'] = 56
-sheet['A2'] = 43
+import zlib
+import struct
 
-now = time.strftime("%x")
-sheet['A3'] = now
+def makeGrayPNG(data, height = None, width = None):
+    def I1(value):
+        return struct.pack("!B", value & (2**8-1))
+    def I4(value):
+        return struct.pack("!I", value & (2**32-1))
+    # compute width&height from data if not explicit
+    if height is None:
+        height = len(data) # rows
+    if width is None:
+        width = 0
+        for row in data:
+            if width < len(row):
+                width = len(row)
+    # generate these chunks depending on image type
+    makeIHDR = True
+    makeIDAT = True
+    makeIEND = True
+    png = b"\x89" + "PNG\r\n\x1A\n".encode('ascii')
+    if makeIHDR:
+        colortype = 0 # true gray image (no palette)
+        bitdepth = 8 # with one byte per pixel (0..255)
+        compression = 0 # zlib (no choice here)
+        filtertype = 0 # adaptive (each scanline seperately)
+        interlaced = 0 # no
+        IHDR = I4(width) + I4(height) + I1(bitdepth)
+        IHDR += I1(colortype) + I1(compression)
+        IHDR += I1(filtertype) + I1(interlaced)
+        block = "IHDR".encode('ascii') + IHDR
+        png += I4(len(IHDR)) + block + I4(zlib.crc32(block))
+    if makeIDAT:
+        raw = b""
+        for y in xrange(height):
+            raw += b"\0" # no filter for this scanline
+            for x in xrange(width):
+                c = b"\0" # default black pixel
+                if y < len(data) and x < len(data[y]):
+                    c = I1(data[y][x])
+                raw += c
+        compressor = zlib.compressobj()
+        compressed = compressor.compress(raw)
+        compressed += compressor.flush()
+        block = "IDAT".encode('ascii') + compressed
+        png += I4(len(compressed)) + block + I4(zlib.crc32(block))
+    if makeIEND:
+        block = "IEND".encode('ascii')
+        png += I4(0) + block + I4(zlib.crc32(block))
+    return png
 
-sub_area1 = sheet['A{0}:B{1}'.format(1, 2)]
-for cs in sub_area1:
-    for cell in cs:
-        cell.border = border
-book.save("sample.xlsx")
+def example():
+    with open("cross3x3.png","wb") as f:
+        f.write(makeGrayPNG([[0,255,0],[255,255,255],[0,255,0]]))
+
 #
 # def send_to_printer(title,txt):
 #     hDC = win32ui.CreateDC()
@@ -63,6 +92,7 @@ book.save("sample.xlsx")
 #
 #
 #
-# if __name__ == "__main__":
-#     # send_to_printer('123','123')
-#     printer_win32api()
+if __name__ == "__main__":
+    # send_to_printer('123','123')
+    # printer_win32api()
+    example()

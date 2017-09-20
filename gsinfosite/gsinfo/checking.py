@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from django.utils import timezone
 from . import log
+from middleWare import postThing,getserialNumber2
 
 @login_required
 def checking(request):
@@ -138,6 +139,7 @@ def updateCheckingInfo(request):
                  thing_status.photographingStatus and thing_status.checkingStatus
         if status:
             status_set.update(status=status, completeTime=now)
+
     except Exception as e:
         ret['success'] = False
         ret['message'] = serialNumber + u'实物信息更新失败！'

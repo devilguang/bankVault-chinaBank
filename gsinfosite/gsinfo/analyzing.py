@@ -6,6 +6,7 @@ from report_process import *
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from . import log
+from middleWare import postThing
 
 @login_required  # 频谱分析岗位
 def analyzing(request):
@@ -15,13 +16,11 @@ def analyzing(request):
 def updateAnalyzingInfo(request):
     boxNumber = request.POST.get('boxNumber', '')
     serialNumber = request.POST.get('serialNumber', '')
-    productType = request.POST.get('productType', '')
     operator = request.POST.get('operator', '')
+    # -----------------------------------------
     detectedQuantity = request.POST.get('detectedQuantity', '')
-
-    detectedQuantity = float(detectedQuantity[:-1])
-
-    box = gsBox.objects.get(boxNumber=boxNumber)
+    # -----------------------------------------
+    detectedQuantity = float(detectedQuantity[:-1])  # 这是做什么？？？
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'频谱分析信息更新')
@@ -30,16 +29,7 @@ def updateAnalyzingInfo(request):
         if thing.work.status == 0:
             # 作业不可用
             raise ValueError, u'作业不可用！请联系实物分发岗位进行分发！'
-
-        if (0 == cmp(productType, u'金银锭类')):
-            ts = gsDing.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
-        elif (0 == cmp(productType, u'金银币章类')):
-            ts = gsBiZhang.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
-        elif (0 == cmp(productType, u'银元类')):
-            ts = gsYinYuan.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
-        elif (0 == cmp(productType, u'金银工艺品类')):
-            ts = gsGongYiPin.objects.filter(thing=thing).update(detectedQuantity=detectedQuantity)
-
+        gsThing.objects.filter(serialNumber=serialNumber).update(detectedQuantity=detectedQuantity)
         now = datetime.datetime.now()
         gsStatus.objects.filter(thing=thing).update(analyzingStatus=True,analyzingOperator=operator,analyzingUpdateDateTime=now)
         thing_status = gsStatus.objects.filter(thing=thing)
@@ -48,7 +38,7 @@ def updateAnalyzingInfo(request):
                  thing_obj.photographingStatus and thing_obj.checkingStatus
         if status:
             thing_status.update(status=status, completeTime=now)
-
+            postThing(serialNumber)  # 向二系统推送数据
     except Exception as e:
         ret = {}
         ret['success'] = False
