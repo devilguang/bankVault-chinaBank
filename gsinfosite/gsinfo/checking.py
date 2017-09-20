@@ -93,7 +93,7 @@ def getDurationCompleteThingAmount(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
-def updateNumberingInfo(request):
+def updateCheckingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
     # -----------------------------------------------
     level = request.POST.get('level', '')
@@ -160,93 +160,40 @@ def getThingData(request):
     ret['serialNumber'] = serialNumber
     ret['boxNumber'] = boxNumber
 
-    productTypeCode = box.productType
-    productType = gsProperty.objects.get(project='实物类型', code=productTypeCode)
-    ret['productType'] = productType.type
+    prop = box.boxType
+    type = prop.type
+    parentType = prop.parentType
+    grandpaType = prop.grandpaType
+    if grandpaType:
+        ret['productType'] =grandpaType
+        ret['className'] = parentType
+        ret['subClassName'] =type
+    else:
+        ret['productType'] = parentType
+        ret['className'] = type
+        ret['subClassName'] = '-'
     wareHouseCode = box.wareHouse
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
     ret['wareHouse'] = wareHouse.type
-    classNameCode = box.className
-    className = gsProperty.objects.get(project='品名', code=classNameCode, parentProject=productType.project,
-                                       parentType=productType.type)
-    ret['className'] = className.type
-    subClassNameCode = box.subClassName
-    subClassName = gsProperty.objects.get(project='明细品名', code=subClassNameCode, parentProject=className.project,
-                                          parentType=className.type, grandpaProject=productType.project,
-                                          grandpaType=productType.type)
-    ret['subClassName'] = subClassName.type
 
-    if (0 == cmp(productType.type, u'金银锭类')):
-        thing = gsDing.objects.get(box=box, serialNumber=serialNumber)
-        ret['detailedName'] = thing.detailedName
-        ret['typeName'] = thing.typeName
-        ret['peroid'] = thing.peroid
-        ret['producer'] = thing.producer
-        ret['producePlace'] = thing.producePlace
-        ret['carveName'] = thing.carveName
-        ret['remark'] = thing.remark
-        ret['quality'] = thing.quality
-        ret['level'] = thing.level
-        ret['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-        ret['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-        ret['length'] = thing.length if (thing.length is not None) else ''
-        ret['width'] = thing.width if (thing.width is not None) else ''
-        ret['height'] = thing.height if (thing.height is not None) else ''
-        ret['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
-        ret['pureWeight'] = thing.pureWeight if (thing.pureWeight is not None) else ''
+    thing = gsThing.objects.get(serialNumber=serialNumber)
 
-    elif (0 == cmp(productType.type, u'金银币章类')):
-        thing = gsBiZhang.objects.get(box=box, serialNumber=serialNumber)
-        ret['detailedName'] = thing.detailedName
-        ret['versionName'] = thing.versionName
-        ret['peroid'] = thing.peroid
-        ret['producer'] = thing.producer
-        ret['producePlace'] = thing.producePlace
-        ret['value'] = thing.value
-        ret['remark'] = thing.remark
-        ret['quality'] = thing.quality
-        ret['level'] = thing.level
-        ret['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-        ret['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-        ret['diameter'] = thing.diameter if (thing.diameter is not None) else ''
-        ret['thick'] = thing.thick if (thing.thick is not None) else ''
-        ret['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
-        ret['pureWeight'] = thing.pureWeight if (thing.pureWeight is not None) else ''
-
-    elif (0 == cmp(productType.type, u'银元类')):
-        thing = gsYinYuan.objects.get(box=box, serialNumber=serialNumber)
-        ret['detailedName'] = thing.detailedName
-        ret['versionName'] = thing.versionName
-        ret['peroid'] = thing.peroid
-        ret['producer'] = thing.producer
-        ret['producePlace'] = thing.producePlace
-        ret['value'] = thing.value
-        ret['marginShape'] = thing.marginShape
-        ret['remark'] = thing.remark
-        ret['quality'] = thing.quality
-        ret['level'] = thing.level
-        ret['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-        ret['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-        ret['diameter'] = thing.diameter if (thing.diameter is not None) else ''
-        ret['thick'] = thing.thick if (thing.thick is not None) else ''
-        ret['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
-        ret['pureWeight'] = thing.pureWeight if (thing.pureWeight is not None) else ''
-
-    elif (0 == cmp(productType.type, u'金银工艺品类')):
-        thing = gsGongYiPin.objects.get(box=box, serialNumber=serialNumber)
-        ret['detailedName'] = thing.detailedName
-        ret['peroid'] = thing.peroid
-        ret['remark'] = thing.remark
-        ret['quality'] = thing.quality
-        ret['level'] = thing.level
-        ret['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-        ret['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-        ret['length'] = thing.length if (thing.length is not None) else ''
-        ret['width'] = thing.width if (thing.width is not None) else ''
-        ret['height'] = thing.height if (thing.height is not None) else ''
-        ret['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
-        ret['pureWeight'] = thing.pureWeight if (thing.pureWeight is not None) else ''
-
+    ret['detailedName'] = thing.detailedName
+    ret['typeName'] = thing.typeName
+    ret['peroid'] = thing.peroid
+    ret['producer'] = thing.producer
+    ret['producePlace'] = thing.producePlace
+    ret['carveName'] = thing.carveName
+    ret['remark'] = thing.remark
+    ret['quality'] = thing.quality
+    ret['level'] = thing.level
+    ret['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
+    ret['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
+    ret['length'] = thing.length if (thing.length is not None) else ''
+    ret['width'] = thing.width if (thing.width is not None) else ''
+    ret['height'] = thing.height if (thing.height is not None) else ''
+    ret['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
+    ret['pureWeight'] = thing.pureWeight if (thing.pureWeight is not None) else ''
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)

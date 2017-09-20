@@ -50,14 +50,69 @@ def getNumberingInfo(request):
     return HttpResponse(ret_json)
 
 def getReadyInfo(request):
-    field = request.Get.get('field', '')
+    field = request.POST.get('field', '')
+    productType = request.POST.get('productType', '')
+
+    field_list = field.split(';')
+
     ret = []
-    type_list = list(gsProperty.objects.filter(project=field).values_list('type',flat=True))
-    code_list = list(gsProperty.objects.filter(project=field).values_list('code', flat=True))
-    for type,code in zip(type_list,code_list):
+    def parse(data,name):
         detail = {}
-        detail['text'] = type
-        detail['id'] = code
+        detail['name'] = name
+        detail['val'] = []
+        type_list = list(gsProperty.objects.filter(project=data).values_list('type', flat=True))
+        code_list = list(gsProperty.objects.filter(project=data).values_list('code', flat=True))
+        for type, code in zip(type_list, code_list):
+            sub = {}
+            sub['text'] = type
+            sub['id'] = code
+            detail['val'].append(sub)
+        return detail
+    if '等级' in field_list:
+        data = name = '等级'
+        detail = parse(data,name)
+        ret.append(detail)
+    if '年代' in field_list:
+        data = name = '年代'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '国别' in field_list:
+        data = name = '国别'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '面值' in field_list:
+        data = name = '面值'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '规格' in field_list:
+        data = '金银锭类规格'
+        name = '规格'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '器型' in field_list:
+        data ='工艺品类器型'
+        name = '器型'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '型制' in field_list and productType == '黄金':
+        data = '金锭类形制'
+        name = '型制'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '型制' in field_list and productType == '白银':
+        data = '银锭类形制'
+        name = '型制'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '性质' in field_list:
+        data = '章类性质'
+        name = '性质'
+        detail = parse(data, name)
+        ret.append(detail)
+
+    if '品相' in field_list:
+        data = name = '品相'
+        detail = parse(data, name)
         ret.append(detail)
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
