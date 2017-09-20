@@ -21,6 +21,7 @@ import time
 import ctypes
 from ctypes import wintypes
 import upload_tip
+import zlib
 
 
 class LoginWidget(QDialog, login.Ui_Form):
@@ -306,6 +307,8 @@ class Window(QMainWindow, photo.Ui_Form):
                 all_img = {}
                 for pic_name in pic_name_list:
                     file_path = os.path.join(self.upload_dir, pic_name)
+                    zlib_result3 = zlib.crc32(file_path)
+                    print zlib_result3
                     with open(file_path, 'rb') as f:
                         f1 = base64.b64encode(f.read())
                         all_img[pic_name] = f1

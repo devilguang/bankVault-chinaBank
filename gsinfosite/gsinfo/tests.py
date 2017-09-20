@@ -95,4 +95,37 @@ def example():
 if __name__ == "__main__":
     # send_to_printer('123','123')
     # printer_win32api()
-    example()
+    # example()
+    zip = r'G:\items\BullionCheckSys\gsinfosite\static\photo\2-06-217-103-A.zip'
+    zlib_result = zlib.crc32(zip)
+    print zlib_result
+    with open(zip,'rb') as f:
+        ss = f.read()
+
+    a = []
+    for i,b in enumerate(ss):
+        if i == 1000:
+            b = '0' if b=='1' else '0'
+            print '---'
+        a.append(b)
+    dd = ''.join(a)
+    zip2 = r'G:\items\BullionCheckSys\gsinfosite\static\photo\2-06-217-103-B.zip'
+    with open(zip2,'wb') as f:
+        f.write(dd)
+    zlib_result2 = zlib.crc32(zip2)
+    print zlib_result2
+
+    zip3 = r'G:\items\BullionCheckSys\gsinfosite\static\photo\2-06-217-103-C.zip'
+    with open(zip3,'wb') as f:
+        f.write(ss)
+    zlib_result3 = zlib.crc32(zip3)
+    print zlib_result3
+
+
+
+
+# 2099310597
+# ---
+# 981502677
+
+

@@ -168,7 +168,6 @@ def updateNumberingInfo(request):
             status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus and s.checkingStatus
             if status:
                 status_set.update(status=status,completeTime=now)
-                postThing(serialNumber)  # 向二系统推送数据
     except Exception as e:
         ret['success'] = False
         ret['message'] = serialNumber + u'实物信息更新失败！'
