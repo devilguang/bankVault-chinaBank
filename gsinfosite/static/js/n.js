@@ -39,34 +39,34 @@ function loadDataProcess(node, data) {
         }
     }
 }
-function changeInputValue(idName, getIdName, productKey) {
-    //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
-    var value = $("#" + idName).val();
-    var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
-    $.ajax({
-        type: 'post',
-        url: 'checkInfo/',
-        data: {
-            productType: productType,
-            key: productKey,
-            value: value
-        }, success: function (data) {
-            var mes = JSON.parse(data);
-            if (mes.success) {
-                var vArray = mes.message;
-                for (var i = 0; i < vArray.length; i++) {
-                    var optionList = document.createElement('option');
-                    optionList.value = vArray[i];
-                    getIdName.appendChild(optionList);
-                    $('#workGrid' + node.id).datagrid('reload');
-                }
-            } else {
-
-                return
-            }
-        }
-    })
-}
+// function changeInputValue(idName, getIdName, productKey) {
+//     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
+//     var value = $("#" + idName).val();
+//     var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
+//     $.ajax({
+//         type: 'post',
+//         url: 'checkInfo/',
+//         data: {
+//             productType: productType,
+//             key: productKey,
+//             value: value
+//         }, success: function (data) {
+//             var mes = JSON.parse(data);
+//             if (mes.success) {
+//                 var vArray = mes.message;
+//                 for (var i = 0; i < vArray.length; i++) {
+//                     var optionList = document.createElement('option');
+//                     optionList.value = vArray[i];
+//                     getIdName.appendChild(optionList);
+//                     $('#workGrid' + node.id).datagrid('reload');
+//                 }
+//             } else {
+//
+//                 return
+//             }
+//         }
+//     })
+// }
 function treeSelectHandler(node) {
     var isWork = node.attributes.isWork;
     if (!isWork) {
@@ -125,37 +125,37 @@ function lastUpdateTimeFormatter(value, row, index) {
 }
 
 var url;
-function initBatchUpdateInfoDlg(row) {
-    if (row.productType == '金银币章类') {
-        $('#batch-typeName').attr({'style': 'display:none'});
-        $('#batch-carveName').attr({'style': 'display:none'});
-        $('#batch-marginShape').attr({'style': 'display:none'});
-    }
-    if (row.productType == '银元类') {
-        $('#batch-detailedName').attr({'style': 'display:none'});
-        $('#batch-typeName').attr({'style': 'display:none'});
-        $('#batch-peroid').attr({'style': 'display:none'});
-        $('#batch-carveName').attr({'style': 'display:none'});
-        $('#batch-originalQuantity').attr({'style': 'display:none'});
-        $('#batch-marginShape').attr({'style': 'display:none'});
-    }
-
-    if (row.productType == '金银工艺品类') {
-        $('#batch-typeName').attr({'style': 'display:none'});
-        $('#batch-producePlace').attr({'style': 'display:none'});
-        $('#batch-producer').attr({'style': 'display:none'});
-        $('#batch-carveName').attr({'style': 'display:none'});
-        $('#batch-versionName').attr({'style': 'display:none'});
-        $('#batch-value').attr({'style': 'display:none'});
-        $('#batch-marginShape').attr({'style': 'display:none'});
-    }
-
-    if (row.productType == '金银锭类') {
-        $('#batch-versionName').attr({'style': 'display:none'});
-        $('#batch-value').attr({'style': 'display:none'});
-        $('#batch-marginShape').attr({'style': 'display:none'});
-    }
-}
+// function initBatchUpdateInfoDlg(row) {
+//     if (row.productType == '金银币章类') {
+//         $('#batch-typeName').attr({'style': 'display:none'});
+//         $('#batch-carveName').attr({'style': 'display:none'});
+//         $('#batch-marginShape').attr({'style': 'display:none'});
+//     }
+//     if (row.productType == '银元类') {
+//         $('#batch-detailedName').attr({'style': 'display:none'});
+//         $('#batch-typeName').attr({'style': 'display:none'});
+//         $('#batch-peroid').attr({'style': 'display:none'});
+//         $('#batch-carveName').attr({'style': 'display:none'});
+//         $('#batch-originalQuantity').attr({'style': 'display:none'});
+//         $('#batch-marginShape').attr({'style': 'display:none'});
+//     }
+//
+//     if (row.productType == '金银工艺品类') {
+//         $('#batch-typeName').attr({'style': 'display:none'});
+//         $('#batch-producePlace').attr({'style': 'display:none'});
+//         $('#batch-producer').attr({'style': 'display:none'});
+//         $('#batch-carveName').attr({'style': 'display:none'});
+//         $('#batch-versionName').attr({'style': 'display:none'});
+//         $('#batch-value').attr({'style': 'display:none'});
+//         $('#batch-marginShape').attr({'style': 'display:none'});
+//     }
+//
+//     if (row.productType == '金银锭类') {
+//         $('#batch-versionName').attr({'style': 'display:none'});
+//         $('#batch-value').attr({'style': 'display:none'});
+//         $('#batch-marginShape').attr({'style': 'display:none'});
+//     }
+// }
 function unInitBatchUpdateInfoDlg() {
     $('#batch-versionName').attr({'style': ''});
     $('#batch-value').attr({'style': ''});
@@ -171,8 +171,71 @@ function unInitBatchUpdateInfoDlg() {
 function batchUpdateInfo(id) {
     rows = $('#workGrid' + id).datagrid('getRows');
     row = rows[0];
-    initBatchUpdateInfoDlg(row);
-    //$.messager.alert('提示', boxNumber);
+    var subClassName = row.subClassName;
+    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元', '外国银元'];
+    var dianArr = ['锭'];
+    var gong = ['工'];
+    var zhang = ['章'];
+    subArr.forEach(function (item, index) {
+        if (subClassName == item) {
+            $("#batch_faceAmount").css({"display": "block"});//面值
+            $("#batch_level").css("display", "block"); //等级
+            $("#batch_peroid").css("display", "block");  //年代
+            $("#batch_country").css("display", "block"); //国别
+            $("#batch_zhangType").css("display", "none");//性质
+            $("#batch_dingSecification").css("display", "none");//规格
+            $("#batch_shape").css({"display": "none"}); //型制
+        }
+    });
+    dianArr.forEach(function (item) {
+        if (subClassName == item) {
+            $("#batch_shape").css({"display": "block"}); //型制
+            $("#batch_shape").children().eq(0).html('型制');
+            $("#batch_level").css("display", "block"); //等级
+            $("#batch_peroid").css("display", "block");  //年代
+            $("#batch_country").css("display", "block"); //国别
+            $("#batch_dingSecification").css("display", "block");//规格
+            $("#batch_zhangType").css("display", "none");//性质
+            $("#batch_faceAmount").css("display", " none");//面值
+        }
+    });
+    gong.forEach(function (item) {
+        if (subClassName == item) {
+            $("#batch_shape").css("display", "block"); //器型
+            $("#batch_shape").children().eq(0).html('器型');
+            $("#batch_level").css("display", "block"); //等级
+            $("#batch_peroid").css("display", "block");  //年代
+            $("#batch_country").css("display", "block"); //国别
+            $("#batch_dingSecification").css("display", "none");//规格
+            $("#batch_zhangType").css("display", "none");//性质
+            $("#batch_faceAmount").css("display", " none");//面值
+        }
+    });
+    zhang.forEach(function (item) {
+        if (subClassName == item) {
+            $("#batch_zhangType").css("display", "block"); //性质
+            $("#batch_level").css("display", "block"); //等级
+            $("#batch_peroid").css("display", "block");  //年代
+            $("#batch_country").css("display", "block"); //国别
+            $("#batch_shape").css("display", "block"); //器型
+            $("#batch_dingSecification").css("display", "none");//规格
+            $("#batch_faceAmount").css("display", " none");//面值
+        }
+    });
+    if (subClassName == '-' || subClassName == '') {
+        $("#batch_level").css("display", "none"); //等级
+        $("#batch_peroid").css("display", "none");  //年代
+        $("#batch_country").css("display", "none"); //国别
+        $("#batch_faceAmount").css("display", "none");//面值
+        $("#batch_shape").css("display", "none");//形制
+        $("#batch_dingSecification").css("display", "none");//规格
+        $("#batch_zhangType").css("display", "none");//性质
+    }
+    if (row.status == 1) {
+        $('#editBtn').attr('style', 'width:90px');
+        $('#saveBtn').attr('style', 'width:90px; display:none;');
+        $('#UpdateInfo-remark').textbox('readonly', true);
+    }
     $('#BatchUpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '批量更新信息');
     $('#BatchUpdateInfoForm').form('clear');
     $('#BatchUpdateInfoForm').form('load', {
@@ -182,43 +245,140 @@ function batchUpdateInfo(id) {
         wareHouse: row.wareHouse,
         boxNumber: row.boxNumber,
     });
+    var arrId = ['batch_level', 'batch_peroid', 'batch_country', 'batch_faceAmount',
+        'batch_dingSecification', 'batch_zhangType', 'batch_shape', 'batch_quality'];
+    var toStringArr = [];
+    for (var i = 0; i < arrId.length; i++) {
+        toStringArr.push($("#" + arrId[i]).children().eq(0).html());
+    }
+    $.ajax({
+        type: 'post',
+        url: 'getReadyInfo/',
+        data: {
+            className: row.className,
+            subClassName: row.subClassName,
+            productType: row.productType,
+            field: toStringArr.join(";")
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            data.forEach(function (item) {
+                if (item.name == '国别') {
+                    $("#BatchUpdateInfo-country").combobox("loadData", item.val);
+                }
+                if (item.name == '等级') {
+                    $("#BatchUpdateInfo-level").combobox("loadData", item.val);
+                }
+                if (item.name == '年代') {
+                    $("#BatchUpdateInfo-peroid").combobox("loadData", item.val);
+                }
+                if (item.name == '规格') {
+                    $("#BatchUpdateInfo-dingSecification").combobox("loadData", item.val);
+                }
+                if (item.name == '型制') {
+                    $("#BatchUpdateInfo-shape").combobox("loadData", item.val);
+                }
+                if (item.name == '器型') {
+                    $("#BatchUpdateInfo-shape").combobox("loadData", item.val);
+                }
+                if (item.name == '品相') {
+                    $("#BatchUpdateInfo-quality").combobox("loadData", item.val);
+                }
+                if (item.name == '面值') {
+                    $("#BatchUpdateInfo-faceAmount").combobox("loadData", item.val);
+                }
+                if (item.name == '性质') {
+                    $("#BatchUpdateInfo-zhangType").combobox("loadData", item.val);
+                }
+            })
+        }
+    })
     url = 'updateNumberingInfo/';
 }
 function saveBatchUpdateInfo() {
     var tab = $('#tbs').tabs('getSelected');
     var id = tab[0].id;
     var node = $('#workSpaceTree').tree('find', id);
+    var text = node.text;
     var workSeq = node.attributes.workSeq;
-    $('#BatchUpdateInfoForm').form({
-        url: url,
-        queryParams: {
+    var batch_level = $("#batch_level").children().find('.textbox-value').val(); //等级
+    var batch_peroid = $("#batch_peroid").children().find('.textbox-value').val();//年代
+    var batch_country = $("#batch_country").children().find('.textbox-value').val();//国别
+    var batch_quality = $("#batch_quality").children().find('.textbox-value').val();//品相
+    var batch_originalQuantity = $("#batch_originalQuantity").children().find('.textbox-value').val();//成色
+    var batch_year = $("#batch_year").children().find('.textbox-value').val();//年份
+    var batch_faceAmount = $("#batch_faceAmount").children().find('.textbox-value').val();//面值
+    var batch_dingSecification = $("#batch_dingSecification").children().find('.textbox-value').val();//规格
+    var batch_zhangType = $("#batch_zhangType").children().find('.textbox-value').val();//规格
+    var batch_shape = $("#batch_shape").children().find('.textbox-value').val();//器型
+    var batch_carveName = $("#batch_carveName").children().find('.textbox-value').val();//铭文
+    var batch_remark = $("#batch_remark").children().find('.textbox-value').val();//备注
+    var batch_detailedName = $("#batch_detailedName").children().find('.textbox-value').val();//名称
+    if (batch_level == '' || batch_peroid == '' || batch_country == '' || batch_quality == '' || batch_originalQuantity == '') {
+        $.messager.alert("提示", "带*号的为必填项");
+        return;
+    }
+    $.ajax({
+        type: 'post',
+        url: 'updateNumberingInfo/',
+        data: {
             csrfmiddlewaretoken: getCookie('csrftoken'),
-            operator: $('#operator').val(),
+            level: batch_level,
+            detailedName: batch_detailedName,
+            peroid: batch_peroid,
+            year: batch_year,
+            country: batch_country,
+            faceAmount: batch_faceAmount,
+            dingSecification: batch_dingSecification,
+            zhangType: batch_zhangType,
+            shape: batch_shape,
+            appearance: batch_quality,
+            mark: batch_remark,
+            originalQuantity: batch_originalQuantity,
+            remark: batch_remark,
+            operator: $('#operator').val(), //操作员
             workSeq: workSeq,
-        },
-        onSubmit: function (param) {
-            return $(this).form('validate');
-        },
-        success: function (result) {
-            var result = eval('(' + result + ')');
-            if (!result.success) {
-                $.messager.alert({		// 显示失败信息
-                    title: '提示',
-                    msg: result.message
-                });
-            } else {
-                $('#BatchUpdateInfoDlg').dialog('close');        // 关闭对话框
-                $.messager.show({		// 显示成功信息
-                    title: '提示',
-                    msg: result.message,
-                    timeout: 5000,
-                    showType: 'slide'
-                });
+            workName:text
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.success) {
+                $.messager.alert('提示', data.message);
                 $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
+            } else {
+                $.messager.alert('提示', data.message);
             }
+            $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
         }
     });
-    $('#BatchUpdateInfoForm').submit();
+    // $('#BatchUpdateInfoForm').form({
+    //     url: url,
+    //     queryParams: {
+    //         csrfmiddlewaretoken: getCookie('csrftoken'),
+    //         operator: $('#operator').val(),
+    //         workSeq: workSeq,
+    //     },
+    //     onSubmit: function (param) {
+    //         return $(this).form('validate');
+    //     },
+    //     success: function (result) {
+    //         var result = eval('(' + result + ')');
+    //         if (!result.success) {
+    //             $.messager.alert({		// 显示失败信息
+    //                 title: '提示',
+    //                 msg: result.message
+    //             });
+    //         } else {
+    //             $('#BatchUpdateInfoDlg').dialog('close');        // 关闭对话框
+    //             $.messager.show({		// 显示成功信息
+    //                 title: '提示',
+    //                 msg: result.message,
+    //                 timeout: 5000,
+    //                 showType: 'slide'
+    //             });
+    //             $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
+    //         }
+    //     }
+    // });
+    // $('#BatchUpdateInfoForm').submit();
 }
 function traverseArr(array, subClassName) {
     array.forEach(function (item, index) {
@@ -227,7 +387,6 @@ function traverseArr(array, subClassName) {
         }
     })
 }
-
 
 
 //单个信息修改方法
@@ -239,28 +398,59 @@ function initUpdateInfoDlg(row) {
     var zhang = ['章'];
     subArr.forEach(function (item, index) {
         if (subClassName == item) {
-            $("#shape").css("display", "block");
-            $("#dingSecification").css("display", "block");
-            $("#shape1").css("display", "block");
-            $("#zhangType").css("display", "block");
+            $("#single_faceAmount").css({"display": "block"});//面值
+            $("#single_level").css("display", "block"); //等级
+            $("#single_peroid").css("display", "block");  //年代
+            $("#single_country").css("display", "block"); //国别
+            $("#single_zhangType").css("display", "none");//性质
+            $("#single_dingSecification").css("display", "none");//规格
+            $("#single_shape").css({"display": "none"}); //型制
         }
     });
     dianArr.forEach(function (item) {
         if (subClassName == item) {
-            $("#shape1").css("display", "block"); //型制
-            $("#dingSecification").css("display", "block");//规格
+            $("#single_shape").css({"display": "block"}); //型制
+            $("#single_shape").children().eq(0).html('型制');
+            $("#single_level").css("display", "block"); //等级
+            $("#single_peroid").css("display", "block");  //年代
+            $("#single_country").css("display", "block"); //国别
+            $("#single_dingSecification").css("display", "block");//规格
+            $("#single_zhangType").css("display", "none");//性质
+            $("#single_faceAmount").css("display", " none");//面值
         }
     });
     gong.forEach(function (item) {
         if (subClassName == item) {
-            $("#shape").css("display", "block"); //器型
+            $("#single_shape").css("display", "block"); //器型
+            $("#single_shape").children().eq(0).html('器型');
+            $("#single_level").css("display", "block"); //等级
+            $("#single_peroid").css("display", "block");  //年代
+            $("#single_country").css("display", "block"); //国别
+            $("#single_dingSecification").css("display", "none");//规格
+            $("#single_zhangType").css("display", "none");//性质
+            $("#single_faceAmount").css("display", " none");//面值
         }
     });
     zhang.forEach(function (item) {
         if (subClassName == item) {
-            $("#zhangType").css("display", "block"); //器型
+            $("#single_zhangType").css("display", "block"); //性质
+            $("#single_level").css("display", "block"); //等级
+            $("#single_peroid").css("display", "block");  //年代
+            $("#single_country").css("display", "block"); //国别
+            $("#single_shape").css("display", "block"); //器型
+            $("#single_dingSecification").css("display", "none");//规格
+            $("#single_faceAmount").css("display", " none");//面值
         }
     });
+    if (subClassName == '-' || subClassName == '') {
+        $("#single_level").css("display", "none"); //等级
+        $("#single_peroid").css("display", "none");  //年代
+        $("#single_country").css("display", "none"); //国别
+        $("#single_faceAmount").css("display", "none");//面值
+        $("#single_shape").css("display", "none");//形制
+        $("#single_dingSecification").css("display", "none");//规格
+        $("#single_zhangType").css("display", "none");//性质
+    }
     if (row.status == 1) {
         $('#editBtn').attr('style', 'width:90px');
         $('#saveBtn').attr('style', 'width:90px; display:none;');
@@ -336,26 +526,26 @@ function initUpdateInfoDlg(row) {
 
 }
 function unInitUpdateInfoDlg() {
-    $('#versionName').attr({'style': ''});
-    $('#value').attr({'style': ''});
-    $('#detailedName').attr({'style': ''});
-    $('#peroid').attr({'style': ''});
-    $('#originalQuantity').attr({'style': ''});
-    $('#producePlace').attr({'style': ''});
-    $('#marginShape').attr({'style': ''});
-    $('#typeName').attr({'style': ''});
-    $('#carveName').attr({'style': ''});
-    $('#UpdateInfo-versionName').textbox('readonly', false);
-    $('#UpdateInfo-value').textbox('readonly', false);
-    $('#UpdateInfo-detailedName').textbox('readonly', false);
-    $('#UpdateInfo-peroid').textbox('readonly', false);
-    $('#UpdateInfo-originalQuantity').textbox('readonly', false);
-    $('#UpdateInfo-producePlace').textbox('readonly', false);
-    $('#UpdateInfo-producer').textbox('readonly', false);
-    $('#UpdateInfo-marginShape').textbox('readonly', false);
-    $('#UpdateInfo-typeName').textbox('readonly', false);
-    $('#UpdateInfo-carveName').textbox('readonly', false);
-    $('#UpdateInfo-remark').textbox('readonly', false);
+    // $('#versionName').attr({'style': ''});
+    // $('#value').attr({'style': ''});
+    // $('#detailedName').attr({'style': ''});
+    // $('#peroid').attr({'style': ''});
+    // $('#originalQuantity').attr({'style': ''});
+    // $('#producePlace').attr({'style': ''});
+    // $('#marginShape').attr({'style': ''});
+    // $('#typeName').attr({'style': ''});
+    // $('#carveName').attr({'style': ''});
+    // $('#UpdateInfo-versionName').textbox('readonly', false);
+    // $('#UpdateInfo-value').textbox('readonly', false);
+    // $('#UpdateInfo-detailedName').textbox('readonly', false);
+    // $('#UpdateInfo-peroid').textbox('readonly', false);
+    // $('#UpdateInfo-originalQuantity').textbox('readonly', false);
+    // $('#UpdateInfo-producePlace').textbox('readonly', false);
+    // $('#UpdateInfo-producer').textbox('readonly', false);
+    // $('#UpdateInfo-marginShape').textbox('readonly', false);
+    // $('#UpdateInfo-typeName').textbox('readonly', false);
+    // $('#UpdateInfo-carveName').textbox('readonly', false);
+    // $('#UpdateInfo-remark').textbox('readonly', false);
 }
 function closeUpdateInfo() {
     $('#UpdateInfoDlg').dialog('close');
@@ -375,94 +565,99 @@ function returnFloat(value) {
         return value;
     }
 }
+
+// function hello() {
+//     var a, json;
+//     json = [{text: "珍品", id: "1"},{text: "稀一级", id: "2"},{text: "稀二级", id: "3"},{text: "稀三级", id: "4"}, {text: "普品", id: "5"}];
+//     // a = $.parseJSON(json);
+//     $("#hhh").combobox("loadData", json);
+// }
+function getReadyInfoInformation(row) {
+    var arrId = ['UpdateInfo-level', 'UpdateInfo-peroid', 'UpdateInfo-country', 'UpdateInfo-faceAmount',
+        'UpdateInfo-dingSecification', 'UpdateInfo-zhangType', 'UpdateInfo-shape', 'UpdateInfo-quality', 'UpdateInfo-zhangType'];
+    var toString = [];
+    for (var i = 0; i < arrId.length; i++) {
+        toString.push($("#" + arrId[i]).siblings().eq(0).html())
+    }
+    $.ajax({
+        type: 'post',
+        url: 'getReadyInfo/',
+        data: {
+            className: row.className,
+            subClassName: row.subClassName,
+            productType: row.productType,
+            field: toString.join(";")
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            data.forEach(function (item) {
+                if (item.name == '国别') {
+                    $("#UpdateInfo-country").combobox("loadData", item.val);
+                }
+                if (item.name == '等级') {
+                    $("#UpdateInfo-level").combobox("loadData", item.val);
+                }
+                if (item.name == '年代') {
+                    $("#UpdateInfo-peroid").combobox("loadData", item.val);
+                }
+                if (item.name == '规格') {
+                    $("#UpdateInfo-dingSecification").combobox("loadData", item.val);
+                }
+                if (item.name == '型制') {
+                    $("#UpdateInfo-shape").combobox("loadData", item.val);
+                }
+                if (item.name == '器型') {
+                    $("#UpdateInfo-shape").combobox("loadData", item.val);
+                }
+                if (item.name == '品相') {
+                    $("#UpdateInfo-quality").combobox("loadData", item.val);
+                }
+                if (item.name == '面值') {
+                    $("#UpdateInfo-faceAmount").combobox("loadData", item.val);
+                }
+                if (item.name == '性质') {
+                    $("#UpdateInfo-zhangType").combobox("loadData", item.val);
+                }
+            })
+        }
+    })
+}
 function updateInfo(index, row) {
-    initUpdateInfoDlg(row);
-    //$.messager.alert('提示', boxNumber);
+
     $.ajax({
         url: 'getThingInfo/',
         type: 'post',
         data: {
-            subClassName: row.subClassName,
+            // subClassName: row.subClassName,
             serialNumber: row.serialNumber
         }, success: function (data) {
             var data = JSON.parse(data);
-            if (row.subClassName == "金银锭类") {
-                $('#UpdateInfoForm').form('load', {
-                    serialNumber: row.serialNumber,
-                    productType: row.productType,
-                    className: row.className,
-                    subClassName: row.subClassName,
-                    wareHouse: row.wareHouse,
-                    boxNumber: row.boxNumber,
-                    detailedName: data.detailedName,
-                    peroid: data.peroid,
-                    originalQuantity: data.originalQuantity,
-                    producePlace: data.producePlace,
-                    producer: data.producer,
-                    typeName: data.typeName,
-                    carveName: data.carveName,
-                    quality: data.quality,
-                    level: data.level,
-                    remark: data.remark,
-                });
-            }
-            else if (row.productType == "金银币章类") {
-                $('#UpdateInfoForm').form('load', {
-                    serialNumber: row.serialNumber,
-                    productType: row.productType,
-                    className: row.className,
-                    subClassName: row.subClassName,
-                    wareHouse: row.wareHouse,
-                    boxNumber: row.boxNumber,
-                    versionName: data.versionName,
-                    detailedName: data.detailedName,
-                    peroid: data.peroid,
-                    originalQuantity: data.originalQuantity,
-                    producePlace: data.producePlace,
-                    producer: data.producer,
-                    quality: data.quality,
-                    level: data.level,
-                    remark: data.remark,
-                });
-            }
-            else if (row.productType == "银元类") {
-                $('#UpdateInfoForm').form('load', {
-                    serialNumber: row.serialNumber,
-                    productType: row.productType,
-                    className: row.className,
-                    subClassName: row.subClassName,
-                    wareHouse: row.wareHouse,
-                    boxNumber: row.boxNumber,
-                    versionName: data.versionName,
-                    value: data.value,
-                    producePlace: data.producePlace,
-                    producer: data.producer,
-                    quality: data.quality,
-                    level: data.level,
-                    remark: data.remark,
-                });
-            }
-            else if (row.productType == "金银工艺品类") {
-                $('#UpdateInfoForm').form('load', {
-                    serialNumber: row.serialNumber,
-                    productType: row.productType,
-                    className: row.className,
-                    subClassName: row.subClassName,
-                    wareHouse: row.wareHouse,
-                    boxNumber: row.boxNumber,
-                    value: data.value,
-                    detailedName: data.detailedName,
-                    peroid: data.peroid,
-                    originalQuantity: data.originalQuantity,
-                    marginShape: data.marginShape,
-                    quality: data.quality,
-                    level: data.level,
-                    remark: data.remark,
-                });
-            }
-        }
-    })
+            $('#UpdateInfoForm').form('load', {
+                serialNumber: row.serialNumber,
+                productType: row.productType,
+                className: row.className,
+                subClassName: row.subClassName,
+                wareHouse: row.wareHouse,
+                boxNumber: row.boxNumber,
+                level: data.level,
+                detailedName: data.detailedName,
+                peroid: data.peroid,
+                year: data.year,
+                country: data.country,
+                faceAmount: data.faceAmount,
+                dingSecification: data.dingSecification,
+                zhangType: data.zhangType,
+                shape: data.shape,
+                appearance: data.appearance,
+                originalQuantity: data.originalQuantity,
+                mark: data.mark
+            });
 
+        }
+    });
+    var node = $('#workSpaceTree').tree('getSelected');
+    $('#workGrid' + node.id).datagrid('reload');
+    initUpdateInfoDlg(row);
+    getReadyInfoInformation(row)
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
     $('#UpdateInfoForm').form('clear');
     var data;
@@ -476,83 +671,81 @@ function updateInfo(index, row) {
             dataType: 'json',
             success: function (result, status) {
                 data = result;
-
-                if (row.productType == "金银锭类") {
-                    $('#UpdateInfoForm').form('load', {
-                        serialNumber: row.serialNumber,
-                        productType: row.productType,
-                        className: row.className,
-                        subClassName: row.subClassName,
-                        wareHouse: row.wareHouse,
-                        boxNumber: row.boxNumber,
-                        detailedName: data.detailedName,
-                        peroid: data.peroid,
-                        originalQuantity: data.originalQuantity,
-                        producePlace: data.producePlace,
-                        producer: data.producer,
-                        typeName: data.typeName,
-                        carveName: data.carveName,
-                        quality: data.quality,
-                        level: data.level,
-                        remark: data.remark,
-                    });
-                }
-                else if (row.productType == "金银币章类") {
-                    $('#UpdateInfoForm').form('load', {
-                        serialNumber: row.serialNumber,
-                        productType: row.productType,
-                        className: row.className,
-                        subClassName: row.subClassName,
-                        wareHouse: row.wareHouse,
-                        boxNumber: row.boxNumber,
-                        versionName: data.versionName,
-                        detailedName: data.detailedName,
-                        peroid: data.peroid,
-                        originalQuantity: data.originalQuantity,
-                        producePlace: data.producePlace,
-                        producer: data.producer,
-                        quality: data.quality,
-                        level: data.level,
-                        remark: data.remark,
-                    });
-                }
-                else if (row.productType == "银元类") {
-                    $('#UpdateInfoForm').form('load', {
-                        serialNumber: row.serialNumber,
-                        productType: row.productType,
-                        className: row.className,
-                        subClassName: row.subClassName,
-                        wareHouse: row.wareHouse,
-                        boxNumber: row.boxNumber,
-                        versionName: data.versionName,
-                        value: data.value,
-                        producePlace: data.producePlace,
-                        producer: data.producer,
-                        quality: data.quality,
-                        level: data.level,
-                        remark: data.remark,
-                    });
-                }
-                else if (row.productType == "金银工艺品类") {
-                    $('#UpdateInfoForm').form('load', {
-                        serialNumber: row.serialNumber,
-                        productType: row.productType,
-                        className: row.className,
-                        subClassName: row.subClassName,
-                        wareHouse: row.wareHouse,
-                        boxNumber: row.boxNumber,
-                        value: data.value,
-                        detailedName: data.detailedName,
-                        peroid: data.peroid,
-                        originalQuantity: data.originalQuantity,
-                        marginShape: data.marginShape,
-                        quality: data.quality,
-                        level: data.level,
-                        remark: data.remark,
-                    });
-                }
-
-            },
+                // if (row.productType == "金银锭类") {
+                //     $('#UpdateInfoForm').form('load', {
+                //         serialNumber: row.serialNumber,
+                //         productType: row.productType,
+                //         className: row.className,
+                //         subClassName: row.subClassName,
+                //         wareHouse: row.wareHouse,
+                //         boxNumber: row.boxNumber,
+                //         detailedName: data.detailedName,
+                //         peroid: data.peroid,
+                //         originalQuantity: data.originalQuantity,
+                //         producePlace: data.producePlace,
+                //         producer: data.producer,
+                //         typeName: data.typeName,
+                //         carveName: data.carveName,
+                //         quality: data.quality,
+                //         level: data.level,
+                //         remark: data.remark,
+                //     });
+                // }
+                // else if (row.productType == "金银币章类") {
+                //     $('#UpdateInfoForm').form('load', {
+                //         serialNumber: row.serialNumber,
+                //         productType: row.productType,
+                //         className: row.className,
+                //         subClassName: row.subClassName,
+                //         wareHouse: row.wareHouse,
+                //         boxNumber: row.boxNumber,
+                //         versionName: data.versionName,
+                //         detailedName: data.detailedName,
+                //         peroid: data.peroid,
+                //         originalQuantity: data.originalQuantity,
+                //         producePlace: data.producePlace,
+                //         producer: data.producer,
+                //         quality: data.quality,
+                //         level: data.level,
+                //         remark: data.remark,
+                //     });
+                // }
+                // else if (row.productType == "银元类") {
+                //     $('#UpdateInfoForm').form('load', {
+                //         serialNumber: row.serialNumber,
+                //         productType: row.productType,
+                //         className: row.className,
+                //         subClassName: row.subClassName,
+                //         wareHouse: row.wareHouse,
+                //         boxNumber: row.boxNumber,
+                //         versionName: data.versionName,
+                //         value: data.value,
+                //         producePlace: data.producePlace,
+                //         producer: data.producer,
+                //         quality: data.quality,
+                //         level: data.level,
+                //         remark: data.remark,
+                //     });
+                // }
+                // else if (row.productType == "金银工艺品类") {
+                //     $('#UpdateInfoForm').form('load', {
+                //         serialNumber: row.serialNumber,
+                //         productType: row.productType,
+                //         className: row.className,
+                //         subClassName: row.subClassName,
+                //         wareHouse: row.wareHouse,
+                //         boxNumber: row.boxNumber,
+                //         value: data.value,
+                //         detailedName: data.detailedName,
+                //         peroid: data.peroid,
+                //         originalQuantity: data.originalQuantity,
+                //         marginShape: data.marginShape,
+                //         quality: data.quality,
+                //         level: data.level,
+                //         remark: data.remark
+                //     });
+            }
+            // }
         });
     }
     else {
@@ -562,82 +755,133 @@ function updateInfo(index, row) {
             className: row.className,
             subClassName: row.subClassName,
             wareHouse: row.wareHouse,
-            boxNumber: row.boxNumber,
+            boxNumber: row.boxNumber
         });
     }
     url = 'updateNumberingInfo/';
 }
 function editUpdateInfo() {
+
     $('#editBtn').attr('style', 'width:90px; display:none;');
     $('#saveBtn').attr('style', 'width:90px');
     var productType = $('#UpdateInfo-productType').textbox('getValue');
-    if (productType == '金银币章类') {
-        $('#UpdateInfo-versionName').textbox('readonly', false);
-        $('#UpdateInfo-value').textbox('readonly', false);
-        $('#UpdateInfo-detailedName').textbox('readonly', false);
-        $('#UpdateInfo-peroid').textbox('readonly', false);
-        $('#UpdateInfo-originalQuantity').textbox('readonly', false);
-        $('#UpdateInfo-producePlace').textbox('readonly', false);
-        $('#UpdateInfo-producer').textbox('readonly', false);
-    }
-    if (productType == '银元类') {
-        $('#UpdateInfo-versionName').textbox('readonly', false);
-        $('#UpdateInfo-value').textbox('readonly', false);
-        $('#UpdateInfo-producePlace').textbox('readonly', false);
-        $('#UpdateInfo-producer').textbox('readonly', false);
-    }
-
-    if (productType == '金银工艺品类') {
-        $('#UpdateInfo-detailedName').textbox('readonly', false);
-        $('#UpdateInfo-peroid').textbox('readonly', false);
-        $('#UpdateInfo-originalQuantity').textbox('readonly', false);
-    }
-    if (productType == '金银锭类') {
-        $('#UpdateInfo-detailedName').textbox('readonly', false);
-        $('#UpdateInfo-peroid').textbox('readonly', false);
-        $('#UpdateInfo-originalQuantity').textbox('readonly', false);
-        $('#UpdateInfo-producePlace').textbox('readonly', false);
-        $('#UpdateInfo-producer').textbox('readonly', false);
-        $('#UpdateInfo-typeName').textbox('readonly', false);
-        $('#UpdateInfo-carveName').textbox('readonly', false);
-    }
+    // if (productType == '金银币章类') {
+    //     $('#UpdateInfo-versionName').textbox('readonly', false);
+    //     $('#UpdateInfo-value').textbox('readonly', false);
+    //     $('#UpdateInfo-detailedName').textbox('readonly', false);
+    //     $('#UpdateInfo-peroid').textbox('readonly', false);
+    //     $('#UpdateInfo-originalQuantity').textbox('readonly', false);
+    //     $('#UpdateInfo-producePlace').textbox('readonly', false);
+    //     $('#UpdateInfo-producer').textbox('readonly', false);
+    // }
+    // if (productType == '银元类') {
+    //     $('#UpdateInfo-versionName').textbox('readonly', false);
+    //     $('#UpdateInfo-value').textbox('readonly', false);
+    //     $('#UpdateInfo-producePlace').textbox('readonly', false);
+    //     $('#UpdateInfo-producer').textbox('readonly', false);
+    // }
+    //
+    // if (productType == '金银工艺品类') {
+    //     $('#UpdateInfo-detailedName').textbox('readonly', false);
+    //     $('#UpdateInfo-peroid').textbox('readonly', false);
+    //     $('#UpdateInfo-originalQuantity').textbox('readonly', false);
+    // }
+    // if (productType == '金银锭类') {
+    //     $('#UpdateInfo-detailedName').textbox('readonly', false);
+    //     $('#UpdateInfo-peroid').textbox('readonly', false);
+    //     $('#UpdateInfo-originalQuantity').textbox('readonly', false);
+    //     $('#UpdateInfo-producePlace').textbox('readonly', false);
+    //     $('#UpdateInfo-producer').textbox('readonly', false);
+    //     $('#UpdateInfo-typeName').textbox('readonly', false);
+    //     $('#UpdateInfo-carveName').textbox('readonly', false);
+    // }
     $('#UpdateInfo-remark').textbox('readonly', false);
 }
 function saveUpdateInfo() {
-    var colorForming = $('#originalQuantity').children().find('.textbox-value').val();
-    if (colorForming == '') {
+    var node = $('#workSpaceTree').tree('getSelected');
+    var workName = node.text;
+    var serialNumber = $("#single_serialNumber").children().find('.textbox-value').val();//实物编号
+    var single_level = $("#single_level").children().find('.textbox-value').val(); //等级
+    var single_peroid = $("#single_peroid").children().find('.textbox-value').val();//年代
+    var single_country = $("#single_country").children().find('.textbox-value').val();//国别
+    var single_quality = $("#single_quality").children().find('.textbox-value').val();//品相
+    var single_originalQuantity = $("#single_originalQuantity").children().find('.textbox-value').val();//成色
+    var single_year = $("#single_year").children().find('.textbox-value').val();//年份
+    var single_faceAmount = $("#single_faceAmount").children().find('.textbox-value').val();//面值
+    var single_dingSecification = $("#single_dingSecification").children().find('.textbox-value').val();//规格
+    var single_zhangType = $("#single_zhangType").children().find('.textbox-value').val();//规格
+    var single_shape = $("#single_shape").children().find('.textbox-value').val();//器型
+    var single_carveName = $("#single_carveName").children().find('.textbox-value').val();//铭文
+    var single_remark = $("#single_remark").children().find('.textbox-value').val();//备注
+    var single_detailedName = $("#single_detailedName").children().find('.textbox-value').val();//名称
+    if (single_level == '' || single_peroid == '' || single_country == '' || single_quality == '' || single_originalQuantity == '') {
         $.messager.alert("提示", "带*号的为必填项");
         return;
     }
-    $('#UpdateInfoForm').form({
-        url: url,
-        queryParams: {
+    $.ajax({
+        type: 'post',
+        url: 'updateNumberingInfo/',
+        data: {
+            serialNumber: serialNumber,
             csrfmiddlewaretoken: getCookie('csrftoken'),
-            operator: $('#operator').val(),
-        },
-        onSubmit: function (param) {
-            return $(this).form('validate');
-        },
-        success: function (result) {
-            var result = eval('(' + result + ')');
-            if (!result.success) {
-                $.messager.alert({		// 显示失败信息
-                    title: '提示',
-                    msg: result.message
-                });
-            } else {
-                $('#workGrid1').datagrid('reload');
-                $('#UpdateInfoDlg').dialog('close');        	 // 关闭对话框
-                $.messager.show({		// 显示成功信息
-                    title: '提示',
-                    msg: result.message,
-                    timeout: 5000,
-                    showType: 'slide'
-                });
+            level: single_level,
+            detailedName: single_detailedName,
+            peroid: single_peroid,
+            year: single_year,
+            country: single_country,
+            faceAmount: single_faceAmount,
+            dingSecification: single_dingSecification,
+            zhangType: single_zhangType,
+            shape: single_shape,
+            appearance: single_quality,
+            mark: single_remark,
+            originalQuantity: single_originalQuantity,
+            remark: single_remark,
+            operator: $('#operator').val(), //操作员
+            workName: workName, //作业名
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.success) {
+                $.messager.alert('提示', data.message);
                 var node = $('#workSpaceTree').tree('getSelected');
-                $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
+                $('#workGrid' + node.id).datagrid('reload');
+
+            } else {
+                $.messager.alert('提示', data.message);
             }
+
         }
     });
-    $('#UpdateInfoForm').submit();
+
+    // $('#UpdateInfoForm').form({
+    //     url: url,
+    //     queryParams: {
+    //         csrfmiddlewaretoken: getCookie('csrftoken'),
+    //         operator: $('#operator').val(),
+    //     },
+    //     onSubmit: function (param) {
+    //         return $(this).form('validate');
+    //     },
+    //     success: function (result) {
+    //         var result = eval('(' + result + ')');
+    //         if (!result.success) {
+    //             $.messager.alert({		// 显示失败信息
+    //                 title: '提示',
+    //                 msg: result.message
+    //             });
+    //         } else {
+    //             $('#workGrid1').datagrid('reload');
+    //             $('#UpdateInfoDlg').dialog('close');        	 // 关闭对话框
+    //             $.messager.show({		// 显示成功信息
+    //                 title: '提示',
+    //                 msg: result.message,
+    //                 timeout: 5000,
+    //                 showType: 'slide'
+    //             });
+    //             var node = $('#workSpaceTree').tree('getSelected');
+    //             $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
+    //         }
+    //     }
+    // });
+    // $('#UpdateInfoForm').submit();
 }
