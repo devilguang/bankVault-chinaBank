@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 import datetime
 from . import log
+from middleWare import postThing
 
 
 @login_required  # 测量称重岗位

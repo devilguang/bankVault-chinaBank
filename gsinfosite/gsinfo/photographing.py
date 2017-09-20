@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 import datetime
 import base64
 from . import log
+from middleWare import postPhoto
 
 @login_required  # 图像采集岗位
 def photographing(request):

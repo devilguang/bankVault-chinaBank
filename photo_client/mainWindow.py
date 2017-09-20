@@ -7,7 +7,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QDialog
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal, QObject, QSize, QTimer
 import login
 import requests
@@ -16,12 +16,12 @@ import photo
 import setinfo
 import tdcode
 import json, os
-from PIL import Image, ImageDraw, ImageFont
 import base64
 import time
 import ctypes
 from ctypes import wintypes
 import upload_tip
+import zlib
 
 
 class LoginWidget(QDialog, login.Ui_Form):
@@ -244,16 +244,6 @@ class Window(QMainWindow, photo.Ui_Form):
                 char = chr(ord('A') + upload_len)
                 newSerial = serial_num + '-' + char
 
-                # 添加水印
-                # image = Image.open(picPath)
-                # imgNew = image.resize((256, 256))
-                # draw = ImageDraw.Draw(imgNew)
-                # 指定要使用的字体和大小；/Library/Fonts/是macOS字体目录；Linux的字体目录是/usr/share/fonts/
-                # font = ImageFont.truetype('arial.ttf', 16)  # 第二个参数表示字符大小
-                # width, height = font.getsize(newSerial)
-                # x = int((256 - width) / 2)
-                # y = 256 - height - 12
-                # draw.text((x, y), newSerial, fill=(255, 255, 255), font=font)
                 ab_filePath = os.path.join(self.upload_dir, '{0}.jpg'.format(newSerial))
                 # imgNew.save(ab_filePath)
                 os.rename(picPath,ab_filePath)
@@ -317,6 +307,8 @@ class Window(QMainWindow, photo.Ui_Form):
                 all_img = {}
                 for pic_name in pic_name_list:
                     file_path = os.path.join(self.upload_dir, pic_name)
+                    zlib_result3 = zlib.crc32(file_path)
+                    print zlib_result3
                     with open(file_path, 'rb') as f:
                         f1 = base64.b64encode(f.read())
                         all_img[pic_name] = f1
