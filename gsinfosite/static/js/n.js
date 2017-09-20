@@ -39,34 +39,34 @@ function loadDataProcess(node, data) {
         }
     }
 }
-function changeInputValue(idName, getIdName, productKey) {
-    //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
-    var value = $("#" + idName).val();
-    var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
-    $.ajax({
-        type: 'post',
-        url: 'checkInfo/',
-        data: {
-            productType: productType,
-            key: productKey,
-            value: value
-        }, success: function (data) {
-            var mes = JSON.parse(data);
-            if (mes.success) {
-                var vArray = mes.message;
-                for (var i = 0; i < vArray.length; i++) {
-                    var optionList = document.createElement('option');
-                    optionList.value = vArray[i];
-                    getIdName.appendChild(optionList);
-                    $('#workGrid' + node.id).datagrid('reload');
-                }
-            } else {
-
-                return
-            }
-        }
-    })
-}
+// function changeInputValue(idName, getIdName, productKey) {
+//     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
+//     var value = $("#" + idName).val();
+//     var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
+//     $.ajax({
+//         type: 'post',
+//         url: 'checkInfo/',
+//         data: {
+//             productType: productType,
+//             key: productKey,
+//             value: value
+//         }, success: function (data) {
+//             var mes = JSON.parse(data);
+//             if (mes.success) {
+//                 var vArray = mes.message;
+//                 for (var i = 0; i < vArray.length; i++) {
+//                     var optionList = document.createElement('option');
+//                     optionList.value = vArray[i];
+//                     getIdName.appendChild(optionList);
+//                     $('#workGrid' + node.id).datagrid('reload');
+//                 }
+//             } else {
+//
+//                 return
+//             }
+//         }
+//     })
+// }
 function treeSelectHandler(node) {
     var isWork = node.attributes.isWork;
     if (!isWork) {
@@ -374,16 +374,30 @@ function returnFloat(value) {
     }
 }
 
-function getReadyInfoInformation(){
-    console.log(123)
-    // $.ajax({
-    //
-    // })
-}
-
+// function getReadyInfoInformation(id){
+//     var txt = $("#"+id).siblings().eq(0).html();
+//     $.ajax({
+//         type:'post',
+//         url:'getReadyInfo/',
+//         data:{
+//             field:txt
+//         },success:function(data){
+//             var data = JSON.parse(data);
+//             $("#"+id).html('')
+//             for(var i = 0;i<data.length;i++){
+//                $("<option></option>").html(data[i].text).appendTo($("#"+id));
+//             }
+//         }
+//     })
+// }
+// function hello(){
+//      var a, json;
+//     json = '[{"id":1 , "text":"兰州" },{"id":14 ,"text":"敦煌" ,"selected":true},{"id":15 , "text":"临夏"}]';
+//     a = $.parseJSON(json);
+//     $("#hhh").combobox("loadData", a);
+// }
 function updateInfo(index, row) {
     initUpdateInfoDlg(row);
-    //$.messager.alert('提示', boxNumber);
     $.ajax({
         url: 'getThingInfo/',
         type: 'post',
@@ -392,7 +406,6 @@ function updateInfo(index, row) {
             serialNumber: row.serialNumber
         }, success: function (data) {
             var data = JSON.parse(data);
-            console.log(data)
             $('#UpdateInfoForm').form('load', {
                 serialNumber: row.serialNumber,
                 productType: row.productType,
@@ -411,72 +424,8 @@ function updateInfo(index, row) {
                 shape: data.shape,
                 appearance: data.appearance,
                 originalQuantity: data.originalQuantity,
-                mark: data.mark,
-                // detailedName: data.detailedName,
-                // peroid: data.peroid,
-                // originalQuantity: data.originalQuantity,
-                // producePlace: data.producePlace,
-                // producer: data.producer,
-                // typeName: data.typeName,
-                // carveName: data.carveName,
-                // quality: data.quality,
-                // level: data.level,
-                // remark: data.remark,
+                mark: data.mark
             });
-            // else if (row.productType == "金银币章类") {
-            //     $('#UpdateInfoForm').form('load', {
-            //         serialNumber: row.serialNumber,
-            //         productType: row.productType,
-            //         className: row.className,
-            //         subClassName: row.subClassName,
-            //         wareHouse: row.wareHouse,
-            //         boxNumber: row.boxNumber,
-            //         versionName: data.versionName,
-            //         detailedName: data.detailedName,
-            //         peroid: data.peroid,
-            //         originalQuantity: data.originalQuantity,
-            //         producePlace: data.producePlace,
-            //         producer: data.producer,
-            //         quality: data.quality,
-            //         level: data.level,
-            //         remark: data.remark,
-            //     });
-            // }
-            // else if (row.productType == "银元类") {
-            //     $('#UpdateInfoForm').form('load', {
-            //         serialNumber: row.serialNumber,
-            //         productType: row.productType,
-            //         className: row.className,
-            //         subClassName: row.subClassName,
-            //         wareHouse: row.wareHouse,
-            //         boxNumber: row.boxNumber,
-            //         versionName: data.versionName,
-            //         value: data.value,
-            //         producePlace: data.producePlace,
-            //         producer: data.producer,
-            //         quality: data.quality,
-            //         level: data.level,
-            //         remark: data.remark,
-            //     });
-            // }
-            // else if (row.productType == "金银工艺品类") {
-            //     $('#UpdateInfoForm').form('load', {
-            //         serialNumber: row.serialNumber,
-            //         productType: row.productType,
-            //         className: row.className,
-            //         subClassName: row.subClassName,
-            //         wareHouse: row.wareHouse,
-            //         boxNumber: row.boxNumber,
-            //         value: data.value,
-            //         detailedName: data.detailedName,
-            //         peroid: data.peroid,
-            //         originalQuantity: data.originalQuantity,
-            //         marginShape: data.marginShape,
-            //         quality: data.quality,
-            //         level: data.level,
-            //         remark: data.remark,
-            //     });
-            // }
         }
     });
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
@@ -492,7 +441,6 @@ function updateInfo(index, row) {
             dataType: 'json',
             success: function (result, status) {
                 data = result;
-
                 if (row.productType == "金银锭类") {
                     $('#UpdateInfoForm').form('load', {
                         serialNumber: row.serialNumber,
@@ -567,7 +515,6 @@ function updateInfo(index, row) {
                         remark: data.remark,
                     });
                 }
-
             },
         });
     }
