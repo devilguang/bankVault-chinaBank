@@ -46,7 +46,7 @@ class LoginWidget(QDialog, login.Ui_Form):
                         csrftoken = res.cookies['csrftoken']
                         data = {
                             'csrfmiddlewaretoken': csrftoken,
-                            'nickName': nickName,
+                            'userName': nickName,
                             'passWord': passWord,
                             'workRole': 'photographing'
                         }
@@ -150,7 +150,7 @@ class tdcodeDil(QDialog, tdcode.Ui_code_Dialog):
             if self.success:
                 self.code_label.setText("")
                 self.SerialNumber = sNumber
-                self.boxOrSubBox = txt['boxOrSubBox']
+                self.boxNumber = txt['boxNumber']
             else:
                 self.code_label.setText("<font color=red>{0}</font>".format(txt['message']))
         else:

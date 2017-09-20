@@ -305,7 +305,7 @@ class gsThing(models.Model):
     isAllocate = models.BooleanField(verbose_name='是否被创建为作业',default=False)
     # historyNo = models.IntegerField(null=True)
     # ------------------实物字段
-    level = models.CharField(verbose_name='评价等级', max_length=255, blank=True)
+    level = models.CharField(verbose_name='等级', max_length=255, blank=True)
     detailedName = models.CharField(verbose_name='名称',max_length=1024, blank=True)
     peroid = models.CharField(verbose_name='年代',max_length=255, blank=True)
     year = models.CharField(verbose_name='年份', max_length=255, blank=True)

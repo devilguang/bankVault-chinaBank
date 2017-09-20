@@ -50,25 +50,77 @@ def getNumberingInfo(request):
     return HttpResponse(ret_json)
 
 def getReadyInfo(request):
-    field = request.Get.get('field', '')
+    field = request.POST.get('field', '')
+    productType = request.POST.get('productType', '')
+
+    field_list = field.split(';')
+
     ret = []
-    type_list = list(gsProperty.objects.filter(project=field).values_list('type',flat=True))
-    code_list = list(gsProperty.objects.filter(project=field).values_list('code', flat=True))
-    for type,code in zip(type_list,code_list):
+    def parse(data,name):
         detail = {}
-        detail['text'] = type
-        detail['id'] = code
+        detail['name'] = name
+        detail['val'] = []
+        type_list = list(gsProperty.objects.filter(project=data).values_list('type', flat=True))
+        code_list = list(gsProperty.objects.filter(project=data).values_list('code', flat=True))
+        for type, code in zip(type_list, code_list):
+            sub = {}
+            sub['text'] = type
+            sub['id'] = code
+            detail['val'].append(sub)
+        return detail
+    if '等级' in field_list:
+        data = name = '等级'
+        detail = parse(data,name)
+        ret.append(detail)
+    if '年代' in field_list:
+        data = name = '年代'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '国别' in field_list:
+        data = name = '国别'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '面值' in field_list:
+        data = name = '面值'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '规格' in field_list:
+        data = '金银锭类规格'
+        name = '规格'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '器型' in field_list:
+        data ='工艺品类器型'
+        name = '器型'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '型制' in field_list and productType == '黄金':
+        data = '金锭类形制'
+        name = '型制'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '型制' in field_list and productType == '白银':
+        data = '银锭类形制'
+        name = '型制'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '性质' in field_list:
+        data = '章类性质'
+        name = '性质'
+        detail = parse(data, name)
+        ret.append(detail)
+
+    if '品相' in field_list:
+        data = name = '品相'
+        detail = parse(data, name)
         ret.append(detail)
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
 def updateNumberingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
-    boxNumber = request.POST.get('boxNumber', '')
-    productType = request.POST.get('productType', '')
-    className = request.POST.get('className', '')
-    subClassName = request.POST.get('subClassName', '')
-    wareHouse = request.POST.get('wareHouse', '')
+    workName = request.POST.get('workName', '')
+    # -----------------------------------------------
     level = request.POST.get('level', '')
     detailedName = request.POST.get('detailedName', '')
     peroid = request.POST.get('peroid', '')
@@ -80,19 +132,14 @@ def updateNumberingInfo(request):
     shape = request.POST.get('shape', '')
     appearance = request.POST.get('appearance', '')
     mark = request.POST.get('mark', '')
-    originalQuantity = request.POST.get('originalQuantity', '')
+    originalQuantity = float(request.POST.get('originalQuantity'))
     remark = request.POST.get('remark', '')
-
+    # -----------------------------------------------
     operator = request.POST.get('operator', '')
     workSeq = request.POST.get('workSeq', '')  # 更新单件实物信息是workSeq不传值，设置缺省信息是传值
 
-    if originalQuantity != '':
-        originalQuantity = float(originalQuantity)
-
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    
     if serialNumber == '' and workSeq != '':
-        work = gsWork.objects.get(box=box, workSeq=workSeq)
+        work = gsWork.objects.get(workName=workName)
         thing_set = gsThing.objects.filter(work=work)
     elif serialNumber != '' and workSeq == '':
         thing_set = gsThing.objects.filter(serialNumber=serialNumber)
@@ -100,45 +147,19 @@ def updateNumberingInfo(request):
     ret = {}
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'实物外观信息更新')
-        if productType == u'金银锭类':
-            gsDing.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
-                                                      typeName=typeName,
-                                                      peroid=peroid,
-                                                      producer=producer,
-                                                      producePlace=producePlace,
-                                                      carveName=carveName,
-                                                      originalQuantity=originalQuantity,
-                                                      quality=quality,
-                                                      level=level,
-                                                      remark=remark)
-        elif productType == u'金银币章类':
-            gsBiZhang.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
-                                                                 peroid=peroid,
-                                                                 producer=producer,
-                                                                 producePlace=producePlace,
-                                                                 originalQuantity=originalQuantity,
-                                                                 quality=quality,
-                                                                 level=level,
-                                                                 value=value,
-                                                                 versionName=versionName,
-                                                                 remark=remark)
-        elif productType == u'银元类':
-            gsYinYuan.objects.filter(thing__in=thing_set).update(producer=producer,
-                                                         producePlace=producePlace,
-                                                         quality=quality,
-                                                         level=level,
-                                                         versionName=versionName,
-                                                         value=value,
-                                                         remark=remark)
-        elif productType == u'金银工艺品类':
-            gsGongYiPin.objects.filter(thing__in=thing_set).update(detailedName=detailedName,
-                                                           peroid=peroid,
-                                                           originalQuantity=originalQuantity,
-                                                           quality=quality,
-                                                           level=level,
-                                                           remark=remark)
-        # now是本地时间，可以认为是你电脑现在的时间 utcnow是世界时间（时区不同，所以这两个是不一样的）
-        # now = datetime.datetime.utcnow()  # 这里使用utcnow生成时间,存入mariaDB后被数据库当做非UTC时间,自动减去了8个小时,所以这里改用now
+        thing_set.update(level=level,
+                         detailedName=detailedName,
+                         peroid=peroid,
+                         year=year,
+                         country=country,
+                         faceAmount=faceAmount,
+                         dingSecification=dingSecification,
+                         zhangType=zhangType,
+                         shape=shape,
+                         appearance=appearance,
+                         mark=mark,
+                         originalQuantity=originalQuantity,
+                         remark=remark,)
         if serialNumber != '' and workSeq == '':
             now = datetime.datetime.now()
             gsStatus.objects.filter(thing__in=thing_set).update(numberingStatus=True,numberingOperator=operator,numberingUpdateDateTime=now)
@@ -150,13 +171,10 @@ def updateNumberingInfo(request):
                 status_set.update(status=status,completeTime=now)
     except Exception as e:
         ret['success'] = False
-        ret['message'] = str(boxNumber) + u'号箱作业更新失败！' if (0 == cmp(serialNumber, '')) else str(
-            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新失败！'
-        ret['message'] = ret['message'] + u'\r\n原因:{0}'.format(e.message)
+        ret['message'] = serialNumber + u'实物信息更新失败！'
     else:
         ret['success'] = True
-        ret['message'] = str(boxNumber) + '号箱作业更新成功！' if (0 == cmp(serialNumber, '')) else str(
-            boxNumber) + u'号箱，编号为' + serialNumber + u'实物信息更新成功！'
+        ret['message'] = serialNumber + u'实物信息更新成功！'
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 

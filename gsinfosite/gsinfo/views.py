@@ -351,14 +351,7 @@ def searchThingInfo(request):
         thing = gsThing.objects.get(serialNumber=serialNumber)
         work = thing.work
         box = thing.box
-        subBox = thing.subBox
         boxNumber = box.boxNumber
-        if subBox:
-            subBoxNumber = subBox.subBoxNumber
-            boxOrSubBox = str(boxNumber) + '-' + str(subBoxNumber)
-        else:
-            boxOrSubBox = str(boxNumber)
-
         thing_set = gsThing.objects.filter(work=work)
 
         status = gsStatus.objects.get(thing=thing)
@@ -406,7 +399,7 @@ def searchThingInfo(request):
         ret['workName'] = work.workName
         ret['thingStatus'] = 'complete' if thingStatus else 'notComplete'
         ret['seq'] = idx
-        ret['boxOrSubBox'] = boxOrSubBox
+        ret['boxNumber'] = boxNumber
 
     ret_json = json.dumps(ret, separators=(',', ':'))
 
