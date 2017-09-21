@@ -94,7 +94,6 @@ class gsBoxManager(models.Manager):
         oprateType_code = kwargs['oprateType']
         origBoxNumber = kwargs['origBoxNumber']
 
-
         # 生成一条Box记录
         if subClassName:
             boxType = gsProperty.objects.get(code=subClassName, parentCode=classNameCode,grandpaCode=productType)
@@ -216,8 +215,7 @@ class gsProperty(models.Model):
 # 开箱操作记录原箱数据
 class gsOrigBox(models.Model):
     origBoxNumber = models.CharField(verbose_name='原箱号',max_length=255,unique=True)
-    thingAmount = models.PositiveIntegerField(verbose_name='件数', null=True)
-    packageAmount = models.PositiveIntegerField(verbose_name='包数', null=True)
+    amount = models.PositiveIntegerField(verbose_name='件数', null=True)
     grossWeight = models.FloatField(verbose_name='总毛重',null=True)
 
 # 箱体实物表

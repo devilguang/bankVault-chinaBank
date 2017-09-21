@@ -30,15 +30,22 @@ def manage(request):
 
 def openOrigBox(request):
     origBoxNumber = request.POST.get('origBoxNumber', '')
-    thingAmount = request.POST.get('thingAmount', '')
-    packageAmount = request.POST.get('packageAmount', '')
+    amount = request.POST.get('thingAmount', '')
     grossWeight = request.POST.get('grossWeight', '')
+
+    if amount:
+        amount = int(amount)
+    else:
+        amount =None
+    if grossWeight:
+        grossWeight = float(grossWeight)
+    else:
+        grossWeight =None
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱开箱操作'.format(origBoxNumber))
         gsOrigBox.objects.create(origBoxNumber=origBoxNumber,
-                                 thingAmount=thingAmount,
-                                 packageAmount=packageAmount,
+                                 amount=amount,
                                  grossWeight=grossWeight)
     except Exception as e:
         ret = {
@@ -48,11 +55,33 @@ def openOrigBox(request):
     else:
         ret = {
             'success': True,
-            'message': '开箱失败！'
+            'message': '开箱成功！'
         }
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
+
+def checkAmount(request):
+    amount = int(request.POST.get('amount', ''))  # 件数
+    origBoxNumber = request.POST.get('origBoxNumber', '') # 原箱号
+    # ---检验新建箱中数量与原始箱数量是否匹配---
+    origBox = gsOrigBox.objects.get(origBoxNumber=origBoxNumber)
+    all_amount = origBox.amount
+    box_amount = sum(list(gsBox.objects.filter(origBox=origBox).values_list('amount', flat=True))) + int(amount)
+    dif = all_amount - box_amount
+    if dif >= 0:
+        ret = {
+            'success': True,
+        }
+    else:
+        ret = {
+            'success': True,
+            'message': '件数超过原箱件数，新建箱失败成功！'
+        }
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
+# ------------------------------------
+
 
 
 def createBox(request):
@@ -63,12 +92,12 @@ def createBox(request):
     amount = int(request.POST.get('amount', ''))  # 件数
     grossWeight = request.POST.get('grossWeight', '')  # 毛重
     oprateType = request.POST.get('oprateType', '')  # 操作类型
-    origBoxNumber = request.POST.get('origBoxNumber', '')  # 操作类型
+    origBoxNumber = request.POST.get('origBoxNumber', '') # 原箱号
 
     if grossWeight:
         grossWeight = float(grossWeight)
     else:
-        grossWeight = float(0)
+        grossWeight = None
     # 向货发二代系统请求箱号
     # code = '1|{0}|{1}|{2}'.format(wareHouse,productType,className)
     # boxNumber = getNumberAPI(code)
@@ -90,12 +119,12 @@ def createBox(request):
     except Exception as e:
         ret = {
             "success": False,
-            "message": '{0}号箱实物新建失败！'.format(boxNumber)
+            "message": '{0}号箱新建失败！'.format(boxNumber)
         }
     else:
         ret = {
             'success': True,
-            'message': '{0}号箱实物新建成功!'.format(boxNumber)
+            'message': '{0}号箱新建成功!'.format(boxNumber)
         }
     ret_json = json.dumps(ret, separators=(',', ':'))
 
