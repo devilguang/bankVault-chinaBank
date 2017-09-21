@@ -128,7 +128,7 @@ function sealingBag() {
             fit: true,
             pageSize: 20,
             fitColumns: true,
-            rownumbers: true,
+            rownumbers: true
         }).datagrid('getPager').pagination({
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
