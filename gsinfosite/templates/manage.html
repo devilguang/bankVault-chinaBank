@@ -33,11 +33,13 @@
         #finalSummaryDlgTable td {
             border: 1px dashed #cccccc;
         }
+
         #finalSummaryDlgTable tr td:nth-child(1) {
             text-align: center;
         }
-        #finalSummaryDlgTable .finalSummaryTitle{
-            background:#E0ECFF;
+
+        #finalSummaryDlgTable .finalSummaryTitle {
+            background: #E0ECFF;
         }
 
     </style>
@@ -375,6 +377,37 @@
     </div>
 </div>
 
+{#开箱操作对话框#}
+<div id="openBoxDlg" class="easyui-dialog" style="width:320px;height:250px;padding:10px 20px"
+     data-options="closed:true, buttons:'#openBoxDlgButtons', modal:true">
+    <form id="openBoxForm" method="POST" novalidate>
+        <table width="260px">
+            <tr>
+                <th>原箱：</th>
+                <td><input type="text" id="originalBox" class="easyui-numberbox"/></td>
+            </tr>
+            <tr>
+                <th>件数：</th>
+                <td><input type="text" id="openBoxCases" class="easyui-numberbox"/></td>
+            </tr>
+            <tr>
+                <th>包数：</th>
+                <td><input type="text" id="openBoxPackets" class="easyui-numberbox"/></td>
+            </tr>
+            <tr>
+                <th>毛重：</th>
+                <td><input type="text" id="grossweight" class="easyui-numberbox"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="openBoxDlgButtons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="allotBox()" style="width:90px">确定</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#openBoxDlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+
 <!-- 新建实物对话框 -->
 <div id="createBoxDlg" class="easyui-dialog" style="width: 500px; height: 300px; padding: 10px 20px"
      data-options="closed:true, buttons:'#createBoxDlgButtons', modal:true">
@@ -459,13 +492,18 @@
 							panelHeight: 'auto',
 							fit: true,"/>
                 </td>
+                <th>原箱号</th>
+                <td>
+                    <input id="createBox-origBoxNumber" name="origBoxNumber"  class="easyui-numberbox"
+                                                           data-options="min:0, fit: true"/></td>
+                </td>
             </tr>
-            {#                <th>件数</th>#}
-            {#                <td><input id="createBox-amount" name="amount" class="easyui-numberbox"#}
-            {#                           data-options="min:0, fit: true"/></td>#}
-            {#                <th>起始序号</th>#}
-            {#                <td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox"#}
-            {#                           data-options="min:0, fit: true"/></td>#}
+            {#                            <th>件数</th>#}
+            {#                            <td><input id="createBox-amount" name="amount" class="easyui-numberbox"#}
+            {#                                       data-options="min:0, fit: true"/></td>#}
+            {#                            <th>起始序号</th>#}
+            {#                            <td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox"#}
+            {#                                       data-options="min:0, fit: true"/></td>#}
         </table>
     </form>
 </div>
@@ -813,7 +851,7 @@
 <div id="finalSummaryDlg" class="easyui-dialog" title="日终小结" style="width:900px;height:500px;"
      data-options="closed:true, buttons:'#finalSummaryButtons', modal:true">
     <form id="finalSummaryDlgTable" method="POST" novalidate style="width: 300px;margin:30px 0 0 20px ">
-        <table data-option="fitColumns:true,striped:true," style="border:1px solid #95b8e7;width: 850px;" >
+        <table data-option="fitColumns:true,striped:true," style="border:1px solid #95b8e7;width: 850px;">
             <tr class="finalSummaryTitle" width="5%">
                 <th></th>
                 <th colspan="4">金银锭类</th>
@@ -859,7 +897,7 @@
                 <td></td>
                 <td></td>
             </tr>
-            <tr >
+            <tr>
                 <td>直径</td>
                 <td></td>
                 <td></td>
@@ -897,7 +935,7 @@
                 <td></td>
                 <td></td>
             </tr>
-            <tr >
+            <tr>
                 <td>宽度</td>
                 <td></td>
                 <td></td>
