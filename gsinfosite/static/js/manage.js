@@ -58,17 +58,47 @@ function boxManage() {
         '<div data-options="region:\'center\'">' +
         '<table id="workGridBoxManage" class="easyui-datagrid" data-options="url:\'getBox/\', queryParams: {status: 0}, toolbar:\'#workGridToolBarBoxManage\', onClickRow:ClickRow, singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th field="boxNumber" align="center">箱号</th>' +
         '<th field="productType" align="center">类别</th>' +
-        '<th field="className" align="center">品类</th><th field="subClassName" align="center">品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="oprateType" align="center">操作类型</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" style="display:none" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" style="display:none" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" style="display:none" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addTheJobBox()">添加盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除箱</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+        '<th field="className" align="center">品类</th><th field="subClassName" align="center">品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="oprateType" align="center">操作类型</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="openEntityBox()">开箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" style="display:none" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" style="display:none" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" style="display:none" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addTheJobBox()">添加盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除箱</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-box2');
     initPagination();
 }
 function boxOperationFormatter(value, row, index) {
     // if (row.haveSubBox == "0") {
-        return '<div style="float:left"><a href="javascript:void(0);" disabled="true" onclick="openAddToExistingBoxDlg(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;opacity:0.5;display:none;">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;display:none">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(0, \'' + index + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;display: none">修改</a></div>'
+    return '<div style="float:left"><a href="javascript:void(0);" disabled="true" onclick="openAddToExistingBoxDlg(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;opacity:0.5;display:none;">并箱操作</a><a href="javascript:void(0);" onclick="openCreateWorkDlg(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">创建作业</a><a href="javascript:void(0);" onclick="generateBoxInfo(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">打印装箱清单</a><a href="javascript:void(0);" onclick="generateBoxInfoDetailedVersion(\'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;display:none">打印装箱清单(详细版)</a><a href="javascript:void(0);" onclick="putBoxIntoStore(0, \'' + index + '\', 1)" style="text-decoration:none;color:blue;margin-right:20px;">封箱入库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a><a href="javascript:void(0);" onclick="weightBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;display: none">修改</a></div>'
     // } else {
     //     //return '<div style="float:left; min-width: 498px;"></div>'
     //     return '<div style="float:left" min-width: 498px;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;"></a></div>';
     // }
+}
+
+//点击开箱的对话的方法
+function openEntityBox() {
+    $("#openBoxDlg").dialog('open').dialog('center').dialog('setTitle', '开箱操作');
+    $("#openBoxForm").form('clear');
+
+}
+function saveOpenEntityBox() {
+    var origBoxNumber = $("#originalBox").children().find(".textbox-value").val();
+    var thingAmount = $("#openBoxCases").children().find(".textbox-value").val();
+    var packageAmount = $("#openBoxPackets").children().find(".textbox-value").val();
+    var grossWeight = $("#grossweight").children().find(".textbox-value").val();
+    $.ajax({
+        type: 'post',
+        url: 'openOrigBox/',
+        data: {
+            origBoxNumber: origBoxNumber,
+            thingAmount: thingAmount,
+            packageAmount: packageAmount,
+            grossWeight: grossWeight
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.success) {
+                $.messager.alert('提示', data.message)
+            } else {
+                $.messager.alert('提示', data.message)
+            }
+        }
+    })
 }
 
 //点击封袋的方法  封袋功能里面的扫描二维码
@@ -1577,19 +1607,19 @@ function workManage() {
 }
 
 //日终小结
-function finalSummary(){
+function finalSummary() {
     var title = '日终小结';
     var c = '<div class="easyui-layout">' +
         '<div style="margin: 50px 0 30px 50px"><input id="nowNewData" type="text"  class="easyui-datebox" required="true" currentText="Today"></div>' +
-        '<a id="statisticalTable" href="#"  style="width: 100px;display: block;margin: 0px 0 20px 50px" class="easyui-linkbutton" onclick="finalSummaryTable()">统计表</a>'+
+        '<a id="statisticalTable" href="#"  style="width: 100px;display: block;margin: 0px 0 20px 50px" class="easyui-linkbutton" onclick="finalSummaryTable()">统计表</a>' +
         '<a id="" href="#" style="width: 100px;display: block;margin: 0px 0 20px 50px" class="easyui-linkbutton">统计表</a>';
-        '</div>';
+    '</div>';
     addTab(title, c, 'icon-brief');
     // initPagination();
 }
 //日终小结对话框
-function finalSummaryTable(){
-    
+function finalSummaryTable() {
+
     $("#finalSummaryDlg").dialog('open').dialog('center').dialog('setTitle', '日终小结');
     $("#finalSummaryDlgTable").form('clear');
 }
