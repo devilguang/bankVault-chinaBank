@@ -382,27 +382,27 @@
      data-options="closed:true, buttons:'#openBoxDlgButtons', modal:true">
     <form id="openBoxForm" method="POST" novalidate>
         <table width="260px">
-            <tr>
+            <tr >
                 <th>原箱：</th>
-                <td><input type="text" id="originalBox" class="easyui-numberbox"/></td>
+                <td id="originalBox"><input type="text"  class="easyui-numberbox"/></td>
             </tr>
-            <tr>
+            <tr >
                 <th>件数：</th>
-                <td><input type="text" id="openBoxCases" class="easyui-numberbox"/></td>
+                <td id="openBoxCases"><input type="text"  class="easyui-numberbox"/></td>
             </tr>
-            <tr>
+            <tr >
                 <th>包数：</th>
-                <td><input type="text" id="openBoxPackets" class="easyui-numberbox"/></td>
+                <td id="openBoxPackets"><input type="text"  class="easyui-numberbox"/></td>
             </tr>
-            <tr>
+            <tr >
                 <th>毛重：</th>
-                <td><input type="text" id="grossweight" class="easyui-numberbox"/></td>
+                <td id="grossweight"><input type="text"  class="easyui-numberbox"/></td>
             </tr>
         </table>
     </form>
 </div>
 <div id="openBoxDlgButtons">
-    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="allotBox()" style="width:90px">确定</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveOpenEntityBox()" style="width:90px">确定</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#openBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
