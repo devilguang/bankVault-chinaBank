@@ -93,7 +93,11 @@ function saveOpenEntityBox() {
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
-                $.messager.alert('提示', data.message)
+                $.messager.confirm('提示', data.message + '！', function (r) {
+                    if (r) {
+                        $("#openBoxDlg").dialog("close")
+                    }
+                });
             } else {
                 $.messager.alert('提示', data.message)
             }
@@ -392,12 +396,38 @@ function openCreateBoxDlg() {
     // })
 }
 
+
+
+function checkAmount() {
+    var amount = $("#createBox-amount").siblings().children().eq(1).val();
+    var origBoxNumber = $("#createBox-origBoxNumber").siblings().children().eq(1).val();
+    $.ajax({
+        type: 'post',
+        url: 'checkAmount/',
+        data: {
+            amount: amount,
+            origBoxNumber: origBoxNumber
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.success) {
+                createBox()
+            } else {
+                $.messager.alert({    // 显示失败信息
+                    title: '提示',
+                    msg: data.message
+                });
+            }
+        }
+    })
+}
+
 function createBox() {
     $('#createBoxDlg').dialog('close');// 关闭对话框
+
     $('#createBoxForm').form({
         url: 'createBox/',
         queryParams: {
-            csrfmiddlewaretoken: getCookie('csrftoken'),
+            csrfmiddlewaretoken: getCookie('csrftoken')
         },
         onSubmit: function (param) {
             return $(this).form('validate');

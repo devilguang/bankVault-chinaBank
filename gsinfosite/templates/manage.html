@@ -378,21 +378,21 @@
 </div>
 
 {#开箱操作对话框#}
-<div id="openBoxDlg" class="easyui-dialog" style="width:320px;height:250px;padding:10px 20px"
+<div id="openBoxDlg" class="easyui-dialog" style="width:320px;height:200px;padding:10px 20px"
      data-options="closed:true, buttons:'#openBoxDlgButtons', modal:true">
     <form id="openBoxForm" method="POST" novalidate>
         <table width="260px">
             <tr >
                 <th>原箱号</th>
-                <td id="originalBox"><input type="text"  class="easyui-numberbox"/></td>
+                <td id="originalBox"><input type="text"  class="easyui-textbox"/></td>
             </tr>
             <tr >
                 <th>件&nbsp;&nbsp;&nbsp;数</th>
-                <td id="openBoxCases"><input type="text"  class="easyui-numberbox"/></td>
+                <td id="openBoxCases"><input type="text"  class="easyui-textbox"/></td>
             </tr>
             <tr >
                 <th>毛&nbsp;&nbsp;&nbsp;重</th>
-                <td id="grossweight"><input type="text"  class="easyui-numberbox"/></td>
+                <td id="grossweight"><input type="text"  class="easyui-textbox"/></td>
             </tr>
         </table>
     </form>
@@ -453,6 +453,7 @@
 								var typeCode = $('#createBox-productType').combobox('getValue');
 								var url = 'getSubClassName/'+typeCode+'&'+rec.id;
 								$('#createBox-subClassName').combobox('reload', url);
+								$('#createBox-subClassName').combobox('clear');
 							},"/>
                 </td>
 
@@ -467,9 +468,7 @@
                 </td>
             </tr>
             <tr>
-                {#                <th>箱号</th>#}
-                {#                <td ><input id="createBox-boxNumber" name="boxNumber" class="easyui-numberbox"#}
-                {#                                       data-options="min:0, fit: true"/></td>#}
+
                 <th>毛重</th>
                 <td><input id="createBox-grossWeight" name="grossWeight" class="easyui-numberbox"
                            data-options="min:0, fit: true"/></td>
@@ -490,21 +489,16 @@
                 </td>
                 <th>原箱号</th>
                 <td>
-                    <input id="createBox-origBoxNumber" name="origBoxNumber"  class="easyui-numberbox"
-                                                           data-options="min:0, fit: true"/></td>
+                    <input id="createBox-origBoxNumber" type="text" class="easyui-textbox" name="origBoxNumber"
+                         data-options="min:0, fit: true"/>
+                </td>
                 </td>
             </tr>
-            {#                            <th>件数</th>#}
-            {#                            <td><input id="createBox-amount" name="amount" class="easyui-numberbox"#}
-            {#                                       data-options="min:0, fit: true"/></td>#}
-            {#                            <th>起始序号</th>#}
-            {#                            <td><input id="createBox-startSeq" name="startSeq" class="easyui-numberbox"#}
-            {#                                       data-options="min:0, fit: true"/></td>#}
         </table>
     </form>
 </div>
 <div id="createBoxDlgButtons">
-    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="createBox()"
+    <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="checkAmount()"
        style="width:90px">新建</a>
     <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#createBoxDlg').dialog('close')" style="width:90px">取消</a>

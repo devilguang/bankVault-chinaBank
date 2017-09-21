@@ -313,9 +313,22 @@ function saveBatchUpdateInfo() {
     var batch_carveName = $("#batch_carveName").children().find('.textbox-value').val();//铭文
     var batch_remark = $("#batch_remark").children().find('.textbox-value').val();//备注
     var batch_detailedName = $("#batch_detailedName").children().find('.textbox-value').val();//名称
-    if (batch_level == '' || batch_peroid == '' || batch_country == '' || batch_quality == '' || batch_originalQuantity == '') {
-        $.messager.alert("提示", "带*号的为必填项");
-        return;
+    var arrId = ['batch_level', 'batch_peroid', 'batch_country', 'batch_quality', 'batch_originalQuantity',
+        'batch_year', 'batch_faceAmount', 'batch_dingSecification', 'batch_zhangType', 'batch_shape', 'batch_carveName', 'batch_remark', 'batch_detailedName'];
+    var mustId = [];
+    var Compulsory = ['batch_level', 'batch_peroid', 'batch_country', 'batch_quality', 'batch_originalQuantity'];
+    for (var i = 0; i < arrId.length; i++) {
+        if ($("#" + arrId[i]).css("display") !== "none") {
+            Compulsory.forEach(function (item) {
+                if (arrId[i] == item && $("#" + item).children().find('.textbox-value').val() == '') {
+                    mustId.push(item)
+                }
+            });
+        }
+    }
+    if (mustId.length > 0) {
+        $.messager.alert('提示', "带*号的为必填项");
+        return
     }
     $.ajax({
         type: 'post',
@@ -337,12 +350,18 @@ function saveBatchUpdateInfo() {
             remark: batch_remark,
             operator: $('#operator').val(), //操作员
             workSeq: workSeq,
-            workName:text
+            workName: text
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
                 $.messager.alert('提示', data.message);
-                $('#workGrid' + node.id).datagrid('reload');         	 // 重载作业数据
+                $.messager.confirm('提示', data.message, function (r) {
+                    if (r) {
+                        $("#BatchUpdateInfoDlg").dialog('close');
+                        $('#workGrid' + node.id).datagrid('reload');
+                    }
+                });
+                // 重载作业数据
             } else {
                 $.messager.alert('提示', data.message);
             }
@@ -566,12 +585,6 @@ function returnFloat(value) {
     }
 }
 
-// function hello() {
-//     var a, json;
-//     json = [{text: "珍品", id: "1"},{text: "稀一级", id: "2"},{text: "稀二级", id: "3"},{text: "稀三级", id: "4"}, {text: "普品", id: "5"}];
-//     // a = $.parseJSON(json);
-//     $("#hhh").combobox("loadData", json);
-// }
 function getReadyInfoInformation(row) {
     var arrId = ['UpdateInfo-level', 'UpdateInfo-peroid', 'UpdateInfo-country', 'UpdateInfo-faceAmount',
         'UpdateInfo-dingSecification', 'UpdateInfo-zhangType', 'UpdateInfo-shape', 'UpdateInfo-quality', 'UpdateInfo-zhangType'];
@@ -797,10 +810,13 @@ function editUpdateInfo() {
     // }
     $('#UpdateInfo-remark').textbox('readonly', false);
 }
+
+
 function saveUpdateInfo() {
     var node = $('#workSpaceTree').tree('getSelected');
     var workName = node.text;
     var serialNumber = $("#single_serialNumber").children().find('.textbox-value').val();//实物编号
+
     var single_level = $("#single_level").children().find('.textbox-value').val(); //等级
     var single_peroid = $("#single_peroid").children().find('.textbox-value').val();//年代
     var single_country = $("#single_country").children().find('.textbox-value').val();//国别
@@ -814,9 +830,22 @@ function saveUpdateInfo() {
     var single_carveName = $("#single_carveName").children().find('.textbox-value').val();//铭文
     var single_remark = $("#single_remark").children().find('.textbox-value').val();//备注
     var single_detailedName = $("#single_detailedName").children().find('.textbox-value').val();//名称
-    if (single_level == '' || single_peroid == '' || single_country == '' || single_quality == '' || single_originalQuantity == '') {
-        $.messager.alert("提示", "带*号的为必填项");
-        return;
+    var arrId = ['single_level', 'single_peroid', 'single_country', 'single_quality', 'single_originalQuantity',
+        'single_year', 'single_faceAmount', 'single_dingSecification', 'single_zhangType', 'single_shape', 'single_carveName', 'single_remark', 'single_detailedName'];
+    var mustId = [];
+    var Compulsory = ['single_level', 'single_peroid', 'single_country', 'single_quality', 'single_originalQuantity'];
+    for (var i = 0; i < arrId.length; i++) {
+        if ($("#" + arrId[i]).css("display") !== "none") {
+            Compulsory.forEach(function (item) {
+                if (arrId[i] == item && $("#" + item).children().find('.textbox-value').val() == '') {
+                    mustId.push(item)
+                }
+            });
+        }
+    }
+    if (mustId.length > 0) {
+        $.messager.alert('提示', "带*号的为必填项");
+        return
     }
     $.ajax({
         type: 'post',
@@ -842,7 +871,11 @@ function saveUpdateInfo() {
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
-                $.messager.alert('提示', data.message);
+                $.messager.confirm('提示', data.message, function (r) {
+                    if (r) {
+                        $("#UpdateInfoDlg").dialog('close');
+                    }
+                });
                 var node = $('#workSpaceTree').tree('getSelected');
                 $('#workGrid' + node.id).datagrid('reload');
 

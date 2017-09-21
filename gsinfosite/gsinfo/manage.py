@@ -65,18 +65,24 @@ def checkAmount(request):
     amount = int(request.POST.get('amount', ''))  # 件数
     origBoxNumber = request.POST.get('origBoxNumber', '') # 原箱号
     # ---检验新建箱中数量与原始箱数量是否匹配---
-    origBox = gsOrigBox.objects.get(origBoxNumber=origBoxNumber)
-    all_amount = origBox.amount
-    box_amount = sum(list(gsBox.objects.filter(origBox=origBox).values_list('amount', flat=True))) + int(amount)
-    dif = all_amount - box_amount
-    if dif >= 0:
+    try:
+        origBox = gsOrigBox.objects.get(origBoxNumber=origBoxNumber)
+        all_amount = origBox.amount
+        box_amount = sum(list(gsBox.objects.filter(origBox=origBox).values_list('amount', flat=True))) + int(amount)
+        dif = all_amount - box_amount
+        if dif >= 0:
+            ret = {
+                'success': True,
+            }
+        else:
+            ret = {
+                'success': False,
+                'message': '件数超过原箱件数，新建箱失败成功！'
+            }
+    except Exception as e:
         ret = {
-            'success': True,
-        }
-    else:
-        ret = {
-            'success': True,
-            'message': '件数超过原箱件数，新建箱失败成功！'
+            'success': False,
+            'message': '原箱号错误！'
         }
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
