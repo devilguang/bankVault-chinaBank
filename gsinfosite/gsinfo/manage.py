@@ -28,6 +28,32 @@ def manage(request):
     userName = gsUser.objects.get(user=request.user)
     return render(request, 'manage.html', context={'operator': userName, })
 
+def openOrigBox(request):
+    origBoxNumber = request.POST.get('origBoxNumber', '')
+    thingAmount = request.POST.get('thingAmount', '')
+    packageAmount = request.POST.get('packageAmount', '')
+    grossWeight = request.POST.get('grossWeight', '')
+
+    try:
+        log.log(user=request.user, operationType=u'业务操作', content=u'对{0}号箱开箱操作'.format(origBoxNumber))
+        gsOrigBox.objects.create(origBoxNumber=origBoxNumber,
+                                 thingAmount=thingAmount,
+                                 packageAmount=packageAmount,
+                                 grossWeight=grossWeight)
+    except Exception as e:
+        ret = {
+            "success": False,
+            "message": '开箱失败！'
+        }
+    else:
+        ret = {
+            'success': True,
+            'message': '开箱失败！'
+        }
+    ret_json = json.dumps(ret, separators=(',', ':'))
+
+    return HttpResponse(ret_json)
+
 
 def createBox(request):
     productType = request.POST.get('productType', '')  # 类型
@@ -37,6 +63,7 @@ def createBox(request):
     amount = int(request.POST.get('amount', ''))  # 件数
     grossWeight = request.POST.get('grossWeight', '')  # 毛重
     oprateType = request.POST.get('oprateType', '')  # 操作类型
+    origBoxNumber = request.POST.get('origBoxNumber', '')  # 操作类型
 
     if grossWeight:
         grossWeight = float(grossWeight)
@@ -58,7 +85,8 @@ def createBox(request):
                                 wareHouse=wareHouse,
                                 amount=amount,
                                 grossWeight=grossWeight,
-                                oprateType=oprateType)
+                                oprateType=oprateType,
+                                origBoxNumber=origBoxNumber)
     except Exception as e:
         ret = {
             "success": False,
