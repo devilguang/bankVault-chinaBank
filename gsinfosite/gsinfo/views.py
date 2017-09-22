@@ -1,9 +1,10 @@
 # encoding=UTF-8
 from django.shortcuts import render
-from django.http.response import HttpResponse
 from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
+from django.http.response import HttpResponse, StreamingHttpResponse
 from .models import *
+from utils import readFile, dateTimeHandler
 import json
 from .utils import dateTimeHandler
 from .report_process import *
@@ -621,3 +622,27 @@ class GeneralSearch(SearchView):
 #             'cd': '',
 #             'results': '',
 #             'total_results': total_results})
+
+
+def getTools(request):
+    if request.method == 'POST':
+        ret = {}
+        file_dir = settings.TOOLS_DATA_PATH
+        fileName_list = os.listdir(file_dir)
+        ret['count'] = len(fileName_list)
+        ret['row'] = []
+        for fileName in fileName_list:
+            r = {}
+            r['success'] = True,
+            r['downloadURL'] = u'getTools/?fileName={0}'.format(fileName)
+            ret['row'].append(r)
+        ret_json = json.dumps(ret, separators=(',', ':'))
+
+        return HttpResponse(ret_json)
+    elif request.method == 'GET':
+        fileName = request.GET.get('fileName', '')
+        file_path = os.path.join(settings.TOOLS_DATA_PATH,fileName)
+        response = StreamingHttpResponse(readFile(file_path))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename={0}'.format(fileName)
+        return response
