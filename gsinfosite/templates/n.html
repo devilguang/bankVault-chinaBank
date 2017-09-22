@@ -38,33 +38,39 @@
                        data-options="readonly:true, editable:false">
             </div>
 
-             <div class="FormItem" id="batch_level">
+            <div class="FormItem" id="batch_level">
                 <label for="BatchUpdateInfo-level">等级</label>
                 {# <input list="UpdateInfo-level" class="easyui-combobox" name="level" id="physical_level" data-options="editable:false,panelHeight: 'auto'"/>#}
-                <select name="level" id="BatchUpdateInfo-level" data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                <select name="level" id="BatchUpdateInfo-level"
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
                         class="easyui-combobox" style="width: 305px;">
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
 
             <div class="FormItem" id="batch_detailedName">
                 <label for="BatchUpdateInfo-detailedName">名称</label>
-                {#                <input id="UpdateInfo-detailedName" name="detailedName" class="easyui-textbox">#}
-                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
-                    <input list="BatchUpdateInfo-detailedName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="detailedName"
-                           id="select_detailedName" type="text"
-                         onkeyup="changeInputValue('select_detailedName','BatchUpdateInfo-detailedName','detailedName')" />
-                    <datalist id="BatchUpdateInfo-detailedName">
-
-                    </datalist>
-                </span>
+{#                #}
+{#                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">#}
+{#                    <input list="BatchUpdateInfo-detailedName"#}
+{#                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="detailedName"#}
+{#                           id="select_detailedName" type="text"#}
+{#                           onkeyup="changeInputValue('select_detailedName','BatchUpdateInfo-detailedName','detailedName')"/>#}
+{#                    <datalist id="BatchUpdateInfo-detailedName">#}
+{##}
+{#                    </datalist>#}
+{#                </span>#}
+                 <select name="level" id="BatchUpdateInfo-detailedName"
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        class="easyui-combobox" style="width: 305px;">
+                </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
 
             <div class="FormItem" id="batch_peroid">
-                <label for="BatchUpdateInfo-peroid" >年代</label>
+                <label for="BatchUpdateInfo-peroid">年代</label>
                 {# <input list="UpdateInfo-peroid" class="easyui-combobox" name="peroid" id="physical_peroid" data-options="editable:false,panelHeight: 'auto'"/>#}
                 <select name="peroid" id="BatchUpdateInfo-peroid" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
             <div class="FormItem" id="batch_year">
@@ -77,7 +83,8 @@
                 {#                <input id="UpdateInfo-country" name="country" class="easyui-combobox"#}
                 {#                       data-options="editable:false,panelHeight:'auto'">#}
                 <select name="country" id="BatchUpdateInfo-country" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
 
             </div>
@@ -86,7 +93,8 @@
                 {#                <input id="UpdateInfo-faceAmount" name="faceAmount" class="easyui-combobox"#}
                 {#                       data-options=" editable: false, panelHeight: 'auto'">#}
                 <select name="faceAmount" id="BatchUpdateInfo-faceAmount" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select>
 
             </div>
@@ -95,30 +103,34 @@
                 {#                <input id="UpdateInfo-dingSecification" name="dingSecification" class="easyui-combobox"#}
                 {#                       data-options="editable: false, panelHeight: 'auto'">#}
                 <select name="dingSecification" id="BatchUpdateInfo-dingSecification" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select>
             </div>
-            <div class="FormItem"  id="batch_zhangType" style="display: none;">
+            <div class="FormItem" id="batch_zhangType" style="display: none;">
                 <label for="BatchUpdateInfo-zhangType">性质</label>
                 {#                <input id="UpdateInfo-zhangType" name="zhangType" class="easyui-combobox"#}
                 {#                       data-options="editable: false, panelHeight: 'auto'">#}
                 <select name="zhangType" id="BatchUpdateInfo-zhangType" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select>
 
             </div>
-            <div class="FormItem"  id="batch_shape" style="display: none;">
+            <div class="FormItem" id="batch_shape" style="display: none;">
                 <label for="BatchUpdateInfo-shape">器型</label>
                 <select name="shape" id="BatchUpdateInfo-shape" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select>
 
             </div>
-             <div class="FormItem"  id="batch_quality">
+            <div class="FormItem" id="batch_quality">
                 <label for="BatchUpdateInfo-quality">品相</label>
                 {# <input list="UpdateInfo-peroid" class="easyui-combobox" name="peroid" id="physical_peroid" data-options="editable:false,panelHeight: 'auto'"/>#}
                 <select name="quality" id="BatchUpdateInfo-quality" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
             <div class="FormItem" id="batch_carveName">
@@ -137,11 +149,13 @@
             <div class="FormItem" id="batch_originalQuantity">
                 <label for="BatchUpdateInfo-originalQuantity">成色(%)</label>
                 <input id="BatchUpdateInfo-originalQuantity" name="originalQuantity" class="easyui-numberbox"
-                       data-options="precision:2, min:0, max:100"><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
+                       data-options="precision:2, min:0, max:100"><span
+                    style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
             <div class="FormItem" id="batch_remark">
                 <label for="BatchUpdateInfo-remark">备注</label>
-                <input id="BatchUpdateInfo-remark" name="remark" class="easyui-textbox" type="text" data-options="panelHeight: 'auto'">
+                <input id="BatchUpdateInfo-remark" name="remark" class="easyui-textbox" type="text"
+                       data-options="panelHeight: 'auto'">
             </div>
 
         </form>
@@ -195,7 +209,8 @@
             <div class="FormItem" id="single_level" style="display: block">
                 <label for="UpdateInfo-level">等级</label>
                 {# <input list="UpdateInfo-level" class="easyui-combobox" name="level" id="physical_level" data-options="editable:false,panelHeight: 'auto'"/>#}
-                <select name="level" id="UpdateInfo-level" data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                <select name="level" id="UpdateInfo-level"
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
                         class="easyui-combobox" style="width: 305px;">
 
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
@@ -203,16 +218,10 @@
 
             <div class="FormItem" id="single_detailedName">
                 <label for="UpdateInfo-detailedName">名称</label>
-                {#                <input id="UpdateInfo-detailedName" name="detailedName" class="easyui-textbox">#}
-                <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
-                    <input list="UpdateInfo-detailedName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="detailedName"
-                           id="physical_detailedName"
-                          />
-{#                     onkeyup="changeInputValue('physical_detailedName','UpdateInfo-detailedName','detailedName')"#}
-                    <datalist id="UpdateInfo-detailedName">
-
-                    </datalist>
+                <select name="detailedName" id="UpdateInfo-detailedName" class="easyui-combobox"
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
+                </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
                 </span>
             </div>
 
@@ -220,7 +229,8 @@
                 <label for="UpdateInfo-peroid">年代</label>
                 {# <input list="UpdateInfo-peroid" class="easyui-combobox" name="peroid" id="physical_peroid" data-options="editable:false,panelHeight: 'auto'"/>#}
                 <select name="peroid" id="UpdateInfo-peroid" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
             <div class="FormItem" id="single_year">
@@ -233,7 +243,8 @@
                 {#                <input id="UpdateInfo-country" name="country" class="easyui-combobox"#}
                 {#                       data-options="editable:false,panelHeight:'auto'">#}
                 <select name="country" id="UpdateInfo-country" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
 
             </div>
@@ -242,7 +253,8 @@
                 {#                <input id="UpdateInfo-faceAmount" name="faceAmount" class="easyui-combobox"#}
                 {#                       data-options=" editable: false, panelHeight: 'auto'">#}
                 <select name="faceAmount" id="UpdateInfo-faceAmount" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select>
 
             </div>
@@ -251,7 +263,8 @@
                 {#                <input id="UpdateInfo-dingSecification" name="dingSecification" class="easyui-combobox"#}
                 {#                       data-options="editable: false, panelHeight: 'auto'">#}
                 <select name="dingSecification" id="UpdateInfo-dingSecification" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select>
             </div>
             <div class="FormItem" id="single_zhangType" style="display: none;">
@@ -259,22 +272,25 @@
                 {#                <input id="UpdateInfo-zhangType" name="zhangType" class="easyui-combobox"#}
                 {#                       data-options="editable: false, panelHeight: 'auto'">#}
                 <select name="zhangType" id="UpdateInfo-zhangType" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select>
 
             </div>
             <div class="FormItem" id="single_shape" style="display: none;">
                 <label for="UpdateInfo-shape">器型</label>
                 <select name="shape" id="UpdateInfo-shape" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select>
 
             </div>
-             <div class="FormItem" id="single_quality">
+            <div class="FormItem" id="single_quality">
                 <label for="UpdateInfo-quality">品相</label>
                 {# <input list="UpdateInfo-peroid" class="easyui-combobox" name="peroid" id="physical_peroid" data-options="editable:false,panelHeight: 'auto'"/>#}
                 <select name="appearance" id="UpdateInfo-quality" class="easyui-combobox"
-                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
+                        data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'"
+                        style="width: 305px;">
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
 
@@ -294,11 +310,13 @@
             <div class="FormItem" id="single_originalQuantity">
                 <label for="UpdateInfo-originalQuantity">成色(%)</label>
                 <input id="UpdateInfo-originalQuantity" name="originalQuantity" class="easyui-numberbox"
-                       data-options="precision:2, min:0, max:100"><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
+                       data-options="precision:2, min:0, max:100"><span
+                    style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
             <div class="FormItem" id="single_remark">
                 <label for="UpdateInfo-remark">备注</label>
-                <input id="UpdateInfo-remark" name="remark" type="text" class="easyui-textbox" data-options="panelHeight: 'auto'">
+                <input id="UpdateInfo-remark" name="remark" type="text" class="easyui-textbox"
+                       data-options="panelHeight: 'auto'">
             </div>
         </form>
     </div>

@@ -41,34 +41,40 @@ function loadDataProcess(node, data) {
 }
 
 /*这个方法是信息弹框输入的时候有提示信息，现在已不需要这个功能*/
-// function changeInputValue(idName, getIdName, productKey) {
-//     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producerPlace 铭文：carveName
-//     var value = $("#" + idName).val();
-//     var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
-//     var getIdName = document.getElementById(getIdName);
-//     getIdName.innerHTML = '';
-//     $.ajax({
-//         type: 'post',
-//         url: 'checkInfo/',
-//         data: {
-//             productType: productType,
-//             key: productKey,
-//             value: value
-//         }, success: function (data) {
-//             var mes = JSON.parse(data);
-//             if (mes.success) {
-//                 var vArray = mes.message;
-//                 for (var i = 0; i < vArray.length; i++) {
-//                     var option = document.createElement('option');
-//                     option.value = vArray[i];
-//                     getIdName.appendChild(option)
-//                 }
-//             } else {
-//                 return
-//             }
-//         }
-//     })
-// }
+function changeInputValue(idName, getIdName, productKey) {
+    //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
+    var value = $("#" + idName).val();
+    var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
+    var className = $("#BatchUpdateInfo-className").children().find('.textbox-value').val();
+    var subClassName = $("#BatchUpdateInfo-subClassName").children().find('.textbox-value').val();
+    var level = $("#BatchUpdateInfo-level").children().find('.textbox-value').val();
+    var serialNumber = $("#UpdateInfo-serialNumber").children().find('.textbox-value').val();
+    $.ajax({
+        type: 'post',
+        url: 'checkInfo/',
+        data: {
+            subClassName:subClassName,
+            className:className,
+            productType: productType,
+            key: productKey,
+            value: value,
+            serialNumber:serialNumber
+        }, success: function (data) {
+            var mes = JSON.parse(data);
+            if (mes.success) {
+                var vArray = mes.message;
+                for (var i = 0; i < vArray.length; i++) {
+                    var optionList = document.createElement('option');
+                    optionList.value = vArray[i];
+                    getIdName.appendChild(optionList);
+                    $('#workGrid' + node.id).datagrid('reload');
+                }
+            } else {
+                return
+            }
+        }
+    })
+}
 function treeSelectHandler(node) {
     var isWork = node.attributes.isWork;
     if (!isWork) {
