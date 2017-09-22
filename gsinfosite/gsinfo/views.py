@@ -717,10 +717,8 @@ def getReadyInfo(request):
                 data = '国内稀一级银元名称'
             elif level == '稀二级':
                 data = '国内稀二级银元名称'
-                detail = parse('')
             elif level == '稀三级':
                 data = '国内稀三级银元名称'
-                detail = parse('')
             elif level == '普品':
                 data = '国内普制银元名称'
 
