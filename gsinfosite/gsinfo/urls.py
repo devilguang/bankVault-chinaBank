@@ -24,7 +24,7 @@ from . import analyzing
 
 urlpatterns = [
     url(r'^login/$', views.login, name='login'),
-    url(r'^getTools/$', views.getTools, name='getTools'),
+    url(r'^login/getTools/$', views.getTools, name='getTools'),
     url(r'^logout/$', views.logout, name='logout'),
     url(r'^login/getAllUser/$', views.getAllUser, name='getAllUser'),
     url(r'^login/updatePassword/$', systemAdmin.updatePassword, name='updatePassword'),

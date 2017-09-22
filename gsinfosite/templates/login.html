@@ -174,7 +174,7 @@
     <div id="downloadDlg" class="easyui-window" title="下载中心" style="width:320px;height:200px;padding:10px 20px"
          data-options="collapsible:false,minimizable:false,maximizable:false,closed:true">
         <p style="font-size: 14px;">请选择下载项:</p>
-
+        <a href="" id="fileName"></a>
     </div>
 
 </div>
@@ -183,7 +183,13 @@
 function downloadExe(){
     $("#downloadDlg").window('open');
     $.ajax({
-        url:''
+        type:'post',
+        url:'getTools/',
+        data:{},success:function (data) {
+            var data = JSON.parse(data);
+            console.log(data);
+            $("#fileName").html(data.fileName);
+        }
     })
 }
 </script>
