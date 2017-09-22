@@ -119,7 +119,9 @@ urlpatterns = [
     url(r'^checking/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
     url(r'^checking/getThingInfo/$', views.getThingInfo, name='getThingInfo'),
     url(r'^checking/getReadyInfo/$', views.getReadyInfo, name='getReadyInfo'),
-    url(r'^numbering/checkInfo/$', views.checkInfo, name='checkInfo'),
+    url(r'^checking/checkInfo/$', views.checkInfo, name='checkInfo'),
+    url(r'^checking/getDetailName/$', views.getDetailName, name='getDetailName'),
+
 
     url(r'^numbering/$', numbering.numbering, name='numbering'),
     url(r'^numbering/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),
@@ -134,6 +136,7 @@ urlpatterns = [
     url(r'^numbering/checkInfo/$', views.checkInfo, name='checkInfo'),
     url(r'^numbering/getThingInfo/$', views.getThingInfo, name='getThingInfo'),
     url(r'^numbering/getReadyInfo/$', views.getReadyInfo, name='getReadyInfo'),
+    url(r'^numbering/getDetailName/$', views.getDetailName, name='getDetailName'),
 
     url(r'^measuring/$', measuring.measuring, name='measuring'),
     url(r'^measuring/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),

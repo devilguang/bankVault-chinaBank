@@ -684,46 +684,27 @@ def checkInfo(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
+def parse(data,name):
+    detail = {}
+    detail['name'] = name
+    detail['val'] = []
+    type_list = list(gsProperty.objects.filter(project=data).values_list('type', flat=True))
+    code_list = list(gsProperty.objects.filter(project=data).values_list('code', flat=True))
+    for type, code in zip(type_list, code_list):
+        sub = {}
+        sub['text'] = type
+        sub['id'] = code
+        detail['val'].append(sub)
+    return detail
 
 def getReadyInfo(request):
     productType = request.POST.get('productType', '')
-    className = request.POST.get('className', '')
-    subClassName = request.POST.get('subClassName', '')
-    level = request.POST.get('level', '')
     field = request.POST.get('field', '')
 
     field_list = field.split(';')
 
     ret = []
-    def parse(data,name):
-        detail = {}
-        detail['name'] = name
-        detail['val'] = []
-        type_list = list(gsProperty.objects.filter(project=data).values_list('type', flat=True))
-        code_list = list(gsProperty.objects.filter(project=data).values_list('code', flat=True))
-        for type, code in zip(type_list, code_list):
-            sub = {}
-            sub['text'] = type
-            sub['id'] = code
-            detail['val'].append(sub)
-        return detail
 
-    if '名称' in field_list:
-        name = '名称'
-        if productType == '银元' and className == '标准银元' and subClassName == '国内银元':
-            if level == '珍品':
-                data = '国内珍品银元名称'
-            elif level == '稀一级':
-                data = '国内稀一级银元名称'
-            elif level == '稀二级':
-                data = '国内稀二级银元名称'
-            elif level == '稀三级':
-                data = '国内稀三级银元名称'
-            elif level == '普品':
-                data = '国内普制银元名称'
-
-        detail = parse(data,name)
-        ret.append(detail)
     if '等级' in field_list:
         data = name = '等级'
         detail = parse(data,name)
@@ -770,5 +751,28 @@ def getReadyInfo(request):
         data = name = '品相'
         detail = parse(data, name)
         ret.append(detail)
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
+
+def getDetailName(request):
+    productType = request.POST.get('productType', '')
+    className = request.POST.get('className', '')
+    subClassName = request.POST.get('subClassName', '')
+    level = request.POST.get('level', '')
+    name = '名称'
+    if productType == '银元' and className == '标准银元' and subClassName == '国内银元':
+        if level == '珍品':
+            data = '国内珍品银元名称'
+        elif level == '稀一级':
+            data = '国内稀一级银元名称'
+        elif level == '稀二级':
+            data = '国内稀二级银元名称'
+        elif level == '稀三级':
+            data = '国内稀三级银元名称'
+        elif level == '普品':
+            data = '国内普制银元名称'
+        ret = parse(data, name)
+    else:
+        ret ={}
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
