@@ -37,6 +37,7 @@
                 <input id="BatchUpdateInfo-wareHouse" name="wareHouse" class="easyui-textbox"
                        data-options="readonly:true, editable:false">
             </div>
+
              <div class="FormItem" id="batch_level">
                 <label for="BatchUpdateInfo-level">等级</label>
                 {# <input list="UpdateInfo-level" class="easyui-combobox" name="level" id="physical_level" data-options="editable:false,panelHeight: 'auto'"/>#}
@@ -51,9 +52,8 @@
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="BatchUpdateInfo-detailedName"
                            style="border: none;margin-left: 3px;width: 295px;outline: none;" name="detailedName"
-                           id="batch_detailedName"
-                          />
-{#                     onkeyup="changeInputValue('physical_detailedName','UpdateInfo-detailedName','detailedName')"#}
+                           id="select_detailedName" type="text"
+                         onkeyup="changeInputValue('select_detailedName','BatchUpdateInfo-detailedName','detailedName')" />
                     <datalist id="BatchUpdateInfo-detailedName">
 
                     </datalist>
@@ -127,8 +127,8 @@
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="BatchUpdateInfo-carveName"
                            style="border: none;margin-left: 3px;width: 295px;outline: none;" name="carveName"
-                           id="batch_carveName"
-                           onkeyup="changeInputValue('physical_carveName','UpdateInfo-carveName','carveName')"/>
+                           id="select_carveName"
+                           onkeyup="changeInputValue('select_carveName','UpdateInfo-carveName','carveName')"/>
                     <datalist id="BatchUpdateInfo-carveName">
 
                     </datalist>
@@ -273,7 +273,7 @@
              <div class="FormItem" id="single_quality">
                 <label for="UpdateInfo-quality">品相</label>
                 {# <input list="UpdateInfo-peroid" class="easyui-combobox" name="peroid" id="physical_peroid" data-options="editable:false,panelHeight: 'auto'"/>#}
-                <select name="quality" id="UpdateInfo-quality" class="easyui-combobox"
+                <select name="appearance" id="UpdateInfo-quality" class="easyui-combobox"
                         data-options="valueField:'id', textField:'text',editable:false,panelHeight: 'auto'" style="width: 305px;">
                 </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
@@ -283,7 +283,7 @@
                 {# <input id="UpdateInfo-carveName" name="carveName" class="easyui-textbox">#}
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="UpdateInfo-carveName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="carveName"
+                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="mark"
                            id="physical_carveName"
                            onkeyup="changeInputValue('physical_carveName','UpdateInfo-carveName','carveName')"/>
                     <datalist id="UpdateInfo-carveName">

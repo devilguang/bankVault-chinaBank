@@ -39,34 +39,38 @@ function loadDataProcess(node, data) {
         }
     }
 }
-// function changeInputValue(idName, getIdName, productKey) {
-//     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
-//     var value = $("#" + idName).val();
-//     var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
-//     $.ajax({
-//         type: 'post',
-//         url: 'checkInfo/',
-//         data: {
-//             productType: productType,
-//             key: productKey,
-//             value: value
-//         }, success: function (data) {
-//             var mes = JSON.parse(data);
-//             if (mes.success) {
-//                 var vArray = mes.message;
-//                 for (var i = 0; i < vArray.length; i++) {
-//                     var optionList = document.createElement('option');
-//                     optionList.value = vArray[i];
-//                     getIdName.appendChild(optionList);
-//                     $('#workGrid' + node.id).datagrid('reload');
-//                 }
-//             } else {
-//
-//                 return
-//             }
-//         }
-//     })
-// }
+function changeInputValue(idName, getIdName, productKey) {
+    //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
+    var value = $("#" + idName).val();
+    var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
+    var className = $("#BatchUpdateInfo-className").children().find('.textbox-value').val();
+    var subClassName = $("#BatchUpdateInfo-subClassName").children().find('.textbox-value').val();
+    var level = $("#BatchUpdateInfo-level").children().find('.textbox-value').val();
+    $.ajax({
+        type: 'post',
+        url: 'checkInfo/',
+        data: {
+            subClassName:subClassName,
+            className:className,
+            productType: productType,
+            key: productKey,
+            value: value
+        }, success: function (data) {
+            var mes = JSON.parse(data);
+            if (mes.success) {
+                var vArray = mes.message;
+                for (var i = 0; i < vArray.length; i++) {
+                    var optionList = document.createElement('option');
+                    optionList.value = vArray[i];
+                    getIdName.appendChild(optionList);
+                    $('#workGrid' + node.id).datagrid('reload');
+                }
+            } else {
+                return
+            }
+        }
+    })
+}
 function treeSelectHandler(node) {
     var isWork = node.attributes.isWork;
     if (!isWork) {
@@ -236,7 +240,7 @@ function batchUpdateInfo(id) {
         $('#saveBtn').attr('style', 'width:90px; display:none;');
         $('#UpdateInfo-remark').textbox('readonly', true);
     }
-    $('#BatchUpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '批量更新信息');
+    $('#BatchUpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '信息缺省设置');
     $('#BatchUpdateInfoForm').form('clear');
     $('#BatchUpdateInfoForm').form('load', {
         productType: row.productType,
@@ -299,6 +303,7 @@ function saveBatchUpdateInfo() {
     var id = tab[0].id;
     var node = $('#workSpaceTree').tree('find', id);
     var text = node.text;
+    var batch_detailedName = $("#select_detailedName").val();//名称
     var workSeq = node.attributes.workSeq;
     var batch_level = $("#batch_level").children().find('.textbox-value').val(); //等级
     var batch_peroid = $("#batch_peroid").children().find('.textbox-value').val();//年代
@@ -310,9 +315,8 @@ function saveBatchUpdateInfo() {
     var batch_dingSecification = $("#batch_dingSecification").children().find('.textbox-value').val();//规格
     var batch_zhangType = $("#batch_zhangType").children().find('.textbox-value').val();//规格
     var batch_shape = $("#batch_shape").children().find('.textbox-value').val();//器型
-    var batch_carveName = $("#batch_carveName").children().find('.textbox-value').val();//铭文
+    var batch_carveName = $("#select_carveName").val();//铭文
     var batch_remark = $("#batch_remark").children().find('.textbox-value').val();//备注
-    var batch_detailedName = $("#batch_detailedName").children().find('.textbox-value').val();//名称
     var arrId = ['batch_level', 'batch_peroid', 'batch_country', 'batch_quality', 'batch_originalQuantity',
         'batch_year', 'batch_faceAmount', 'batch_dingSecification', 'batch_zhangType', 'batch_shape', 'batch_carveName', 'batch_remark', 'batch_detailedName'];
     var mustId = [];
@@ -354,7 +358,6 @@ function saveBatchUpdateInfo() {
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
-                $.messager.alert('提示', data.message);
                 $.messager.confirm('提示', data.message, function (r) {
                     if (r) {
                         $("#BatchUpdateInfoDlg").dialog('close');
@@ -634,13 +637,13 @@ function getReadyInfoInformation(row) {
         }
     })
 }
-function updateInfo(index, row) {
 
+function updateInfo(index, row) {
     $.ajax({
         url: 'getThingInfo/',
         type: 'post',
         data: {
-            // subClassName: row.subClassName,
+            subClassName: row.subClassName,
             serialNumber: row.serialNumber
         }, success: function (data) {
             var data = JSON.parse(data);
@@ -662,6 +665,7 @@ function updateInfo(index, row) {
                 shape: data.shape,
                 appearance: data.appearance,
                 originalQuantity: data.originalQuantity,
+                remark: data.remark,
                 mark: data.mark
             });
 
@@ -670,7 +674,7 @@ function updateInfo(index, row) {
     var node = $('#workSpaceTree').tree('getSelected');
     $('#workGrid' + node.id).datagrid('reload');
     initUpdateInfoDlg(row);
-    getReadyInfoInformation(row)
+    getReadyInfoInformation(row);
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
     $('#UpdateInfoForm').form('clear');
     var data;
@@ -816,7 +820,6 @@ function saveUpdateInfo() {
     var node = $('#workSpaceTree').tree('getSelected');
     var workName = node.text;
     var serialNumber = $("#single_serialNumber").children().find('.textbox-value').val();//实物编号
-
     var single_level = $("#single_level").children().find('.textbox-value').val(); //等级
     var single_peroid = $("#single_peroid").children().find('.textbox-value').val();//年代
     var single_country = $("#single_country").children().find('.textbox-value').val();//国别
@@ -827,9 +830,9 @@ function saveUpdateInfo() {
     var single_dingSecification = $("#single_dingSecification").children().find('.textbox-value').val();//规格
     var single_zhangType = $("#single_zhangType").children().find('.textbox-value').val();//规格
     var single_shape = $("#single_shape").children().find('.textbox-value').val();//器型
-    var single_carveName = $("#single_carveName").children().find('.textbox-value').val();//铭文
+    var single_carveName = $("#physical_carveName").val();//铭文
     var single_remark = $("#single_remark").children().find('.textbox-value').val();//备注
-    var single_detailedName = $("#single_detailedName").children().find('.textbox-value').val();//名称
+    var single_detailedName = $("#physical_detailedName").val();//名称
     var arrId = ['single_level', 'single_peroid', 'single_country', 'single_quality', 'single_originalQuantity',
         'single_year', 'single_faceAmount', 'single_dingSecification', 'single_zhangType', 'single_shape', 'single_carveName', 'single_remark', 'single_detailedName'];
     var mustId = [];

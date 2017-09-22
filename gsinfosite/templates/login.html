@@ -171,10 +171,10 @@
         <p>Copyright &copy; 中国人民银行武汉分行货币金银处 &nbsp;技术支持 &nbsp;(sunshine)</p>
     </div>
 
-    <div id="downloadDlg" class="easyui-window" title="下载中心" style="width:320px;height:200px;padding:10px 20px"
+    <div id="downloadDlg" class="easyui-window" title="下载中心" style="width:400px;height:250px;padding:10px 20px"
          data-options="collapsible:false,minimizable:false,maximizable:false,closed:true">
-        <p style="font-size: 14px;">请选择下载项:</p>
-        <a href="" id="fileName"></a>
+        <p style="font-size: 16px;font-weight: 500;letter-spacing: 2px;font-family: sans-serif;">请选择下载项:</p>
+{#        <a href="javascript:void(0)" id="fileName"></a>#}
     </div>
 
 </div>
@@ -187,8 +187,15 @@ function downloadExe(){
         url:'getTools/',
         data:{},success:function (data) {
             var data = JSON.parse(data);
-            console.log(data);
-            $("#fileName").html(data.fileName);
+            var rowList = data.row;
+            for(var i = 0;i<rowList.length;i++){
+                $("<a></a>").html(rowList[i].fileName).attr('href',rowList[i].downloadURL).appendTo($("#downloadDlg")).css({
+                    'display':'block',
+                    'text-decoration':'none',
+                    'font-size':'16px',
+                    'padding':'10px'
+                })
+            }
         }
     })
 }
