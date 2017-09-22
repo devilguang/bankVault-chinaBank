@@ -49,6 +49,14 @@ def getNumberingInfo(request):
     return HttpResponse(ret_json)
 
 def getReadyInfo(request):
+    productType = request.POST.get('productType', '')
+    className = request.POST.get('className', '')
+    subClassName = request.POST.get('subClassName', '')
+    level = request.POST.get('level', '')
+    key = request.POST.get('key', '')
+    value = request.POST.get('value', '')
+    serialNumber = request.POST.get('serialNumber', '')
+
     field = request.POST.get('field', '')
     productType = request.POST.get('productType', '')
 
@@ -67,6 +75,25 @@ def getReadyInfo(request):
             sub['id'] = code
             detail['val'].append(sub)
         return detail
+
+    if '名称' in field_list:
+        name = '名称'
+        if productType == '银元' and className == '标准银元' and subClassName == '国内银元':
+            if level == '珍品':
+                data = '国内珍品银元名称'
+            elif level == '稀一级':
+                data = '国内稀一级银元名称'
+            elif level == '稀二级':
+                data = '国内稀二级银元名称'
+                detail = parse('')
+            elif level == '稀三级':
+                data = '国内稀三级银元名称'
+                detail = parse('')
+            elif level == '普品':
+                data = '国内普制银元名称'
+
+        detail = parse(data,name)
+        ret.append(detail)
     if '等级' in field_list:
         data = name = '等级'
         detail = parse(data,name)
@@ -183,19 +210,11 @@ def updateNumberingInfo(request):
 # ---------------------------------------------------------------------
 # 录入信息检测
 def checkInfo(request):
-    productType = request.POST.get('productType', '')  # u'金银锭类'
-    key = request.POST.get('key', '')
     value = request.POST.get('value', '')
+
     ret ={}
 
-    if productType == u'金银锭类':
-        things = gsDing.objects.values_list(key,flat=True)
-    elif productType == u'金银币章类':
-        things = gsBiZhang.objects.values_list(key, flat=True)
-    elif productType == u'银元类':
-        things = gsYinYuan.objects.values_list(key, flat=True)
-    elif productType == u'金银工艺品类':
-        things = gsGongYiPin.objects.values_list(key, flat=True)
+    things = gsThing.objects.values_list('mark',flat=True)
 
     historyInfo = {}
     for thing in things:
@@ -221,5 +240,4 @@ def checkInfo(request):
     else:
         ret['success'] = False
     ret_json = json.dumps(ret, separators=(',', ':'))
-
     return HttpResponse(ret_json)
