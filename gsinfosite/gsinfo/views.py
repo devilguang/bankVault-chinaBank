@@ -759,20 +759,23 @@ def getDetailName(request):
     className = request.POST.get('className', '')
     subClassName = request.POST.get('subClassName', '')
     level = request.POST.get('level', '')
-    name = '名称'
-    if productType == '银元' and className == '标准银元' and subClassName == '国内银元':
-        if level == '珍品':
-            data = '国内珍品银元名称'
-        elif level == '稀一级':
-            data = '国内稀一级银元名称'
-        elif level == '稀二级':
-            data = '国内稀二级银元名称'
-        elif level == '稀三级':
-            data = '国内稀三级银元名称'
-        elif level == '普品':
-            data = '国内普制银元名称'
-        ret = parse(data, name)
-    else:
-        ret ={}
+    try:
+        name = '名称'
+        if productType == '银元' and className == '标准银元' and subClassName == '国内银元':
+            if level == '1':
+                data = '国内珍品银元名称'
+            elif level == '2':
+                data = '国内稀一级银元名称'
+            elif level == '3':
+                data = '国内稀二级银元名称'
+            elif level == '4':
+                data = '国内稀三级银元名称'
+            elif level == '5':
+                data = '国内普制银元名称'
+            ret = parse(data, name)
+        else:
+            ret ={}
+    except Exception as e:
+        ret = {}
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)

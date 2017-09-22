@@ -42,19 +42,10 @@ function loadDataProcess(node, data) {
 function changeInputValue(idName, getIdName, productKey) {
     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
     var value = $("#" + idName).val();
-    var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
-    var className = $("#BatchUpdateInfo-className").children().find('.textbox-value').val();
-    var subClassName = $("#BatchUpdateInfo-subClassName").children().find('.textbox-value').val();
-    var level = $("#BatchUpdateInfo-level").children().find('.textbox-value').val();
-    var serialNumber = $("#UpdateInfo-serialNumber").children().find('.textbox-value').val();
     $.ajax({
         type: 'post',
         url: 'checkInfo/',
         data: {
-            subClassName: subClassName,
-            className: className,
-            productType: productType,
-            key: productKey,
             value: value,
             serialNumber: serialNumber
         }, success: function (data) {
@@ -268,7 +259,7 @@ function batchUpdateInfo(id) {
         boxNumber: row.boxNumber
     });
     var arrId = ['batch_level', 'batch_peroid', 'batch_country', 'batch_faceAmount',
-        'batch_dingSecification', 'batch_zhangType', 'batch_shape', 'batch_quality','batch_detailedName'];
+        'batch_dingSecification', 'batch_zhangType', 'batch_shape', 'batch_quality'];
     var toStringArr = [];
     for (var i = 0; i < arrId.length; i++) {
         toStringArr.push($("#" + arrId[i]).children().eq(0).html());
@@ -277,7 +268,6 @@ function batchUpdateInfo(id) {
         type: 'post',
         url: 'getReadyInfo/',
         data: {
-            level:'',
             className: row.className,
             subClassName: row.subClassName,
             productType: row.productType,
@@ -312,9 +302,9 @@ function batchUpdateInfo(id) {
                 if (item.name == '性质') {
                     $("#BatchUpdateInfo-zhangType").combobox("loadData", item.val);
                 }
-                  if (item.name == '名称') {
-                    $("#BatchUpdateInfo-detailedName").combobox("loadData", item.val);
-                }
+                // if (item.name == '名称') {
+                //     $("#BatchUpdateInfo-detailedName").combobox("loadData", item.val);
+                // }
             })
         }
     })
@@ -325,7 +315,7 @@ function saveBatchUpdateInfo() {
     var id = tab[0].id;
     var node = $('#workSpaceTree').tree('find', id);
     var text = node.text;
-    var batch_detailedName = $("#batch_detailedName").children().find('.textbox-value').val();//名称
+    var batch_detailedName = $("#select_detailedName").val();//名称
     var workSeq = node.attributes.workSeq;
     var batch_level = $("#batch_level").children().find('.textbox-value').val(); //等级
     var batch_peroid = $("#batch_peroid").children().find('.textbox-value').val();//年代
@@ -342,7 +332,7 @@ function saveBatchUpdateInfo() {
     var arrId = ['batch_level', 'batch_peroid', 'batch_country', 'batch_quality', 'batch_originalQuantity',
         'batch_year', 'batch_faceAmount', 'batch_dingSecification', 'batch_zhangType', 'batch_shape', 'batch_carveName', 'batch_remark', 'batch_detailedName'];
     var mustId = [];
-    var Compulsory = ['batch_level', 'batch_peroid', 'batch_country', 'batch_quality', 'batch_originalQuantity','batch_detailedName'];
+    var Compulsory = ['batch_level', 'batch_peroid', 'batch_country', 'batch_quality', 'batch_originalQuantity', 'batch_detailedName'];
     for (var i = 0; i < arrId.length; i++) {
         if ($("#" + arrId[i]).css("display") !== "none") {
             Compulsory.forEach(function (item) {
@@ -501,9 +491,9 @@ function initUpdateInfoDlg(row) {
         $("#single_detailedName").css({"display": "none"});//名称
     }
     if (subClassName == '国内银元') {
-        $("#single_level").css("display", "none"); //等级
-        $("#single_peroid").css("display", "none");  //年代
-        $("#single_country").css("display", "none"); //国别
+        $("#single_level").css("display", "block"); //等级
+        $("#single_peroid").css("display", "block");  //年代
+        $("#single_country").css("display", "block"); //国别
         $("#single_faceAmount").css("display", "block");//面值
         $("#single_shape").css("display", "none");//形制
         $("#single_dingSecification").css("display", "none");//规格
@@ -563,7 +553,7 @@ function returnFloat(value) {
 
 function getReadyInfoInformation(row) {
     var arrId = ['UpdateInfo-level', 'UpdateInfo-peroid', 'UpdateInfo-country', 'UpdateInfo-faceAmount',
-        'UpdateInfo-dingSecification', 'UpdateInfo-zhangType', 'UpdateInfo-shape', 'UpdateInfo-quality', 'UpdateInfo-zhangType', 'UpdateInfo-detailedName'];
+        'UpdateInfo-dingSecification', 'UpdateInfo-zhangType', 'UpdateInfo-shape', 'UpdateInfo-quality', 'UpdateInfo-zhangType'];
     var toString = [];
     for (var i = 0; i < arrId.length; i++) {
         toString.push($("#" + arrId[i]).siblings().eq(0).html())
@@ -606,14 +596,37 @@ function getReadyInfoInformation(row) {
                 if (item.name == '性质') {
                     $("#UpdateInfo-zhangType").combobox("loadData", item.val);
                 }
-                if (item.name == '名称') {
-                    $("#UpdateInfo-detailedName").combobox("loadData", item.val);
-                }
+                // if (item.name == '名称') {
+                //     $("#UpdateInfo-detailedName").combobox("loadData", item.val);
+                // }
             })
         }
     })
 }
 
+//这个方法是给名称提示信息的
+function getDetailName(id,id1,id2,id3,id4) {
+    $("#"+id).html('');
+    var productType = $("#"+id1).siblings().eq(1).children().eq(1).val();
+    var single_level = $("#"+id2).children().find('.textbox-value').val(); //等级
+    var className = $("#"+id3).siblings().eq(1).children().eq(1).val();
+    var subClassName = $("#"+id4).siblings().eq(1).children().eq(1).val();
+    $.ajax({
+        type: 'post',
+        url: 'getDetailName/',
+        data: {
+            productType: productType,
+            className: className,
+            subClassName: subClassName,
+            level: single_level
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            data.val.forEach(function (item) {
+              $("<option></option>").html(item.text).appendTo($("#"+id));
+            })
+        }
+    })
+}
 function updateInfo(index, row) {
     $.ajax({
         url: 'getThingInfo/',
@@ -647,6 +660,8 @@ function updateInfo(index, row) {
 
         }
     });
+
+
     var node = $('#workSpaceTree').tree('getSelected');
     $('#workGrid' + node.id).datagrid('reload');
     initUpdateInfoDlg(row);
@@ -704,7 +719,7 @@ function saveUpdateInfo() {
     var single_shape = $("#single_shape").children().find('.textbox-value').val();//器型
     var single_carveName = $("#physical_carveName").val();//铭文
     var single_remark = $("#single_remark").children().find('.textbox-value').val();//备注
-    var single_detailedName = $("#UpdateInfo-detailedName").children().find('.textbox-value').val();//名称
+    var single_detailedName = $("#detailedName").val();//名称
     var arrId = ['single_level', 'single_peroid', 'single_country', 'single_quality', 'single_originalQuantity',
         'single_year', 'single_faceAmount', 'single_dingSecification', 'single_zhangType', 'single_shape', 'single_carveName', 'single_remark',
         'single_detailedName'];

@@ -182,6 +182,7 @@
 <script>
 function downloadExe(){
     $("#downloadDlg").window('open');
+    $("#downloadDlg").html(' ');
     $.ajax({
         type:'post',
         url:'getTools/',
