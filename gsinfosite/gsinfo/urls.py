@@ -118,7 +118,8 @@ urlpatterns = [
     url(r'^checking/getWorkData/(?P<workSeq>\d+)$', views.getWorkData, name='getWorkData'),
     url(r'^checking/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
     url(r'^checking/getThingInfo/$', views.getThingInfo, name='getThingInfo'),
-    url(r'^checking/getReadyInfo/$', numbering.getReadyInfo, name='getReadyInfo'),
+    url(r'^checking/getReadyInfo/$', views.getReadyInfo, name='getReadyInfo'),
+    url(r'^numbering/checkInfo/$', views.checkInfo, name='checkInfo'),
 
     url(r'^numbering/$', numbering.numbering, name='numbering'),
     url(r'^numbering/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),
@@ -130,9 +131,9 @@ urlpatterns = [
     url(r'^numbering/updateNumberingInfo/$', numbering.updateNumberingInfo, name='updateNumberingInfo'),
     url(r'^numbering/getNumberingInfo/$', numbering.getNumberingInfo, name='getNumberingInfo'),
     url(r'^numbering/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
-    url(r'^numbering/checkInfo/$', numbering.checkInfo, name='checkInfo'),
+    url(r'^numbering/checkInfo/$', views.checkInfo, name='checkInfo'),
     url(r'^numbering/getThingInfo/$', views.getThingInfo, name='getThingInfo'),
-    url(r'^numbering/getReadyInfo/$', numbering.getReadyInfo, name='getReadyInfo'),
+    url(r'^numbering/getReadyInfo/$', views.getReadyInfo, name='getReadyInfo'),
 
     url(r'^measuring/$', measuring.measuring, name='measuring'),
     url(r'^measuring/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),

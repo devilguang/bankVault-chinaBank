@@ -647,3 +647,130 @@ def getTools(request):
         response['Content-Type'] = 'application/octet-stream'
         response['Content-Disposition'] = 'attachment;filename={0}'.format(fileName)
         return response
+
+
+# 录入铭文检测
+def checkInfo(request):
+    value = request.POST.get('value', '')
+
+    ret ={}
+
+    things = gsThing.objects.values_list('mark',flat=True)
+
+    historyInfo = {}
+    for thing in things:
+        # if thing.startswith(value):
+        if value in thing:
+            historyInfo[thing] = historyInfo.get(thing, 0) + 1
+
+    sortedClassCount = sorted(historyInfo.items(), key=operator.itemgetter(1),reverse=True)
+    sort_len = len(sortedClassCount)
+    if sortedClassCount:
+        ret['success'] = True
+        message_list = []
+        if sort_len == 1:
+            message_list.append(sortedClassCount[0][0])
+        elif sort_len == 2:
+            message_list.append(sortedClassCount[0][0])
+            message_list.append(sortedClassCount[1][0])
+        else:
+            message_list.append(sortedClassCount[0][0])
+            message_list.append(sortedClassCount[1][0])
+            message_list.append(sortedClassCount[2][0])
+        ret['message'] = message_list
+
+    else:
+        ret['success'] = False
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
+
+
+def getReadyInfo(request):
+    productType = request.POST.get('productType', '')
+    className = request.POST.get('className', '')
+    subClassName = request.POST.get('subClassName', '')
+    level = request.POST.get('level', '')
+    field = request.POST.get('field', '')
+
+    field_list = field.split(';')
+
+    ret = []
+    def parse(data,name):
+        detail = {}
+        detail['name'] = name
+        detail['val'] = []
+        type_list = list(gsProperty.objects.filter(project=data).values_list('type', flat=True))
+        code_list = list(gsProperty.objects.filter(project=data).values_list('code', flat=True))
+        for type, code in zip(type_list, code_list):
+            sub = {}
+            sub['text'] = type
+            sub['id'] = code
+            detail['val'].append(sub)
+        return detail
+
+    if '名称' in field_list:
+        name = '名称'
+        if productType == '银元' and className == '标准银元' and subClassName == '国内银元':
+            if level == '珍品':
+                data = '国内珍品银元名称'
+            elif level == '稀一级':
+                data = '国内稀一级银元名称'
+            elif level == '稀二级':
+                data = '国内稀二级银元名称'
+                detail = parse('')
+            elif level == '稀三级':
+                data = '国内稀三级银元名称'
+                detail = parse('')
+            elif level == '普品':
+                data = '国内普制银元名称'
+
+        detail = parse(data,name)
+        ret.append(detail)
+    if '等级' in field_list:
+        data = name = '等级'
+        detail = parse(data,name)
+        ret.append(detail)
+    if '年代' in field_list:
+        data = name = '年代'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '国别' in field_list:
+        data = name = '国别'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '面值' in field_list:
+        data = name = '面值'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '规格' in field_list:
+        data = '金银锭类规格'
+        name = '规格'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '器型' in field_list:
+        data ='工艺品类器型'
+        name = '器型'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '型制' in field_list and productType == '黄金':
+        data = '金锭类形制'
+        name = '型制'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '型制' in field_list and productType == '白银':
+        data = '银锭类形制'
+        name = '型制'
+        detail = parse(data, name)
+        ret.append(detail)
+    if '性质' in field_list:
+        data = '章类性质'
+        name = '性质'
+        detail = parse(data, name)
+        ret.append(detail)
+
+    if '品相' in field_list:
+        data = name = '品相'
+        detail = parse(data, name)
+        ret.append(detail)
+    ret_json = json.dumps(ret, separators=(',', ':'))
+    return HttpResponse(ret_json)
