@@ -243,9 +243,9 @@ function batchUpdateInfo(id) {
         $("#batch_detailedName").css({"display": "none"});//名称
     }
     if (subClassName == '国内银元') {
-        $("#batch_level").css("display", "none"); //等级
-        $("#batch_peroid").css("display", "none");  //年代
-        $("#batch_country").css("display", "none"); //国别
+        $("#batch_level").css("display", "block"); //等级
+        $("#batch_peroid").css("display", "block");  //年代
+        $("#batch_country").css("display", "block"); //国别
         $("#batch_shape").css("display", "none");//形制
         $("#batch_dingSecification").css("display", "none");//规格
         $("#batch_zhangType").css("display", "none");//性质
@@ -265,7 +265,7 @@ function batchUpdateInfo(id) {
         className: row.className,
         subClassName: row.subClassName,
         wareHouse: row.wareHouse,
-        boxNumber: row.boxNumber,
+        boxNumber: row.boxNumber
     });
     var arrId = ['batch_level', 'batch_peroid', 'batch_country', 'batch_faceAmount',
         'batch_dingSecification', 'batch_zhangType', 'batch_shape', 'batch_quality','batch_detailedName'];
@@ -277,6 +277,7 @@ function batchUpdateInfo(id) {
         type: 'post',
         url: 'getReadyInfo/',
         data: {
+            level:'',
             className: row.className,
             subClassName: row.subClassName,
             productType: row.productType,
