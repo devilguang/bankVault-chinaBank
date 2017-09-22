@@ -107,4 +107,24 @@ def updateMeasuringInfo(request):
 
     return HttpResponse(ret_json)
 
+def isLinSan(request):
+    boxNumber = request.POST.get('boxNumber', '')
+    try:
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        oprateType_code = box.oprateType.code
+        if oprateType_code == '3':
+            ret = {
+                'success': True
+            }
+        else:
+            ret = {
+                'success': False
+            }
+    except Exception as e:
+        ret={
+            'success':False
+        }
 
+    ret_json = json.dumps(ret, separators=(',', ':'))
+
+    return HttpResponse(ret_json)

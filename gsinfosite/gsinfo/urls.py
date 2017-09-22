@@ -148,6 +148,7 @@ urlpatterns = [
     url(r'^measuring/updateMeasuringInfo/$', measuring.updateMeasuringInfo, name='updateMeasuringInfo'),
     url(r'^measuring/getMeasuringInfo/$', measuring.getMeasuringInfo, name='getMeasuringInfo'),
     url(r'^measuring/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
+    url(r'^measuring/isLinSan/$', measuring.isLinSan, name='isLinSan'),
 
     url(r'^photographing/$', photographing.photographing, name='photographing'),
     url(r'^photographing/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),

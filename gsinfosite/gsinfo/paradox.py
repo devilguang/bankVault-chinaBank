@@ -198,9 +198,29 @@ def to_csv(filename, output_filename=None):
                  for row in data])
 
 if __name__ == '__main__':
-    exe_file = r'F:/PycharmProjects/src/MPG36321SDD/DATA/CxrfWinc1.DB'
-    outPut = r'C:/Users/Administrator/Desktop/aa.csv'
+    # exe_file = r'F:/PycharmProjects/src/MPG36321SDD/DATA/CxrfWinc1.DB'
+    # outPut = r'C:/Users/Administrator/Desktop/aa.csv'
     # fields, rows = read(exe_file)
     # print fields
     # print rows
-    to_csv(exe_file,outPut)
+    # to_csv(exe_file,outPut)
+    #
+
+    from pypxlib import Table
+    file = r'F:\PycharmProjects\src\MPG36321SDD\allData\DATA0524\CxrfWinc.DB'
+    table = Table(file)
+    print table
+    print len(table)
+    fs = table.fields
+    for f in fs:
+        print f,
+
+    row = table[0]
+    #row = row[u'总编号']
+    #print row
+
+    try:
+        for row in table:
+            print row[u'批号']
+    finally:
+        table.close()
