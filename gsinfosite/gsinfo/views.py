@@ -273,17 +273,10 @@ def getWorkData(request, workSeq):
     return HttpResponse(ret_json)
 
 def getThingInfo(request):
-    subClassName = request.POST.get('subClassName', '')
     serialNumber = request.POST.get('serialNumber', '')
 
     thing = gsThing.objects.get(serialNumber=serialNumber)
     ret={}
-
-    faceAmountList = ['币', '元', '辅', '钱', '外元','减元','色元','国内银元','外国银元']
-    dingList = ['锭']
-    shapeList = ['工']
-    zhangTypeList = ['章']
-
     ret['detailedName'] = thing.detailedName
     ret['level'] = thing.originalQuantity
     ret['peroid'] = thing.peroid
@@ -291,20 +284,14 @@ def getThingInfo(request):
     ret['country'] = thing.country
     ret['originalQuantity'] = thing.originalQuantity
     ret['mark'] = thing.mark
-    if subClassName:
-        if subClassName in faceAmountList:
-            ret['faceAmount'] = thing.faceAmount
-        elif subClassName in dingList:
-            ret['dingSecification'] = thing.dingSecification
-            ret['shape'] = thing.shape
-        elif subClassName in shapeList:
-            ret['shape'] = thing.shape
-        elif subClassName in zhangTypeList:
-            ret['zhangType'] = thing.zhangType
-    else:
-        pass
+    ret['faceAmount'] = thing.faceAmount
+    ret['dingSecification'] = thing.dingSecification
+    ret['shape'] = thing.shape
+    ret['shape'] = thing.shape
+    ret['zhangType'] = thing.zhangType
     ret['appearance'] = thing.appearance
     ret['remark'] = thing.remark
+
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 # --------------------------------------------------------------------------
@@ -486,24 +473,26 @@ def exploreThing(request, boxNumber, serialNumber):
     context['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
     context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if (
         thing.detectedQuantity is not None and thing.grossWeight is not None) else ''
+    context['faceAmount'] = thing.faceAmount
+    context['dingSecification'] = thing.dingSecification
+    context['shape'] = thing.shape
+    context['zhangType'] = thing.zhangType
+    context['appearance'] = thing.appearance
+    context['remark'] = thing.remark
+
     if subClassName:
         if subClassName in faceAmountList:
-            context['faceAmount'] = thing.faceAmount
             html = 'yinyuan.html'
         elif subClassName in dingList:
-            context['dingSecification'] = thing.dingSecification
             html = 'ding.html'
             context['shape'] = thing.shape
         elif subClassName in shapeList:
-            context['shape'] = thing.shape
             html = 'gongyipin.html'
         elif subClassName in zhangTypeList:
-            context['zhangType'] = thing.zhangType
             html = 'bizhang.html'
     else:
         pass
-    context['appearance'] = thing.appearance
-    context['remark'] = thing.remark
+
 
     serialNumberSet = gsThing.objects.filter(work=work).values_list('serialNumber', flat=True)
     serialNumberList = list(serialNumberSet)

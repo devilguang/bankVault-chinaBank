@@ -76,10 +76,21 @@ def updateNumberingInfo(request):
         thing_set = gsThing.objects.filter(serialNumber=serialNumber)
 
     ret = {}
+
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'实物外观信息更新')
+        if detailedName != '':
+            prop = gsProperty.objects.filter(type=detailedName)
+            if prop.exists():
+                code = gsProperty.objects.get(type=detailedName).code
+                ret['success'] = True
+                ret['message'] = serialNumber + u'实物信息更新成功！'
+            else:
+                raise ValueError, u'名称填写错误！'
+        else:
+            code = None
         thing_set.update(level=level,
-                         detailedName=detailedName,
+                         detailedName=code,
                          peroid=peroid,
                          year=year,
                          country=country,
@@ -90,23 +101,19 @@ def updateNumberingInfo(request):
                          appearance=appearance,
                          mark=mark,
                          originalQuantity=originalQuantity,
-                         remark=remark,)
+                         remark=remark, )
         if serialNumber != '' and workSeq == '':
             now = datetime.datetime.now()
-            gsStatus.objects.filter(thing__in=thing_set).update(numberingStatus=True,numberingOperator=operator,numberingUpdateDateTime=now)
-
+            gsStatus.objects.filter(thing__in=thing_set).update(numberingStatus=True, numberingOperator=operator,
+                                                                numberingUpdateDateTime=now)
             status_set = gsStatus.objects.filter(thing=thing_set[0])
             s = status_set[0]
             status = s.numberingStatus and s.analyzingStatus and s.measuringStatus and s.photographingStatus and s.checkingStatus
             if status:
-                status_set.update(status=status,completeTime=now)
+                status_set.update(status=status, completeTime=now)
     except Exception as e:
         ret['success'] = False
         ret['message'] = serialNumber + u'实物信息更新失败！'
-    else:
-        ret['success'] = True
-        ret['message'] = serialNumber + u'实物信息更新成功！'
-
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
