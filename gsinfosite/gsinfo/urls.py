@@ -118,6 +118,7 @@ urlpatterns = [
     url(r'^checking/getWorkData/(?P<workSeq>\d+)$', views.getWorkData, name='getWorkData'),
     url(r'^checking/searchThingInfo/$', views.searchThingInfo, name='searchThingInfo'),
     url(r'^checking/getThingInfo/$', views.getThingInfo, name='getThingInfo'),
+    url(r'^checking/getReadyInfo/$', numbering.getReadyInfo, name='getReadyInfo'),
 
     url(r'^numbering/$', numbering.numbering, name='numbering'),
     url(r'^numbering/getWorkSpaceContent/$', views.getWorkSpaceContent, name='getWorkSpaceContent'),

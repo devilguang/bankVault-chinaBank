@@ -631,10 +631,10 @@ def getTools(request):
         fileName_list = os.listdir(file_dir)
         ret['count'] = len(fileName_list)
         ret['row'] = []
-        ret['success'] = True,
+        ret['success'] = True
         for fileName in fileName_list:
             r = {}
-            r['fileName'] = fileName,
+            r['fileName'] = fileName
             r['downloadURL'] = u'getTools/?fileName={0}'.format(fileName)
             ret['row'].append(r)
         ret_json = json.dumps(ret, separators=(',', ':'))
