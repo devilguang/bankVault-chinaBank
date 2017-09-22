@@ -27,6 +27,7 @@ BOX_DATA_PATH = os.path.join(DATA_PATH, 'box')
 WORK_DATA_PATH = os.path.join(DATA_PATH, 'work')
 TEMPLATE_DATA_PATH = os.path.join(DATA_PATH, 'template')
 IMGS_DATA_PATH = os.path.join(STATIC_PATH, 'photo')
+TOOLS_DATA_PATH = os.path.join(STATIC_PATH, 'tools')
 HARDDIR = r''
 
 
