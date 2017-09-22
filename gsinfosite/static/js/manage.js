@@ -77,6 +77,10 @@ function openEntityBox() {
     $("#openBoxForm").form('clear');
 
 }
+function floatNumber(){
+
+    console.log(123123)
+}
 function saveOpenEntityBox() {
     var origBoxNumber = $("#originalBox").children().find(".textbox-value").val();
     var thingAmount = $("#openBoxCases").children().find(".textbox-value").val();

@@ -58,7 +58,7 @@
                 case 13:
                     event.returnValue = false;
                     event.cancel = true;
-                   login();
+                    login();
                     break;
                 default:
                     break;
@@ -167,9 +167,24 @@
     </div>
 
     <div data-options="region:'south', border:false" id="footer" class="footer">
-        <a href="/software/" style="text-decoration:none;color:blue;display:block;text-align:center;font-size:15px;">工具下载中心</a>
+        <a  href="javascript:void(0)" style="text-decoration:none;color:blue;display:block;text-align:center;font-size:15px;" onclick="downloadExe()">工具下载中心</a>
         <p>Copyright &copy; 中国人民银行武汉分行货币金银处 &nbsp;技术支持 &nbsp;(sunshine)</p>
     </div>
+
+    <div id="downloadDlg" class="easyui-window" title="下载中心" style="width:320px;height:200px;padding:10px 20px"
+         data-options="collapsible:false,minimizable:false,maximizable:false,closed:true">
+        <p style="font-size: 14px;">请选择下载项:</p>
+
+    </div>
+
 </div>
 </body>
+<script>
+function downloadExe(){
+    $("#downloadDlg").window('open');
+    $.ajax({
+        url:''
+    })
+}
+</script>
 </html>
