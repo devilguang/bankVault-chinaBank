@@ -58,8 +58,6 @@ function changeInputValue(idName, getIdName, productKey) {
                     getIdName.appendChild(optionList);
                     $('#workGrid' + node.id).datagrid('reload');
                 }
-            } else {
-                return
             }
         }
     })
@@ -724,11 +722,11 @@ function saveUpdateInfo() {
     var single_dingSecification = $("#single_dingSecification").children().find('.textbox-value').val();//规格
     var single_zhangType = $("#single_zhangType").children().find('.textbox-value').val();//规格
     var single_shape = $("#single_shape").children().find('.textbox-value').val();//器型
-    var single_carveName = $("#physical_carveName").val();//铭文
+    var single_mark = $("#physical_mark").val();//铭文
     var single_remark = $("#single_remark").children().find('.textbox-value').val();//备注
     var single_detailedName = $("#detailedName").val();//名称
     var arrId = ['single_level', 'single_peroid', 'single_country', 'single_quality', 'single_originalQuantity',
-        'single_year', 'single_faceAmount', 'single_dingSecification', 'single_zhangType', 'single_shape', 'single_carveName', 'single_remark',
+        'single_year', 'single_faceAmount', 'single_dingSecification', 'single_zhangType', 'single_shape', 'single_mark', 'single_remark',
         'single_detailedName'];
     var mustId = [];
     var Compulsory = ['single_level', 'single_peroid', 'single_country', 'single_quality', 'single_originalQuantity', 'single_detailedName'];
@@ -761,7 +759,7 @@ function saveUpdateInfo() {
             zhangType: single_zhangType,
             shape: single_shape,
             appearance: single_quality,
-            mark: single_carveName,
+            mark: single_mark,
             remark: single_remark,
             originalQuantity: single_originalQuantity,
             operator: $('#operator').val(), //操作员

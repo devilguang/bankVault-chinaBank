@@ -1034,7 +1034,7 @@ def print_pic(request):
             # 生成二维码图片
             file_path = createQRCode(text)
             # 开始打印
-            print_work(file_path)
+            # print_work(file_path)
             # 删除打印成功的二维码图片
             os.remove(file_path)
     except Exception as e:
