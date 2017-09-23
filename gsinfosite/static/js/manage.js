@@ -195,7 +195,7 @@ function sealingBagPrint(text) {
                     showType: 'slide',
                     timeout: 5000
                 });
-            }else{
+            } else {
                 $.messager.alert('提示', data.message)
             }
         }
@@ -276,7 +276,21 @@ function addTheJobBox() {
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
-
+        $("#addJobBoxRight-thingsGrid").datagrid({
+            // url: 'enterEvent/',
+            // queryParams: {boxNumber: row.boxNumber},
+            columns: [[
+                {field: 'serialNumber2', title: '实物编号', align: 'center'},
+            ]],
+            pagination: true,
+            fit: true,
+            pageSize: 20,
+            fitColumns: true,
+            rownumbers: true
+        }).datagrid('getPager').pagination({
+            layout: ['prev', 'sep', 'links', 'sep', 'next'],
+            displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
+        });
         addJobBoxDlg();
         $("#addJobBoxDlgLeftForm").children().find(".panel").css("width", "300px");
         $("#addJobBoxDlgLeftForm").children().find(".datagrid-wrap").css("width", "300px");
@@ -303,13 +317,14 @@ function addJobBoxDlg() {
                 url: 'enterEvent/',
                 data: {
                     serialNumber2: serialNumber,
-                    caseNunber:''
+                    caseNunber: ''
                 }, success: function (data) {
                     var data = JSON.parse(data);
                     if (data.success) {
-                        a++;
-                        var boxSerialNumber = data.serialNumber2
-                        $("<tr></tr>").html("<td>" + a + "</td><td>" + boxSerialNumber + "</td><td></td>").appendTo($("#addJobBoxRight-thingsGrid"));
+                            console.log(data)
+                        // a++;
+                        // var boxSerialNumber = data.serialNumber2
+                        // $("<tr></tr>").html("<td>" + a + "</td><td>" + boxSerialNumber + "</td><td></td>").appendTo($("#addJobBoxRight-thingsGrid"));
                         document.getElementById("addJobBoxDlg-qrCode").value = "";
                         $("#addJobBoxDlg-qrCode").siblings().children().eq(0).val("");
                         $("#addJobBoxDlg-qrCode").siblings().children().eq(1).val("");
