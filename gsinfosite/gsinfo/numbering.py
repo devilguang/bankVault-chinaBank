@@ -88,7 +88,7 @@ def updateNumberingInfo(request):
             else:
                 raise ValueError, u'名称填写错误！'
         else:
-            code = None
+            code = ''
         thing_set.update(level=level,
                          detailedName=code,
                          peroid=peroid,
@@ -113,7 +113,10 @@ def updateNumberingInfo(request):
                 status_set.update(status=status, completeTime=now)
     except Exception as e:
         ret['success'] = False
-        ret['message'] = serialNumber + u'实物信息更新失败！'
+        ret['message'] = u'实物信息更新失败！'
+    else:
+        ret['success'] = True
+        ret['message'] = u'实物信息更新成功！'
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)

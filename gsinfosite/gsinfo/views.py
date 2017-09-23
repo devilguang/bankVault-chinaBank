@@ -427,13 +427,17 @@ def exploreThing(request, boxNumber, serialNumber):
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
     context['wareHouse'] = wareHouse.type
     if grandpaType:
-        context['productType'] =grandpaType
-        context['className'] = parentType
-        context['subClassName'] = type
+        productType =grandpaType
+        className = parentType
+        subClassName = type
     else:
-        context['productType'] = parentType
-        context['className'] = type
-        context['subClassName'] = '-'
+        productType = parentType
+        className = type
+        subClassName = '-'
+
+    context['productType'] = productType
+    context['className'] = className
+    context['subClassName'] = subClassName
     # 档案建立时间与档案修改时间
     s = gsStatus.objects.get(thing=thing)
     lastUpdateDate = (s.numberingUpdateDateTime if (
@@ -453,17 +457,23 @@ def exploreThing(request, boxNumber, serialNumber):
     context['B'] = u'{0}-B.jpg'.format(picturePathPrefix)
     context['C'] = u'{0}-C.jpg'.format(picturePathPrefix)
 
-    faceAmountList = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元', '外国银元']
+    faceAmountList = ['币', '元', '辅', '钱', '外元', '减元', '色元', '外国银元']
     dingList = ['锭']
     shapeList = ['工']
     zhangTypeList = ['章']
+    yinyuanList = ['国内银元']
 
     subClassName = context['subClassName']
-    context['detailedName'] = thing.detailedName
-    context['level'] = thing.originalQuantity
-    context['peroid'] = thing.peroid
+    level = thing.level
+    if level:
+        context['level'] = gsProperty.objects.get(project='等级', code=level).type
+    peroid = thing.peroid
+    if peroid:
+        context['peroid'] = gsProperty.objects.get(project='年代',code=peroid).type
     context['year'] = thing.year
-    context['country'] = thing.country
+    country = thing.country
+    if country:
+        context['country'] = gsProperty.objects.get(project='国别',code=country).type
     context['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
     context['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
     context['mark'] = thing.mark
@@ -473,22 +483,65 @@ def exploreThing(request, boxNumber, serialNumber):
     context['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
     context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if (
         thing.detectedQuantity is not None and thing.grossWeight is not None) else ''
-    context['faceAmount'] = thing.faceAmount
-    context['dingSecification'] = thing.dingSecification
-    context['shape'] = thing.shape
-    context['zhangType'] = thing.zhangType
-    context['appearance'] = thing.appearance
-    context['remark'] = thing.remark
+    context['productType'] = productType
+    context['className'] = className
+    context['subClassName'] = subClassName
+
+
 
     if subClassName:
         if subClassName in faceAmountList:
+            faceAmount = thing.faceAmount
+            if faceAmount:
+                context['faceAmount'] = gsProperty.objects.get(project='面值', code=faceAmount).type
             html = 'yinyuan.html'
         elif subClassName in dingList:
+            dingSecification = thing.dingSecification
+            if dingSecification:
+                context['dingSecification'] = gsProperty.objects.get(project='金银锭类规格', code=dingSecification).type
+            if productType == '黄金' and subClassName == '锭':
+                name = '金锭类形制'
+            elif productType == '白银' and subClassName == '锭':
+                name = '银锭类形制'
+            elif subClassName == '工':
+                name = '工艺品类器型'
+            else:
+                name = ''
+            shape = thing.shape
+            if name and shape:
+                context['shape'] = gsProperty.objects.get(project=name, code=shape).type
+            zhangType = thing.zhangType
+            if zhangType:
+                context['zhangType'] = gsProperty.objects.get(project='章类性质', code=zhangType).type
+            appearance = thing.appearance
+            if appearance:
+                context['appearance'] = gsProperty.objects.get(project='品相', code=appearance).type
+            context['remark'] = thing.remark
             html = 'ding.html'
-            context['shape'] = thing.shape
         elif subClassName in shapeList:
             html = 'gongyipin.html'
         elif subClassName in zhangTypeList:
+            html = 'bizhang.html'
+        elif subClassName in yinyuanList:
+            faceAmount = thing.faceAmount
+            if faceAmount:
+                context['faceAmount'] = gsProperty.objects.get(project='面值', code=faceAmount).type
+            if productType == '银元' and className == '标准银元' and subClassName == '国内银元':
+                if level == '1':
+                    name = '国内珍品银元名称'
+                elif level == '2':
+                    name = '国内稀一级银元名称'
+                elif level == '3':
+                    name = '国内稀二级银元名称'
+                elif level == '4':
+                    name = '国内稀三级银元名称'
+                elif level == '5':
+                    name = '国内普制银元名称'
+                else:
+                    name = ''
+                detailedName = thing.detailedName
+                if name and detailedName:
+                    context['detailedName'] = gsProperty.objects.get(project=name, code=detailedName).type
             html = 'bizhang.html'
     else:
         pass
