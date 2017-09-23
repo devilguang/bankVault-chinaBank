@@ -402,9 +402,20 @@ function openCreateBoxDlg() {
 
 
 function checkAmount() {
-    var amount = $("#createBox-amount").siblings().children().eq(1).val();
-    var origBoxNumber = $("#createBox-origBoxNumber").siblings().children().eq(1).val();
-
+    var amount = $("#createBox-amount").siblings().children().eq(1).val(); //件数
+    var origBoxNumber = $("#createBox-origBoxNumber").siblings().children().eq(1).val();//原箱号
+    var productType = $("#createBox-productType").siblings().children().eq(2).val();
+    var wareHosue = $("#createBox-wareHosue").siblings().children().eq(2).val();
+    var className = $("#createBox-className").siblings().children().eq(2).val();
+    var grossWeight = $("#createBox-grossWeight").siblings().children().eq(1).val(); //毛重
+    var oprateType = $("#createBox-oprateType").siblings().children().eq(2).val();
+    if (amount == '' || origBoxNumber == '' || productType == '' || wareHosue == '' || className == '' || grossWeight == '' || oprateType == '') {
+        $.messager.alert({    // 显示失败信息
+            title: '提示',
+            msg: '输入内容不能为空'
+        });
+        return false
+    }
     $.ajax({
         type: 'post',
         url: 'checkAmount/',
@@ -427,8 +438,6 @@ function checkAmount() {
 
 function createBox() {
     $('#createBoxDlg').dialog('close');// 关闭对话框
-    console.log($("#createBox-productType").siblings().children());
-    return
 
     $('#createBoxForm').form({
         url: 'createBox/',

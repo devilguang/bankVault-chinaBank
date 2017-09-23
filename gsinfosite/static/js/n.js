@@ -370,13 +370,14 @@ function saveBatchUpdateInfo() {
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
-                $.messager.confirm('提示', data.message, function (r) {
-                    if (r) {
-                        $("#BatchUpdateInfoDlg").dialog('close');
-                        $('#workGrid' + node.id).datagrid('reload');
-                    }
+                $.messager.show({    // 显示成功信息
+                    title: '提示',
+                    msg: data.message,
+                    showType: 'slide',
+                    timeout: 5000
                 });
-                // 重载作业数据
+                $("#BatchUpdateInfoDlg").dialog('close'); // 重载作业数据
+                $('#workGrid' + node.id).datagrid('reload');
             } else {
                 $.messager.alert('提示', data.message);
             }
@@ -605,12 +606,12 @@ function getReadyInfoInformation(row) {
 }
 
 //这个方法是给名称提示信息的
-function getDetailName(id,id1,id2,id3,id4) {
-    $("#"+id).html('');
-    var productType = $("#"+id1).siblings().eq(1).children().eq(1).val();
-    var single_level = $("#"+id2).children().find('.textbox-value').val(); //等级
-    var className = $("#"+id3).siblings().eq(1).children().eq(1).val();
-    var subClassName = $("#"+id4).siblings().eq(1).children().eq(1).val();
+function getDetailName(id, id1, id2, id3, id4) {
+    $("#" + id).html('');
+    var productType = $("#" + id1).siblings().eq(1).children().eq(1).val();
+    var single_level = $("#" + id2).children().find('.textbox-value').val(); //等级
+    var className = $("#" + id3).siblings().eq(1).children().eq(1).val();
+    var subClassName = $("#" + id4).siblings().eq(1).children().eq(1).val();
     $.ajax({
         type: 'post',
         url: 'getDetailName/',
@@ -622,7 +623,7 @@ function getDetailName(id,id1,id2,id3,id4) {
         }, success: function (data) {
             var data = JSON.parse(data);
             data.val.forEach(function (item) {
-              $("<option></option>").html(item.text).appendTo($("#"+id));
+                $("<option></option>").html(item.text).appendTo($("#" + id));
             })
         }
     })
@@ -762,11 +763,13 @@ function saveUpdateInfo() {
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
-                $.messager.confirm('提示', data.message, function (r) {
-                    if (r) {
-                        $("#UpdateInfoDlg").dialog('close');
-                    }
+                $.messager.show({    // 显示成功信息
+                    title: '提示',
+                    msg: data.message,
+                    showType: 'slide',
+                    timeout: 5000
                 });
+                $("#UpdateInfoDlg").dialog('close');
                 var node = $('#workSpaceTree').tree('getSelected');
                 $('#workGrid' + node.id).datagrid('reload');
 
