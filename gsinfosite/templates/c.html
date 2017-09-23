@@ -9,12 +9,10 @@
     <!-- 信息批量修改对话框 -->
 
     <!-- 信息单个修改对话框 -->
-    <div id="UpdateInfoDlg" class="easyui-dialog" style="width:500px;height:450px;padding:10px 20px"
+  <div id="UpdateInfoDlg" class="easyui-dialog" style="width:500px;height:450px;padding:10px 20px"
          data-options="closed:true, buttons:'#UpdateInfoDlgButtons', modal:true, onClose:unInitUpdateInfoDlg">
         <div class="FormTitle">实物信息</div>
-        <form id="UpdateInfoForm" method="POST" novalidate>
-
-
+        <form id="UpdateInfoForm" method="get" novalidate>
             <div class="FormItem" id="single_serialNumber">
                 <label for="UpdateInfo-serialNumber">实物编号</label>
                 <input id="UpdateInfo-serialNumber" name="serialNumber" class="easyui-textbox"
@@ -61,19 +59,20 @@
 
             <div class="FormItem" id="single_detailedName">
                 <label for="UpdateInfo-detailedName">名称</label>
-                {#                <input id="UpdateInfo-detailedName" name="detailedName" class="easyui-textbox">#}
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="UpdateInfo-detailedName"
                            style="border: none;margin-left: 3px;width: 295px;outline: none;" name="detailedName"
-                           id="physical_detailedName"
-                    />
-{#                     onkeyup="changeInputValue('physical_detailedName','UpdateInfo-detailedName','detailedName')"#}
+                           id="detailedName" type="text" onfocus="getDetailName('UpdateInfo-detailedName','UpdateInfo-productType','single_level','UpdateInfo-className','UpdateInfo-subClassName')"/>
                     <datalist id="UpdateInfo-detailedName">
 
                     </datalist>
-                </span>
-            </div>
 
+                </span><span style="color:red;margin-left: 13px;vertical-align: middle">*</span>
+{#                 <select name="detailedName" id="UpdateInfo-detailedName" class="easyui-combobox"#}
+{#                        data-options="valueField:'id', textField:'text',panelHeight: 'auto'"#}
+{#                        style="width: 305px;" >#}
+{#                </select><span style="color:red;margin-left: 10px;vertical-align: middle">*</span>#}
+            </div>
             <div class="FormItem" id="single_peroid" style="display: block">
                 <label for="UpdateInfo-peroid">年代</label>
                 {# <input list="UpdateInfo-peroid" class="easyui-combobox" name="peroid" id="physical_peroid" data-options="editable:false,panelHeight: 'auto'"/>#}
@@ -159,7 +158,7 @@
             <div class="FormItem" id="single_originalQuantity">
                 <label for="UpdateInfo-originalQuantity">成色(%)</label>
                 <input id="UpdateInfo-originalQuantity" name="originalQuantity" class="easyui-numberbox"
-                       data-options="precision:2, min:0, max:100"><span
+                       data-options="precision:4, min:0, max:100"><span
                     style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
             <div class="FormItem" id="single_remark">
@@ -169,6 +168,8 @@
             </div>
         </form>
     </div>
+
+
     <div id="UpdateInfoDlgButtons">
         <a id="editBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"
            onclick="editUpdateInfo()" style="width:90px">编辑</a>

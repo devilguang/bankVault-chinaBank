@@ -293,36 +293,6 @@ function saveInfo() {
         },
         onSubmit: function (param) {
             var productType = $('#UpdateInfoproductType').textbox('getValue');
-
-
-            // if (productType == '银元类' || productType == '金银币章类') {
-            //     var diameter = $('#UpdateInfodiameter').textbox('getValue');
-            //     var thick = $('#UpdateInfothick').textbox('getValue');
-            //     // if (grossWeight != '' && diameter != '' && thick != '') {
-            //     //     return true;
-            //     // }
-            //     // else {
-            //     //     $.messager.alert({
-            //     //         title: '提示',
-            //     //         msg: '毛重、直径、厚度均不能为空！'
-            //     //     });
-            //     //     return false;
-            //     // }
-            // }
-            // else {
-
-            // if (grossWeight != '' && length != '' && width != '' && height != '') {
-            //     return true;
-            // }
-            // else {
-            //     $.messager.alert({
-            //         title: '提示',
-            //         msg: '带*号的不能为空！'
-            //     });
-            //     return false;
-            // }
-            // }
-            // return $(this).form('validate');
         },
         success: function (result) {
             var result = eval('(' + result + ')');

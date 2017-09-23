@@ -622,9 +622,11 @@ function getDetailName(id, id1, id2, id3, id4) {
             level: single_level
         }, success: function (data) {
             var data = JSON.parse(data);
-            data.val.forEach(function (item) {
-                $("<option></option>").html(item.text).appendTo($("#" + id));
-            })
+            if (data.val.length > 0) {
+                data.val.forEach(function (item) {
+                    $("<option></option>").html(item.text).appendTo($("#" + id));
+                })
+            }
         }
     })
 }

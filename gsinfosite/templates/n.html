@@ -138,9 +138,9 @@
                 {# <input id="UpdateInfo-carveName" name="carveName" class="easyui-textbox">#}
                 <span style="display: inline-block;border:1px solid #95b8e7;border-radius: 6px;height: 20px;width: 300px;">
                     <input list="BatchUpdateInfo-carveName"
-                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="carveName"
+                           style="border: none;margin-left: 3px;width: 295px;outline: none;" name="mark"
                            id="select_carveName"
-                           onkeyup="changeInputValue('select_carveName','UpdateInfo-carveName','carveName')"/>
+                           onkeyup="changeInputValue('select_carveName','UpdateInfo-carveName','mark')"/>
                     <datalist id="BatchUpdateInfo-carveName">
 
                     </datalist>
@@ -149,7 +149,7 @@
             <div class="FormItem" id="batch_originalQuantity">
                 <label for="BatchUpdateInfo-originalQuantity">成色(%)</label>
                 <input id="BatchUpdateInfo-originalQuantity" name="originalQuantity" class="easyui-numberbox"
-                       data-options="precision:2, min:0, max:100"><span
+                       data-options="precision:4, min:0, max:100"><span
                     style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
             <div class="FormItem" id="batch_remark">
@@ -308,7 +308,7 @@
                     <input list="UpdateInfo-carveName"
                            style="border: none;margin-left: 3px;width: 295px;outline: none;" name="mark"
                            id="physical_carveName"
-                           onkeyup="changeInputValue('physical_carveName','UpdateInfo-carveName','carveName')"/>
+                           onkeyup="changeInputValue('physical_carveName','UpdateInfo-carveName','mark')"/>
                     <datalist id="UpdateInfo-carveName">
 
                     </datalist>
@@ -317,7 +317,7 @@
             <div class="FormItem" id="single_originalQuantity">
                 <label for="UpdateInfo-originalQuantity">成色(%)</label>
                 <input id="UpdateInfo-originalQuantity" name="originalQuantity" class="easyui-numberbox"
-                       data-options="precision:2, min:0, max:100"><span
+                       data-options="precision:4, min:0, max:100"><span
                     style="color:red;margin-left: 10px;vertical-align: middle">*</span>
             </div>
             <div class="FormItem" id="single_remark">
