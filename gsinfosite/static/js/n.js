@@ -727,7 +727,6 @@ function saveUpdateInfo() {
     var single_carveName = $("#physical_carveName").val();//铭文
     var single_remark = $("#single_remark").children().find('.textbox-value').val();//备注
     var single_detailedName = $("#detailedName").val();//名称
-    debugger
     var arrId = ['single_level', 'single_peroid', 'single_country', 'single_quality', 'single_originalQuantity',
         'single_year', 'single_faceAmount', 'single_dingSecification', 'single_zhangType', 'single_shape', 'single_carveName', 'single_remark',
         'single_detailedName'];
