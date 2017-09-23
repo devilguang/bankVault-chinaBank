@@ -88,7 +88,7 @@ def updateNumberingInfo(request):
             else:
                 raise ValueError, u'名称填写错误！'
         else:
-            code = ''
+            code = None
         thing_set.update(level=level,
                          detailedName=code,
                          peroid=peroid,
