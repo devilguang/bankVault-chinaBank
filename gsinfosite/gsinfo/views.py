@@ -275,24 +275,57 @@ def getWorkData(request, workSeq):
 def getThingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
 
-    thing = gsThing.objects.get(serialNumber=serialNumber)
-    ret={}
-    ret['detailedName'] = thing.detailedName
-    ret['level'] = thing.level
-    ret['peroid'] = thing.peroid
-    ret['year'] = thing.year
-    ret['country'] = thing.country
-    ret['originalQuantity'] = thing.originalQuantity
-    ret['mark'] = thing.mark
-    ret['faceAmount'] = thing.faceAmount
-    ret['dingSecification'] = thing.dingSecification
-    ret['shape'] = thing.shape
-    ret['shape'] = thing.shape
-    ret['zhangType'] = thing.zhangType
-    ret['appearance'] = thing.appearance
-    ret['remark'] = thing.remark
+    ret = {}
+    try:
+        thing = gsThing.objects.get(serialNumber=serialNumber)
 
-    ret_json = json.dumps(ret, separators=(',', ':'))
+        prop = thing.box.boxType
+        type = prop.type
+        parentType = prop.parentType
+        grandpaType = prop.grandpaType
+        if grandpaType:
+            productType = grandpaType
+            className = parentType
+            subClassName = type
+        else:
+            productType = parentType
+            className = type
+            subClassName = '-'
+
+        level = thing.level
+        ret['level'] = level
+        if productType == '银元' and className == '标准银元' and subClassName == '国内银元':
+            if level == '1':
+                name = '国内珍品银元名称'
+            elif level == '2':
+                name = '国内稀一级银元名称'
+            elif level == '3':
+                name = '国内稀二级银元名称'
+            elif level == '4':
+                name = '国内稀三级银元名称'
+            elif level == '5':
+                name = '国内普制银元名称'
+            else:
+                name = ''
+            detailedName = thing.detailedName
+            if name and detailedName:
+                ret['detailedName'] = gsProperty.objects.get(project=name, code=detailedName).type
+
+        ret['peroid'] = thing.peroid
+        ret['year'] = thing.year
+        ret['country'] = thing.country
+        ret['originalQuantity'] = str(thing.originalQuantity)
+        ret['mark'] = thing.mark
+        ret['faceAmount'] = thing.faceAmount
+        ret['dingSecification'] = thing.dingSecification
+        ret['shape'] = thing.shape
+        ret['shape'] = thing.shape
+        ret['zhangType'] = thing.zhangType
+        ret['appearance'] = thing.appearance
+        ret['remark'] = thing.remark
+    except Exception as e:
+        pass
+    ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 # --------------------------------------------------------------------------
 def getWorkSpaceContent(request):
