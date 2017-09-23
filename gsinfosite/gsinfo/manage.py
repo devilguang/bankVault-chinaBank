@@ -1301,8 +1301,9 @@ def getCaseNumber(request):
         # boxNumber = getNumberAPI(code)
         # -----模拟
         caseNumber = '456' + str(shortuuid.ShortUUID().random(length=5))
+
         # 数据库记录
-        gsCase.objects.create(caseNumber=caseNumber,status=0)
+        gsCase.objects.create(caseNumber=caseNumber,status=0,box=box)
         ret = {
             'caseNumber': caseNumber,  # 页面展示用
             'text': caseNumber  # 打印用
