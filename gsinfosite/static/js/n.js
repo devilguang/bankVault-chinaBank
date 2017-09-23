@@ -361,7 +361,7 @@ function saveBatchUpdateInfo() {
             zhangType: batch_zhangType,
             shape: batch_shape,
             appearance: batch_quality,
-            mark: batch_remark,
+            mark: batch_carveName,
             originalQuantity: batch_originalQuantity,
             remark: batch_remark,
             operator: $('#operator').val(), //操作员
@@ -723,6 +723,7 @@ function saveUpdateInfo() {
     var single_carveName = $("#physical_carveName").val();//铭文
     var single_remark = $("#single_remark").children().find('.textbox-value').val();//备注
     var single_detailedName = $("#detailedName").val();//名称
+    debugger
     var arrId = ['single_level', 'single_peroid', 'single_country', 'single_quality', 'single_originalQuantity',
         'single_year', 'single_faceAmount', 'single_dingSecification', 'single_zhangType', 'single_shape', 'single_carveName', 'single_remark',
         'single_detailedName'];
@@ -757,9 +758,9 @@ function saveUpdateInfo() {
             zhangType: single_zhangType,
             shape: single_shape,
             appearance: single_quality,
-            mark: single_remark,
-            originalQuantity: single_originalQuantity,
+            mark: single_carveName,
             remark: single_remark,
+            originalQuantity: single_originalQuantity,
             operator: $('#operator').val(), //操作员
             workName: workName, //作业名
         }, success: function (data) {
