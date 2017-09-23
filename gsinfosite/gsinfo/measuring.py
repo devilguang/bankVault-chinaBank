@@ -57,9 +57,9 @@ def updateMeasuringInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
     # -------------------------------------
     grossWeight = float(request.POST.get('grossWeight'))  # 无论什么类型什么操作，毛重总是有的
-    length = request.POST.get('length', '')
-    width = request.POST.get('width', '')
-    height = request.POST.get('height', '')
+    length = request.POST.get('length', None)
+    width = request.POST.get('width', None)
+    height = request.POST.get('height', None)
     # -------------------------------------
     operator = request.POST.get('operator', '')
 

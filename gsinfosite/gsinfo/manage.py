@@ -1024,14 +1024,12 @@ def print_service(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 def print_pic(request):
-    workName = request.POST.get('workName', '')
+    text_str = request.POST.get('text', '')
+    text_list = text_str.split(';')
     try:
-        work = gsWork.objects.get(workName=workName)
-        thing_set = gsThing.objects.filter(work=work)
-        for thing in thing_set:
-            serialNumber = thing.serialNumber
+        for text in text_list:
             # 生成二维码图片
-            file_path = createQRCode(serialNumber)
+            file_path = createQRCode(text)
             # 开始打印
             print_work(file_path)
             # 删除打印成功的二维码图片
@@ -1136,15 +1134,26 @@ def getCloseThing(request):
     ret = {}
     ret['total'] = n
     ret['rows'] = []
+
+    box = gsBox.objects.get(boxNumber=boxNumber)
+    prop = box.boxType
+    type = prop.type
+    parentType = prop.parentType
+    grandpaType = prop.grandpaType
+    if grandpaType:
+        productType = grandpaType
+        className = parentType
+        subClassName = type
+    else:
+        productType = parentType
+        className = type
+        subClassName = '-'
     for th in things[start:end]:
         r = {}
         r['serialNumber'] = th.thing.serialNumber
-        subClassName_code = th.thing.subClassName
-        subClassName_obj = gsProperty.objects.get(grandpaType=productType, parentType=className, code=subClassName_code)
-        subClassName_type = subClassName_obj.type
-        r['subClassName'] = subClassName_type
         r['productType'] = productType
         r['className'] = className
+        r['subClassName'] = subClassName
         r['wareHouse'] = wareHouse
         r['boxNumber'] = boxNumber
         ret['rows'].append(r)
@@ -1156,30 +1165,54 @@ def getCloseThing(request):
 
 def closeThing(request):
     serialNumber = request.POST.get('serialNumber', '')
-    # productType = request.POST.get('productType', '')
     boxNumber = request.POST.get('boxNumber', '')
+
+    box = gsBox.objects.get(boxNumber=boxNumber)
+    thing = gsThing.objects.get(serialNumber=serialNumber)
+    request_type = '4'
+    wareHouse = box.wareHouse
+
+    prop = box.boxType
+    code = prop.code
+    parentCode = prop.parentCode
+    grandpaCode = prop.grandpaCode
+    if grandpaCode:
+        productType = grandpaCode
+        className = parentCode
+        subClassName = code
+    else:
+        productType = parentCode
+        className = code
+        subClassName = ''
+
+    level = thing.level if thing.level else ''
+    peroid = thing.peroid if thing.peroid else ''
+    country = thing.country if thing.country else ''
+    dingSecification = thing.dingSecification if thing.dingSecification else ''
+    shape = thing.shape if thing.shape else ''
 
     try:
         thing = gsThing.objects.get(serialNumber=serialNumber)
         gsStatus.objects.filter(thing=thing, status=1).update(close_status=True)
-
-        # 请求获取实物编号及编号二维码
+        # 向货发二代系统请求实物编号
+        # code = '{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}'.format(request_type,
+        #                                                         wareHouse,
+        #                                                         productType,
+        #                                                         className,
+        #                                                         subClassName,
+        #                                                         level,
+        #                                                         peroid,
+        #                                                         country,
+        #                                                         dingSecification,
+        #                                                         shape)
+        # boxNumber = getNumberAPI(code)
+        # -----模拟
         serialNumber2 = '123' + str(shortuuid.ShortUUID().random(length=5))
         gsThing.objects.filter(serialNumber=serialNumber).update(serialNumber2=serialNumber2)
 
-        img = qrcode.make(data=serialNumber2)
-        pic_name = serialNumber + '.png'
-        box_dir = os.path.join(settings.TAG_DATA_PATH, 'serialNumber2', str(boxNumber))
-        if not os.path.exists(box_dir):
-            os.makedirs(box_dir)
-        filePath = os.path.join(box_dir, pic_name)
-        img.resize((256, 256))
-        # img.show()
-        img.save(filePath)
-
         ret = {
             'success': True,
-            'file_path': filePath
+            'text': serialNumber2
         }
     except Exception as e:
         ret = {

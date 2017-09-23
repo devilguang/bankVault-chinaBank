@@ -97,19 +97,19 @@ def getDurationCompleteThingAmount(request):
 def updateCheckingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
     # -----------------------------------------------
-    level = request.POST.get('level', '')
-    detailedName = request.POST.get('detailedName', '')
-    peroid = request.POST.get('peroid', '')
-    year = request.POST.get('year', '')
-    country = request.POST.get('country', '')
-    faceAmount = request.POST.get('faceAmount', '')
-    dingSecification = request.POST.get('dingSecification', '')
-    zhangType = request.POST.get('zhangType', '')
-    shape = request.POST.get('shape', '')
-    appearance = request.POST.get('appearance', '')
-    mark = request.POST.get('mark', '')
+    level = request.POST.get('level', None)
+    detailedName = request.POST.get('detailedName', None)
+    peroid = request.POST.get('peroid', None)
+    year = request.POST.get('year', None)
+    country = request.POST.get('country', None)
+    faceAmount = request.POST.get('faceAmount', None)
+    dingSecification = request.POST.get('dingSecification', None)
+    zhangType = request.POST.get('zhangType', None)
+    shape = request.POST.get('shape', None)
+    appearance = request.POST.get('appearance', None)
+    mark = request.POST.get('mark', None)
     originalQuantity = float(request.POST.get('originalQuantity'))
-    remark = request.POST.get('remark', '')
+    remark = request.POST.get('remark', None)
     # -----------------------------------------------
     operator = request.POST.get('operator', '')
 
@@ -118,8 +118,18 @@ def updateCheckingInfo(request):
     ret = {}
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'实物认定信息更新')
+        if detailedName != '':
+            prop = gsProperty.objects.filter(type=detailedName)
+            if prop.exists():
+                code = gsProperty.objects.get(type=detailedName).code
+                ret['success'] = True
+                ret['message'] = serialNumber + u'实物信息更新成功！'
+            else:
+                raise ValueError, u'名称填写错误！'
+        else:
+            code = None
         thing_set.update(level=level,
-                         detailedName=detailedName,
+                         detailedName=code,
                          peroid=peroid,
                          year=year,
                          country=country,
