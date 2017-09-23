@@ -552,7 +552,7 @@ function saveUpdateInfo() {
             zhangType: single_zhangType,
             shape: single_shape,
             appearance: single_quality,
-            mark: single_remark,
+            mark: single_carveName,
             originalQuantity: single_originalQuantity,
             remark: single_remark,
             operator: $('#operator').val(), //操作员
