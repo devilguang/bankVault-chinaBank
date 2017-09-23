@@ -930,67 +930,70 @@ def getStatusData(request):
     boxNumber = request.POST.get('boxNumber', '')
     workSeq = request.POST.get('workSeq', '')
 
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    prop = box.boxType
-    type = prop.type
-    parentType = prop.parentType
-    grandpaType = prop.grandpaType
-    workSeq = int(workSeq)
-    work = gsWork.objects.get(box=box, workSeq=workSeq)
-    things = gsThing.objects.filter(work=work)
-    thing_status_list = gsStatus.objects.filter(thing__in=things)
+    try:
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        prop = box.boxType
+        type = prop.type
+        parentType = prop.parentType
+        grandpaType = prop.grandpaType
+        workSeq = int(workSeq)
+        work = gsWork.objects.get(box=box, workSeq=workSeq)
+        things = gsThing.objects.filter(work=work)
+        thing_status_list = gsStatus.objects.filter(thing__in=things)
 
-    n = thing_status_list.count()
-    start = (page - 1) * pageSize
-    end = n if (page * pageSize > n) else page * pageSize
-    ret = {}
-    ret['total'] = n
-    ret['rows'] = []
-    workStatus = 1
-    for thing_status in thing_status_list[start:end]:
-        r = {}
-        r['serialNumber'] = thing_status.thing.serialNumber
-        r['boxNumber'] = boxNumber
-        if grandpaType:
-            r['productType'] = grandpaType
-            r['className'] = parentType
-            r['subClassName'] = type
-        else:
-            r['productType'] = parentType
-            r['className'] = type
-            r['subClassName'] = '-'
+        n = thing_status_list.count()
+        start = (page - 1) * pageSize
+        end = n if (page * pageSize > n) else page * pageSize
+        ret = {}
+        ret['total'] = n
+        ret['rows'] = []
+        workStatus = 1
+        for thing_status in thing_status_list[start:end]:
+            r = {}
+            r['serialNumber'] = thing_status.thing.serialNumber
+            r['boxNumber'] = boxNumber
+            if grandpaType:
+                r['productType'] = grandpaType
+                r['className'] = parentType
+                r['subClassName'] = type
+            else:
+                r['productType'] = parentType
+                r['className'] = type
+                r['subClassName'] = '-'
 
-        r['status1st'] = thing_status.numberingStatus
-        if (thing_status.numberingStatus != 1):
-            workStatus = 0
-        r['operator1st'] = thing_status.numberingOperator
-        r['updateDate1st'] = thing_status.numberingUpdateDateTime
+            r['status1st'] = thing_status.numberingStatus
+            if (thing_status.numberingStatus != 1):
+                workStatus = 0
+            r['operator1st'] = thing_status.numberingOperator
+            r['updateDate1st'] = thing_status.numberingUpdateDateTime
 
-        r['status2nd'] = thing_status.analyzingStatus
-        if (thing_status.analyzingStatus != 1):
-            workStatus = 0
-        r['operator2nd'] = thing_status.analyzingOperator
-        r['updateDate2nd'] = thing_status.analyzingUpdateDateTime
+            r['status2nd'] = thing_status.analyzingStatus
+            if (thing_status.analyzingStatus != 1):
+                workStatus = 0
+            r['operator2nd'] = thing_status.analyzingOperator
+            r['updateDate2nd'] = thing_status.analyzingUpdateDateTime
 
-        r['status3rd'] = thing_status.measuringStatus
-        if (thing_status.measuringStatus != 1):
-            workStatus = 0
-        r['operator3rd'] = thing_status.measuringOperator
-        r['updateDate3rd'] = thing_status.measuringUpdateDateTime
+            r['status3rd'] = thing_status.measuringStatus
+            if (thing_status.measuringStatus != 1):
+                workStatus = 0
+            r['operator3rd'] = thing_status.measuringOperator
+            r['updateDate3rd'] = thing_status.measuringUpdateDateTime
 
-        r['status4th'] = thing_status.checkingStatus
-        if (thing_status.checkingStatus != 1):
-            workStatus = 0
-        r['operator4th'] = thing_status.checkingOperator
-        r['updateDate4th'] = thing_status.checkingUpdateDateTime
+            r['status4th'] = thing_status.checkingStatus
+            if (thing_status.checkingStatus != 1):
+                workStatus = 0
+            r['operator4th'] = thing_status.checkingOperator
+            r['updateDate4th'] = thing_status.checkingUpdateDateTime
 
-        r['status5th'] = thing_status.photographingStatus
-        if (thing_status.photographingStatus != 1):
-            workStatus = 0
-        r['operator5th'] = thing_status.photographingOperator
-        r['updateDate5th'] = thing_status.photographingUpdateDateTime
+            r['status5th'] = thing_status.photographingStatus
+            if (thing_status.photographingStatus != 1):
+                workStatus = 0
+            r['operator5th'] = thing_status.photographingOperator
+            r['updateDate5th'] = thing_status.photographingUpdateDateTime
 
-        ret['rows'].append(r)
+            ret['rows'].append(r)
+    except Exception as e:
+        pass
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
 
@@ -1048,47 +1051,50 @@ def print_pic(request):
     return HttpResponse(ret_json)
 
 def print_work(file_path):
-    # HORZRES / VERTRES = printable area
-    HORZRES = 8
-    VERTRES = 10
-    # LOGPIXELS = dots per inch
-    LOGPIXELSX = 88
-    LOGPIXELSY = 90
-    # PHYSICALWIDTH/HEIGHT = total area
-    PHYSICALWIDTH = 110
-    PHYSICALHEIGHT = 111
-    # PHYSICALOFFSETX/Y = left / top margin
-    PHYSICALOFFSETX = 112
-    PHYSICALOFFSETY = 113
+    try:
+        # HORZRES / VERTRES = printable area
+        HORZRES = 8
+        VERTRES = 10
+        # LOGPIXELS = dots per inch
+        LOGPIXELSX = 88
+        LOGPIXELSY = 90
+        # PHYSICALWIDTH/HEIGHT = total area
+        PHYSICALWIDTH = 110
+        PHYSICALHEIGHT = 111
+        # PHYSICALOFFSETX/Y = left / top margin
+        PHYSICALOFFSETX = 112
+        PHYSICALOFFSETY = 113
 
-    printer_name = win32print.GetDefaultPrinter()
-    # Create a device context from a named printer and assess the printable size of the paper.
-    hDC = win32ui.CreateDC()
-    hDC.CreatePrinterDC(printer_name)
-    printable_area = hDC.GetDeviceCaps(HORZRES), hDC.GetDeviceCaps(VERTRES)
-    printer_size = hDC.GetDeviceCaps(PHYSICALWIDTH), hDC.GetDeviceCaps(PHYSICALHEIGHT)
-    printer_margins = hDC.GetDeviceCaps(PHYSICALOFFSETX), hDC.GetDeviceCaps(PHYSICALOFFSETY)
+        printer_name = win32print.GetDefaultPrinter()
+        # Create a device context from a named printer and assess the printable size of the paper.
+        hDC = win32ui.CreateDC()
+        hDC.CreatePrinterDC(printer_name)
+        printable_area = hDC.GetDeviceCaps(HORZRES), hDC.GetDeviceCaps(VERTRES)
+        printer_size = hDC.GetDeviceCaps(PHYSICALWIDTH), hDC.GetDeviceCaps(PHYSICALHEIGHT)
+        printer_margins = hDC.GetDeviceCaps(PHYSICALOFFSETX), hDC.GetDeviceCaps(PHYSICALOFFSETY)
 
-    bmp = Image.open(file_path, mode="r")
+        bmp = Image.open(file_path, mode="r")
 
-    if bmp.size[0] > bmp.size[1]:
-        bmp = bmp.rotate(90)
+        if bmp.size[0] > bmp.size[1]:
+            bmp = bmp.rotate(90)
 
-    # Start the print job, and draw the bitmap to the printer device at the scaled size.
-    hDC.StartDoc(file_path)
-    hDC.StartPage()
+        # Start the print job, and draw the bitmap to the printer device at the scaled size.
+        hDC.StartDoc(file_path)
+        hDC.StartPage()
 
-    dib = ImageWin.Dib(bmp)
-    scaled_width, scaled_height = [int(4 * i) for i in bmp.size]  # 对原始图片放大n倍
-    x1 = int((printer_size[0] - scaled_width) / 4)
-    y1 = int((printer_size[1] - scaled_height) / 4)
-    x2 = x1 + scaled_width
-    y2 = y1 + scaled_height
-    dib.draw(hDC.GetHandleOutput(), (x1, y1, x2, y2))
+        dib = ImageWin.Dib(bmp)
+        scaled_width, scaled_height = [int(4 * i) for i in bmp.size]  # 对原始图片放大n倍
+        x1 = int((printer_size[0] - scaled_width) / 4)
+        y1 = int((printer_size[1] - scaled_height) / 4)
+        x2 = x1 + scaled_width
+        y2 = y1 + scaled_height
+        dib.draw(hDC.GetHandleOutput(), (x1, y1, x2, y2))
 
-    hDC.EndPage()
-    hDC.EndDoc()
-    hDC.DeleteDC()
+        hDC.EndPage()
+        hDC.EndDoc()
+        hDC.DeleteDC()
+    except Exception as e:
+        pass
 
 def print_auth(request):
     userName = request.POST.get('user', '')  # 系统负责人用户名
@@ -1124,39 +1130,42 @@ def getCloseThing(request):
     pageSize = int(request.POST.get('rows', ''))
     page = int(request.POST.get('page', ''))
 
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    works = gsWork.objects.filter(box=box)
-    thing_set = gsThing.objects.filter(work__in=works)
-    things = gsStatus.objects.filter(thing__in=thing_set, status=1, close_status=0)
-    n = things.count()
-    start = (page - 1) * pageSize
-    end = n if (page * pageSize > n) else page * pageSize
-    ret = {}
-    ret['total'] = n
-    ret['rows'] = []
+    try:
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        works = gsWork.objects.filter(box=box)
+        thing_set = gsThing.objects.filter(work__in=works)
+        things = gsStatus.objects.filter(thing__in=thing_set, status=1, close_status=0)
+        n = things.count()
+        start = (page - 1) * pageSize
+        end = n if (page * pageSize > n) else page * pageSize
+        ret = {}
+        ret['total'] = n
+        ret['rows'] = []
 
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    prop = box.boxType
-    type = prop.type
-    parentType = prop.parentType
-    grandpaType = prop.grandpaType
-    if grandpaType:
-        productType = grandpaType
-        className = parentType
-        subClassName = type
-    else:
-        productType = parentType
-        className = type
-        subClassName = '-'
-    for th in things[start:end]:
-        r = {}
-        r['serialNumber'] = th.thing.serialNumber
-        r['productType'] = productType
-        r['className'] = className
-        r['subClassName'] = subClassName
-        r['wareHouse'] = wareHouse
-        r['boxNumber'] = boxNumber
-        ret['rows'].append(r)
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        prop = box.boxType
+        type = prop.type
+        parentType = prop.parentType
+        grandpaType = prop.grandpaType
+        if grandpaType:
+            productType = grandpaType
+            className = parentType
+            subClassName = type
+        else:
+            productType = parentType
+            className = type
+            subClassName = '-'
+        for th in things[start:end]:
+            r = {}
+            r['serialNumber'] = th.thing.serialNumber
+            r['productType'] = productType
+            r['className'] = className
+            r['subClassName'] = subClassName
+            r['wareHouse'] = wareHouse
+            r['boxNumber'] = boxNumber
+            ret['rows'].append(r)
+    except Exception as e:
+        pass
 
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
 
@@ -1167,31 +1176,31 @@ def closeThing(request):
     serialNumber = request.POST.get('serialNumber', '')
     boxNumber = request.POST.get('boxNumber', '')
 
-    box = gsBox.objects.get(boxNumber=boxNumber)
-    thing = gsThing.objects.get(serialNumber=serialNumber)
-    request_type = '4'
-    wareHouse = box.wareHouse
-
-    prop = box.boxType
-    code = prop.code
-    parentCode = prop.parentCode
-    grandpaCode = prop.grandpaCode
-    if grandpaCode:
-        productType = grandpaCode
-        className = parentCode
-        subClassName = code
-    else:
-        productType = parentCode
-        className = code
-        subClassName = ''
-
-    level = thing.level if thing.level else ''
-    peroid = thing.peroid if thing.peroid else ''
-    country = thing.country if thing.country else ''
-    dingSecification = thing.dingSecification if thing.dingSecification else ''
-    shape = thing.shape if thing.shape else ''
-
     try:
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        thing = gsThing.objects.get(serialNumber=serialNumber)
+        request_type = '4'
+        wareHouse = box.wareHouse
+
+        prop = box.boxType
+        code = prop.code
+        parentCode = prop.parentCode
+        grandpaCode = prop.grandpaCode
+        if grandpaCode:
+            productType = grandpaCode
+            className = parentCode
+            subClassName = code
+        else:
+            productType = parentCode
+            className = code
+            subClassName = ''
+
+        level = thing.level if thing.level else ''
+        peroid = thing.peroid if thing.peroid else ''
+        country = thing.country if thing.country else ''
+        dingSecification = thing.dingSecification if thing.dingSecification else ''
+        shape = thing.shape if thing.shape else ''
+
         thing = gsThing.objects.get(serialNumber=serialNumber)
         gsStatus.objects.filter(thing=thing, status=1).update(close_status=True)
         # 向货发二代系统请求实物编号
@@ -1267,51 +1276,80 @@ def getCloseOverThing(request):
 def getCaseNumber(request):
     boxNumber = request.POST.get('boxNumber', '')
 
-    # 请求盒号及盒号二维码
-    caseNumber = '456' + str(shortuuid.ShortUUID().random(length=5))
-    # 数据库记录
-    # gsCase.objects.create(caseNumber=caseNumber,status=0)
+    try:
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        wareHouse = box.wareHouse
 
-    # 生成二维码
-    img = qrcode.make(data=caseNumber)
-    box_dir = os.path.join(settings.TAG_DATA_PATH, 'case', str(boxNumber))
-    if not os.path.exists(box_dir):
-        os.makedirs(box_dir)  # mkdir
-    filePath = os.path.join(box_dir, '{0}.png'.format(caseNumber))
-    img.resize((256, 256))
-    img.save(filePath)
+        prop = box.boxType
+        code = prop.code
+        parentCode = prop.parentCode
+        grandpaCode = prop.grandpaCode
+        if grandpaCode:
+            productType = grandpaCode
+            className = parentCode
+        else:
+            productType = parentCode
+            className = code
 
-    ret = {
-        'caseNumber': caseNumber,
-        'file_path': filePath
+        request_type = '2'
 
-    }
+        # 向货发二代系统请求盒号
+        # code = '{0}|{1}|{2}|{3}'.format(request_type,
+        #                                 wareHouse,
+        #                                 productType,
+        #                                 className,)
+        # boxNumber = getNumberAPI(code)
+        # -----模拟
+        caseNumber = '456' + str(shortuuid.ShortUUID().random(length=5))
+        # 数据库记录
+        gsCase.objects.create(caseNumber=caseNumber,status=0)
+        ret = {
+            'caseNumber': caseNumber,  # 页面展示用
+            'text': caseNumber  # 打印用
+        }
+    except Exception as e:
+        pass
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 
-
 def enterEvent(request):
     serialNumber2 = request.POST.get('serialNumber2', '')
+    caseNumber = request.POST.get('caseNumber', '')
+    pageSize = int(request.POST.get('rows', ''))
+    page = int(request.POST.get('page', ''))
+    ret = {}
     try:
-        thing = gsThing.objects.get(serialNumber2=serialNumber2)
-        gsStatus.objects.filter(thing=thing).update(incase_status=1)
-        ret = {
-            'success': True,
-            'serialNumber2': serialNumber2
-        }
+        # 更新信息
+        case = gsCase.objects.get(caseNumber=caseNumber)
+        thing = gsThing.objects.filter(serialNumber2=serialNumber2).update(case=case)
+        gsStatus.objects.filter(thing__in=thing).update(incase_status=1)
+        # 获取盒中实物
+        thing_set = gsThing.objects.filter(case=case)
+
+        n = thing_set.count()
+        start = (page - 1) * pageSize
+        end = n if (page * pageSize > n) else page * pageSize
+        ret['total'] = n
+        ret['rows'] = []
+        for th in thing_set[start:end]:
+            r = {}
+            r['serialNumber2'] = th.thing.serialNumber2
+            ret['rows'].append(r)
     except Exception as e:
-        ret = {
-            'success': False
-        }
+        ret['success'] = False
+        ret['message'] = u'入盒失败！'
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 
 
 def cancleInput(request):
     serialNumber2 = request.POST.get('serialNumber2', '')
-
-    serialNumber2_list = serialNumber2.split(';')[0:-1]
+    caseNumber = request.POST.get('caseNumber', '')
     try:
+        serialNumber2_list = serialNumber2.split(';')[0:-1]
+        case = gsCase.objects.get(caseNumber=caseNumber)
+        thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list).update(case=None)
+        case.delete()
         thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list)
         gsStatus.objects.filter(thing__in=thing_set).update(incase_status=0)
         ret = {
