@@ -520,6 +520,11 @@ def exploreThing(request, boxNumber, serialNumber):
     context['className'] = className
     context['subClassName'] = subClassName
 
+    appearance = thing.appearance
+    if appearance:
+        context['appearance'] = gsProperty.objects.get(project='品相', code=appearance).type
+    context['remark'] = thing.remark
+
 
 
     if subClassName:
@@ -543,17 +548,16 @@ def exploreThing(request, boxNumber, serialNumber):
             shape = thing.shape
             if name and shape:
                 context['shape'] = gsProperty.objects.get(project=name, code=shape).type
+            html = 'ding.html'
+        elif subClassName in shapeList:
+            shape = thing.shape
+            if shape:
+                context['shape'] = gsProperty.objects.get(project='工艺品类器型', code=shape).type
+            html = 'gongyipin.html'
+        elif subClassName in zhangTypeList:
             zhangType = thing.zhangType
             if zhangType:
                 context['zhangType'] = gsProperty.objects.get(project='章类性质', code=zhangType).type
-            appearance = thing.appearance
-            if appearance:
-                context['appearance'] = gsProperty.objects.get(project='品相', code=appearance).type
-            context['remark'] = thing.remark
-            html = 'ding.html'
-        elif subClassName in shapeList:
-            html = 'gongyipin.html'
-        elif subClassName in zhangTypeList:
             html = 'bizhang.html'
         elif subClassName in yinyuanList:
             faceAmount = thing.faceAmount
