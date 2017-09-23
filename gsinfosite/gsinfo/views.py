@@ -278,7 +278,7 @@ def getThingInfo(request):
     thing = gsThing.objects.get(serialNumber=serialNumber)
     ret={}
     ret['detailedName'] = thing.detailedName
-    ret['level'] = thing.originalQuantity
+    ret['level'] = thing.level
     ret['peroid'] = thing.peroid
     ret['year'] = thing.year
     ret['country'] = thing.country
