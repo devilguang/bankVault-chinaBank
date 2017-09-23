@@ -80,30 +80,28 @@ function openEntityBox() {
 function saveOpenEntityBox() {
     var origBoxNumber = $("#originalBox").children().find(".textbox-value").val();
     var thingAmount = $("#openBoxCases").children().find(".textbox-value").val();
-    var packageAmount = $("#openBoxPackets").children().find(".textbox-value").val();
     var grossWeight = $("#grossweight").children().find(".textbox-value").val();
+    if (origBoxNumber == '' || thingAmount == '' || grossWeight == '') {
+        $.messager.alert('提示', '原箱号、件数、毛重不能为空');
+        return
+    }
     $.ajax({
         type: 'post',
         url: 'openOrigBox/',
         data: {
             origBoxNumber: origBoxNumber,
             thingAmount: thingAmount,
-            packageAmount: packageAmount,
             grossWeight: grossWeight
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
-                 $.messager.show({    // 显示成功信息
+                $.messager.show({    // 显示成功信息
                     title: '提示',
                     msg: data.message,
                     showType: 'slide',
                     timeout: 5000
                 });
-                // $.messager.confirm('提示', data.message + '！', function (r) {
-                //     if (r) {
-                //         $("#openBoxDlg").dialog("close")
-                //     }
-                // });
+                $("#openBoxDlg").dialog("close")
             } else {
                 $.messager.alert('提示', data.message)
             }
@@ -403,10 +401,10 @@ function openCreateBoxDlg() {
 }
 
 
-
 function checkAmount() {
     var amount = $("#createBox-amount").siblings().children().eq(1).val();
     var origBoxNumber = $("#createBox-origBoxNumber").siblings().children().eq(1).val();
+
     $.ajax({
         type: 'post',
         url: 'checkAmount/',
@@ -429,6 +427,8 @@ function checkAmount() {
 
 function createBox() {
     $('#createBoxDlg').dialog('close');// 关闭对话框
+    console.log($("#createBox-productType").siblings().children());
+    return
 
     $('#createBoxForm').form({
         url: 'createBox/',
