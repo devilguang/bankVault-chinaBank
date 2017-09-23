@@ -538,7 +538,7 @@ function saveUpdateInfo() {
     }
     $.ajax({
         type: 'post',
-        url: 'updateNumberingInfo/',
+        url: 'updateCheckingInfo/',
         data: {
             serialNumber: serialNumber,
             csrfmiddlewaretoken: getCookie('csrftoken'),

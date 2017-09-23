@@ -166,6 +166,7 @@ function unInitBatchUpdateInfoDlg() {
     $('#batch-carveName').attr({'style': ''});
 }
 function batchUpdateInfo(id) {
+
     rows = $('#workGrid' + id).datagrid('getRows');
     row = rows[0];
     var subClassName = row.subClassName;
@@ -251,6 +252,7 @@ function batchUpdateInfo(id) {
     }
     $('#BatchUpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '信息缺省设置');
     $('#BatchUpdateInfoForm').form('clear');
+    $("#BatchUpdateInfo-year").textbox({prompt:'例如：xxxx-xx-xx'});
     $('#BatchUpdateInfoForm').form('load', {
         productType: row.productType,
         className: row.className,
@@ -310,6 +312,7 @@ function batchUpdateInfo(id) {
     })
     url = 'updateNumberingInfo/';
 }
+
 function saveBatchUpdateInfo() {
     var tab = $('#tbs').tabs('getSelected');
     var id = tab[0].id;
@@ -671,6 +674,7 @@ function updateInfo(index, row) {
     getReadyInfoInformation(row);
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
     $('#UpdateInfoForm').form('clear');
+    $("#UpdateInfo-year").textbox({prompt:'例如：xxxx-xx-xx'});
     var data;
     if (row.status == 1) {
         // 记录已更新, 待编辑
