@@ -75,12 +75,8 @@ function boxOperationFormatter(value, row, index) {
 function openEntityBox() {
     $("#openBoxDlg").dialog('open').dialog('center').dialog('setTitle', '开箱操作');
     $("#openBoxForm").form('clear');
-
 }
-function floatNumber(){
 
-    console.log(123123)
-}
 function saveOpenEntityBox() {
     var origBoxNumber = $("#originalBox").children().find(".textbox-value").val();
     var thingAmount = $("#openBoxCases").children().find(".textbox-value").val();
@@ -97,11 +93,17 @@ function saveOpenEntityBox() {
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
-                $.messager.confirm('提示', data.message + '！', function (r) {
-                    if (r) {
-                        $("#openBoxDlg").dialog("close")
-                    }
+                 $.messager.show({    // 显示成功信息
+                    title: '提示',
+                    msg: data.message,
+                    showType: 'slide',
+                    timeout: 5000
                 });
+                // $.messager.confirm('提示', data.message + '！', function (r) {
+                //     if (r) {
+                //         $("#openBoxDlg").dialog("close")
+                //     }
+                // });
             } else {
                 $.messager.alert('提示', data.message)
             }
