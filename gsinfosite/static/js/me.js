@@ -141,6 +141,11 @@ function closeUpdateInfo() {
 
 // 判断哪些东西是必填的
 function isLinSan(row) {
+    var grossWeight = $('#UpdateInfogrossWeight').textbox('getValue');
+    var length = $('#UpdateInfolength').textbox('getValue');
+    var width = $('#UpdateInfowidth').textbox('getValue');
+    var height = $('#UpdateInfoheight').textbox('getValue');
+    var arr = ['Update_infogrossWeight', 'Update_infolength', 'Update_infowidth', 'Update_infoheight'];
     $.ajax({
         type: 'post',
         url: 'isLinSan/',
@@ -148,18 +153,17 @@ function isLinSan(row) {
             boxNumber: row.boxNumber
         }, success: function (data) {
             var data = JSON.parse(data);
-            console.log(data);
             if (data.success) {
                 $("#Update_infogrossWeight").children().eq(3).css('display', 'inline-block');
                 $("#Update_infolength").children().eq(3).css('display', 'none');
                 $("#Update_infowidth").children().eq(3).css('display', 'none');
                 $("#Update_infoheight").children().eq(3).css('display', 'none');
-
             } else {
                 $("#Update_infogrossWeight").children().eq(3).css('display', 'inline-block');
                 $("#Update_infolength").children().eq(3).css('display', 'inline-block');
                 $("#Update_infowidth").children().eq(3).css('display', 'inline-block');
                 $("#Update_infoheight").children().eq(3).css('display', 'inline-block');
+
             }
         }
     })
@@ -266,47 +270,58 @@ function editInfo() {
     $('#editBtn').attr({'style': 'width:90px;display:none'});
     $('#saveBtn').attr({'style': 'width:90px'});
 }
-
-
 function saveInfo() {
+    var arrId = ['Update_infogrossWeight', 'Update_infolength', 'Update_infowidth', 'Update_infoheight'];
+    var showId = [];
+    arrId.forEach(function (item) {
+        if ($("#" + item).children().eq(3).css('display') !== 'none' && $("#" + item).children().eq(2).children().eq(1).val() == '') {
+            showId.push(item)
+        }
+    });
+    if (showId.length > 0) {
+        $.messager.alert({
+            title: '提示',
+            msg: '带*号的不能为空！'
+        });
+        return false;
+    }
     $('#UpdateInfoForm').form({
         url: url,
         queryParams: {
             csrfmiddlewaretoken: getCookie('csrftoken'),
-            operator: $('#operator').val(),
+            operator: $('#operator').val()
         },
         onSubmit: function (param) {
             var productType = $('#UpdateInfoproductType').textbox('getValue');
-            var grossWeight = $('#UpdateInfogrossWeight').textbox('getValue');
-            if (productType == '银元类' || productType == '金银币章类') {
-                var diameter = $('#UpdateInfodiameter').textbox('getValue');
-                var thick = $('#UpdateInfothick').textbox('getValue');
-                // if (grossWeight != '' && diameter != '' && thick != '') {
-                //     return true;
-                // }
-                // else {
-                //     $.messager.alert({
-                //         title: '提示',
-                //         msg: '毛重、直径、厚度均不能为空！'
-                //     });
-                //     return false;
-                // }
-            }
-            else {
-                var length = $('#UpdateInfolength').textbox('getValue');
-                var width = $('#UpdateInfowidth').textbox('getValue');
-                var height = $('#UpdateInfoheight').textbox('getValue');
-                if (grossWeight != '' && length != '' && width != '' && height != '') {
-                    return true;
-                }
-                else {
-                    $.messager.alert({
-                        title: '提示',
-                        msg: '毛重、长度、宽度、高度不能为空！'
-                    });
-                    return false;
-                }
-            }
+
+
+            // if (productType == '银元类' || productType == '金银币章类') {
+            //     var diameter = $('#UpdateInfodiameter').textbox('getValue');
+            //     var thick = $('#UpdateInfothick').textbox('getValue');
+            //     // if (grossWeight != '' && diameter != '' && thick != '') {
+            //     //     return true;
+            //     // }
+            //     // else {
+            //     //     $.messager.alert({
+            //     //         title: '提示',
+            //     //         msg: '毛重、直径、厚度均不能为空！'
+            //     //     });
+            //     //     return false;
+            //     // }
+            // }
+            // else {
+
+            // if (grossWeight != '' && length != '' && width != '' && height != '') {
+            //     return true;
+            // }
+            // else {
+            //     $.messager.alert({
+            //         title: '提示',
+            //         msg: '带*号的不能为空！'
+            //     });
+            //     return false;
+            // }
+            // }
             // return $(this).form('validate');
         },
         success: function (result) {
