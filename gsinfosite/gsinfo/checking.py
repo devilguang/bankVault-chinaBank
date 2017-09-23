@@ -118,8 +118,18 @@ def updateCheckingInfo(request):
     ret = {}
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'实物认定信息更新')
+        if detailedName != '':
+            prop = gsProperty.objects.filter(type=detailedName)
+            if prop.exists():
+                code = gsProperty.objects.get(type=detailedName).code
+                ret['success'] = True
+                ret['message'] = serialNumber + u'实物信息更新成功！'
+            else:
+                raise ValueError, u'名称填写错误！'
+        else:
+            code = None
         thing_set.update(level=level,
-                         detailedName=detailedName,
+                         detailedName=code,
                          peroid=peroid,
                          year=year,
                          country=country,
