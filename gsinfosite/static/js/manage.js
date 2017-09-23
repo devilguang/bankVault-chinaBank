@@ -130,7 +130,7 @@ function sealingBag() {
                 {field: 'productType', title: '类别', align: 'center'},
                 {field: 'className', title: '品类', align: 'center'},
                 {field: 'subClassName', title: '品名', align: 'center'},
-                {field: 'wareHouse', title: '发行库', align: 'center'},
+                {field: 'wareHouse', title: '发行库', align: 'center'}
             ]],
             pagination: true,
             fit: true,
@@ -141,7 +141,37 @@ function sealingBag() {
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
         });
-        enterIncident();
+        $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
+            if (event.keyCode == 13) {
+                var serialNumber = $("#sealingBagDlg-qrCode").val();
+                var row = $('#workGridBoxManage').datagrid('getSelected');
+                $.ajax({
+                    type: 'post',
+                    url: 'closeThing/',
+                    data: {
+                        serialNumber: serialNumber,
+                        boxNumber: row.boxNumber
+                    }, success: function (data) {
+                        var data = JSON.parse(data);
+                        console.log(data)
+                        if (data.success) {
+                            var file_path = data.file_path;
+                            var text = data.text;
+                            sealingBagPrint(text);
+                            document.getElementById("sealingBagDlg-qrCode").value = "";
+                            $("#sealingBagDlg-qrCode").siblings().children().eq(0).val("");
+                            $("#sealingBagDlg-qrCode").siblings().children().eq(1).val("");
+                            $('#sealingBag-thingsGrid').datagrid('reload');
+                            // printingSealingBag(file_path);
+                        } else {
+                            $.messager.alert('提示', data.message)
+                        }
+                    }
+                })
+            }
+        });
+
+        // enterIncident();
     } else {
         $.messager.confirm('提示', '未选择记录! 请先选择一条记录！', function (r) {
             if (r) {
@@ -150,54 +180,78 @@ function sealingBag() {
         });
     }
 }
-function enterIncident() {
-    $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
-        if (event.keyCode == 13) {
-            var serialNumber = $("#sealingBagDlg-qrCode").val();
-            var row = $('#workGridBoxManage').datagrid('getSelected');
-            $.ajax({
-                type: 'post',
-                url: 'closeThing/',
-                data: {
-                    serialNumber: serialNumber,
-                    boxNumber: row.boxNumber
-                }, success: function (data) {
-                    var data = JSON.parse(data);
-                    if (data.success) {
-                        var file_path = data.file_path;
-                        document.getElementById("sealingBagDlg-qrCode").value = "";
-                        $("#sealingBagDlg-qrCode").siblings().children().eq(0).val("");
-                        $("#sealingBagDlg-qrCode").siblings().children().eq(1).val("");
-                        $('#sealingBag-thingsGrid').datagrid('reload');
-                        printingSealingBag(file_path)
-                    } else {
-                        $.messager.alert('提示', data.message)
-                    }
-                }
-            })
-        }
-    })
-}
-function printingSealingBag(file_path) {
+function sealingBagPrint(text) {
     $.ajax({
-        type: "post",
-        url: 'print_service/',
+        type: 'post',
+        url: 'print_pic/',
         data: {
-            file_path: file_path
+            text: text
         }, success: function (data) {
             var data = JSON.parse(data);
-            $('#sealingBag-thingsGrid').datagrid('reload');
             if (data.success) {
-                $.messager.alert('提示', '封袋实物成功')
-            } else {
-                $.messager.alert('提示', '封袋实物失败')
+                $.messager.show({    // 显示成功信息
+                    title: '提示',
+                    msg: '封袋实物成功',
+                    showType: 'slide',
+                    timeout: 5000
+                });
+            }else{
+                $.messager.alert('提示', data.message)
             }
-            var timer = setTimeout(function () {
-                $("#sealingBagDlg").dialog('close')
-            }, 3000)
         }
-    });
+    })
+
 }
+// function enterIncident() {
+//     $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
+//         if (event.keyCode == 13) {
+//             var serialNumber = $("#sealingBagDlg-qrCode").val();
+//             var row = $('#workGridBoxManage').datagrid('getSelected');
+//             $.ajax({
+//                 type: 'post',
+//                 url: 'closeThing/',
+//                 data: {
+//                     serialNumber: serialNumber,
+//                     boxNumber: row.boxNumber
+//                 }, success: function (data) {
+//                     var data = JSON.parse(data);
+//                     if (data.success) {
+//                         var file_path = data.file_path;
+//                         document.getElementById("sealingBagDlg-qrCode").value = "";
+//                         $("#sealingBagDlg-qrCode").siblings().children().eq(0).val("");
+//                         $("#sealingBagDlg-qrCode").siblings().children().eq(1).val("");
+//                         $('#sealingBag-thingsGrid').datagrid('reload');
+//                         printingSealingBag(file_path)
+//                     } else {
+//                         $.messager.alert('提示', data.message)
+//                     }
+//                 }
+//             })
+//         }
+//     });
+// }
+// function printingSealingBag(file_path) {
+//     $.ajax({
+//         type: "post",
+//         url: 'print_service/',
+//         data: {
+//             file_path: file_path
+//         }, success: function (data) {
+//             var data = JSON.parse(data);
+//             // $('#sealingBag-thingsGrid').datagrid('reload');
+//             if (data.success) {
+//                 $.messager.show({    // 显示成功信息
+//                     title: '提示',
+//                     msg: '封袋实物成功',
+//                     showType: 'slide',
+//                     timeout: 5000
+//                 });
+//             } else {
+//                 $.messager.alert('提示', '封袋实物失败');
+//             }
+//         }
+//     });
+// }
 
 //点击添加盒的方法
 function addTheJobBox() {
@@ -206,7 +260,7 @@ function addTheJobBox() {
         $("#addJobBoxDlg").dialog('open').dialog('center').dialog('setTitle', '添加盒');
         $('#addJobBoxDlgLeftForm').form('clear');
         $('#addJobBoxDlgRightForm').form('clear');
-        getBoxNumberDlg(row)
+        getBoxNumberDlg(row);
         $("#addJobBoxLeft-thingsGrid").datagrid({
             url: 'getCloseOverThing/',
             queryParams: {boxNumber: row.boxNumber},
@@ -217,7 +271,7 @@ function addTheJobBox() {
             fit: true,
             pageSize: 20,
             fitColumns: true,
-            rownumbers: true,
+            rownumbers: true
         }).datagrid('getPager').pagination({
             layout: ['prev', 'sep', 'links', 'sep', 'next'],
             displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
@@ -248,7 +302,8 @@ function addJobBoxDlg() {
                 type: 'post',
                 url: 'enterEvent/',
                 data: {
-                    serialNumber2: serialNumber
+                    serialNumber2: serialNumber,
+                    caseNunber:''
                 }, success: function (data) {
                     var data = JSON.parse(data);
                     if (data.success) {

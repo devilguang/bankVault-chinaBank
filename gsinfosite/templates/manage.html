@@ -1019,14 +1019,14 @@
     <div class="FormTitle">作业信息</div>
     <div style="display: flex;justify-content: space-between">
         <div id="addJobBoxDlgwrap" style="width:49%">
-            <form id="addJobBoxDlgLeftForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
+            <form id="addJobBoxDlgLeftForm" method="POST" novalidate style="width: 300px;">
                 <div class="search" style="margin-bottom: 10px;margin-right:55px ">
                     <label for="serialNumber">实物编号</label>
                     <a href="javascript:void(0)"><input id="addJobBoxDlg-qrCode" class="easyui-textbox"
                                                         data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
                 </div>
                 <table style="width: 300px;margin-top: 10px">
-                    <tr height="330px;">
+                    <tr height="370px;">
                         <td colspan="2" style="width: 300px;">
                             <table id="addJobBoxLeft-thingsGrid" style="width: 300px;"></table>
                         </td>
@@ -1035,25 +1035,39 @@
             </form>
         </div>
         <div style="width:49%;">
-            <form id="addJobBoxDlgRightForm" method="POST" novalidate style="margin-top: 20px;width: 300px;">
-                <div class="search" style="margin-bottom: 10px;margin-right:55px;">
+            <form id="addJobBoxDlgRightForm" method="POST" novalidate style="width: 300px;">
+                <div class="search" style="margin-bottom: 10px;margin-right:55px ">
                     <label for="serialNumber">盒号</label>
                     <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" disabled="disabled"
-                                                        style="height: 26px;border:1px solid #95b8e7;border-radius: 5px"/></a>
+                                                        style="height: 26px;border:1px solid #95b8e7;border-radius: 5px;width: 174px;"/></a>
                 </div>
-                <div style="clear: both"></div>
-                <div style="width: 300px;height:331px;border:1px solid #000;box-sizing: border-box;">
-                    <table id="addJobBoxRight-thingsGrid"
-                           data-option="fitColumns:true,striped:true,"
-                           style="margin: 5px 0 0px 5px;border:1px solid #95b8e7">
-                        <tr class="addBoxTitle">
-                            <td></td>
-                            <td>实物编号</td>
-                            <td></td>
-                        </tr>
-                    </table>
-                </div>
+                <table style="width: 300px;margin-top: 10px">
+                    <tr height="370px;">
+                        <td colspan="2" style="width: 300px;">
+                            <table id="addJobBoxRight-thingsGrid" style="width: 300px;"></table>
+                        </td>
+                    </tr>
+                </table>
             </form>
+{#            <form id="addJobBoxDlgRightForm" method="POST" novalidate style="width: 300px;">#}
+{#                <div class="search" style="margin-bottom: 10px;margin-right:55px;">#}
+{#                    <label for="serialNumber">盒号</label>#}
+{#                    <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" disabled="disabled"#}
+{#                                                        style="height: 26px;border:1px solid #95b8e7;border-radius: 5px;width: 174px;"/></a>#}
+{#                </div>#}
+{#                <div style="clear: both"></div>#}
+{#                <div style="width: 300px;height:370px;border:1px solid grey;box-sizing: border-box;">#}
+{#                    <table id="addJobBoxRight-thingsGrid"#}
+{#                           data-option="fitColumns:true,striped:true,"#}
+{#                           style="margin: 5px 0 0px 5px;border:1px solid #95b8e7">#}
+{#                        <tr class="addBoxTitle">#}
+{#                            <td></td>#}
+{#                            <td>实物编号</td>#}
+{#                            <td></td>#}
+{#                        </tr>#}
+{#                    </table>#}
+{#                </div>#}
+{#            </form>#}
         </div>
     </div>
 </div>
