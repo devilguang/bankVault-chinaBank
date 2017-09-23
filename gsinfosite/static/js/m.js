@@ -39,26 +39,40 @@ function loadDataProcess(node, data) {
         }
     }
 }
-
-/*这个方法是信息弹框输入的时候有提示信息，现在已不需要这个功能*/
+//这个方法是给名称提示信息的
+function getDetailName(id, id1, id2, id3, id4) {
+    $("#" + id).html('');
+    var productType = $("#" + id1).siblings().eq(1).children().eq(1).val();
+    var single_level = $("#" + id2).children().find('.textbox-value').val(); //等级
+    var className = $("#" + id3).siblings().eq(1).children().eq(1).val();
+    var subClassName = $("#" + id4).siblings().eq(1).children().eq(1).val();
+    $.ajax({
+        type: 'post',
+        url: 'getDetailName/',
+        data: {
+            productType: productType,
+            className: className,
+            subClassName: subClassName,
+            level: single_level
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.val.length > 0) {
+                data.val.forEach(function (item) {
+                    $("<option></option>").html(item.text).appendTo($("#" + id));
+                })
+            }
+        }
+    })
+}
 function changeInputValue(idName, getIdName, productKey) {
     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
     var value = $("#" + idName).val();
-    var productType = $("#UpdateInfoForm").children().eq(2).children().eq(2).children().eq(1).val();
-    var className = $("#BatchUpdateInfo-className").children().find('.textbox-value').val();
-    var subClassName = $("#BatchUpdateInfo-subClassName").children().find('.textbox-value').val();
-    var level = $("#BatchUpdateInfo-level").children().find('.textbox-value').val();
-    var serialNumber = $("#UpdateInfo-serialNumber").children().find('.textbox-value').val();
     $.ajax({
         type: 'post',
         url: 'checkInfo/',
         data: {
-            subClassName:subClassName,
-            className:className,
-            productType: productType,
-            key: productKey,
             value: value,
-            serialNumber:serialNumber
+            serialNumber: serialNumber
         }, success: function (data) {
             var mes = JSON.parse(data);
             if (mes.success) {
