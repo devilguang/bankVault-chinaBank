@@ -1177,13 +1177,34 @@
 </div>
 
 {#    二维码的弹框#}
-<div id="quickMarkDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;text-align: center"
+{#<div id="quickMarkDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;text-align: center"#}
+{#     data-options="closed:true, buttons:'#quickMarkButtons', modal:true">#}
+{#    <form id="putBoxValidateForm" method="POST" novalidate>#}
+{#        <input type="text" id="quickMark-boxNumber" placeholder="请扫描二维码" style=" width:190px;height:25px;margin-top:20px#}
+{#        ;border-radius: 8px;outline: none"/>#}
+{#         <label for="serialNumber">实物编号</label>#}
+{#                    <a href="javascript:void(0)"><input id="addJobBoxDlg-qrCode" class="easyui-textbox"#}
+{#                                                        data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>#}
+{#    </form>#}
+{#</div>#}
+<div id="quickMarkDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
      data-options="closed:true, buttons:'#quickMarkButtons', modal:true">
-    <form id="putBoxValidateForm" method="POST" novalidate>
-        <input type="text" id="quickMark-boxNumber" placeholder="请扫描二维码" style=" width:190px;height:25px;margin-top:20px
-        ;border-radius: 8px;outline: none"/>
+    <form id="quickMarkDlgForm" method="POST" novalidate style="width: 260px;margin: auto">
+        <input type="hidden" id="quickMarkDlg-boxNumber"/>
+        <table width="260px">
+            <tr>
+                <th>用户名：</th>
+                <td><input id="quickMarkUser"/></td>
+            </tr>
+            <tr>
+                <th>密码：</th>
+                <td><input type="password" id="quickMarkPassWord"/></td>
+            </tr>
+        </table>
     </form>
 </div>
+
+
 <div id="quickMarkButtons">
     <a href="javascript:void(0)" id="save" class="easyui-linkbutton c6 ly_dooutBoxValidate" iconCls="icon-ok"
        style="width:90px" onclick="outBoxValidate()">确定</a>
