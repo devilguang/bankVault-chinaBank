@@ -825,16 +825,25 @@
         </table>
     </form>
 </div>
-{#<div id="sealingBagDlgDlgButtons">#}
-{#    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick=""#}
-{#       style="width:90px">创建</a>#}
-{#    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"#}
-{#       onclick="javascript:$('#sealingBagDlg').dialog('close')" style="width:90px">取消</a>#}
-{#</div>#}
-{#<div id="sealingBag-thingsGrid-ToolBar" style="padding:5px 0;display:none;">#}
-{#    <label for="createWork-thingsGrid-ToolBar-thingIsAllocated" style="margin-left:5px;margin-right:5px;">实物状态</label>#}
-{#    <input id="sealingBag-thingsGrid-ToolBar-thingIsAllocated" style="margin-right:5px;"/>#}
-{#</div>#}
+
+
+
+{#封盒作业对话框#}
+<div id="closedBoxPackDlg" class="easyui-dialog" style="width:600px;height:500px;padding:10px 20px"
+     data-options="closed:true, modal:true">
+    <div class="FormTitle">实物信息</div>
+    <form id="closedBoxPackDlgForm" method="POST" novalidate>
+        <table width="545px">
+            <tr height="300px">
+                <td colspan="2">
+                    <table id="closedBoxPack-thingsGrid"></table>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
 
 
 {#日终小结的对话框#}

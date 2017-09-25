@@ -109,20 +109,37 @@ function saveOpenEntityBox() {
     })
 }
 
-function closedCasePack(){
-    $.ajax({
-        type:'post',
-        url:'getAllCase/',
-        data:{
-            boxNumber:'',
-            pageSize:'',
-            page:''
-        },success:function(data){
-            var data = JSON.parse(data)
-        }
-    })
+//点击封盒的方法
+function closedCasePack() {
+    var row = $('#workGridBoxManage').datagrid('getSelected');
+    if (row) {
+        $("#closedBoxPackDlg").dialog('open').dialog('center').dialog('setTitle', '封盒操作');
+        $('#closedBoxPackDlgForm').form('clear');
+        $('#closedBoxPack-thingsGrid').datagrid({
+            url: 'getAllCase/',
+            queryParams: {
+                boxNumber: row.boxNumber
+            },
+            columns: [[
+                {field: 'caseNumber', title: '箱号', align: 'center'}
+            ]],
+            pagination: true,
+            fit: true,
+            pageSize: 20,
+            fitColumns: true,
+            rownumbers: true
+        }).datagrid('getPager').pagination({
+            layout: ['prev', 'sep', 'links', 'sep', 'next'],
+            displayMsg: '当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录'
+        });
+    } else {
+        $.messager.confirm('提示', '未选择记录! 请先选择一条记录！', function (r) {
+            if (r) {
+                $("#sealingBagDlg").dialog('close')
+            }
+        });
+    }
 }
-
 //点击封袋的方法  封袋功能里面的扫描二维码
 function sealingBag() {
     var row = $('#workGridBoxManage').datagrid('getSelected');
@@ -194,6 +211,7 @@ function sealingBag() {
         });
     }
 }
+
 function sealingBagPrint(text) {
     $.ajax({
         type: 'post',
@@ -216,6 +234,7 @@ function sealingBagPrint(text) {
     })
 
 }
+
 // function enterIncident() {
 //     $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
 //         if (event.keyCode == 13) {
@@ -287,6 +306,7 @@ function closeAddBox() {
         }
     });
 }
+
 $(function () {
     $("#addJobBoxDlg").dialog({
         onClose: function () {
@@ -390,6 +410,7 @@ function addJobBoxDlg() {
         }
     });
 }
+
 var addBox_file_path;
 //添加盒子功能中获取到盒号的方法
 function getBoxNumberDlg(row) {
@@ -416,7 +437,7 @@ function getBoxNumberDlg(row) {
 function authenticationAgain() {
     if (arr.length <= 0) {
         $.messager.alert("提示", "请先进行入盒操作！");
-            return;
+        return;
     }
     $('#addBoxAuthenticationDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $("#addBox_ensure").click(function () {
@@ -439,6 +460,7 @@ function authenticationAgain() {
         })
     });
 }
+
 //添加盒功能中生成方法
 function generateListing() {
     var serialNumber2 = arr.join(";");
@@ -462,6 +484,7 @@ function generateListing() {
         }
     })
 }
+
 //添加盒功能中打印装盒票的方法
 function addBoxPrintReport(file_path) {
     $.ajax({
@@ -479,6 +502,7 @@ function addBoxPrintReport(file_path) {
         }
     })
 }
+
 //添加盒中打印二维码的方法
 function addBoxtionPrinQCode() {
     $.ajax({
@@ -1037,6 +1061,7 @@ function reportBox() {
      },
      });*/
 }
+
 //点击展现子箱列表
 function ClickRow(index, row) {
     var selectids = $('#workGridBoxManage').datagrid('getPanel').find(".datagrid-row-selected");
@@ -1069,6 +1094,7 @@ function weightBox(boxNumber) {
     $('#weightBoxForm').form('clear');
     $('#weightBox-boxNumber').val(boxNumber);
 }
+
 function doWeightBox() {
     var boxNumber = $('#weightBox-boxNumber').val();
     var weight = $('#weigthBox').val();
@@ -1100,6 +1126,7 @@ function doWeightBox() {
         },
     });
 }
+
 //封箱入库-管理员验证
 function putBoxIntoStore(type, index, status) {
     $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
@@ -1110,7 +1137,6 @@ function putBoxIntoStore(type, index, status) {
 
 //该方法之前的名字是putBoxValidate  现在已改成doputBoxValidate
 function doputBoxValidate(type, index, status) {
-
     var boxNumber;
     if (type == 0) {
         $('#workGridBoxManage').datagrid('selectRow', index);
@@ -1128,36 +1154,54 @@ function doputBoxValidate(type, index, status) {
         });
         return;
     }
-    $('#putBoxValidateDlg').dialog('close'); //关闭对话框
     $.ajax({
-        url: 'boxInOutStore/',
-        data: {boxNumber: boxNumber, status: status, user: user, password: password},		// status: 1:封箱入库 0:提取出库
-        type: 'POST',
-        async: true,
-        dataType: 'json',
-        beforeSend: function (xhr) {
-            $.messager.progress({text: '正在处理' + boxNumber + '号箱出入库操作，请稍后....'});
-        },
-        success: function (result) {
-            $.messager.progress('close');
-            if (result.success) {
-                $.messager.show({    // 显示成功信息
-                    title: '提示',
-                    msg: result.message,
-                    showType: 'slide',
-                    timeout: 5000
+        type: 'post',
+        url: 'print_auth/',
+        data: {
+            userName: user,
+            password: password
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.success) {
+                $('#putBoxValidateDlg').dialog('close'); //关闭对话框
+                $.ajax({
+                    url: 'boxInOutStore/',
+                    data: {boxNumber: boxNumber, status: status},		// status: 1:封箱入库 0:提取出库
+                    type: 'POST',
+                    async: true,
+                    dataType: 'json',
+                    beforeSend: function (xhr) {
+                        $.messager.progress({text: '正在处理' + boxNumber + '号箱出入库操作，请稍后....'});
+                    },
+                    success: function (result) {
+                        $.messager.progress('close');
+                        if (result.success) {
+                            $.messager.show({    // 显示成功信息
+                                title: '提示',
+                                msg: result.message,
+                                showType: 'slide',
+                                timeout: 5000
+                            });
+                            $('#workGridBoxManage').datagrid('reload');
+                        }
+                        else {
+                            $.messager.alert({    // 显示失败信息
+                                title: '提示',
+                                msg: result.message
+                            });
+                        }
+                    }
                 });
-                $('#workGridBoxManage').datagrid('reload');
-            }
-            else {
-                $.messager.alert({    // 显示失败信息
+            } else {
+                $.messager.alert({
                     title: '提示',
-                    msg: result.message,
-                });
+                    msg: data.message+'！'
+                })
             }
-        },
-    });
+        }
+    })
 }
+
 function deleteBox() {
     var row = $('#workGridBoxManage').datagrid('getSelected');
     if (!row) {
@@ -1199,6 +1243,7 @@ function deleteBox() {
         }
     });
 }
+
 function boxSearch() {
     var productType = $('#boxSearchParameter-productType').combobox('getValue');
     var className = $('#boxSearchParameter-className').combobox('getValue');
@@ -1219,6 +1264,7 @@ function boxSearch() {
     initPagination();								// 设定翻页插件
     $('#workGridBoxManage').datagrid('reload');		// 重载数据
 }
+
 function boxSearchReset() {
     $('#boxSearchParameter-productType').combobox('clear');
     $('#boxSearchParameter-className').combobox('clear');
@@ -1345,6 +1391,7 @@ function openCreateWorkDlg(boxNumber) {
     generateWorkName();
     $('#createWork-selectedThingCount').text(0);
 }
+
 function generateWorkName() {
     var boxNumber = $('#createWork-boxNumber').val();
     var result = $.ajax({
@@ -1357,6 +1404,7 @@ function generateWorkName() {
     var data = eval('(' + result.responseText + ')')
     $('#createWork-workName').textbox('setValue', data.workName);
 }
+
 function generateContentForWork() {
     var amount = $('#createWork-amount').numberbox('getValue');
     var boxNumber = $('#createWork-boxNumber').val();
@@ -1410,6 +1458,7 @@ function printsConfirm() {
         }
     })
 }
+
 function generateBoxInfo(index, number) {
     $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#printTheListForm').form('clear');
@@ -1433,9 +1482,9 @@ function clickPrints(index, number, clickType) {
             user: user,
             password: password
         }, success: function (data) {
-            var data = JSON.parse(data)
+            var data = JSON.parse(data);
             if (data.success) { //成功登陆
-                $('#printTheList').dialog('close')
+                $('#printTheList').dialog('close');
                 if (clickType == 0) {
                     printPackingList(number, index)
                 }
@@ -1451,6 +1500,7 @@ function clickPrints(index, number, clickType) {
         }
     })
 }
+
 //打印装箱清单
 function printPackingList(number, index) {
     $('#workGridBoxManage').datagrid('selectRow', index);
@@ -1464,6 +1514,7 @@ function printPackingList(number, index) {
     $('#generateBoxInfoDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
     doGenerateBoxInfo()
 }
+
 //打印装箱清单详细版
 function packingListIsDetailed(number, index) {
     $('#workGridBoxManage').datagrid('selectRow', index);
@@ -1493,6 +1544,7 @@ function packingListIsDetailed(number, index) {
     $('#generateBoxInfoDetailedVersionDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
     doGenerateBoxInfoDetailedVersion()
 }
+
 function doGenerateBoxInfo() {
     $('#generateBoxInfoDlg').dialog('close');
     var row = $('#workGridBoxManage').datagrid('getSelected');
@@ -1505,17 +1557,14 @@ function doGenerateBoxInfo() {
         async: true,
         dataType: 'json',
         beforeSend: function (xhr) {
-            // $.messager.progress({text:'正在生成'+row.boxNumber+'号箱装箱清单，请稍后....'});
             showMask(500, '正在生成' + row.boxNumber + '号箱装箱清单，请稍后....');
         },
         success: function (data) {
             // $.messager.progress('close');
             hideMask();
             if (data.success) {
-                var filePath = data.file_path
+                var filePath = data.file_path;
                 printservice(filePath)
-                // var downloadURL = data.downloadURL;
-                // $.messager.alert('提示', row.boxNumber + '号箱装箱清单生成成功！\r\n请点击下载:' + downloadURL);
             }
             else {
                 $.messager.alert('提示', row.boxNumber + '号箱装箱清单生成失败！\n请重试，或者联系技术支持人员！');
@@ -1523,6 +1572,7 @@ function doGenerateBoxInfo() {
         },
     });
 }
+
 function printservice(filePath) {
     $.ajax({
         type: 'post',
@@ -1570,6 +1620,7 @@ function doGenerateBoxInfoDetailedVersion() {
         },
     });
 }
+
 function generateAbstract(index) {
     $('#putBoxValidateDlg').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#putBoxValidateForm').form('clear');
@@ -1606,6 +1657,7 @@ function generateAbstract(index) {
     //     },
     // });
 }
+
 function createWork() {
     var workName = $('#createWork-workName').textbox('getValue');
     var boxNumber = $('#createWork-boxNumber').val();
@@ -1651,6 +1703,7 @@ function createWork() {
         },
     });
 }
+
 function openAddToExistingBoxDlg(index, number) {
     return
     $('#workGridBoxManage').datagrid('selectRow', index);
@@ -1669,6 +1722,7 @@ function openAddToExistingBoxDlg(index, number) {
     $('#addToExistingBoxClassName').text(row.className);
     $('#addToExistingBoxSubClassName').text(row.subClassName);
 }
+
 function addToExistingBox() {
     $('#addToExistingBoxDlg').dialog('close');
 
@@ -1701,6 +1755,7 @@ function addToExistingBox() {
         },
     });
 }
+
 /*function putBoxIntoStore(index, status){
  $('#workGridBoxManage').datagrid('selectRow', index);
  var row = $('#workGridBoxManage').datagrid('getSelected');
@@ -1741,6 +1796,7 @@ function exploreBox(boxNumber) {
     addTab(title, c, 'icon-user');
     initPagination();
 }
+
 function thingWorkNameFormatter(value, row, index) {
     if (value == '') {
         return '-';
@@ -1749,6 +1805,7 @@ function thingWorkNameFormatter(value, row, index) {
         return value;
     }
 }
+
 function thingStatusFormatter(value, row, index) {
     if (value == 0) {
         return '<img src="' + $('#noStatus').attr('value') + '"></img>';
@@ -1756,6 +1813,7 @@ function thingStatusFormatter(value, row, index) {
         return '<img src="' + $('#okStatus').attr('value') + '"></img>';
     }
 }
+
 function thingOperationFormatter(value, row, index) {
 
     if (row.workName != '') {
@@ -1784,6 +1842,7 @@ function finalSummary() {
     addTab(title, c, 'icon-brief');
     // initPagination();
 }
+
 //日终小结对话框
 function finalSummaryTable() {
 
@@ -1794,6 +1853,7 @@ function finalSummaryTable() {
 function completePercentFormatter(value, row, index) {
     return '<a href="javascript:void(0)" onclick="openDetailedCompleteInfo(' + index + ')" style="text-decoration:none;color:blue;">' + value + '%</a>';
 }
+
 function openDetailedCompleteInfo(index) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
@@ -1805,6 +1865,7 @@ function openDetailedCompleteInfo(index) {
     $('#detailedCompleteInfoMeasuringCompleteAmount').text(row.measuringCompleteAmount);
     $('#detailedCompleteInfoPhotograpgingCompleteAmount').html(row.photographingCompleteAmount);
 }
+
 function dateTimeFormatter(value, row, index) {
     if (value == '') {
         return '-'
@@ -1813,6 +1874,7 @@ function dateTimeFormatter(value, row, index) {
         return value;
     }
 }
+
 function workOperationFormatter(value, row, index) {
 
     if (row.status == 0) {
@@ -1823,6 +1885,7 @@ function workOperationFormatter(value, row, index) {
         return '<div style="float:left"><a href="javascript:void(0);" onclick="workStartOrStop(' + index + ', 0)" style="text-decoration:none;color:blue;margin-left:20px;margin-right:20px;">收回实物</a><a href="javascript:void(0);" onclick="exploreWork(' + index + ')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a></div>'
     }
 }
+
 function deleteWork(index) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
@@ -1870,6 +1933,7 @@ function deleteWork(index) {
         }
     });
 }
+
 function exploreWork(index) {
 
     $('#workGridWorkManage').datagrid('selectRow', index);
@@ -1883,6 +1947,7 @@ function exploreWork(index) {
     addTab(title, c, 'icon-user');
     initPagination();
 }
+
 function thingOperatorFormatter(value, row, index) {
     if (value == '') {
         return '-';
@@ -1891,6 +1956,7 @@ function thingOperatorFormatter(value, row, index) {
         return value;
     }
 }
+
 function thingUpdateDateFormatter(value, row, index) {
     if (value == '') {
         return '-';
@@ -1922,6 +1988,7 @@ function workSearch() {
     initPagination();								// 设定翻页插件
     $('#workGridWorkManage').datagrid('reload');		// 重载数据
 }
+
 function workSearchReset() {
     $('#workSearchParameterproductType').combobox('clear');
     $('#workSearchParameterclassName').combobox('clear');
@@ -1973,6 +2040,7 @@ function workStartOrStop(index, status) {
         },
     });
 }
+
 function openEditWorkDlg(index) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
@@ -2078,6 +2146,7 @@ function openEditWorkDlg(index) {
         editable: false,
     });
 }
+
 function generateTag(index) {
     $('#jobManagementLabelling').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#jobManagementLabellingForm').form('clear');
@@ -2109,6 +2178,7 @@ function generateTag(index) {
     //     },
     // });
 }
+
 function jobManagementLabelling(index) {
     var user = $("#jobManagementLabelling-user").val();
     var password = $("#jobManagementLabelling-passWord").val();
@@ -2157,12 +2227,14 @@ function jobManagementLabelling(index) {
     })
 
 }
+
 function generateArchives(index, number) {
     $('#printTheList').dialog('open').dialog('center').dialog('setTitle', '管理员认证');
     $('#printTheListForm').form('clear');
     $("#printSave").attr("onclick", "clickPrints(" + index + ", \'" + number + "\',2)");
 
 }
+
 function printInformationFile(index, number) {
     $('#workGridWorkManage').datagrid('selectRow', index);
     var row = $('#workGridWorkManage').datagrid('getSelected');
@@ -2170,6 +2242,7 @@ function printInformationFile(index, number) {
     $('#generateArchivesDateTime').datebox('setValue', today.getMonth + '/' + today.getDate() + '/' + today.getFullYear());
     doGenerateArchives()
 }
+
 function doGenerateArchives() {
     $('#generateArchivesDlg').dialog('close');
     console.log($("#workGridWorkManage").datagrid('getSelected'))
@@ -2205,6 +2278,7 @@ function archivedBoxManage() {
     addTab(title, c, 'icon-user');
     initPagination();
 }
+
 function archivedBoxOperationFormatter(value, row, index) {
     if (row.haveSubBox == "0") {
         return '<div style="float:left;"><a href="javascript:void(0);" onclick="extractBoxFromStore(0, \'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">开箱出库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a></div>';
@@ -2213,6 +2287,7 @@ function archivedBoxOperationFormatter(value, row, index) {
         return '<div style="float:left;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a></div>';
     }
 }
+
 //封箱实物查询-点击展现子箱列表
 function ClickRowList(index, row) {
     var selectids = $('#workGridArchivedBoxManage').datagrid('getPanel').find(".datagrid-row-selected");
@@ -2298,6 +2373,7 @@ function archivedBoxSearch() {
     initPagination();								// 设定翻页插件
     $('#workGridArchivedBoxManage').datagrid('reload');		// 重载数据
 }
+
 function archivedBoxSearchReset() {
     $('#archivedBoxSearchParameterproductType').combobox('clear');
     $('#archivedBoxSearchParameterclassName').combobox('clear');
@@ -2320,6 +2396,7 @@ function userManage() {
     addTab(title, c, 'icon-user');
     initPagination();
 }
+
 function userTypeFormatter(value, row, index) {
     if (value == 0) {
         return '超级管理员';
@@ -2330,6 +2407,7 @@ function userTypeFormatter(value, row, index) {
         return '一般用户';
     }
 }
+
 function operationFormatter(value, row, index) {
     return '<div style="float:left"><a href="javascript:void(0);" onclick="updatePassword(\'' + row.userName + '\')" style="text-decoration:none;color:blue">更改密码</a></div>'
 }
@@ -2340,6 +2418,7 @@ function userAdd() {
     url = 'userProcess/';
     opType = 'add';
 }
+
 function userRemove() {
     url = 'userProcess/';
     opType = 'remove';
@@ -2385,6 +2464,7 @@ function userRemove() {
         }
     });
 }
+
 function saveUser() {
     $('#userForm').form({
         url: url,
@@ -2427,6 +2507,7 @@ function updatePassword(userName) {
     });
     url = 'updatePassword/';
 }
+
 function savePassword() {
     $('#updatePasswordForm').form({
         url: url,
@@ -2478,6 +2559,7 @@ function authorityManage() {
     addTab(title, c, 'icon-authority');
     initPagination();
 }
+
 function authorityStatusFormatter(value, row, index) {
     if (!value) {
         return '<img src="' + $('#noStatus').attr('value') + '"></img>';
@@ -2485,6 +2567,7 @@ function authorityStatusFormatter(value, row, index) {
         return '<img src="' + $('#okStatus').attr('value') + '"></img>';
     }
 }
+
 function monitoringAuthorityFormatter(value, row, index) {
     if (1 >= row.type) {
         // 管理员用户，权限不可更改
@@ -2497,6 +2580,7 @@ function monitoringAuthorityFormatter(value, row, index) {
         return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'monitoring\', \'grant\')">授权</a>';
     }
 }
+
 function numberingAuthorityFormatter(value, row, index) {
     if (1 >= row.type) {
         return '<span>-</span>';
@@ -2508,6 +2592,7 @@ function numberingAuthorityFormatter(value, row, index) {
         return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'numbering\', \'grant\')">授权</a>';
     }
 }
+
 function analyzingAuthorityFormatter(value, row, index) {
     if (1 >= row.type) {
         return '<span>-</span>';
@@ -2519,6 +2604,7 @@ function analyzingAuthorityFormatter(value, row, index) {
         return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'analyzing\', \'grant\')">授权</a>';
     }
 }
+
 function measuringAuthorityFormatter(value, row, index) {
     if (1 >= row.type) {
         return '<span>-</span>';
@@ -2530,6 +2616,7 @@ function measuringAuthorityFormatter(value, row, index) {
         return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'measuring\', \'grant\')">授权</a>';
     }
 }
+
 function photographingAuthorityFormatter(value, row, index) {
     if (1 >= row.type) {
         return '<span>-</span>';
@@ -2541,6 +2628,7 @@ function photographingAuthorityFormatter(value, row, index) {
         return '<a href="#" style="text-decoration:none;color:blue" onclick="authorityProcess(\'' + row.userName + '\', \'photographing\', \'grant\')">授权</a>';
     }
 }
+
 function authorityProcess(userName, authority, opType) {
     $.post('authorityProcess/',
         {userName: userName, authority: authority, opType: opType},
@@ -2569,6 +2657,7 @@ function propertyManage() {
     var c = '<table id="workGridProperty" class="easyui-treegrid" data-options="url:\'getProperty/\', toolbar:\'#workGridToolBarProperty\', singleSelect:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', fit:true, idField: \'id\', treeField:\'type\', lines:true, onLoadSuccess:collapse"><thead><tr><th field="type" align="left" width="300">类型</th><th field="code" align="center" width="253" formatter="contentFormatter">编码</th><th field="remark" align="center" width="253" formatter="contentFormatter">备注</th></tr></thead></table><div id="workGridToolBarProperty"><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="propertyAdd()">添加</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="propertyRemove()">删除</a><a href="#" class="easyui-linkbutton" iconCls="icon-collapse" plain="true" onclick="collapse()">全部折叠</a><a href="#" class="easyui-linkbutton" iconCls="icon-expand" plain="true" onclick="expand()">全部打开</a></div><script type="text/javascript">function collapse(){ $(\'#workGridProperty\').treegrid(\'collapseAll\'); } function expand(){ $(\'#workGridProperty\').treegrid(\'expandAll\'); }</script>';
     addTab(title, c, 'icon-property');
 }
+
 function contentFormatter(value, row, index) {
     if (value == '') {
         return '-';
@@ -2580,6 +2669,7 @@ function contentFormatter(value, row, index) {
 
 var url;
 var opType;
+
 function initPropertyDlg() {
     $('#step1').attr('style', '');
     $('#next').attr('style', '');
@@ -2588,6 +2678,7 @@ function initPropertyDlg() {
     $('#propertySave').attr('style', 'display:none');
     $('#cancel').attr('style', 'display:none');
 }
+
 function unInitPropertyDlg() {
     $('#step1').attr('style', '');
     $('#next').attr('style', '');
@@ -2596,6 +2687,7 @@ function unInitPropertyDlg() {
     $('#propertySave').attr('style', '');
     $('#cancel').attr('style', '');
 }
+
 function propertyAdd() {
     initPropertyDlg();
 
@@ -2604,6 +2696,7 @@ function propertyAdd() {
     url = 'propertyProcess/';
     opType = 'add';
 }
+
 function propertyRemove() {
     url = 'propertyProcess/';
     opType = 'remove';
@@ -2639,6 +2732,7 @@ function propertyRemove() {
         }
     });
 }
+
 function saveProperty() {
     var project = $('#property-project').combobox('getValue');
     if (project == '类别') {
@@ -2773,15 +2867,18 @@ function prev() {
     $('#propertySave').attr('style', 'display:none');
     $('#cancel').attr('style', 'display:none');
 }
+
 function searchArchive() {
     var title = '档案查询';
     var c = '<div class="easyui-layout" data-options="fit:true"><div data-options="region:\'center\'"><table id="archiveGrid" class="easyui-datagrid" data-options="url:\'getArchive/\', border:false, rownumbers:true, fitcolumns:true, fit:true, pagination:true, pagsize:10"><thead><tr><th field="boxNumber" align="center" width="50">箱号</th><th field="productType" align="center" width="150">类别</th><th field="amount" align="center" width="150">数量</th><th field="archiveUrl" align="center" formatter="archiveBoxFormatter" width="430">资料</th></tr></thead></table></div></div><script type="text/javascript">$(function(){ $(\'#archiveGrid\').datagrid({ view: detailview, detailFormatter:function(index,row){ return \'<div style="padding:2px"><table class="ddv"></table></div>\';}, onExpandRow: function(index,row){ var ddv = $(this).datagrid(\'getRowDetail\',index).find(\'table.ddv\'); ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品名\',width:50,align:\'center\'},{field:\'subClassName\',title:\'明细品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:archiveThingFormatter}]],onResize:function(){$(\'#archiveGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#archiveGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#archiveGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#archiveGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-archive');
     initPagination();
 }
+
 function archiveBoxFormatter(value, row, index) {
     return '<div style="float:left"><a href="getWork/' + row.boxNumber + '" style="text-decoration:none;color:blue;margin-right:20px">档案下载</a><a href="getTag/' + row.boxNumber + '" style="text-decoration:none;color:blue;margin-right:20px">标签下载</a><a href="javascript:void(0);" onclick="backToWork(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px">退回作业</a></div>';
 }
+
 function archiveThingFormatter(value, row, index) {
     return '<div style="float:left"><a href="getThing/' + row.boxNumber + '/' + row.serialNumber + '" style="text-decoration:none;color:blue;margin-right:20px">信息档案下载</a><a href="exploreThing/' + row.boxNumber + '/' + row.serialNumber + '" target="blank" style="text-decoration:none;color:blue;margin-right:20px">电子档案查看</a></div>';
 }
@@ -2808,6 +2905,7 @@ function backToWork(boxNumber) {
         },
         'json');
 }
+
 function searchWork() {
     var title = '全文检索';
     var c = '<div class="easyui-layout" data-options="fit:true">' +
@@ -2866,6 +2964,7 @@ function searchWork() {
 function workBoxFormatter(value, row, index) {
     return '<div style="float:left"><a href="getWork/' + row.boxNumber + '" style="text-decoration:none;color:blue;margin-right:20px">档案下载</a><a href="getTag/' + row.boxNumber + '" style="text-decoration:none;color:blue;margin-right:20px">标签下载</a></div>';
 }
+
 function workThingFormatter(value, row, index) {
     return '<div style="float:left"><a href="getThing/' + row.boxNumber + '/' + row.serialNumber + '" style="text-decoration:none;color:blue;margin-right:20px">信息档案下载</a><a href="exploreThing/' + row.boxNumber + '/' + row.serialNumber + '" target="blank" style="text-decoration:none;color:blue;margin-right:20px">电子档案查看</a></div>';
 }
