@@ -1407,7 +1407,7 @@ def getAllCase(request):
     ret = {}
     try:
         box = gsBox.objects.get(boxNumber=boxNumber)
-        case_set = gsCase.objects.filter(box, box)
+        case_set = gsCase.objects.filter(box=box,status=False)
         n = case_set.count()
         start = (page - 1) * pageSize
         end = n if (page * pageSize > n) else page * pageSize

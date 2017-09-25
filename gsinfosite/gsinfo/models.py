@@ -305,7 +305,7 @@ class gsCase(models.Model):
     closeCheckPerson = models.CharField(verbose_name='封装复核人', max_length=255, null=True)
     closeTime = models.DateTimeField(verbose_name='封装时间',default=datetime.datetime.now())
     status = models.BooleanField(verbose_name='是否封盒(False:未封盒 True:已封盒)',default=False)
-    CasPoestStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4,null=True)
+    casePostStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4,null=True)
     box = models.ForeignKey(gsBox)
 
 # 实物索引表
