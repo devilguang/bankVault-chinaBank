@@ -150,6 +150,11 @@ def boxInOutStore(request):
             if gsWork.objects.filter(box=box, status=1).exists():  # 存在作业未收回, 不能封箱入库
                 raise ValueError(u'{0}号箱存在作业未收回，不能封箱入库！请前往:业务管理->作业管理，收回作业！'.format(boxNumber))
             gsBox.objects.filter(boxNumber=boxNumber).update(status=True)
+        except ValueError as e:
+            ret = {
+                "success": False,
+                "message": '{0}'.format(e)
+            }
         except Exception as e:
             ret = {
                 "success": False,
@@ -1018,6 +1023,8 @@ def print_service(request):
             print file_path_list
             print win32print.GetDefaultPrinter()
             # win32api.ShellExecute(None,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter(),"\\",0)
+
+            shutil.rmtree()
     except Exception as e:
         ret = {
             'success': False,
