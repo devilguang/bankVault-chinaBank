@@ -208,16 +208,110 @@ def postPhoto(serialNumber):
     pass
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def postInfo(serialNumber):
-    status1 = getserialNumber2(serialNumber)  # 向二系统请求明文件号
-    if status1:
-        status2 = postThing(serialNumber)  # 向二系统推送数据
-        if status2:
-            pass
-        else:
-            pass
 
+def postCaseInfo(caseNumber):
+    case = gsCase.objects.get(caseNumber=caseNumber)
+    box = case.box
+    prop = box.boxType
+    grandpaCode = prop.grandpaCode
+    parentCode = prop.parentCode
+    code = prop.code
+    # -----------------------------
+    field_list = []
+    # 盒号
+    field_list.append(caseNumber)
+    if grandpaCode:
+        # 类别
+        productCode = grandpaCode
+        # 品种
+        classCode = parentCode
+    else:
+        productCode = parentCode
+        classCode = code
+    field_list.append(productCode)
+    field_list.append(classCode)
+    # 封装人
+    field_list.append(case.closePerson)
+    # 封装复核人
+    field_list.append(case.closeCheckPerson)
+    # 封装时间
+    field_list.append(case.closeTime)
+    # 件序号
+    serialNumber_list = list(gsThing.objects.filter(case=case).values_list('serialNumber',flat=True))
+    serialNumber_str = ';'.join(serialNumber_list)
+    field_list.append(serialNumber_str)
 
-        # 向二系统推送图片
+    str_data = '|'.join(field_list)
+    print str_data
+    for _ in range(3):
+        status_code = postCaseAPI(str_data)
+        if status_code == '000':
+            case.casePostStatus = status_code
+            case.save(update_fields=['casePostStatus'])
+            break
     else:
         return False
+    return True
+
+def postBoxInfo(boxNumber):
+    box = gsBox.objects.get(boxNumber=boxNumber)
+    prop = box.boxType
+    grandpaCode = prop.grandpaCode
+    parentCode = prop.parentCode
+    code = prop.code
+    # -----------------------------
+    field_list = []
+    # 箱号
+    field_list.append(boxNumber)
+    if grandpaCode:
+        # 类别
+        productCode = grandpaCode
+        # 品种
+        classCode = parentCode
+    else:
+        productCode = parentCode
+        classCode = code
+    field_list.append(productCode)
+    field_list.append(classCode)
+    # 盒数
+    all_case = gsCase.objects.filter(box=box)
+    case_num = all_case.count()
+    field_list.append(str(case_num))
+    # 件数 / 枚数
+    thing_set = gsThing.objects.filter(box=box,case=None)
+    thing_num = thing_set.count()
+    field_list.append(str(thing_num))
+    # 毛重
+    grossWeight = box.grossWeight
+    field_list.append(grossWeight)
+    # 纯重
+    pureWeight_list = list(gsThing.objects.filter(box=box).values_list('pureWeight',flat=True))
+    all_pureWeight = sum(pureWeight_list)
+    field_list.append(str(all_pureWeight))
+    # 原箱号
+    origBox = box.origBox
+    field_list.append(origBox.origBoxNumber)
+    # 原箱状态
+    field_list.append(origBox.status)
+    # 封装人
+    field_list.append(box.closePerson)
+    # 封装复核人
+    field_list.append(box.closeCheckPerson)
+    # 封装时间
+    field_list.append(box.closeTime)
+    # 盒号
+    case_list = list(gsCase.objects.filter(box=box).values_list('caseNumber',flat=True))
+    case_str = ';'.join(case_list)
+    field_list.append(case_str)
+
+    str_data = '|'.join(field_list)
+    print str_data
+    for _ in range(3):
+        status_code = postBoxAPI(str_data)
+        if status_code == '000':
+            box.boxPostStatus = status_code
+            box.save(update_fields=['boxPostStatus'])
+            break
+    else:
+        return False
+    return True
