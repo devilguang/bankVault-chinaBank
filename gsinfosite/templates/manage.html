@@ -1036,7 +1036,7 @@
         </div>
         <div style="width:49%;">
             <form id="addJobBoxDlgRightForm" method="POST" novalidate style="width: 300px;">
-                <div class="search" style="margin-bottom: 10px;margin-right:55px ">
+                <div class="search" id="search_addJobBox" style="margin-bottom: 10px;margin-right:55px ">
                     <label for="serialNumber">盒号</label>
                     <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" disabled="disabled"
                                                         style="height: 26px;border:1px solid #95b8e7;border-radius: 5px;width: 174px;"/></a>
@@ -1075,7 +1075,7 @@
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok"
        style="width:90px" onclick="authenticationAgain()">确定</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
-       onclick="javascript:$('#addJobBoxDlg').dialog('close')" style="width:90px">取消</a>
+       onclick="closeAddBox()" style="width:90px">取消</a>
 </div>
 
 
@@ -1100,7 +1100,7 @@
     <a href="javascript:void(0)" id="addBox_ensure" class="easyui-linkbutton c6 ly_doputBoxValidate" iconCls="icon-ok"
        style="width:90px">确定</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
-       onclick="closeAddBox()" style="width:90px">取消</a>
+       onclick="javascript:$('#addBoxAuthenticationDlg').dialog('close')" style="width:90px">取消</a>
 </div>
 
 
