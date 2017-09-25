@@ -102,6 +102,7 @@ urlpatterns = [
     url(r'^manage/cancleInput/$', manage.cancleInput, name='cancleInput'),
     url(r'^manage/openOrigBox/$', manage.openOrigBox, name='openOrigBox'),
     url(r'^manage/checkAmount/$', manage.checkAmount, name='checkAmount'),
+    url(r'^manage/getAllCase/$', manage.getAllCase, name='getAllCase'),
 
     url(r'^checking/$', checking.checking, name='checking'),
     url(r'^checking/getProductType/$', views.getProductType, name='getProductType'),
