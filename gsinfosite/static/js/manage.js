@@ -58,7 +58,13 @@ function boxManage() {
         '<div data-options="region:\'center\'">' +
         '<table id="workGridBoxManage" class="easyui-datagrid" data-options="url:\'getBox/\', queryParams: {status: 0}, toolbar:\'#workGridToolBarBoxManage\', onClickRow:ClickRow, singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th field="boxNumber" align="center">箱号</th>' +
         '<th field="productType" align="center">类别</th>' +
-        '<th field="className" align="center">品类</th><th field="subClassName" align="center">品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="oprateType" align="center">操作类型</th><th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th></tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="openEntityBox()">开箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" style="display:none" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" style="display:none" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" style="display:none" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addTheJobBox()">成盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="closedCasePack()">封盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除箱</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+        '<th field="className" align="center">品类</th>' +
+        '<th field="subClassName" align="center">品名</th>' +
+        '<th field="wareHouse" align="center" >发行库</th>' +
+        '<th field="amount" align="center" >件数</th>' +
+        '<th field="oprateType" align="center">操作类型</th>' +
+        '<th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th>' +
+        '</tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="openEntityBox()">开箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" style="display:none" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" style="display:none" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" style="display:none" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addTheJobBox()">成盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="closedCasePack()">封盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除箱</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-box2');
     initPagination();
 }
@@ -290,13 +296,13 @@ function sealingBagPrint(text) {
 //成盒中的取消方法
 function closeAddBox() {
     $('#addJobBoxDlg').dialog('close');
-    var serialNumber = $("#addJobBoxDlg-qrCode").val();
+    var serialNumber = arr.join(';');
     var addJobBoxDlgBoxNumber = $("#addJobBoxDlgBoxNumber").val();
     $.ajax({
         type: 'post',
         url: 'cancleInput/',
         data: {
-            serialNumber2: serialNumber,
+            serialNumber2: serialNumber + ';',
             caseNumber: addJobBoxDlgBoxNumber
         }, success: function (data) {
             var data = JSON.parse(data);
@@ -310,13 +316,13 @@ function closeAddBox() {
 $(function () {
     $("#addJobBoxDlg").dialog({
         onClose: function () {
-            var serialNumber = $("#addJobBoxDlg-qrCode").val();
+            var serialNumber = arr.join(';');
             var addJobBoxDlgBoxNumber = $("#addJobBoxDlgBoxNumber").val();
             $.ajax({
                 type: 'post',
                 url: 'cancleInput/',
                 data: {
-                    serialNumber2: serialNumber,
+                    serialNumber2: serialNumber + ';',
                     caseNumber: addJobBoxDlgBoxNumber
                 }, success: function (data) {
                     var data = JSON.parse(data);
@@ -1158,7 +1164,7 @@ function doputBoxValidate(type, index, status) {
         type: 'post',
         url: 'print_auth/',
         data: {
-            userName: user,
+            user: user,
             password: password
         }, success: function (data) {
             var data = JSON.parse(data);
@@ -1195,7 +1201,7 @@ function doputBoxValidate(type, index, status) {
             } else {
                 $.messager.alert({
                     title: '提示',
-                    msg: data.message+'！'
+                    msg: data.message + '！'
                 })
             }
         }
@@ -2274,18 +2280,51 @@ function doGenerateArchives() {
 
 function archivedBoxManage() {
     var title = '封箱实物管理';
-    var c = '<div class="easyui-layout" data-options="fit: true"><div data-options="region:\'north\'" height="10%"><form id="archivedBoxSearchParameter" style="display:inline-block;margin-top:12px;"><div style="display:inline;margin-left:10px;margin-right:15px;"><label for="archivedBoxSearchParameterproductType" style="margin-right:5px">类别</label><input id="archivedBoxSearchParameterproductType" class="easyui-combobox" name="productType" data-options="valueField: \'id\', textField: \'text\', url: \'getProductType/\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var url = \'getClassName/\'+rec.id; $(\'#archivedBoxSearchParameterclassName\').combobox(\'reload\', url); $(\'#archivedBoxSearchParameterclassName\').combobox(\'clear\'); $(\'#archivedBoxSearchParametersubClassName\').combobox(\'clear\');},"/></div><div style="display:inline;margin-right:15px;"><label for="archivedBoxSearchParameterclassName" style="margin-right:5px;">品类</label><input id="archivedBoxSearchParameterclassName" class="easyui-combobox" name="className" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var typeCode = $(\'#archivedBoxSearchParameterproductType\').combobox(\'getValue\'); var url = \'getSubClassName/\'+typeCode+\'&\'+rec.id; $(\'#archivedBoxSearchParametersubClassName\').combobox(\'reload\', url);},"/></div><div style="display:inline;margin-right:15px;"><label for="archivedBoxSearchParametersubClassName" style="margin-right:5px;">品名</label><input id="archivedBoxSearchParametersubClassName" class="easyui-combobox" name="subClassName" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\',"/></div></form><a href="javascript:void(0)" class="easyui-linkbutton" onclick="archivedBoxSearch()" style="width:60px;margin-right:10px;">查询</a><a href="javascript:void(0)" class="easyui-linkbutton" onclick="archivedBoxSearchReset()" style="width:60px;margin-right:10px;">重置</a></div><div data-options="region:\'center\'"><table id="workGridArchivedBoxManage" class="easyui-datagrid" data-options="url:\'getBox/\', queryParams: {status: 1},toolbar:\'#workGridToolBarArchivedBoxManage\', onClickRow:ClickRowList, singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead><tr><th field="boxNumber" align="center" width="7%">箱号</th><th field="productType" align="center">类别</th><th field="className" align="center">品类</th><th field="subClassName" align="center">品名</th><th field="wareHouse" align="center" >发行库</th><th field="amount" align="center" >件数</th><th field="operation" formatter="archivedBoxOperationFormatter" align="center" width="15%">操作</th></tr></thead></table></div></div><div id="workGridToolBarArchivedBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridArchivedBoxManage\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function initPagination(){$(\'#workGridArchivedBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+    var c = '<div class="easyui-layout" data-options="fit: true">' +
+        '<div data-options="region:\'north\'" height="10%">' +
+        '<form id="archivedBoxSearchParameter" style="display:inline-block;margin-top:12px;">' +
+        '<div style="display:inline;margin-left:10px;margin-right:15px;">' +
+        '<label for="archivedBoxSearchParameterproductType" style="margin-right:5px">类别</label>' +
+        '<input id="archivedBoxSearchParameterproductType" class="easyui-combobox" name="productType" data-options="valueField: \'id\', textField: \'text\', url: \'getProductType/\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var url = \'getClassName/\'+rec.id; $(\'#archivedBoxSearchParameterclassName\').combobox(\'reload\', url); $(\'#archivedBoxSearchParameterclassName\').combobox(\'clear\'); $(\'#archivedBoxSearchParametersubClassName\').combobox(\'clear\');},"/>' +
+        '</div><div style="display:inline;margin-right:15px;">' +
+        '<label for="archivedBoxSearchParameterclassName" style="margin-right:5px;">品类</label>' +
+        '<input id="archivedBoxSearchParameterclassName" class="easyui-combobox" name="className" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\', onSelect: function(rec){ var typeCode = $(\'#archivedBoxSearchParameterproductType\').combobox(\'getValue\'); var url = \'getSubClassName/\'+typeCode+\'&\'+rec.id; $(\'#archivedBoxSearchParametersubClassName\').combobox(\'reload\', url);},"/></div>' +
+        '<div style="display:inline;margin-right:15px;">' +
+        '<label for="archivedBoxSearchParametersubClassName" style="margin-right:5px;">品名</label>' +
+        '<input id="archivedBoxSearchParametersubClassName" class="easyui-combobox" name="subClassName" data-options="valueField: \'id\', textField: \'text\', editable: false, panelHeight: \'auto\',"/></div>' +
+        '</form><a href="javascript:void(0)" class="easyui-linkbutton" onclick="archivedBoxSearch()" style="width:60px;margin-right:10px;">查询</a>' +
+        '<a href="javascript:void(0)" class="easyui-linkbutton" onclick="archivedBoxSearchReset()" style="width:60px;margin-right:10px;">重置</a>' +
+        '</div>' +
+        '<div data-options="region:\'center\'">' +
+        '<table id="workGridArchivedBoxManage" class="easyui-datagrid" data-options="url:\'getBox/\', queryParams: {status: 1},toolbar:\'#workGridToolBarArchivedBoxManage\', onClickRow:ClickRowList, singleSelect:true, fitColumns:true, rownumbers:true, loadMsg:\'作业数据正在载入，请稍后...\', pagination:true, fit:true, pageSize:20"><thead>' +
+        '<tr>' +
+        '<th field="boxNumber" align="center" width="7%">箱号</th>' +
+        '<th field="productType" align="center">类别</th>' +
+        '<th field="className" align="center">品类</th>' +
+        '<th field="subClassName" align="center">品名</th>' +
+        '<th field="wareHouse" align="center" >发行库</th>' +
+        '<th field="amount" align="center" >件数</th>' +
+        '<th field="operation" formatter="archivedBoxOperationFormatter" align="center" width="15%">操作</th>' +
+        '</tr>' +
+        '</thead>' +
+        '</table>' +
+        '</div>' +
+        '</div>' +
+        '<div id="workGridToolBarArchivedBoxManage">' +
+        '<a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridArchivedBoxManage\').datagrid(\'reload\')">刷新</a>' +
+        '</div>' +
+        '<script type="text/javascript">function initPagination(){$(\'#workGridArchivedBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-user');
     initPagination();
 }
 
 function archivedBoxOperationFormatter(value, row, index) {
-    if (row.haveSubBox == "0") {
-        return '<div style="float:left;"><a href="javascript:void(0);" onclick="extractBoxFromStore(0, \'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">开箱出库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a></div>';
-    } else {
-        //return '<div style="float:left;"></div>';
-        return '<div style="float:left;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a></div>';
-    }
+    // if (row.haveSubBox == "0") {
+    return '<div style="float:left;"><a href="javascript:void(0);" onclick="extractBoxFromStore(0, \'' + index + '\', 0)" style="text-decoration:none;color:blue;margin-right:20px;">开箱出库</a><a href="javascript:void(0);" onclick="exploreBox(\'' + row.boxNumber + '\')" style="text-decoration:none;color:blue;margin-right:20px;">浏览</a></div>';
+    // } else {
+    //     //return '<div style="float:left;"></div>';
+    //     return '<div style="float:left;"><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a><a href="javascript:void(0);" style="text-decoration:none;color:blue;margin-right:20px;"></a></div>';
+    // }
 }
 
 //封箱实物查询-点击展现子箱列表
@@ -2313,44 +2352,99 @@ function extractBoxFromStore(type, index, status) {
 }
 
 function outBoxValidate(type, index, status) {
-    var txtQR = $('#quickMark-boxNumber').val()
-    $("#quickMarkDlg").dialog('close');
-    var boxNumber;
-    if (type == 0) {
-        $('#workGridArchivedBoxManage').datagrid('selectRow', index);
-        var row = $('#workGridArchivedBoxManage').datagrid('getSelected');
-        boxNumber = row.boxNumber;
-    } else {
-        boxNumber = index;
+    var user = $("#quickMarkUser").val();
+    var password = $("#quickMarkPassWord").val();
+    if (user == '' || password == '') {
+        $.messager.alert({    // 显示失败信息
+            title: '提示',
+            msg: '用户名和密码不能为空！'
+        });
     }
     $.ajax({
-        url: 'boxInOutStore/',
-        data: {boxNumber: boxNumber, status: status, txtQR: txtQR},		// status: 1:封箱入库 0:提取出库
-        type: 'POST',
-        async: true,
-        dataType: 'json',
-        beforeSend: function (xhr) {
-            $.messager.progress({text: '正在处理' + boxNumber + '号箱出入库操作，请稍后....'});
-        },
-        success: function (result) {
-            $.messager.progress('close');
-            if (result.success) {
-                $.messager.show({    // 显示成功信息
-                    title: '提示',
-                    msg: result.message,
-                    showType: 'slide',
-                    timeout: 5000
-                });
-                //$('#workGridArchivedBoxManage').datagrid('reload');
-            }
-            else {
+        type: 'post',
+        url: 'print_auth/',
+        data: {
+            user: user,
+            password: password
+        }, success: function (data) {
+            var data = JSON.parse(data);
+            if (data.success) {
+                outBoxboxInOutStore()
+            } else {
                 $.messager.alert({    // 显示失败信息
                     title: '提示',
-                    msg: result.message,
+                    msg: data.message
                 });
             }
-        },
+        }
     });
+    function outBoxboxInOutStore() {
+        var row = $('#workGridArchivedBoxManage').datagrid('getSelected');
+        $.ajax({
+            type: 'post',
+            url: 'boxInOutStore/',
+            data: {
+                boxNumber:row.boxNumber,
+                status: 0
+            }, success: function (data) {
+                var data = JSON.parse(data);
+                if (data.success) {
+                    $.messager.show({    // 显示成功信息
+                        title: '提示',
+                        msg: data.message,
+                        showType: 'slide',
+                        timeout: 5000
+                    });
+                    $("#quickMarkDlg").dialog('close');
+                     $('#workGridArchivedBoxManage').datagrid('reload');
+                } else {
+                    $.messager.alert({    // 显示失败信息
+                        title: '提示',
+                        msg: data.message
+                    });
+                }
+            }
+        })
+    }
+
+    // // var txtQR = $('#quickMark-boxNumber').val()
+    // // $("#quickMarkDlg").dialog('close');
+    // var boxNumber;
+    // if (type == 0) {
+    //     $('#workGridArchivedBoxManage').datagrid('selectRow', index);
+    //     var row = $('#workGridArchivedBoxManage').datagrid('getSelected');
+    //     boxNumber = row.boxNumber;
+    // } else {
+    //     boxNumber = index;
+    // }
+    // $.ajax({
+    //     url: 'boxInOutStore/',
+    //     data: {boxNumber: boxNumber, status: status, txtQR: txtQR},		// status: 1:封箱入库 0:提取出库
+    //     type: 'POST',
+    //     async: true,
+    //     dataType: 'json',
+    //     beforeSend: function (xhr) {
+    //         $.messager.progress({text: '正在处理' + boxNumber + '号箱出入库操作，请稍后....'});
+    //     },
+    //     success: function (result) {
+    //         $.messager.progress('close');
+    //         if (result.success) {
+    //             $.messager.show({    // 显示成功信息
+    //                 title: '提示',
+    //                 msg: result.message,
+    //                 showType: 'slide',
+    //                 timeout: 5000
+    //             });
+    //             //$('#workGridArchivedBoxManage').datagrid('reload');
+    //         }
+    //         else {
+    //             $.messager.alert({    // 显示失败信息
+    //                 title: '提示',
+    //                 msg: result.message
+    //             });
+    //         }
+    //     }
+    // });
 };
 function archivedBoxSearch() {
     var productType = $('#archivedBoxSearchParameterproductType').combobox('getValue');
