@@ -382,33 +382,35 @@
      data-options="closed:true, buttons:'#openBoxDlgButtons', modal:true">
     <form id="openBoxForm" method="POST" novalidate>
         <table width="260px">
-            <tr >
+            <tr>
                 <th>原箱号</th>
-                <td id="originalBox"><input type="text"  class="easyui-textbox"/></td>
+                <td id="originalBox"><input type="text" class="easyui-textbox"/></td>
             </tr>
-            <tr >
+            <tr>
                 <th>件&nbsp;&nbsp;&nbsp;数</th>
                 <td id="openBoxCases"><input type="text" class="easyui-textbox"/></td>
             </tr>
-            <tr >
+            <tr>
                 <th>毛&nbsp;&nbsp;&nbsp;重</th>
-                <td id="grossweight"><input type="text"  class="easyui-numberbox"  data-options="precision:3, min:0" /></td>
+                <td id="grossweight"><input type="text" class="easyui-numberbox" data-options="precision:3, min:0"/>
+                </td>
             </tr>
         </table>
     </form>
 </div>
 <div id="openBoxDlgButtons">
-    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveOpenEntityBox()" style="width:90px">确定</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveOpenEntityBox()"
+       style="width:90px">确定</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#openBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
 
 
 <!-- 新建实物对话框 -->
-<div id="createBoxDlg" class="easyui-dialog" style="width: 500px; height: 300px; padding: 10px 20px"
+<div id="createBoxDlg" class="easyui-dialog" style="width: 500px; height: 250px; padding: 10px 20px"
      data-options="closed:true, buttons:'#createBoxDlgButtons', modal:true">
-    <div class="FormTitle">实物信息</div>
-    <form id="createBoxForm" method="POST" novalidate >
+    {#    <div class="FormTitle">实物信息</div>#}
+    <form id="createBoxForm" method="POST" novalidate>
         <table>
             <tr>
                 <th>类别</th>
@@ -490,7 +492,7 @@
                 <th>原箱号</th>
                 <td>
                     <input id="createBox-origBoxNumber" type="text" class="easyui-textbox" name="origBoxNumber"
-                         data-options="min:0, fit: true"/>
+                           data-options="min:0, fit: true"/>
                 </td>
                 </td>
             </tr>
@@ -621,11 +623,19 @@
 
 
 <!-- 封箱入库-管理员验证 -->
-<div id="putBoxValidateDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
+<div id="putBoxValidateDlg" class="easyui-dialog" style="width:350px;height:240px;padding:10px 20px;"
      data-options="closed:true, buttons:'#putBoxValidateDlgButtons', modal:true">
     <form id="putBoxValidateForm" method="POST" novalidate style="width: 260px;margin: auto">
         <input type="hidden" id="putBoxValidate-boxNumber"/>
         <table width="260px">
+            <tr>
+                <th >封箱人：</th>
+                <td><input id="closeBoxPeople" value=""/></td>
+            </tr>
+            <tr>
+                <th>封箱复核人：</th>
+                <td><input id="closeBoxCheckPeople" value=""/></td>
+            </tr>
             <tr>
                 <th>用户名：</th>
                 <td><input id="userValidate"/></td>
@@ -697,7 +707,7 @@
 <!-- 并箱操作对话框 -->
 <div id="addToExistingBoxDlg" class="easyui-dialog" style="width: 500px; height: 280px; padding:10px 20px"
      data-options="closed:true, buttons:'#addToExistingBoxDlgButtons', modal:true">
-    <div class="FormTitle">实物信息</div>
+    {#    <div class="FormTitle">实物信息</div>#}
     <form id="addToExistingBoxForm" method="POST" novalidate>
         <table width="445px">
             <tr>
@@ -751,7 +761,7 @@
 <!-- 创建作业对话框 -->
 <div id="createWorkDlg" class="easyui-dialog" style="width:600px;height:670px;padding:10px 20px"
      data-options="closed:true, buttons:'#createWorkDlgButtons', modal:true">
-    <div class="FormTitle">作业信息</div>
+    {#    <div class="FormTitle">作业信息</div>#}
     <form id="createWorkForm" method="POST" novalidate>
         <input type="hidden" id="createWork-boxNumber"/>
         <table width="545px">
@@ -805,9 +815,9 @@
 </div>
 
 <!--封袋作业的对话框 -->
-<div id="sealingBagDlg" class="easyui-dialog" style="width:600px;height:500px;padding:10px 20px"
+<div id="sealingBagDlg" class="easyui-dialog" style="width:600px;height:400px;padding:10px 20px"
      data-options="closed:true, buttons:'#sealingBagDlgDlgButtons', modal:true">
-    <div class="FormTitle">实物信息</div>
+    {#    <div class="FormTitle">实物信息</div>#}
     <div class="search" style="margin-bottom: 10px;">
         <label for="serialNumber">实物编号</label>
         <a href="javascript:void(0)"><input id="sealingBagDlg-qrCode" class="easyui-textbox"
@@ -827,23 +837,61 @@
 </div>
 
 
-
 {#封盒作业对话框#}
-<div id="closedBoxPackDlg" class="easyui-dialog" style="width:600px;height:500px;padding:10px 20px"
-     data-options="closed:true, modal:true">
-    <div class="FormTitle">实物信息</div>
+<div id="closedBoxPackDlg" class="easyui-dialog" style="width:600px;height:560px;padding:10px 20px"
+     data-options="closed:true,buttons:'#closedBoxPackButtons', modal:true">
+    {#    <div class="FormTitle">实物信息</div>#}
     <form id="closedBoxPackDlgForm" method="POST" novalidate>
         <table width="545px">
-            <tr height="300px">
+            <tr height="400px">
                 <td colspan="2">
                     <table id="closedBoxPack-thingsGrid"></table>
                 </td>
             </tr>
         </table>
+        <div class="FormItem" style="margin-top: 10px">
+            <label for="">封盒人：</label>
+            <input id="sealedBoxPeople" class="easyui-textbox" data-options="panelHeight: 'auto'"/>
+        </div>
+        <div class="FormItem">
+            <label for="">封盒复核人：</label>
+            <input id="re-check-Box" class="easyui-textbox" data-options="panelHeight: 'auto'"/>
+        </div>
     </form>
 </div>
+<div id="closedBoxPackButtons">
+    <a href="javascript:void(0)" id="closedBoxPackSave" class="easyui-linkbutton c6 ly_doputBoxValidate"
+       iconCls="icon-ok"
+       onclick="checkIdentify()"
+       style="width:90px">确定</a>
+    <a href="javascript:void(0)" id="closedBoxCancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#closedBoxPackDlg').dialog('close')" style="width:90px">取消</a>
+</div>
 
-
+{#封盒作业身份验证#}
+<div id="closedBoxAuthenticationDlg" class="easyui-dialog" style="width:350px;height:160px;padding:10px 20px;"
+     data-options="closed:true, buttons:'#closedBoxAuthenticationButtons', modal:true">
+    <form id="jobManagementLabellingForm" method="POST" novalidate style="width: 260px;margin: auto">
+        <input type="hidden" id="closedBoxAuthentication-boxNumber"/>
+        <table width="260px">
+            <tr>
+                <th>用户名：</th>
+                <td><input id="closedBoxAuthentication-user"/></td>
+            </tr>
+            <tr>
+                <th>密码：</th>
+                <td><input type="password" id="closedBoxAuthentication-passWord"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="closedBoxAuthenticationButtons">
+    <a href="javascript:void(0)" id="closedBoxAuthenticationButtonSave" class="easyui-linkbutton c6 ly_doputBoxValidate"
+       iconCls="icon-ok"
+       onclick="closedBoxAuthentication()" style="width:90px">确定</a>
+    <a href="javascript:void(0)" id="closedBoxAuthenticationCancel" class="easyui-linkbutton" iconCls="icon-cancel"
+       onclick="javascript:$('#closedBoxAuthenticationDlg').dialog('close')" style="width:90px">取消</a>
+</div>
 
 
 {#日终小结的对话框#}
@@ -1025,7 +1073,7 @@
 {#添加盒的对话框#}
 <div id="addJobBoxDlg" class="easyui-dialog" style="width:700px;height:550px;padding:10px 20px"
      data-options="closed:true, buttons:'#addJobBoxDlgButtons', modal:true">
-    <div class="FormTitle">作业信息</div>
+    {#    <div class="FormTitle">作业信息</div>#}
     <div style="display: flex;justify-content: space-between">
         <div id="addJobBoxDlgwrap" style="width:49%">
             <form id="addJobBoxDlgLeftForm" method="POST" novalidate style="width: 300px;">
@@ -1035,7 +1083,7 @@
                                                         data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
                 </div>
                 <table style="width: 300px;margin-top: 10px">
-                    <tr height="370px;">
+                    <tr height="410px;">
                         <td colspan="2" style="width: 300px;">
                             <table id="addJobBoxLeft-thingsGrid" style="width: 300px;"></table>
                         </td>
@@ -1051,32 +1099,32 @@
                                                         style="height: 26px;border:1px solid #95b8e7;border-radius: 5px;width: 174px;"/></a>
                 </div>
                 <table style="width: 300px;margin-top: 10px">
-                    <tr height="370px;">
+                    <tr height="410px;">
                         <td colspan="2" style="width: 300px;">
                             <table id="addJobBoxRight-thingsGrid" style="width: 300px;"></table>
                         </td>
                     </tr>
                 </table>
             </form>
-{#            <form id="addJobBoxDlgRightForm" method="POST" novalidate style="width: 300px;">#}
-{#                <div class="search" style="margin-bottom: 10px;margin-right:55px;">#}
-{#                    <label for="serialNumber">盒号</label>#}
-{#                    <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" disabled="disabled"#}
-{#                                                        style="height: 26px;border:1px solid #95b8e7;border-radius: 5px;width: 174px;"/></a>#}
-{#                </div>#}
-{#                <div style="clear: both"></div>#}
-{#                <div style="width: 300px;height:370px;border:1px solid grey;box-sizing: border-box;">#}
-{#                    <table id="addJobBoxRight-thingsGrid"#}
-{#                           data-option="fitColumns:true,striped:true,"#}
-{#                           style="margin: 5px 0 0px 5px;border:1px solid #95b8e7">#}
-{#                        <tr class="addBoxTitle">#}
-{#                            <td></td>#}
-{#                            <td>实物编号</td>#}
-{#                            <td></td>#}
-{#                        </tr>#}
-{#                    </table>#}
-{#                </div>#}
-{#            </form>#}
+            {#            <form id="addJobBoxDlgRightForm" method="POST" novalidate style="width: 300px;">#}
+            {#                <div class="search" style="margin-bottom: 10px;margin-right:55px;">#}
+            {#                    <label for="serialNumber">盒号</label>#}
+            {#                    <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" disabled="disabled"#}
+            {#                                                        style="height: 26px;border:1px solid #95b8e7;border-radius: 5px;width: 174px;"/></a>#}
+            {#                </div>#}
+            {#                <div style="clear: both"></div>#}
+            {#                <div style="width: 300px;height:370px;border:1px solid grey;box-sizing: border-box;">#}
+            {#                    <table id="addJobBoxRight-thingsGrid"#}
+            {#                           data-option="fitColumns:true,striped:true,"#}
+            {#                           style="margin: 5px 0 0px 5px;border:1px solid #95b8e7">#}
+            {#                        <tr class="addBoxTitle">#}
+            {#                            <td></td>#}
+            {#                            <td>实物编号</td>#}
+            {#                            <td></td>#}
+            {#                        </tr>#}
+            {#                    </table>#}
+            {#                </div>#}
+            {#            </form>#}
         </div>
     </div>
 </div>
@@ -1094,6 +1142,7 @@
     <form id="putBoxValidateForm" method="POST" novalidate style="width: 260px;margin: auto">
         <input type="hidden" id="addBoxAuthentication-boxNumber"/>
         <table width="260px">
+
             <tr>
                 <th>用户名：</th>
                 <td><input id="addBoxUser" value=""/></td>
@@ -1116,7 +1165,7 @@
 <!-- 编辑作业对话框 -->
 <div id="editWorkDlg" class="easyui-dialog" style="width:600px;height:580px;padding:10px 20px"
      data-options="closed:true, buttons:'#editWorkDlgButtons', modal:true">
-    <div class="FormTitle">作业信息</div>
+    {#    <div class="FormTitle">作业信息</div>#}
     <form id="editWorkForm" method="POST" novalidate>
         <input type="hidden" id="editWorkboxNumber"/>
         <table width="545px">
