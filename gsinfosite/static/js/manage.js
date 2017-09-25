@@ -358,7 +358,6 @@ function sealingBagPrint(text) {
 
 //成盒中的取消方法
 function closeAddBox() {
-    $('#addJobBoxDlg').dialog('close');
     var serialNumber = arr.join(';');
     var addJobBoxDlgBoxNumber = $("#addJobBoxDlgBoxNumber").val();
     $.ajax({
@@ -370,40 +369,26 @@ function closeAddBox() {
         }, success: function (data) {
             var data = JSON.parse(data);
 
+            $("#addJobBoxLeft-thingsGrid").datagrid('reload');
+            $("#addJobBoxRight-thingsGrid").datagrid('reload');
+
         }
     });
+    $("#addJobBoxDlg").dialog('close');
 }
-
-$(function () {
-    $("#addJobBoxDlg").dialog({
-        onClose: function () {
-            var serialNumber = arr.join(';');
-            var addJobBoxDlgBoxNumber = $("#addJobBoxDlgBoxNumber").val();
-            $.ajax({
-                type: 'post',
-                url: 'cancleInput/',
-                data: {
-                    serialNumber2: serialNumber + ';',
-                    caseNumber: addJobBoxDlgBoxNumber
-                }, success: function (data) {
-                    var data = JSON.parse(data);
-                    // if (!data.success) {
-                    //     $.messager.alert('提示', data.message + '！');
-                    // }
-                }
-            });
-        }
-    });
-});
-
-
 //点击添加盒的方法
 function addTheJobBox() {
+    arr = [];
+    var serialNumber = $("#addJobBoxDlg-qrCode").val();
+    var addJobBoxDlgBoxNumber = $("#addJobBoxDlgBoxNumber").val();
     var row = $('#workGridBoxManage').datagrid('getSelected');
+        $('#addJobBoxDlgLeftForm').form('clear');
+        $('#addJobBoxDlgRightForm').form('clear');
     if (row) {
         $("#addJobBoxDlg").dialog('open').dialog('center').dialog('setTitle', '成盒');
         $('#addJobBoxDlgLeftForm').form('clear');
         $('#addJobBoxDlgRightForm').form('clear');
+
         getBoxNumberDlg(row);
         $("#addJobBoxLeft-thingsGrid").datagrid({
             url: 'getCloseOverThing/',
@@ -475,6 +460,10 @@ function addJobBoxDlg() {
             $("#addJobBoxDlg-qrCode").siblings().children().eq(0).val("");
             $("#addJobBoxDlg-qrCode").siblings().children().eq(1).val("");
             $("#addJobBoxLeft-thingsGrid").datagrid('reload');
+            $("#addJobBoxRight-thingsGrid").datagrid('reload');
+            $("#addJobBoxDlgRightForm").from('reload')
+            $("#addJobBoxDlgLeftForm").from('reload')
+
         }
     });
 }
@@ -563,7 +552,17 @@ function addBoxPrintReport(file_path) {
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
-                addBoxtionPrinQCode()
+                // addBoxtionPrinQCode()
+                 $.messager.show({    // 显示成功信息
+                    title: '提示',
+                    msg: '装盒成功！',
+                    showType: 'slide',
+                    timeout: 5000
+                });
+                 $("#addBoxAuthenticationDlg").dialog("close");
+                 $("#addJobBoxDlg").dialog('close');
+
+
             } else {
                 $.messager.alert('提示', '打印装盒票失败！');
             }
@@ -571,24 +570,27 @@ function addBoxPrintReport(file_path) {
     })
 }
 
-//添加盒中打印二维码的方法
-function addBoxtionPrinQCode() {
-    $.ajax({
-        type: "post",
-        url: 'print_pic/',
-        data: {
-            file_path: addBox_file_path
-        }, success: function (data) {
-            var data = JSON.parse(data);
-            if (data.success) {
-                serialNumber2Arr = [];
-                $.messager.alert('提示', '打印装盒票和二维码成功！');
-            } else {
-                $.messager.alert('提示', '打印二维码失败！');
-            }
-        }
-    })
-}
+
+
+
+// //添加盒中打印二维码的方法
+// function addBoxtionPrinQCode() {
+//     $.ajax({
+//         type: "post",
+//         url: 'print_pic/',
+//         data: {
+//             file_path: addBox_file_path
+//         }, success: function (data) {
+//             var data = JSON.parse(data);
+//             if (data.success) {
+//                 serialNumber2Arr = [];
+//                 $.messager.alert('提示', '打印装盒票和二维码成功！');
+//             } else {
+//                 $.messager.alert('提示', '打印二维码失败！');
+//             }
+//         }
+//     })
+// }
 
 //点击新建的方法
 function openCreateBoxDlg() {

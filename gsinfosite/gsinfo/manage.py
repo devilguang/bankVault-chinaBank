@@ -173,7 +173,7 @@ def boxInOutStore(request):
             date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             text = ';'.join([boxNumber,closePerson,date])
             # 打印装箱清单
-            file_path = createBoxInfo(boxNumber=boxNumber)
+            # file_path = createBoxInfo(boxNumber=boxNumber)
 
         except ValueError as e:
             ret = {
@@ -1418,9 +1418,9 @@ def cancleInput(request):
 
 
 def confirmInputCase(request):
-    boxNumber = '1-9130000-1000-1700-1'# request.POST.get('boxNumber', '')
-    caseNumber = '4563xzBx' #request.POST.get('caseNumber', '')
-    serialNumber2 = 'qU7XH;Y5vQc;'# request.POST.get('serialNumber2', '')
+    boxNumber = request.POST.get('boxNumber', '')
+    caseNumber = request.POST.get('caseNumber', '')
+    serialNumber2 = request.POST.get('serialNumber2', '')
 
     serialNumber2_list = serialNumber2.split(';')[0:-1]
     try:

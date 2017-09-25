@@ -1131,8 +1131,10 @@
 <div id="addJobBoxDlgButtons">
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok"
        style="width:90px" onclick="authenticationAgain()">确定</a>
+     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-reload"
+       style="width:90px" onclick="closeAddBox()">重置</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
-       onclick="closeAddBox()" style="width:90px">取消</a>
+       onclick="javascript:$('#addJobBoxDlg').dialog('close')" style="width:90px">取消</a>
 </div>
 
 
