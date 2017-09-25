@@ -495,6 +495,7 @@ def exploreThing(request, boxNumber, serialNumber):
     shapeList = ['工']
     zhangTypeList = ['章']
     yinyuanList = ['国内银元']
+    dairongList = ['-','']
 
     subClassName = context['subClassName']
     level = thing.level
@@ -507,15 +508,14 @@ def exploreThing(request, boxNumber, serialNumber):
     country = thing.country
     if country:
         context['country'] = gsProperty.objects.get(project='国别',code=country).type
-    context['originalQuantity'] = thing.originalQuantity if (thing.originalQuantity is not None) else ''
-    context['detectedQuantity'] = thing.detectedQuantity if (thing.detectedQuantity is not None) else ''
-    context['mark'] = thing.mark
-    context['length'] = thing.length if (thing.length is not None) else ''
-    context['width'] = thing.width if (thing.width is not None) else ''
-    context['height'] = thing.height if (thing.height is not None) else ''
-    context['grossWeight'] = thing.grossWeight if (thing.grossWeight is not None) else ''
-    context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if (
-        thing.detectedQuantity is not None and thing.grossWeight is not None) else ''
+    context['originalQuantity'] = thing.originalQuantity if thing.originalQuantity else ''
+    context['detectedQuantity'] = thing.detectedQuantity if thing.detectedQuantity else ''
+    context['mark'] = thing.mark if thing.mark else ''
+    context['length'] = thing.length if thing.length else ''
+    context['width'] = thing.width if thing.width else ''
+    context['height'] = thing.height if thing.height else ''
+    context['grossWeight'] = thing.grossWeight if thing.grossWeight else ''
+    context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if thing.detectedQuantity and thing.grossWeight else ''
     context['productType'] = productType
     context['className'] = className
     context['subClassName'] = subClassName
@@ -523,7 +523,7 @@ def exploreThing(request, boxNumber, serialNumber):
     appearance = thing.appearance
     if appearance:
         context['appearance'] = gsProperty.objects.get(project='品相', code=appearance).type
-    context['remark'] = thing.remark
+    context['remark'] =thing.remark if thing.remark else ''
 
 
 
@@ -532,7 +532,7 @@ def exploreThing(request, boxNumber, serialNumber):
             faceAmount = thing.faceAmount
             if faceAmount:
                 context['faceAmount'] = gsProperty.objects.get(project='面值', code=faceAmount).type
-            html = 'yinyuan.html'
+            html = 'haveFaceAmount.html'
         elif subClassName in dingList:
             dingSecification = thing.dingSecification
             if dingSecification:
@@ -553,12 +553,12 @@ def exploreThing(request, boxNumber, serialNumber):
             shape = thing.shape
             if shape:
                 context['shape'] = gsProperty.objects.get(project='工艺品类器型', code=shape).type
-            html = 'gongyipin.html'
+            html = 'gong.html'
         elif subClassName in zhangTypeList:
             zhangType = thing.zhangType
             if zhangType:
                 context['zhangType'] = gsProperty.objects.get(project='章类性质', code=zhangType).type
-            html = 'bizhang.html'
+            html = 'zhang.html'
         elif subClassName in yinyuanList:
             faceAmount = thing.faceAmount
             if faceAmount:
@@ -579,7 +579,9 @@ def exploreThing(request, boxNumber, serialNumber):
                 detailedName = thing.detailedName
                 if name and detailedName:
                     context['detailedName'] = gsProperty.objects.get(project=name, code=detailedName).type
-            html = 'bizhang.html'
+            html = 'yinyuan.html'
+        elif subClassName in dairongList:
+            html = 'dairong.html'
     else:
         pass
 

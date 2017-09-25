@@ -357,13 +357,13 @@
         </tr>
         <tr>
             <td>9</td>
-            <td colspan="2">名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称</td>
-            <td>{{ detailedName }}</td>
+            <td colspan="2">性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;质</td>
+            <td>{{ zhangType }}</td>
         </tr>
         <tr class="alter">
             <td>10</td>
-            <td colspan="2">面&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;值</td>
-            <td>{{ faceAmount }}</td>
+            <td colspan="2">铭&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文</td>
+            <td>{{ mark }}</td>
         </tr>
         <tr>
             <td>11</td>
@@ -397,39 +397,34 @@
             <td>毛&nbsp;&nbsp;重(g)</td>
             <td>{{ grossWeight }}</td>
         </tr>
-        <tr class="alter">
+        <tr>
             <td>15</td>
             <td rowspan="3">尺&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;寸</td>
             <td>长度(mm)</td>
             <td colspan="2">{{ length }}</td>
         </tr>
-        <tr>
+        <tr class="alter">
             <td>16</td>
             <td >宽度(mm)</td>
             <td colspan="2">{{ width }}</td>
         </tr>
-        <tr class="alter">
+        <tr>
             <td>17</td>
             <td>高度(mm)</td>
             <td colspan="2">{{ height }}</td>
         </tr>
-        <tr>
-            <td>18</td>
-            <td colspan="2">铭&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文</td>
-            <td colspan="2">{{ mark }}</td>
-        </tr>
         <tr class="alter">
-            <td>19</td>
+            <td>18</td>
             <td colspan="2">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</td>
             <td colspan="2" style="word-break:break-all;">{{ remark }}</td>
         </tr>
         <tr>
-            <td>20</td>
+            <td>19</td>
             <td colspan="2">档案建立时间</td>
             <td colspan="2">{{ createDate }}</td>
         </tr>
         <tr class="alter">
-            <td>21</td>
+            <td>20</td>
             <td colspan="2">档案修改时间</td>
             <td colspan="2">{{ lastUpdateDate }}</td>
         </tr>
@@ -511,15 +506,15 @@
             <tr>
                 <th>长度(mm)</th>
                 <td colspan="1"><input id="UpdateInfoLength" class="easyui-numberbox"
-                                       data-options="fit:true, precision:2, min:0"/></td>
+                                       data-options="fit:true, precision:3, min:0"/></td>
 
                 <th>宽度(mm)</th>
                 <td colspan="1"><input id="UpdateInfoWidth" class="easyui-numberbox"
-                                       data-options="fit:true, precision:2, min:0"/></td>
+                                       data-options="fit:true, precision:3, min:0"/></td>
 
                 <th>高度(mm)</th>
                 <td colspan="1"><input id="UpdateInfoHeight" class="easyui-numberbox"
-                                       data-options="fit:true, precision:2, min:0"/></td>
+                                       data-options="fit:true, precision:3, min:0"/></td>
             </tr>
 
             <tr>

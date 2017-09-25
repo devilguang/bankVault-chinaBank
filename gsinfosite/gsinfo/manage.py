@@ -404,7 +404,11 @@ def generateContentForWork(request):
         amount = 0
 
     box = gsBox.objects.get(boxNumber=boxNumber)
-    specialSerialNumberList = gsThing.objects.filter(box=box, isAllocate=False).values_list('serialNumber', flat=True)
+    oprateType_code = box.oprateType.code
+    if oprateType_code == '2':
+        specialSerialNumberList = gsThing.objects.filter(box=box, isAllocate=False,amount=1).values_list('serialNumber', flat=True)
+    else:
+        specialSerialNumberList = gsThing.objects.filter(box=box, isAllocate=False).values_list('serialNumber', flat=True)
 
     ret = {}
     ret['data'] = []
@@ -1178,51 +1182,57 @@ def closeThing(request):
 
     try:
         box = gsBox.objects.get(boxNumber=boxNumber)
-        thing = gsThing.objects.get(serialNumber=serialNumber)
-        request_type = '4'
-        wareHouse = box.wareHouse
+        if gsThing.objects.filter(serialNumber=serialNumber,serialNumber2=None).exists():
+            thing = gsThing.objects.get(serialNumber=serialNumber,serialNumber2=None)
+            request_type = '4'
+            wareHouse = box.wareHouse
 
-        prop = box.boxType
-        code = prop.code
-        parentCode = prop.parentCode
-        grandpaCode = prop.grandpaCode
-        if grandpaCode:
-            productType = grandpaCode
-            className = parentCode
-            subClassName = code
+            prop = box.boxType
+            code = prop.code
+            parentCode = prop.parentCode
+            grandpaCode = prop.grandpaCode
+            if grandpaCode:
+                productType = grandpaCode
+                className = parentCode
+                subClassName = code
+            else:
+                productType = parentCode
+                className = code
+                subClassName = ''
+
+            level = thing.level if thing.level else ''
+            peroid = thing.peroid if thing.peroid else ''
+            country = thing.country if thing.country else ''
+            dingSecification = thing.dingSecification if thing.dingSecification else ''
+            shape = thing.shape if thing.shape else ''
+
+            thing = gsThing.objects.get(serialNumber=serialNumber)
+            gsStatus.objects.filter(thing=thing, status=1).update(close_status=True)
+            # 向货发二代系统请求实物编号
+            # code = '{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}'.format(request_type,
+            #                                                         wareHouse,
+            #                                                         productType,
+            #                                                         className,
+            #                                                         subClassName,
+            #                                                         level,
+            #                                                         peroid,
+            #                                                         country,
+            #                                                         dingSecification,
+            #                                                         shape)
+            # boxNumber = getNumberAPI(code)
+            # -----模拟
+            serialNumber2 = '123' + str(shortuuid.ShortUUID().random(length=5))
+            gsThing.objects.filter(serialNumber=serialNumber).update(serialNumber2=serialNumber2)
+
+            ret = {
+                'success': True,
+                'text': serialNumber2
+            }
         else:
-            productType = parentCode
-            className = code
-            subClassName = ''
-
-        level = thing.level if thing.level else ''
-        peroid = thing.peroid if thing.peroid else ''
-        country = thing.country if thing.country else ''
-        dingSecification = thing.dingSecification if thing.dingSecification else ''
-        shape = thing.shape if thing.shape else ''
-
-        thing = gsThing.objects.get(serialNumber=serialNumber)
-        gsStatus.objects.filter(thing=thing, status=1).update(close_status=True)
-        # 向货发二代系统请求实物编号
-        # code = '{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}'.format(request_type,
-        #                                                         wareHouse,
-        #                                                         productType,
-        #                                                         className,
-        #                                                         subClassName,
-        #                                                         level,
-        #                                                         peroid,
-        #                                                         country,
-        #                                                         dingSecification,
-        #                                                         shape)
-        # boxNumber = getNumberAPI(code)
-        # -----模拟
-        serialNumber2 = '123' + str(shortuuid.ShortUUID().random(length=5))
-        gsThing.objects.filter(serialNumber=serialNumber).update(serialNumber2=serialNumber2)
-
-        ret = {
-            'success': True,
-            'text': serialNumber2
-        }
+            ret = {
+                'success': False,
+                'message': u'该实物已封袋！'
+            }
     except Exception as e:
         ret = {
             'success': False,
@@ -1309,7 +1319,10 @@ def getCaseNumber(request):
             'text': caseNumber  # 打印用
         }
     except Exception as e:
-        pass
+        ret={
+            'success':False,
+            'massage':'盒号获取失败'
+        }
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
 
@@ -1322,7 +1335,8 @@ def enterEvent(request):
     try:
         # 更新信息
         case = gsCase.objects.get(caseNumber=caseNumber)
-        thing = gsThing.objects.filter(serialNumber2=serialNumber2).update(case=case)
+        gsThing.objects.filter(serialNumber2=serialNumber2).update(case=case)
+        thing = gsThing.objects.filter(serialNumber2=serialNumber2)
         gsStatus.objects.filter(thing__in=thing).update(incase_status=1)
         # 获取盒中实物
         thing_set = gsThing.objects.filter(case=case)
@@ -1334,7 +1348,7 @@ def enterEvent(request):
         ret['rows'] = []
         for th in thing_set[start:end]:
             r = {}
-            r['serialNumber2'] = th.thing.serialNumber2
+            r['serialNumber2'] = th.serialNumber2
             ret['rows'].append(r)
     except Exception as e:
         ret['success'] = False
@@ -1370,6 +1384,62 @@ def confirmInputCase(request):
     serialNumber2 = request.POST.get('serialNumber2', '')
 
     serialNumber2_list = serialNumber2.split(';')[0:-1]
+    try:
+        file_path = createCaseTicket(boxNumber=boxNumber,
+                                     caseNumber=caseNumber,
+                                     serialNumber2_list=serialNumber2_list)
+    except Exception as e:
+        ret = {
+            'success': False
+        }
+    else:
+        ret = {
+            'success': True,
+            'file_path': file_path
+        }
+    ret_json = json.dumps(ret)
+    return HttpResponse(ret_json)
+
+def getAllCase(request):
+    boxNumber = request.POST.get('boxNumber', '')
+    pageSize = int(request.POST.get('rows', ''))
+    page = int(request.POST.get('page', ''))
+    ret = {}
+    try:
+        box = gsBox.objects.get(boxNumber=boxNumber)
+        case_set = gsCase.objects.filter(box, box)
+        n = case_set.count()
+        start = (page - 1) * pageSize
+        end = n if (page * pageSize > n) else page * pageSize
+        ret['total'] = n
+        ret['rows'] = []
+        for case in case_set[start:end]:
+            r = {}
+            r['caseNumber'] = case.caseNumber
+            ret['rows'].append(r)
+    except Exception as e:
+        ret['success'] = False
+        ret['message'] = u'获取盒失败！'
+    else:
+        ret['success'] = True
+    ret_json = json.dumps(ret)
+    return HttpResponse(ret_json)
+
+
+def closeCase(request):
+
+    boxNumber = request.POST.get('boxNumber', '')
+    caseNumber = request.POST.get('caseNumber', '')
+    serialNumber2 = request.POST.get('serialNumber2', '')
+
+    serialNumber2_list = serialNumber2.split(';')[0:-1]
+    # 盒号
+    # 类别
+    # 品种
+    # 封装人
+    # 封装复核人
+    # 封装时间
+    # 件序号
     try:
         case = gsCase.objects.create(caseNumber=caseNumber, status=1)
         thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list)

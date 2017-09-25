@@ -18,6 +18,7 @@
         .pagination {
             margin-top: 15px;
             margin-bottom: 15px;
+            display: block;
             margin-left: auto;
             margin-right: auto;
         }
@@ -158,7 +159,6 @@
         function verify() {
             var serialNumber = $('#serialNumber').text();
             var operator = $('#operator').val();
-
             $.ajax({
                 url: '{% url "updateCheckingInfo" %}',
                 data: {serialNumber: serialNumber, operator: operator, csrfmiddlewaretoken: getCookie('csrftoken')},
@@ -180,11 +180,8 @@
         function edit() {
             $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '信息修改');
             $('#UpdateInfoForm').form('clear');
-
             var serialNumber = $('#serialNumber').text();
             var boxNumber = $('#boxNumber').text();
-            ;
-
             $.ajax({
                 url: '{% url "getThingData" %}',
                 data: {serialNumber: serialNumber, boxNumber: boxNumber},
@@ -193,7 +190,6 @@
                 dataType: 'json',
                 success: function (result) {
                     data = result;
-
                     $('#UpdateInfoWareHouse').text(data.wareHouse);
                     $('#UpdateInfoBoxNumber').text(data.boxNumber);
                     $('#UpdateInfoSerialNumber').text(data.serialNumber);
@@ -201,15 +197,16 @@
                     $('#UpdateInfoSubClassName').text(data.subClassName);
 
                     $('#UpdateInfoDetailedName').textbox('setValue', data.detailedName);
-                    $('#UpdateInfoVersionName').textbox('setValue', data.versionName);
+                    $('#UpdateInfoTypeName').textbox('setValue', data.typeName);
                     $('#UpdateInfoPeroid').textbox('setValue', data.peroid);
                     $('#UpdateInfoProducerPlace').textbox('setValue', data.producerPlace);
-                    $('#UpdateInfoValue').textbox('setValue', data.value);
+                    $('#UpdateInfoCarveName').textbox('setValue', data.carveName);
                     $('#UpdateInfoGrossWeight').textbox('setValue', data.grossWeight);
                     $('#UpdateInfoOriginalQuantity').textbox('setValue', data.originalQuantity);
                     $('#UpdateInfoDetectedQuantity').textbox('setValue', data.detectedQuantity);
-                    $('#UpdateInfoDiameter').textbox('setValue', data.diameter);
-                    $('#UpdateInfoThick').textbox('setValue', data.thick);
+                    $('#UpdateInfoLength').textbox('setValue', data.length);
+                    $('#UpdateInfoWidth').textbox('setValue', data.width);
+                    $('#UpdateInfoHeight').textbox('setValue', data.height);
                     $('#UpdateInfoQuality').textbox('setValue', data.quality);
                     $('#UpdateInfoLevel').textbox('setValue', data.level);
                     $('#UpdateInfoRemark').textbox('setValue', data.remark);
@@ -223,21 +220,20 @@
             var serialNumber = $('#UpdateInfoSerialNumber').text();
             var className = $('#UpdateInfoClassName').text();
             var subClassName = $('#UpdateInfoSubClassName').text();
-
             var detailedName = $('#UpdateInfoDetailedName').textbox('getValue');
-            var versionName = $('#UpdateInfoVersionName').textbox('getValue');
+            var typeName = $('#UpdateInfoTypeName').textbox('getValue');
             var peroid = $('#UpdateInfoPeroid').textbox('getValue');
             var producerPlace = $('#UpdateInfoProducerPlace').textbox('getValue');
-            var value = $('#UpdateInfoValue').textbox('getValue');
+            var carveName = $('#UpdateInfoCarveName').textbox('getValue');
             var grossWeight = $('#UpdateInfoGrossWeight').numberbox('getValue');
             var originalQuantity = $('#UpdateInfoOriginalQuantity').numberbox('getValue');
             var detectedQuantity = $('#UpdateInfoDetectedQuantity').textbox('getValue');
-            var diameter = $('#UpdateInfoDiameter').textbox('getValue');
-            var thick = $('#UpdateInfoThick').textbox('getValue');
+            var length = $('#UpdateInfoLength').textbox('getValue');
+            var width = $('#UpdateInfoWidth').textbox('getValue');
+            var height = $('#UpdateInfoHeight').textbox('getValue');
             var quality = $('#UpdateInfoQuality').textbox('getValue');
             var level = $('#UpdateInfoLevel').textbox('getValue');
             var remark = $('#UpdateInfoRemark').textbox('getValue');
-
             $.ajax({
                 url: '{% url "updateThingData" %}',
                 data: {
@@ -247,15 +243,16 @@
                     className: className,
                     subClassName: subClassName,
                     detailedName: detailedName,
-                    versionName: versionName,
+                    typeName: typeName,
                     peroid: peroid,
                     producerPlace: producerPlace,
-                    value: value,
+                    carveName: carveName,
                     grossWeight: grossWeight,
                     originalQuantity: originalQuantity,
                     detectedQuantity: detectedQuantity,
-                    diameter: diameter,
-                    thick: thick,
+                    length: length,
+                    width: width,
+                    height: height,
                     quality: quality,
                     level: level,
                     remark: remark,
@@ -281,7 +278,6 @@
                 },
             });
         }
-
         $(function () {
             $('#pic_a').viewer();
             $('#pic_b').viewer();
@@ -290,21 +286,17 @@
     </script>
 </head>
 
-<body style="text-align: center;">
+<body style="text-align:center;">
 <div class="pagination">
-    <a href="{{ first }}?subBoxNumber={{subBoxNumber}}" target="blank"
-       style="background:#267c99;border:2px solid #1f637b;color: #ffffff;padding: 5px 20px;border-radius: 5px ">第一页</a>
-    <a href="{{ prev }}?subBoxNumber={{subBoxNumber}}" target="blank"
-       style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">上一页</a>
-    <a href="{{ next }}?subBoxNumber={{subBoxNumber}}" target="blank"
-       style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">下一页</a>
-    <a href="{{ last }}?subBoxNumber={{subBoxNumber}}" target="blank"
-       style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">最后一页</a>
+    <a href="{{ first}}?subBoxNumber={{subBoxNumber}}"  target="blank" style="background:#267c99;border:2px solid #1f637b;color: #ffffff;padding: 5px 20px;border-radius: 5px ">第一页</a>
+    <a href="{{ prev }}?subBoxNumber={{subBoxNumber}}"  target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">上一页</a>
+    <a href="{{ next }}?subBoxNumber={{subBoxNumber}}"  target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">下一页</a>
+    <a href="{{ last }}?subBoxNumber={{subBoxNumber}}"  target="blank"  style="background:#f5f5f5;border:2px solid #bbbbbb;color: #444444;padding: 5px 20px;border-radius: 5px ">最后一页</a>
 </div>
 
 <div class="content">
     <table border="1">
-        <caption class="head">金（银）币章类电子信息档案</caption>
+        <caption class="head">实物电子信息档案</caption>
         <thead>
         <tr>
             <th class="col1">序号</th>
@@ -326,63 +318,65 @@
         <tr class="alter">
             <td>2</td>
             <td colspan="2">箱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</td>
-            <td><span id="boxNumber">{{ boxNumber }}</span></td>
+            <td><span id="boxNumber">{{ boxNumber}}</span></td>
+
+
         </tr>
         <tr>
             <td>3</td>
-            <td colspan="2">品&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</td>
+            <td colspan="2">品&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;类</td>
             <td>{{ className }}</td>
         </tr>
         <tr class="alter">
             <td>4</td>
-            <td colspan="2">明细品名</td>
+            <td colspan="2">品&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</td>
             <td>{{ subClassName }}</td>
         </tr>
         <tr>
             <td>5</td>
-            <td colspan="2">编&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</td>
+            <td colspan="2">流&nbsp;&nbsp;水&nbsp;&nbsp;号</td>
             <td><span id="serialNumber">{{ serialNumber }}</span></td>
         </tr>
         <tr class="alter">
             <td>6</td>
-            <td colspan="2">名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称</td>
-            <td>{{ detailedName }}</td>
+            <td colspan="2">等&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;级</td>
+            <td>{{ level }}</td>
             <td rowspan="5">
                 <div><img id="pic_b" src="{{ B }}" alt="B面" title="B面" height="220px" width="265px"></img></div>
             </td>
         </tr>
         <tr>
             <td>7</td>
-            <td colspan="2">型制类型</td>
-            <td>{{ typeName }}</td>
+            <td colspan="2">年&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;代</td>
+            <td>{{ peroid }}</td>
         </tr>
         <tr class="alter">
             <td>8</td>
-            <td colspan="2">时&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;代</td>
-            <td>{{ peroid }}</td>
+            <td colspan="2">国&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</td>
+            <td>{{ country }}</td>
         </tr>
         <tr>
             <td>9</td>
-            <td colspan="2">制造地/制作人</td>
-            <td>{{ producerPlace }}</td>
+            <td colspan="2">面&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;值</td>
+            <td>{{ faceAmount }}</td>
         </tr>
         <tr class="alter">
             <td>10</td>
-            <td colspan="2">币&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;值</td>
-            <td>{{ value }}</td>
+            <td colspan="2">铭&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文</td>
+            <td>{{ mark }}</td>
         </tr>
         <tr>
             <td>11</td>
-            <td colspan="2">毛&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;重(g)</td>
-            <td>{{ grossWeight }}</td>
+            <td colspan="2">品&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;相</td>
+            <td>{{ appearance }}</td>
             <td rowspan="5">
                 <div><img id="pic_c" src="{{ C }}" alt="C面" title="C面" height="220px" width="265px"></img></div>
             </td>
         </tr>
         <tr class="alter">
             <td>12</td>
-            <td rowspan="2">成色(%)</td>
-            <td>原标注
+            <td rowspan="2">成&nbsp;色(%)</td>
+            <td>原&nbsp;标&nbsp;注
             <td>
                 {{ originalQuantity }}
         </tr>
@@ -394,42 +388,43 @@
         </tr>
         <tr class="alter">
             <td>14</td>
-            <td colspan="2">纯&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;重(g)</td>
+            <td rowspan="2">重&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;量</td>
+            <td>纯&nbsp;&nbsp;重(g)</td>
             <td>{{ pureWeight }}</td>
         </tr>
         <tr>
             <td>15</td>
-            <td rowspan="2">尺寸</td>
-            <td>直径(mm)</td>
-            <td>{{ diameter }}</td>
+            <td>毛&nbsp;&nbsp;重(g)</td>
+            <td>{{ grossWeight }}</td>
         </tr>
         <tr class="alter">
-            <td>16</td>
-            <td>厚度(mm)</td>
-            <td colspan="2">{{ thick }}</td>
+            <td>15</td>
+            <td rowspan="3">尺&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;寸</td>
+            <td>长度(mm)</td>
+            <td colspan="2">{{ length }}</td>
         </tr>
         <tr>
-            <td>17</td>
-            <td colspan="2">品&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;相</td>
-            <td colspan="2">{{ quality }}</td>
+            <td>16</td>
+            <td >宽度(mm)</td>
+            <td colspan="2">{{ width }}</td>
         </tr>
         <tr class="alter">
-            <td>18</td>
-            <td colspan="2">评价等级</td>
-            <td colspan="2">{{ level }}</td>
+            <td>17</td>
+            <td>高度(mm)</td>
+            <td colspan="2">{{ height }}</td>
         </tr>
-        <tr style="height:70px">
-            <td>19</td>
+        <tr>
+            <td>18</td>
             <td colspan="2">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</td>
             <td colspan="2" style="word-break:break-all;">{{ remark }}</td>
         </tr>
         <tr class="alter">
-            <td>20</td>
+            <td>19</td>
             <td colspan="2">档案建立时间</td>
             <td colspan="2">{{ createDate }}</td>
         </tr>
         <tr>
-            <td>21</td>
+            <td>20</td>
             <td colspan="2">档案修改时间</td>
             <td colspan="2">{{ lastUpdateDate }}</td>
         </tr>
@@ -476,22 +471,22 @@
                 <th>名称</th>
                 <td colspan="2"><input id="UpdateInfoDetailedName" class="easyui-textbox" data-options="fit:true"/></td>
 
-                <th>版别</th>
-                <td colspan="2"><input id="UpdateInfoVersionName" class="easyui-textbox" data-options="fit:true"/></td>
+                <th>型制类型</th>
+                <td colspan="2"><input id="UpdateInfoTypeName" class="easyui-textbox" data-options="fit:true"/></td>
             </tr>
 
             <tr>
                 <th>时代</th>
                 <td colspan="2"><input id="UpdateInfoPeroid" class="easyui-textbox" data-options="fit:true"/></td>
 
-                <th>制造地/制作人</th>
+                <th>造币厂名/制造地</th>
                 <td colspan="2"><input id="UpdateInfoProducerPlace" class="easyui-textbox" data-options="fit:true"/>
                 </td>
             </tr>
 
             <tr>
-                <th>币值</th>
-                <td colspan="2"><input id="UpdateInfoValue" class="easyui-textbox" data-options="fit:true"/></td>
+                <th>铭文</th>
+                <td colspan="2"><input id="UpdateInfoCarveName" class="easyui-textbox" data-options="fit:true"/></td>
 
                 <th>毛重(g)</th>
                 <td colspan="2"><input id="UpdateInfoGrossWeight" class="easyui-numberbox"
@@ -509,13 +504,17 @@
             </tr>
 
             <tr>
-                <th>直径(mm)</th>
-                <td colspan="2"><input id="UpdateInfoDiameter" class="easyui-numberbox"
-                                       data-options="fit:true, precision:2, min:0"/></td>
+                <th>长度(mm)</th>
+                <td colspan="1"><input id="UpdateInfoLength" class="easyui-numberbox"
+                                       data-options="fit:true, precision:3, min:0"/></td>
 
-                <th>厚度(mm)</th>
-                <td colspan="2"><input id="UpdateInfoThick" class="easyui-numberbox"
-                                       data-options="fit:true, precision:2, min:0"/></td>
+                <th>宽度(mm)</th>
+                <td colspan="1"><input id="UpdateInfoWidth" class="easyui-numberbox"
+                                       data-options="fit:true, precision:3, min:0"/></td>
+
+                <th>高度(mm)</th>
+                <td colspan="1"><input id="UpdateInfoHeight" class="easyui-numberbox"
+                                       data-options="fit:true, precision:3, min:0"/></td>
             </tr>
 
             <tr>
@@ -539,12 +538,5 @@
         </table>
     </form>
 </div>
-<div id="UpdateInfoDlgButtons">
-    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUpdateInfo()"
-       style="width:90px">保存</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
-       onclick="javascript:$('#UpdateInfoDlg').dialog('close')" style="width:90px">取消</a>
-</div>
-
 </body>
 </html>

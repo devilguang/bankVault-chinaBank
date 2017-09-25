@@ -21,7 +21,7 @@ def createQRCode(data):
     '''
     img = qrcode.make(data)
     fileName = str(data) + '.png'
-    filePath = os.path.join(tempDir, fileName)
+    filePath = os.path.join(settings.TAG_DATA_PATH, fileName)
     img.resize((512, 512)).save(filePath)
     return filePath
 
