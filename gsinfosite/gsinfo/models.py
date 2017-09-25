@@ -217,6 +217,7 @@ class gsOrigBox(models.Model):
     origBoxNumber = models.CharField(verbose_name='原箱号',max_length=255,unique=True)
     amount = models.PositiveIntegerField(verbose_name='件数', null=True)
     grossWeight = models.FloatField(verbose_name='总毛重',null=True)
+    status = models.BooleanField(verbose_name='封箱状态（False:未清完; True：已清完）',default=False)
 
 # 箱体实物表
 class gsBox(models.Model):
@@ -225,7 +226,10 @@ class gsBox(models.Model):
     amount = models.PositiveIntegerField(verbose_name='件数',)
     grossWeight = models.FloatField(verbose_name='总毛重',null=True)
     status = models.BooleanField(verbose_name='封箱状态（False:未封箱; True：已封箱入库）',default=False)
-    BoxPostStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4)
+    closePerson = models.CharField(verbose_name='封装人', max_length=255, null=True)
+    closeCheckPerson = models.CharField(verbose_name='封装复核人', max_length=255, null=True)
+    closeTime = models.DateTimeField(verbose_name='封装时间', null=True)
+    boxPostStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4)
     oprateType = models.ForeignKey(gsProperty,related_name='oprateType')
     boxType = models.ForeignKey(gsProperty,related_name='boxType')
     origBox = models.ForeignKey(gsOrigBox)
@@ -276,7 +280,6 @@ class gsWorkManager(models.Manager):
             if n > 0:
                 gsStatus.objects.filter(thing__in=work_things).delete()
                 work_things.update(isAllocate=False,work=None)
-
             work.delete()
             deletedWork = True
         except ObjectDoesNotExist:
@@ -303,7 +306,7 @@ class gsCase(models.Model):
     caseNumber = models.CharField(max_length=255, unique=True, null=False)
     closePerson = models.CharField(verbose_name='封装人',max_length=255, null=True)
     closeCheckPerson = models.CharField(verbose_name='封装复核人', max_length=255, null=True)
-    closeTime = models.DateTimeField(verbose_name='封装时间',default=datetime.datetime.now())
+    closeTime = models.DateTimeField(verbose_name='封装时间', null=True)
     status = models.BooleanField(verbose_name='是否封盒(False:未封盒 True:已封盒)',default=False)
     casePostStatus = models.CharField(verbose_name='向二代货发系统推送数据状态码', max_length=4,null=True)
     box = models.ForeignKey(gsBox)

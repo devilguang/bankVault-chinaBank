@@ -141,15 +141,40 @@ def createBox(request):
 # 封箱入库 和 开箱出库
 def boxInOutStore(request):
     boxNumber = request.POST.get('boxNumber', '')
+    closePerson = request.POST.get('closePerson', '')
+    closeCheckPerson = request.POST.get('closeCheckPerson', '')
     status = int(request.POST.get('status', ''))  # 1: 封箱入库 0: 提取出库
 
     if status == 1:
         box = gsBox.objects.get(boxNumber=boxNumber)
+        origBox = box.origBox
         try:
             log.log(user=request.user, operationType=u'业务操作', content=u'封箱入库')
             if gsWork.objects.filter(box=box, status=1).exists():  # 存在作业未收回, 不能封箱入库
                 raise ValueError(u'{0}号箱存在作业未收回，不能封箱入库！请前往:业务管理->作业管理，收回作业！'.format(boxNumber))
-            gsBox.objects.filter(boxNumber=boxNumber).update(status=True)
+            # gsBox.objects.filter(boxNumber=boxNumber).update(status=True)
+            now = datetime.datetime.now()
+            gsBox.objects.filter(boxNumber=boxNumber).update(status=True,
+                                                             closePerson=closePerson,
+                                                             closeCheckPerson=closeCheckPerson,
+                                                             closeTime=now)
+            # 计算原箱状态
+            box_amount = list(gsBox.objects.filter(origBox=origBox).values_list('amount',flat=True))
+            box_thing_amount = sum(box_amount)
+            origBox_thing_amount = origBox.amount
+
+            if origBox_thing_amount > box_thing_amount:
+                origBox.status = True
+                origBox.save(update_fields=['status'])
+
+            # 向二代系统推封箱送数据
+
+            # 箱体二维码内容：箱号、封箱人信息、封箱时间
+            date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            text = ';'.join([boxNumber,closePerson,date])
+            # 打印装箱清单
+            file_path = createBoxInfo(boxNumber=boxNumber)
+
         except ValueError as e:
             ret = {
                 "success": False,
@@ -163,7 +188,8 @@ def boxInOutStore(request):
         else:
             ret = {
                 'success': True,
-                'message': '{0}号箱实物封箱入库成功!'.format(boxNumber)
+                'text':text,
+                'file_path':file_path
             }
     elif status == 0:
         try:
@@ -1440,28 +1466,20 @@ def getAllCase(request):
 
 
 def closeCase(request):
-
-    boxNumber = request.POST.get('boxNumber', '')
     caseNumber = request.POST.get('caseNumber', '')
-    serialNumber2 = request.POST.get('serialNumber2', '')
+    closePerson = request.POST.get('closePerson', '')
+    closeCheckPerson = request.POST.get('closeCheckPerson', '')
 
-    serialNumber2_list = serialNumber2.split(';')[0:-1]
-    # 盒号
-    # 类别
-    # 品种
-    # 封装人
-    # 封装复核人
-    # 封装时间
-    # 件序号
     try:
-        case = gsCase.objects.create(caseNumber=caseNumber, status=1)
-        thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list)
-        thing_set.update(case=case)
-        # gsStatus.objects.filter(thing__in=thing_set).update(incase_status=1)
+        date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        # 二维码内容：内含盒编号、封盒人信息、封盒时间
+        text = ';'.join([caseNumber,closePerson,date])
 
-        file_path = createCaseTicket(boxNumber=boxNumber,
-                                     caseNumber=caseNumber,
-                                     serialNumber2_list=serialNumber2_list)
+        now = datetime.datetime.now()
+        gsCase.objects.filter(caseNumber=caseNumber).update(closePerson=closePerson,
+                                                            closeCheckPerson=closeCheckPerson,
+                                                            closeTime=now)
+        # 向二代系统推送封盒信息
 
     except Exception as e:
         ret = {
@@ -1470,7 +1488,7 @@ def closeCase(request):
     else:
         ret = {
             'success': True,
-            'file_path': file_path
+            'text': text
         }
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
