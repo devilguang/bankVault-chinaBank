@@ -150,6 +150,11 @@ def boxInOutStore(request):
             if gsWork.objects.filter(box=box, status=1).exists():  # 存在作业未收回, 不能封箱入库
                 raise ValueError(u'{0}号箱存在作业未收回，不能封箱入库！请前往:业务管理->作业管理，收回作业！'.format(boxNumber))
             gsBox.objects.filter(boxNumber=boxNumber).update(status=True)
+        except ValueError as e:
+            ret = {
+                "success": False,
+                "message": '{0}'.format(e)
+            }
         except Exception as e:
             ret = {
                 "success": False,
@@ -1018,6 +1023,8 @@ def print_service(request):
             print file_path_list
             print win32print.GetDefaultPrinter()
             # win32api.ShellExecute(None,"print",file_path,'/d:"%s"' % win32print.GetDefaultPrinter(),"\\",0)
+            file_dir = os.path.dirname(file_path)
+            shutil.rmtree(file_dir)
     except Exception as e:
         ret = {
             'success': False,
@@ -1363,13 +1370,19 @@ def cancleInput(request):
     try:
         serialNumber2_list = serialNumber2.split(';')[0:-1]
         case = gsCase.objects.get(caseNumber=caseNumber)
-        thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list).update(case=None)
-        case.delete()
+        gsThing.objects.filter(serialNumber2__in=serialNumber2_list,case=case).update(case=None)
         thing_set = gsThing.objects.filter(serialNumber2__in=serialNumber2_list)
         gsStatus.objects.filter(thing__in=thing_set).update(incase_status=0)
-        ret = {
-            'success': True,
-        }
+        if not gsThing.objects.filter(case=case).exists():
+            case.delete()
+            ret = {
+                'success': True,
+            }
+        else:
+            ret = {
+                'success': False,
+                'message': u'参数有误！'
+            }
     except Exception as e:
         ret = {
             'success': False
@@ -1379,9 +1392,9 @@ def cancleInput(request):
 
 
 def confirmInputCase(request):
-    boxNumber = request.POST.get('boxNumber', '')
-    caseNumber = request.POST.get('caseNumber', '')
-    serialNumber2 = request.POST.get('serialNumber2', '')
+    boxNumber = '1-9130000-1000-1700-1'# request.POST.get('boxNumber', '')
+    caseNumber = '4563xzBx' #request.POST.get('caseNumber', '')
+    serialNumber2 = 'qU7XH;Y5vQc;'# request.POST.get('serialNumber2', '')
 
     serialNumber2_list = serialNumber2.split(';')[0:-1]
     try:
