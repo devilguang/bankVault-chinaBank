@@ -65,7 +65,7 @@ class LoginWidget(QDialog, login.Ui_Form):
             else:
                 self.tiplabel.setText("<font color=red>请输入正确的用户或密码！</font>")
         except Exception as e:
-            print e
+            # print e
             self.tiplabel.setText("<font color=red>登录失败！</font>")
 
     def settingDialog(self):
@@ -149,10 +149,12 @@ class tdcodeDil(QDialog, tdcode.Ui_code_Dialog):
             self.success = txt['success']
             if self.success:
                 self.code_label.setText("")
+
                 self.SerialNumber = sNumber
                 self.boxNumber = txt['boxNumber']
             else:
                 self.code_label.setText("<font color=red>{0}</font>".format(txt['message']))
+            self.lineEdit.setText('')
         else:
             self.code_label.setText("<font color=red>请扫描二维码！</font>")
 
@@ -160,7 +162,7 @@ class tdcodeDil(QDialog, tdcode.Ui_code_Dialog):
     def closeEvent(self, event):
         self.isvis = False
         self.timer.stop()  # close timer
-        print('timer stoped!')
+        # print('timer stoped!')
         self.close()
 
 
@@ -219,9 +221,10 @@ class Window(QMainWindow, photo.Ui_Form):
             self.codeForm.show()
             self.codeForm.isvis = self.codeForm.isVisible()
 
-            self.codeForm.timer.setInterval(1000)
-            self.codeForm.timer.start()
+            # self.codeForm.timer.singleShot(1000, self.findPoto)
+            self.codeForm.timer.setInterval(10000)
             self.codeForm.timer.timeout.connect(self.findPoto)
+            self.codeForm.timer.start()
 
             self.showMinimized()
             self.codeForm.exec_()
@@ -308,7 +311,7 @@ class Window(QMainWindow, photo.Ui_Form):
                 for pic_name in pic_name_list:
                     file_path = os.path.join(self.upload_dir, pic_name)
                     zlib_result3 = zlib.crc32(file_path)
-                    print zlib_result3
+                    # print zlib_result3
                     with open(file_path, 'rb') as f:
                         f1 = base64.b64encode(f.read())
                         all_img[pic_name] = f1
@@ -327,7 +330,7 @@ class Window(QMainWindow, photo.Ui_Form):
                 if resp.status_code == 200:
                     txt = json.loads(resp.text)
                     suc = txt['success']
-                    print suc
+                    # print suc
                     if suc:
                         for pic_name in pic_name_list:
                             file_path = os.path.join(self.upload_dir, pic_name)

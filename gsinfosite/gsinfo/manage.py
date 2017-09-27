@@ -189,7 +189,7 @@ def boxInOutStore(request):
             ret = {
                 'success': True,
                 'text':text,
-                'file_path':file_path
+                # 'file_path':file_path
             }
     elif status == 0:
         try:
@@ -1473,7 +1473,7 @@ def closeCase(request):
     try:
         date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         # 二维码内容：内含盒编号、封盒人信息、封盒时间
-        text = ';'.join([caseNumber,closePerson,date])
+        text = '/'.join([caseNumber,closePerson,date])
 
         now = datetime.datetime.now()
         gsCase.objects.filter(caseNumber=caseNumber).update(closePerson=closePerson,

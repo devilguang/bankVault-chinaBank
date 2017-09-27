@@ -20,7 +20,7 @@ def createQRCode(data):
     :return: 
     '''
     img = qrcode.make(data)
-    fileName = str(data) + '.png'
+    fileName = 'tagCode' + '.png'
     filePath = os.path.join(settings.TAG_DATA_PATH, fileName)
     img.resize((512, 512)).save(filePath)
     return filePath

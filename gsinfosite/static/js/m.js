@@ -251,7 +251,7 @@ function saveBatchUpdateInfo() {
 
 function initUpdateInfoDlg(row) {
     var subClassName = row.subClassName;
-    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '外国银元'];
+    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元','外国银元'];
     var dianArr = ['锭'];
     var gong = ['工'];
     var zhang = ['章'];
@@ -264,7 +264,6 @@ function initUpdateInfoDlg(row) {
             $("#single_zhangType").css("display", "none");//性质
             $("#single_dingSecification").css("display", "none");//规格
             $("#single_shape").css({"display": "none"}); //型制
-            $("#single_detailedName").css({"display": "none"});//名称
         }
     });
     dianArr.forEach(function (item) {
@@ -277,7 +276,6 @@ function initUpdateInfoDlg(row) {
             $("#single_dingSecification").css("display", "block");//规格
             $("#single_zhangType").css("display", "none");//性质
             $("#single_faceAmount").css("display", " none");//面值
-            $("#single_detailedName").css({"display": "none"});//名称
         }
     });
     gong.forEach(function (item) {
@@ -290,7 +288,6 @@ function initUpdateInfoDlg(row) {
             $("#single_dingSecification").css("display", "none");//规格
             $("#single_zhangType").css("display", "none");//性质
             $("#single_faceAmount").css("display", " none");//面值
-            $("#single_detailedName").css({"display": "none"});//名称
         }
     });
     zhang.forEach(function (item) {
@@ -302,7 +299,6 @@ function initUpdateInfoDlg(row) {
             $("#single_shape").css("display", "none"); //器型
             $("#single_dingSecification").css("display", "none");//规格
             $("#single_faceAmount").css("display", " none");//面值
-            $("#single_detailedName").css({"display": "none"});//名称
         }
     });
     if (subClassName == '-' || subClassName == '') {
@@ -313,18 +309,16 @@ function initUpdateInfoDlg(row) {
         $("#single_shape").css("display", "none");//形制
         $("#single_dingSecification").css("display", "none");//规格
         $("#single_zhangType").css("display", "none");//性质
-        $("#single_detailedName").css({"display": "none"});//名称
     }
-    if (subClassName == '国内银元') {
-        $("#single_level").css("display", "block"); //等级
-        $("#single_peroid").css("display", "block");  //年代
-        $("#single_country").css("display", "block"); //国别
-        $("#single_faceAmount").css("display", "block");//面值
-        $("#single_shape").css("display", "none");//形制
-        $("#single_dingSecification").css("display", "none");//规格
-        $("#single_zhangType").css("display", "none");//性质
-        $("#single_detailedName").css({"display": "block"});//名称
-    }
+    // if (subClassName == '国内银元') {
+    //     $("#single_level").css("display", "block"); //等级
+    //     $("#single_peroid").css("display", "block");  //年代
+    //     $("#single_country").css("display", "block"); //国别
+    //     $("#single_faceAmount").css("display", "block");//面值
+    //     $("#single_shape").css("display", "none");//形制
+    //     $("#single_dingSecification").css("display", "none");//规格
+    //     $("#single_zhangType").css("display", "none");//性质
+    // }
     if (row.status == 1) {
         $('#editBtn').attr('style', 'width:90px');
         $('#saveBtn').attr('style', 'width:90px; display:none;');

@@ -141,6 +141,7 @@ function closedBoxAuthentication() {
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {  //登录成功
+                 $('#closedBoxAuthenticationDlg').dialog('close')
                 closeCasePrint(row)
             } else {
                 $.messager.alert('提示', data.message);
@@ -155,7 +156,6 @@ function closeCasePrint(row) {
     if (closePerson == '' || closeCheckPerson == '') {
         $.messager.alert('提示', data.message);
     }
-    console.log(closeCheckPerson)
     $.ajax({
         type: 'post',
         url: 'closeCase/',
@@ -167,7 +167,7 @@ function closeCasePrint(row) {
             var data = JSON.parse(data);
             if(data.success){
                 var text = data.text;
-                sealingBagPrint(text);
+                sealingBagPrint(text,'closedBoxPackDlg');
             }else{
                 $.messager.alert('提示', data.message);
             }
@@ -281,7 +281,7 @@ function sealingBag() {
     }
 }
 
-function sealingBagPrint(text) {
+function sealingBagPrint(text,closeIdName) {
     $.ajax({
         type: 'post',
         url: 'print_pic/',
@@ -292,10 +292,13 @@ function sealingBagPrint(text) {
             if (data.success) {
                 $.messager.show({    // 显示成功信息
                     title: '提示',
-                    msg: '封袋实物成功',
+                    msg: '封箱成功！',
                     showType: 'slide',
                     timeout: 5000
                 });
+                $("#"+closeIdName).dialog('close');
+                $('#workGridBoxManage').datagrid('reload');
+
             } else {
                 $.messager.alert('提示', data.message)
             }
@@ -344,7 +347,7 @@ function sealingBagPrint(text) {
 //             if (data.success) {
 //                 $.messager.show({    // 显示成功信息
 //                     title: '提示',
-//                     msg: '封袋实物成功',
+//                     msg: '封箱成功！',
 //                     showType: 'slide',
 //                     timeout: 5000
 //                 });
@@ -1231,16 +1234,20 @@ function doputBoxValidate(type, index, status) {
         url: 'print_auth/',
         data: {
             user: user,
-            password: password,
-            closePerson:closePerson,
-            closeCheckPerson:closeCheckPerson
+            password: password
+
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {
                 $('#putBoxValidateDlg').dialog('close'); //关闭对话框
                 $.ajax({
                     url: 'boxInOutStore/',
-                    data: {boxNumber: boxNumber, status: status},		// status: 1:封箱入库 0:提取出库
+                    data: {
+                        boxNumber: boxNumber,
+                        status: status,
+                        closePerson:closePerson,
+                        closeCheckPerson:closeCheckPerson
+                    },		// status: 1:封箱入库 0:提取出库
                     type: 'POST',
                     async: true,
                     dataType: 'json',
@@ -1251,7 +1258,9 @@ function doputBoxValidate(type, index, status) {
                         $.messager.progress('close');
                         var text = result.text;
                         if (result.success) {
+
                             sealingBagPrint(text);
+
                             $('#workGridBoxManage').datagrid('reload');
                         }
                         else {
