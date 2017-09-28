@@ -40,8 +40,12 @@ function loadDataProcess(node, data) {
     }
 }
 function changeInputValue(idName, getIdName, productKey) {
+    $("#" + getIdName).html('');
     //名称：detailedName 型制类型： typeName 时代：peroid 制作地：producePlace  制作人：producer 铭文：carveName
     var value = $("#" + idName).val();
+    if (value == '') {
+        return
+    }
     $.ajax({
         type: 'post',
         url: 'checkInfo/',
@@ -55,8 +59,8 @@ function changeInputValue(idName, getIdName, productKey) {
                 for (var i = 0; i < vArray.length; i++) {
                     var optionList = document.createElement('option');
                     optionList.value = vArray[i];
-                    getIdName.appendChild(optionList);
-                    $('#workGrid' + node.id).datagrid('reload');
+                    $("#" + getIdName).appendChild(optionList);
+                    // $('#workGrid' + node.id).datagrid('reload');
                 }
             }
         }
@@ -91,7 +95,7 @@ function addTab(id, title, content) {
             title: title,
             content: content,
             closable: true,
-            id: id,
+            id: id
         });
     }
 }
@@ -168,7 +172,7 @@ function batchUpdateInfo(id) {
     rows = $('#workGrid' + id).datagrid('getRows');
     row = rows[0];
     var subClassName = row.subClassName;
-    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元','国内银元', '外国银元'];
+    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元', '外国银元'];
     var dianArr = ['锭'];
     var gong = ['工'];
     var zhang = ['章'];
@@ -245,7 +249,7 @@ function batchUpdateInfo(id) {
     }
     $('#BatchUpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '信息缺省设置');
     $('#BatchUpdateInfoForm').form('clear');
-    $("#BatchUpdateInfo-year").textbox({prompt:'例如：xxxx-xx-xx'});
+    $("#BatchUpdateInfo-year").textbox({prompt: '例如：xxxx-xx-xx'});
     $('#BatchUpdateInfoForm').form('load', {
         productType: row.productType,
         className: row.className,
@@ -311,6 +315,9 @@ function saveBatchUpdateInfo() {
     var id = tab[0].id;
     var node = $('#workSpaceTree').tree('find', id);
     var text = node.text;
+    var productType = $("#BatchUpdateInfo-productType").siblings().eq(1).children().eq(1).val();//类别
+    var subClassName = $("#BatchUpdateInfo-subClassName").siblings().eq(1).children().eq(1).val(); //品名
+    var className = $("#BatchUpdateInfo-className").siblings().eq(1).children().eq(1).val(); //品类
     var batch_detailedName = $("#select_detailedName").val();//名称
     var workSeq = node.attributes.workSeq;
     var batch_level = $("#batch_level").children().find('.textbox-value').val(); //等级
@@ -346,6 +353,9 @@ function saveBatchUpdateInfo() {
         type: 'post',
         url: 'updateNumberingInfo/',
         data: {
+            subClassName: subClassName,
+            productType: productType,
+            className: className,
             csrfmiddlewaretoken: getCookie('csrftoken'),
             level: batch_level,
             detailedName: batch_detailedName,
@@ -423,7 +433,7 @@ function traverseArr(array, subClassName) {
 //单个信息修改方法
 function initUpdateInfoDlg(row) {
     var subClassName = row.subClassName;
-    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元','国内银元', '外国银元'];
+    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元', '外国银元'];
     var dianArr = ['锭'];
     var gong = ['工'];
     var zhang = ['章'];
@@ -613,7 +623,7 @@ function getDetailName(id, id1, id2, id3, id4) {
             level: single_level
         }, success: function (data) {
             var data = JSON.parse(data);
-            if (data.val.length > 0) {
+            if (data.val && data.val.length > 0) {
                 data.val.forEach(function (item) {
                     $("<option></option>").html(item.text).appendTo($("#" + id));
                 })
@@ -662,7 +672,7 @@ function updateInfo(index, row) {
     getReadyInfoInformation(row);
     $('#UpdateInfoDlg').dialog('open').dialog('center').dialog('setTitle', '更新信息');
     $('#UpdateInfoForm').form('clear');
-    $("#UpdateInfo-year").textbox({prompt:'例如：xxxx-xx-xx'});
+    $("#UpdateInfo-year").textbox({prompt: '例如：xxxx-xx-xx'});
     var data;
     if (row.status == 1) {
         // 记录已更新, 待编辑
@@ -701,6 +711,10 @@ function editUpdateInfo() {
 function saveUpdateInfo() {
     var node = $('#workSpaceTree').tree('getSelected');
     var workName = node.text;
+
+    var productType = $("#UpdateInfo-productType").siblings().eq(1).children().eq(1).val();//类别
+    var subClassName = $("#UpdateInfo-subClassName").siblings().eq(1).children().eq(1).val(); //品名
+    var className = $("#UpdateInfo-className").siblings().eq(1).children().eq(1).val(); //品类
     var serialNumber = $("#single_serialNumber").children().find('.textbox-value').val();//实物编号
     var single_level = $("#single_level").children().find('.textbox-value').val(); //等级
     var single_peroid = $("#single_peroid").children().find('.textbox-value').val();//年代
@@ -737,6 +751,9 @@ function saveUpdateInfo() {
         type: 'post',
         url: 'updateNumberingInfo/',
         data: {
+            productType: productType,
+            subClassName: subClassName,
+            className: className,
             serialNumber: serialNumber,
             csrfmiddlewaretoken: getCookie('csrftoken'),
             level: single_level,
@@ -753,7 +770,7 @@ function saveUpdateInfo() {
             remark: single_remark,
             originalQuantity: single_originalQuantity,
             operator: $('#operator').val(), //操作员
-            workName: workName, //作业名
+            workName: workName //作业名
         }, success: function (data) {
             var data = JSON.parse(data);
             if (data.success) {

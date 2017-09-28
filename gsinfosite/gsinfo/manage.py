@@ -1211,10 +1211,8 @@ def getCloseThing(request):
 
 def closeThing(request):
     serialNumber = request.POST.get('serialNumber', '')
-    boxNumber = request.POST.get('boxNumber', '')
-
     try:
-        box = gsBox.objects.get(boxNumber=boxNumber)
+        box = gsThing.objects.get(serialNumber=serialNumber).box
         if gsThing.objects.filter(serialNumber=serialNumber,serialNumber2=None).exists():
             thing = gsThing.objects.get(serialNumber=serialNumber,serialNumber2=None)
             request_type = '4'
@@ -1478,7 +1476,8 @@ def closeCase(request):
         now = datetime.datetime.now()
         gsCase.objects.filter(caseNumber=caseNumber).update(closePerson=closePerson,
                                                             closeCheckPerson=closeCheckPerson,
-                                                            closeTime=now)
+                                                            closeTime=now,
+                                                            status=True,)
         # 向二代系统推送封盒信息
 
     except Exception as e:

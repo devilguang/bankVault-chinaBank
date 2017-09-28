@@ -64,7 +64,7 @@ function boxManage() {
         '<th field="amount" align="center" >件数</th>' +
         '<th field="oprateType" align="center">操作类型</th>' +
         '<th field="operation" formatter="boxOperationFormatter" align="center" width="65%">操作</th>' +
-        '</tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="openEntityBox()">开箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" style="display:none" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" style="display:none" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" style="display:none" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addTheJobBox()">成盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="closedCasePack()">封盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除箱</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
+        '</tr></thead></table></div></div><div id="workGridToolBarBoxManage"><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGridBoxManage\').datagrid(\'reload\')">刷新</a><a href="#" class="easyui-linkbutton" iconCls="icon-openBox" plain="true" onclick="openEntityBox()">开箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateBoxDlg()">新建箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-allot" plain="true" style="display:none" disabled="true" onclick="openAllotBoxDlg()">拆箱</a><a href="#" class="easyui-linkbutton" style="display:none" iconCls="icon-merge" plain="true" disabled="true" onclick="openMergeBoxDlg()">并箱</a><a href="#" class="easyui-linkbutton" iconCls="icon-large_chart" plain="true" disabled="true" style="display:none" onclick="openReportBoxDlg()">报表</a><a href="#" class="easyui-linkbutton" iconCls="icon-large-fd" plain="true" onclick="sealingBag()">封袋</a><a href="#" class="easyui-linkbutton" iconCls="icon-intobox" plain="true" onclick="addTheJobBox()">成盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-sealingBox" plain="true" onclick="closedCasePack()">封盒</a><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteBox()">删除箱</a></div><script type="text/javascript">function initPagination(){$(\'#workGridBoxManage\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}</script>';
     addTab(title, c, 'icon-box2');
     initPagination();
 }
@@ -245,13 +245,13 @@ function sealingBag() {
         $("#sealingBagDlg-qrCode").siblings().children().eq(0).keypress(function (event) {
             if (event.keyCode == 13) {
                 var serialNumber = $("#sealingBagDlg-qrCode").val();
-                var row = $('#workGridBoxManage').datagrid('getSelected');
+                // var row = $('#workGridBoxManage').datagrid('getSelected');
                 $.ajax({
                     type: 'post',
                     url: 'closeThing/',
                     data: {
                         serialNumber: serialNumber,
-                        boxNumber: row.boxNumber
+                        // boxNumber: row.boxNumber
                     }, success: function (data) {
                         var data = JSON.parse(data);
                         if (data.success) {
@@ -292,7 +292,7 @@ function sealingBagPrint(text,closeIdName) {
             if (data.success) {
                 $.messager.show({    // 显示成功信息
                     title: '提示',
-                    msg: '封箱成功！',
+                    msg: '封袋成功！',
                     showType: 'slide',
                     timeout: 5000
                 });
@@ -371,10 +371,8 @@ function closeAddBox() {
             caseNumber: addJobBoxDlgBoxNumber
         }, success: function (data) {
             var data = JSON.parse(data);
-
             $("#addJobBoxLeft-thingsGrid").datagrid('reload');
             $("#addJobBoxRight-thingsGrid").datagrid('reload');
-
         }
     });
     $("#addJobBoxDlg").dialog('close');
@@ -391,13 +389,24 @@ function addTheJobBox() {
         $("#addJobBoxDlg").dialog('open').dialog('center').dialog('setTitle', '成盒');
         $('#addJobBoxDlgLeftForm').form('clear');
         $('#addJobBoxDlgRightForm').form('clear');
-
         getBoxNumberDlg(row);
+        // $.ajax({
+        //     type:'post',
+        //     url:'getCloseOverThing/',
+        //     data:{
+        //         boxNumber: row.boxNumber,
+        //         rows: 20,
+        //         page:1
+        //     },success:function(data){
+        //         var data = JSON.parse(data);
+        //         console.log(data)
+        //     }
+        // });
         $("#addJobBoxLeft-thingsGrid").datagrid({
             url: 'getCloseOverThing/',
             queryParams: {boxNumber: row.boxNumber},
             columns: [[
-                {field: 'serialNumber2', title: '实物编号', align: 'center'},
+                {field: 'serialNumber2', title: '实物编号', align: 'center'}
             ]],
             pagination: true,
             fit: true,
@@ -464,9 +473,6 @@ function addJobBoxDlg() {
             $("#addJobBoxDlg-qrCode").siblings().children().eq(1).val("");
             $("#addJobBoxLeft-thingsGrid").datagrid('reload');
             $("#addJobBoxRight-thingsGrid").datagrid('reload');
-            $("#addJobBoxDlgRightForm").from('reload')
-            $("#addJobBoxDlgLeftForm").from('reload')
-
         }
     });
 }
@@ -488,7 +494,7 @@ function getBoxNumberDlg(row) {
         }, success: function (data) {
             var data = JSON.parse(data);
             var addBox_file_path = data.file_path;
-            document.getElementById("addJobBoxDlgBoxNumber").value = data.caseNumber;
+            // document.getElementById("addJobBoxDlgBoxNumber").value = data.caseNumber;
         }
     });
 }
@@ -3108,51 +3114,25 @@ function searchWork() {
         '<iframe src="search/" frameborder="0" style="width:100%;height: 100%;"></iframe>' + '</div>' +
         '<div title="高级检索" style="overflow:auto;padding:20px;display:none;">' +
         '<h2>请选择数据表:</h2>' +
-        '<select id="advancedSearch" class="easyui-combobox" name="dept" style="width:100px;">' + '<option value="1">金银锭类</option>' + '<option value="2">金银币章类</option>' + '<option value="3">银元类</option>' + '<option value="4">金银工艺品类</option>' + '</select>' +
-        '<div style="font-size:12px;margin-top: 30px">' +
-        '<ul id="selectedListArgu" style="list-style:none;">' + '<li style="margin-bottom: 20px">' + '<span>' + '<select class="easyui-combobox" name="dept"  style="width:80px;">' + '<option value="">请选择</option>' + '<option value="">OR</option>' + '<option value="">AND</option>' + '<option value="">NO</option>' + '</select>' + '</span>' +
-        '<span style="margin-left: 20px">' + '<select  class="easyui-combobox" name="dept" style="width:80px;margin-left: 90px">' + '<option value="">成色</option>' + '<option value=""></option>' + '</select>' + '</span>' +
-        '<span style="margin-left: 20px">' + '<select  class="easyui-combobox" name="dept" style="width:80px;margin-left: 30px">' + '<option value="">&le;</option>' + '<option value="">&ge;</option>' + '<option value="">=</option>' + '<option value="">></option>' + '<option value=""><</option>' + '</select>' + '</span>' +
-        '<input type="text" placeholder="" style="width: 50px;margin-left: 20px;border-color:#95b8e7;border-radius:5px">' + '<a class="btnAdd" style="margin-left:20px;cursor:pointer;background:#2984a4 ;display: inline-block;height: 20px;width:40px;line-height:20px;text-align: center;color:#ffffff;border-radius:5px;">增加+</a>' + '</li>' + '</ul>' +
+        '<select id="advancedSearch" class="easyui-combobox" name="dept" style="width:100px;" data-options="editable:false,panelHeight:\'auto\'">' + '<option value="1">金银锭类</option>' + '<option value="2">金银币章类</option>' + '<option value="3">银元类</option>' + '<option value="4">金银工艺品类</option>' + '</select>' +
+        '<div style="font-size:12px;margin-top: 15px">' +
+        '<ul id="selectedListArgu" style="list-style:none;">' + '<li style="margin-bottom: 20px">' + '<span>' + '<select class="easyui-combobox" data-options="editable:false,panelHeight:\'auto\'" name="dept"  style="width:80px;">' + '<option value="">OR</option>' + '<option value="">AND</option>' + '<option value="">NO</option>' + '</select>' + '</span>' +
+        '<span style="margin-left: 20px">' + '<select  class="easyui-combobox" name="dept" data-options="editable:false,panelHeight:\'auto\'" style="width:80px;margin-left: 90px">' + '<option value="">成色</option>' + '<option value=""></option>' + '</select>' + '</span>' +
+        '<span style="margin-left: 20px;margin-right:20px">' + '<select  class="easyui-combobox" name="dept" data-options="editable:false,panelHeight:\'auto\'" style="width:80px;margin-left: 30px">' + '<option value="">&le;</option>' + '<option value="">&ge;</option>' + '<option value="">=</option>' + '<option value="">></option>' + '<option value=""><</option>' + '</select>' + '</span>' +
+        '<input type="text" class="easyui-textbox" style="width: 70px;margin-left:20px">' + '<a href="#" class="easyui-linkbutton btnAdd" iconCls="icon-add" style="margin-left: 20px">新增</a>' + '</li>' + '</ul>' +
         '</div>' + '</div>' + '</div>' + '</div>' + '<script >$(\'.btnAdd\').click(function()' +
         '{var selectedListArgu = document.getElementById("selectedListArgu");' +
         'var li = document.createElement("li");$("<li></li>").addClass("conditionList").css("margin-bottom","20px").appendTo($("#selectedListArgu"));' +
         'for(var i = 0;i<3;i++){$("<span></span>").appendTo($(".conditionList:last-child"));};' +
-        '$("<select><option>请选择</option><option>OR</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","border-radius":"5px"}).appendTo($(".conditionList:last-child").children().eq(0));' +
-        '$("<select><option>请选择</option><option>成色</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","border-radius":"5px","margin-left":"20px"}).appendTo($(".conditionList:last-child").children().eq(1));' +
-        '$("<select><option>请选择</option><option>&le;</option><option>&ge;</option><option>=</option><option>></option><option><</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","margin-left":"20px","border-radius":"5px"}).appendTo($(".conditionList:last-child").children().eq(2));' +
+        '$("<select><option>OR</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","border-radius":"5px"}).appendTo($(".conditionList:last-child").children().eq(0));' +
+        '$("<select><option>成色</option><option>AND</option><option>NO</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","border-radius":"5px","margin-left":"20px"}).appendTo($(".conditionList:last-child").children().eq(1));' +
+        '$("<select><option>&le;</option><option>&ge;</option><option>=</option><option>></option><option><</option></select>").addClass("easyui-combobox").attr("name","dept").css({"width":"80px","border-color":"#95b8e7","outline":"none","margin-left":"20px","border-radius":"5px"}).appendTo($(".conditionList:last-child").children().eq(2));' +
         '$("<input></input>").css({"width":"50px","margin-left":"20px","border-color":"#95b8e7","outline":"none","border-radius":"5px"}).attr("type","text").appendTo($(".conditionList:last-child"));' +
         '$("<a>删除-</a>").css({"background":"lightgray","cursor":"pointer","display":"inline-block","margin-left":"20px","height":"20px","width":"40px","line-height":"20px","text-align":"center","color":"red","border-radius":"5px"}).addClass("removeListCondition").appendTo($(".conditionList:last-child"));' +
         '$("#selectedListArgu>li").on("click",".removeListCondition",function(){var index = $(this).parent().index();$(this).parent().remove()})' +
         '});' +
         '</script>';
     addTab(title, c, 'icon-archive');
-    /**
-     *$("#selectedListArgu>li").eq(index).remove()
-     *
-     *  '<a style="background:#E0ECFF;cursor:pointer;display: inline-block;margin-left: 30px;height: 20px;width:30px;line-height:20px;text-align: center;color:#95B8E7"">-</a>'
-     *   '$(function(){ $(\'#workGrid\').datagrid({ view: detailview, detailFormatter:function(index,row){ ' +
-        'return \'<div style="padding:2px"><table class="ddv"></table></div>\';}, ' +
-        'onExpandRow: function(index,row){ var ddv = $(this).datagrid(\'getRowDetail\',index).find(\'table.ddv\');' +
-        ' ddv.datagrid({url:\'getWorkData/\'+row.boxNumber, fitColumns:true, singleSelect:true, rownumbers:true, loadMsg:\'\', height:\'auto\', pagination:true, pageSize:10, queryParams:{processId:-1}, columns:[[{field:\'serialNumber\',title:\'编号\',width:100,align:\'center\'},{field:\'boxNumber\',title:\'箱号\',width:50,align:\'center\'},{field:\'className\',title:\'品名\',width:50,align:\'center\'},{field:\'subClassName\',title:\'明细品名\',width:100,align:\'center\'},{field:\'archive\',title:\'资料\',width:250,align:\'center\', formatter:workThingFormatter}]],onResize:function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},onLoadSuccess:function(){setTimeout(function(){$(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);},0);}}); ddv.datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'}); $(\'#workGrid\').datagrid(\'fixDetailRowHeight\',index);}});}); function initPagination(){$(\'#workGrid\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});}' +
-
-     // '<script>$(".btnAdd").click(function(){var selectedListArgu = document.getElementById("selectedListArgu");var li = document.createElement("li");li.innerHTML = "<span style='+'"margin-left: 20px"'+'><select name="" class="easyui-combobox" name="dept" style="width:80px;"><option value="">请选择</option><option value="">OR</option><option value="">AND</option><option value="">NO</option></select>"</span>"+"<span></span><span></span>";selectedListArgu.appendChild(li)})</script>';
-     //"<script>$(\".btnAdd\").click(function(){var selectedListArgu = document.getElementById(\"selectedListArgu\");var li = document.createElement(\"li\");li.innerHTML = \"<span style='"+"margin-left: 20px'><select name=\"\" class=\"easyui-combobox\" name=\"dept\" style=\"width:80px;\"><option value=\"\">请选择</option><option value=\"\">OR</option><option value=\"\">AND</option><option value=\"\">NO</option></select>\"</span>\"+\"<span></span><span></span>\";selectedListArgu.appendChild(li)})</script>"
-     '<div data-options="region:\'center\'">' +
-     '<table id="workGrid" class="easyui-datagrid" data-options="url:\'getWorkContent/\', border:false, rownumbers:true, fitcolumns:true, fit:true, pagination:true, pagsize:10">' +
-     '<thead>' +
-     '<tr>' +
-     '<th field="boxNumber" align="center" width="50">箱号</th>' +
-     '<th field="productType" align="center" width="150">实物类型</th>' +
-     '<th field="amount" align="center" width="150">数量</th>' +
-     '<th field="archiveUrl" align="center" formatter="workBoxFormatter" width="430">资料</th>' +
-     '</tr>' +
-     '</thead>' +
-     '</table>' +
-     '</div>' +
-     "<script>$(\".btnAdd\").click(function(){var selectedListArgu = document.getElementById(\"selectedListArgu\");var li = document.createElement(\"li\");li.innerHTML = \"<span style='+'\"margin-left: 20px\"'+'><select name=\"\" class=\"easyui-combobox\" name=\"dept\" style=\"width:80px;\"><option value=\"\">请选择</option><option value=\"\">OR</option><option value=\"\">AND</option><option value=\"\">NO</option></select>\"</span>\"+\"<span></span><span></span>\";selectedListArgu.appendChild(li)})</script>";
-     */
-    // initPagination();
 }
 
 function workBoxFormatter(value, row, index) {

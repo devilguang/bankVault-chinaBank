@@ -51,6 +51,9 @@ def getNumberingInfo(request):
 def updateNumberingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
     workName = request.POST.get('workName', '')
+    productType= request.POST.get('productType', '')
+    subClassName= request.POST.get('subClassName', '')
+    className= request.POST.get('className', '')
     # -----------------------------------------------
     level = request.POST.get('level', None)
     detailedName = request.POST.get('detailedName', None)
@@ -79,16 +82,14 @@ def updateNumberingInfo(request):
 
     try:
         log.log(user=request.user, operationType=u'业务操作', content=u'实物外观信息更新')
-        if detailedName:
+        if subClassName == '国内银元' and level and detailedName:
             prop = gsProperty.objects.filter(type=detailedName)
             if prop.exists():
                 code = gsProperty.objects.get(type=detailedName).code
-                ret['success'] = True
-                ret['message'] = serialNumber + u'实物信息更新成功！'
             else:
                 raise ValueError, u'名称填写错误！'
         else:
-            code = None
+            code = detailedName
         thing_set.update(level=level,
                          detailedName=code,
                          peroid=peroid,

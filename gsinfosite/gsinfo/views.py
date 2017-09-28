@@ -178,6 +178,8 @@ def getAllUser(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
+
+
 # 从所有用户中找出非sysadmin得用户
 # --------------------------------------------------------------------------
 def getWorkData(request, workSeq):
@@ -204,7 +206,7 @@ def getWorkData(request, workSeq):
         elif 4 == processId:  # 测量称重环节
             status_set = gsStatus.objects.filter(thing__in=thing_set, measuringStatus=status)
         elif 5 == processId:  # 实物认定环节
-            status_set = gsStatus.objects.filter(thing__in=thing_set, checkingStatus=status,numberingStatus=True)
+            status_set = gsStatus.objects.filter(thing__in=thing_set, checkingStatus=status, numberingStatus=True)
         elif 6 == processId:  # 图像采集环节
             status_set = gsStatus.objects.filter(thing__in=thing_set, photographingStatus=status)
     else:
@@ -215,7 +217,7 @@ def getWorkData(request, workSeq):
         elif 4 == processId:  # 测量称重环节
             status_set = gsStatus.objects.filter(thing__in=thing_set)
         elif 5 == processId:  # 实物认定环节
-            status_set = gsStatus.objects.filter(thing__in=thing_set,numberingStatus=True)
+            status_set = gsStatus.objects.filter(thing__in=thing_set, numberingStatus=True)
         elif 6 == processId:  # 图像采集环节
             status_set = gsStatus.objects.filter(thing__in=thing_set)
 
@@ -224,7 +226,7 @@ def getWorkData(request, workSeq):
     parentType = prop.parentType
     grandpaType = prop.grandpaType
 
-    wareHouse = gsProperty.objects.get(project='发行库',code=box.wareHouse).type
+    wareHouse = gsProperty.objects.get(project='发行库', code=box.wareHouse).type
 
     n = status_set.count()
     start = (page - 1) * pageSize
@@ -233,7 +235,6 @@ def getWorkData(request, workSeq):
     ret = {}
     ret['total'] = n
     ret['rows'] = []
-
 
     for status in status_set[start:end]:
         r = {}
@@ -271,6 +272,7 @@ def getWorkData(request, workSeq):
     ret_json = json.dumps(ret, separators=(',', ':'), cls=DjangoJSONEncoder, default=dateTimeHandler)
 
     return HttpResponse(ret_json)
+
 
 def getThingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
@@ -310,7 +312,8 @@ def getThingInfo(request):
             detailedName = thing.detailedName
             if name and detailedName:
                 ret['detailedName'] = gsProperty.objects.get(project=name, code=detailedName).type
-
+        else:
+            ret['detailedName'] = thing.detailedName
         ret['peroid'] = thing.peroid
         ret['year'] = thing.year
         ret['country'] = thing.country
@@ -327,6 +330,8 @@ def getThingInfo(request):
         pass
     ret_json = json.dumps(ret)
     return HttpResponse(ret_json)
+
+
 # --------------------------------------------------------------------------
 def getWorkSpaceContent(request):
     work_set = gsWork.objects.filter(status=1)
@@ -338,7 +343,7 @@ def getWorkSpaceContent(request):
         if grandpaType:
             productType = grandpaType
         else:
-            productType=parentType
+            productType = parentType
         r = {}
         t = None
         for t in ret:
@@ -363,6 +368,8 @@ def getWorkSpaceContent(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
+
+
 # --------------------------------------------------------------------------
 def searchThingInfo(request):
     serialNumber = request.POST.get('serialNumber', '')
@@ -379,25 +386,30 @@ def searchThingInfo(request):
         if (2 == processId):
             # 外观信息采集环节
             thingStatus = status.numberingStatus
-            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,numberingStatus=thingStatus).values_list('thing',flat=True)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set, numberingStatus=thingStatus).values_list('thing',
+                                                                                                               flat=True)
         if (3 == processId):
             # 频谱分析环节
             thingStatus = status.analyzingStatus
-            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,analyzingStatus=thingStatus).values_list('thing',flat=True)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set, analyzingStatus=thingStatus).values_list('thing',
+                                                                                                               flat=True)
         elif (4 == processId):
             # 测量称重环节
             thingStatus = status.measuringStatus
-            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,measuringStatus=thingStatus).values_list('thing',flat=True)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set, measuringStatus=thingStatus).values_list('thing',
+                                                                                                               flat=True)
         elif (5 == processId):
             # 实物认定环节
             thingStatus = status.checkingStatus
-            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,checkingStatus=thingStatus).values_list('thing',flat=True)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set, checkingStatus=thingStatus).values_list('thing',
+                                                                                                              flat=True)
         elif (6 == processId):
             # 图像采集环节
             thingStatus = status.photographingStatus
-            thing_set2 = gsStatus.objects.filter(thing__in=thing_set,photographingStatus=thingStatus).values_list('thing',flat=True)
+            thing_set2 = gsStatus.objects.filter(thing__in=thing_set, photographingStatus=thingStatus).values_list(
+                'thing', flat=True)
 
-        specialSerialNumberList = gsThing.objects.filter(id__in=thing_set2).values_list('serialNumber',flat=True)
+        specialSerialNumberList = gsThing.objects.filter(id__in=thing_set2).values_list('serialNumber', flat=True)
         serialNumberList = list(specialSerialNumberList)
         n = len(serialNumberList)
 
@@ -425,6 +437,8 @@ def searchThingInfo(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
+
+
 # --------------------------------------------------------------------------
 def getWareHouse(request):
     types = gsProperty.objects.filter(project='发行库')
@@ -437,6 +451,8 @@ def getWareHouse(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
 
     return HttpResponse(ret_json)
+
+
 # --------------------------------------------------------------------------
 def exploreThing(request, boxNumber, serialNumber):
     isVerify = request.GET.get('isVerify', '')
@@ -446,7 +462,7 @@ def exploreThing(request, boxNumber, serialNumber):
         isVerify = True
     box = gsBox.objects.get(boxNumber=boxNumber)
     thing = gsThing.objects.get(serialNumber=serialNumber)
-    work =thing.work
+    work = thing.work
 
     prop = box.boxType
     type = prop.type
@@ -460,7 +476,7 @@ def exploreThing(request, boxNumber, serialNumber):
     wareHouse = gsProperty.objects.get(project='发行库', code=wareHouseCode)
     context['wareHouse'] = wareHouse.type
     if grandpaType:
-        productType =grandpaType
+        productType = grandpaType
         className = parentType
         subClassName = type
     else:
@@ -485,7 +501,7 @@ def exploreThing(request, boxNumber, serialNumber):
     context['lastUpdateDate'] = dateTimeHandler(lastUpdateDate) if (lastUpdateDate is not None) else ''
 
     # 图像路径
-    picturePathPrefix = u'/static/photo/{0}/{1}/{2}'.format(boxNumber, serialNumber,serialNumber)
+    picturePathPrefix = u'/static/photo/{0}/{1}/{2}'.format(boxNumber, serialNumber, serialNumber)
     context['A'] = u'{0}-A.jpg'.format(picturePathPrefix)
     context['B'] = u'{0}-B.jpg'.format(picturePathPrefix)
     context['C'] = u'{0}-C.jpg'.format(picturePathPrefix)
@@ -495,7 +511,7 @@ def exploreThing(request, boxNumber, serialNumber):
     shapeList = ['工']
     zhangTypeList = ['章']
     yinyuanList = ['国内银元']
-    dairongList = ['-','']
+    dairongList = ['-', '']
 
     subClassName = context['subClassName']
     level = thing.level
@@ -503,11 +519,11 @@ def exploreThing(request, boxNumber, serialNumber):
         context['level'] = gsProperty.objects.get(project='等级', code=level).type
     peroid = thing.peroid
     if peroid:
-        context['peroid'] = gsProperty.objects.get(project='年代',code=peroid).type
+        context['peroid'] = gsProperty.objects.get(project='年代', code=peroid).type
     context['year'] = thing.year
     country = thing.country
     if country:
-        context['country'] = gsProperty.objects.get(project='国别',code=country).type
+        context['country'] = gsProperty.objects.get(project='国别', code=country).type
     context['originalQuantity'] = thing.originalQuantity if thing.originalQuantity else ''
     context['detectedQuantity'] = thing.detectedQuantity if thing.detectedQuantity else ''
     context['mark'] = thing.mark if thing.mark else ''
@@ -515,7 +531,8 @@ def exploreThing(request, boxNumber, serialNumber):
     context['width'] = thing.width if thing.width else ''
     context['height'] = thing.height if thing.height else ''
     context['grossWeight'] = thing.grossWeight if thing.grossWeight else ''
-    context['pureWeight'] = float('%0.2f' % ((thing.detectedQuantity * thing.grossWeight) / 100)) if thing.detectedQuantity and thing.grossWeight else ''
+    context['pureWeight'] = float('%0.2f' % (
+    (thing.detectedQuantity * thing.grossWeight) / 100)) if thing.detectedQuantity and thing.grossWeight else ''
     context['productType'] = productType
     context['className'] = className
     context['subClassName'] = subClassName
@@ -523,9 +540,7 @@ def exploreThing(request, boxNumber, serialNumber):
     appearance = thing.appearance
     if appearance:
         context['appearance'] = gsProperty.objects.get(project='品相', code=appearance).type
-    context['remark'] =thing.remark if thing.remark else ''
-
-
+    context['remark'] = thing.remark if thing.remark else ''
 
     if subClassName:
         if subClassName in faceAmountList:
@@ -585,7 +600,6 @@ def exploreThing(request, boxNumber, serialNumber):
     else:
         pass
 
-
     serialNumberSet = gsThing.objects.filter(work=work).values_list('serialNumber', flat=True)
     serialNumberList = list(serialNumberSet)
 
@@ -616,6 +630,8 @@ def exploreThing(request, boxNumber, serialNumber):
     context['isVerify'] = isVerify
     context['operator'] = operator
     return render(request, html, context=context)
+
+
 # --------------------------------------------------------------------------
 def getProductType(request):
     types = gsProperty.objects.filter(project='类别')
@@ -630,6 +646,7 @@ def getProductType(request):
 
     return HttpResponse(ret_json)
 
+
 def getClassName(request, code):
     classNames = gsProperty.objects.filter(project='品种', parentCode=code)
     ret = []
@@ -642,11 +659,12 @@ def getClassName(request, code):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
+
 def getSubClassName(request, code):
     codes = code.split('&')
     typeCode = codes[0]
     classNameCode = codes[1]
-    subClassNames = gsProperty.objects.filter(project='品名', parentCode=classNameCode,grandpaCode=typeCode)
+    subClassNames = gsProperty.objects.filter(project='品名', parentCode=classNameCode, grandpaCode=typeCode)
     ret = []
     if subClassNames:
         for s in subClassNames:
@@ -662,6 +680,7 @@ def getSubClassName(request, code):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
+
 def getOprateType(request):
     oprateType_qs = gsProperty.objects.filter(project='实物类型')
     ret = []
@@ -672,7 +691,6 @@ def getOprateType(request):
         ret.append(r)
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
-
 
 
 class GeneralSearch(SearchView):
@@ -689,6 +707,7 @@ class GeneralSearch(SearchView):
     #     context = super(GeneralSearch, self).get_context_data(*args, **kwargs)
     #     # do something
     #     return context
+
 
 # def search(request):
 #     form = advanceSearch(request.GET)
@@ -723,7 +742,7 @@ def getTools(request):
         return HttpResponse(ret_json)
     elif request.method == 'GET':
         fileName = request.GET.get('fileName', '')
-        file_path = os.path.join(settings.TOOLS_DATA_PATH,fileName)
+        file_path = os.path.join(settings.TOOLS_DATA_PATH, fileName)
         response = StreamingHttpResponse(readFile(file_path))
         response['Content-Type'] = 'application/octet-stream'
         response['Content-Disposition'] = 'attachment;filename={0}'.format(fileName)
@@ -734,9 +753,9 @@ def getTools(request):
 def checkInfo(request):
     value = request.POST.get('value', '')
 
-    ret ={}
+    ret = {}
 
-    things = gsThing.objects.values_list('mark',flat=True)
+    things = gsThing.objects.values_list('mark', flat=True)
 
     historyInfo = {}
     for thing in things:
@@ -744,7 +763,7 @@ def checkInfo(request):
         if value in thing:
             historyInfo[thing] = historyInfo.get(thing, 0) + 1
 
-    sortedClassCount = sorted(historyInfo.items(), key=operator.itemgetter(1),reverse=True)
+    sortedClassCount = sorted(historyInfo.items(), key=operator.itemgetter(1), reverse=True)
     sort_len = len(sortedClassCount)
     if sortedClassCount:
         ret['success'] = True
@@ -765,7 +784,8 @@ def checkInfo(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
-def parse(data,name):
+
+def parse(data, name):
     detail = {}
     detail['name'] = name
     detail['val'] = []
@@ -778,6 +798,7 @@ def parse(data,name):
         detail['val'].append(sub)
     return detail
 
+
 def getReadyInfo(request):
     productType = request.POST.get('productType', '')
     field = request.POST.get('field', '')
@@ -788,7 +809,7 @@ def getReadyInfo(request):
 
     if '等级' in field_list:
         data = name = '等级'
-        detail = parse(data,name)
+        detail = parse(data, name)
         ret.append(detail)
     if '年代' in field_list:
         data = name = '年代'
@@ -808,7 +829,7 @@ def getReadyInfo(request):
         detail = parse(data, name)
         ret.append(detail)
     if '器型' in field_list:
-        data ='工艺品类器型'
+        data = '工艺品类器型'
         name = '器型'
         detail = parse(data, name)
         ret.append(detail)
@@ -835,6 +856,7 @@ def getReadyInfo(request):
     ret_json = json.dumps(ret, separators=(',', ':'))
     return HttpResponse(ret_json)
 
+
 def getDetailName(request):
     productType = request.POST.get('productType', '')
     className = request.POST.get('className', '')
@@ -855,7 +877,7 @@ def getDetailName(request):
                 data = '国内普制银元名称'
             ret = parse(data, name)
         else:
-            ret ={}
+            ret = {}
     except Exception as e:
         ret = {}
     ret_json = json.dumps(ret, separators=(',', ':'))

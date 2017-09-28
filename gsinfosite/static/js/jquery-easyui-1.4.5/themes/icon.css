@@ -160,3 +160,12 @@
 .icon-brief{
 	background:url('icons/brief-.png') no-repeat center center;
 }
+.icon-sealingBox{
+	background:url('icons/sealingbox.png') no-repeat center center;
+}
+.icon-openBox{
+	background:url('icons/openBox.png') no-repeat center center;
+}
+.icon-intobox{
+	background:url('icons/intobox.png') no-repeat center center;
+}

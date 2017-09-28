@@ -629,7 +629,7 @@
         <input type="hidden" id="putBoxValidate-boxNumber"/>
         <table width="260px">
             <tr>
-                <th >封箱人：</th>
+                <th>封箱人：</th>
                 <td><input id="closeBoxPeople" value=""/></td>
             </tr>
             <tr>
@@ -819,7 +819,7 @@
      data-options="closed:true, buttons:'#sealingBagDlgDlgButtons', modal:true">
     {#    <div class="FormTitle">实物信息</div>#}
     <div class="search" style="margin-bottom: 10px;">
-        <label for="serialNumber">实物编号</label>
+        <label for="serialNumber">流水号</label>
         <a href="javascript:void(0)"><input id="sealingBagDlg-qrCode" class="easyui-textbox"
                                             data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
     </div>
@@ -1070,22 +1070,19 @@
        onclick="javascript:$('#finalSummaryDlg').dialog('close')" style="width:90px">取消</a>
 </div>
 
-{#添加盒的对话框#}
+{#成盒的对话框#}
 <div id="addJobBoxDlg" class="easyui-dialog" style="width:700px;height:550px;padding:10px 20px"
      data-options="closed:true, buttons:'#addJobBoxDlgButtons', modal:true">
     {#    <div class="FormTitle">作业信息</div>#}
     <div style="display: flex;justify-content: space-between">
         <div id="addJobBoxDlgwrap" style="width:49%">
             <form id="addJobBoxDlgLeftForm" method="POST" novalidate style="width: 300px;">
-                <div class="search" style="margin-bottom: 10px;margin-right:55px ">
-                    <label for="serialNumber">实物编号</label>
-                    <a href="javascript:void(0)"><input id="addJobBoxDlg-qrCode" class="easyui-textbox"
-                                                        data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
-                </div>
                 <table style="width: 300px;margin-top: 10px">
                     <tr height="410px;">
                         <td colspan="2" style="width: 300px;">
-                            <table id="addJobBoxLeft-thingsGrid" style="width: 300px;"></table>
+                            <table id="addJobBoxLeft-thingsGrid" style="width: 300px;">
+
+                            </table>
                         </td>
                     </tr>
                 </table>
@@ -1093,10 +1090,10 @@
         </div>
         <div style="width:49%;">
             <form id="addJobBoxDlgRightForm" method="POST" novalidate style="width: 300px;">
-                <div class="search" id="search_addJobBox" style="margin-bottom: 10px;margin-right:55px ">
-                    <label for="serialNumber">盒号</label>
-                    <a href="javascript:void(0)"><input id="addJobBoxDlgBoxNumber" disabled="disabled"
-                                                        style="height: 26px;border:1px solid #95b8e7;border-radius: 5px;width: 174px;"/></a>
+                <div class="search" style="margin-bottom: 10px;margin-right:55px ">
+                    <label for="serialNumber">实物编号</label>
+                    <a href="javascript:void(0)"><input id="addJobBoxDlg-qrCode" class="easyui-textbox"
+                                                        data-options="height:28, prompt:'请使用扫描枪扫描二维码'"/></a>
                 </div>
                 <table style="width: 300px;margin-top: 10px">
                     <tr height="410px;">
@@ -1131,7 +1128,7 @@
 <div id="addJobBoxDlgButtons">
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok"
        style="width:90px" onclick="authenticationAgain()">确定</a>
-     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-reload"
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-reload"
        style="width:90px" onclick="closeAddBox()">重置</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
        onclick="javascript:$('#addJobBoxDlg').dialog('close')" style="width:90px">取消</a>

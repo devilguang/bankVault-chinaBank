@@ -106,7 +106,7 @@ function treeSelectHandler(node) {
     var workSeq = node.attributes.workSeq;
     var boxNumber = node.attributes.boxNumber;
     //<a href="#" class="easyui-linkbutton"  plain="true" onclick="javascript:batchUpdateInfo(' + id + ')">同类信息缺省设置</a>
-    var c = '<table id="workGrid' + id + '" class="easyui-datagrid" data-options="url:\'getWorkData/' + workSeq + '\', queryParams:{processId: $(\'#processId\').val(), boxNumber: \'' + boxNumber + '\', subBoxNumber: \'' + subBoxNumber + '\', thingStatus: \'notComplete\'}, toolbar:\'#workGridToolBar' + id + '\', singleSelect:true, fitColumns:true, loaded:false, rownumbers:true, loadMsg:\'' + title + '作业数据正在载入，请稍后...\', onDblClickRow:dbClickRow, pagination:true, fit:true, pageSize:20,"><thead><tr><th field="boxNumber" align="center">箱号</th><th field="serialNumber" align="center">实物编号</th><th field="productType" align="center">类别</th><th field="className" align="center">品名</th><th field="subClassName" align="center">品名</th><th field="wareHouse" align="center">发行库</th><th field="status" formatter="statusFormatter" align="center">是否已更新</th><th field="operator" formatter="operatorFormatter" align="center">操作员</th><th field="lastUpdateTime" formatter="lastUpdateTimeFormatter" align="center">最新一次更新时间</th></tr></thead></table><div id="workGridToolBar' + id + '"><label for="workGrid' + id + 'StatusCombobox" style="margin-left:5px;margin-right:5px;">状态</label><input id="workGrid' + id + 'StatusCombobox" style="margin-right:20px;padding-top:5px;" /><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGrid' + id + '\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function dbClickRow(index, row){/*$.messager.alert(\'提示\', \'select\'+index);*/ updateInfo(index, row); } function initPagination(){$(\'#workGrid' + id + '\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});} function initToolbar(){ $(\'#workGrid' + id + 'StatusCombobox\').combobox({valueField: \'id\', textField: \'text\', editable: false, data: [{id: \'notComplete\', text: \'未完成\'}, {id: \'all\', text: \'全部\'}, {id: \'complete\', text: \'已完成\'}, ], panelHeight: \'auto\', \'onSelect\':function(record){ $(\'#workGrid' + id + '\').datagrid(\'options\').queryParams[\'thingStatus\'] = record.id; $(\'#workGrid' + id + '\').datagrid(\'reload\'); },}).combobox(\'setValue\', \'notComplete\'); }</script>';
+    var c = '<table id="workGrid' + id + '" class="easyui-datagrid" data-options="url:\'getWorkData/' + workSeq + '\', queryParams:{processId: $(\'#processId\').val(), boxNumber: \'' + boxNumber + '\', subBoxNumber: \'' + subBoxNumber + '\', thingStatus: \'notComplete\'}, toolbar:\'#workGridToolBar' + id + '\', singleSelect:true, fitColumns:true, loaded:false, rownumbers:true, loadMsg:\'' + title + '作业数据正在载入，请稍后...\', onDblClickRow:dbClickRow, pagination:true, fit:true, pageSize:20,"><thead><tr><th field="boxNumber" align="center">箱号</th><th field="serialNumber" align="center">流水号</th><th field="productType" align="center">类别</th><th field="className" align="center">品名</th><th field="subClassName" align="center">品名</th><th field="wareHouse" align="center">发行库</th><th field="status" formatter="statusFormatter" align="center">是否已更新</th><th field="operator" formatter="operatorFormatter" align="center">操作员</th><th field="lastUpdateTime" formatter="lastUpdateTimeFormatter" align="center">最新一次更新时间</th></tr></thead></table><div id="workGridToolBar' + id + '"><label for="workGrid' + id + 'StatusCombobox" style="margin-left:5px;margin-right:5px;">状态</label><input id="workGrid' + id + 'StatusCombobox" style="margin-right:20px;padding-top:5px;" /><a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="javascript:$(\'#workGrid' + id + '\').datagrid(\'reload\')">刷新</a></div><script type="text/javascript">function dbClickRow(index, row){/*$.messager.alert(\'提示\', \'select\'+index);*/ updateInfo(index, row); } function initPagination(){$(\'#workGrid' + id + '\').datagrid(\'getPager\').pagination({layout:[\'prev\', \'sep\', \'links\', \'sep\', \'next\'], displayMsg:\'当前显示第 {from} 条到第 {to} 条记录 共 {total} 条记录\'});} function initToolbar(){ $(\'#workGrid' + id + 'StatusCombobox\').combobox({valueField: \'id\', textField: \'text\', editable: false, data: [{id: \'notComplete\', text: \'未完成\'}, {id: \'all\', text: \'全部\'}, {id: \'complete\', text: \'已完成\'}, ], panelHeight: \'auto\', \'onSelect\':function(record){ $(\'#workGrid' + id + '\').datagrid(\'options\').queryParams[\'thingStatus\'] = record.id; $(\'#workGrid' + id + '\').datagrid(\'reload\'); },}).combobox(\'setValue\', \'notComplete\'); }</script>';
     addTab(id, title, c);
     initPagination();
     initToolbar();
@@ -251,7 +251,7 @@ function saveBatchUpdateInfo() {
 
 function initUpdateInfoDlg(row) {
     var subClassName = row.subClassName;
-    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元','外国银元'];
+    var subArr = ['币', '元', '辅', '钱', '外元', '减元', '色元', '国内银元', '外国银元'];
     var dianArr = ['锭'];
     var gong = ['工'];
     var zhang = ['章'];
@@ -498,6 +498,9 @@ function editUpdateInfo() {
 function saveUpdateInfo() {
     var node = $('#workSpaceTree').tree('getSelected');
     var workName = node.text;
+    var productType = $("#UpdateInfo-productType").siblings().eq(1).children().eq(1).val();//类别
+    var subClassName = $("#UpdateInfo-subClassName").siblings().eq(1).children().eq(1).val(); //品名
+    var className = $("#UpdateInfo-className").siblings().eq(1).children().eq(1).val(); //品类
     var serialNumber = $("#single_serialNumber").children().find('.textbox-value').val();//实物编号
     var single_level = $("#single_level").children().find('.textbox-value').val(); //等级
     var single_peroid = $("#single_peroid").children().find('.textbox-value').val();//年代
@@ -534,6 +537,9 @@ function saveUpdateInfo() {
         type: 'post',
         url: 'updateCheckingInfo/',
         data: {
+            productType: productType,
+            subClassName: subClassName,
+            className: className,
             serialNumber: serialNumber,
             csrfmiddlewaretoken: getCookie('csrftoken'),
             level: single_level,
